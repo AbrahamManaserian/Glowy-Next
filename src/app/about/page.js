@@ -2,8 +2,6 @@ import { db } from '@/firebase';
 import { collection, getDocs, limit, orderBy, query } from 'firebase/firestore';
 
 export default async function Page() {
-  // const data = await fetch('https://api.vercel.app/blog')
-  // const posts = await data.json()
   const obj = {};
   const q = query(collection(db, 'orders'), orderBy('creationDate', 'desc'), limit(30));
   const querySnapshot = await getDocs(q);
