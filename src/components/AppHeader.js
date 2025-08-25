@@ -5,11 +5,16 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import ShareSharpIcon from '@mui/icons-material/ShareSharp';
 import { useState } from 'react';
+import useGetWindowDimensions from '@/hooks/useGetWindowSize';
+import { ViberIcon } from './icons';
 
 export default function AppHeader() {
-  const [showMore, setShowMore] = useState(true);
+  const [showMore, setShowMore] = useState(false);
+  const windowDimensions = useGetWindowDimensions();
+  console.log(windowDimensions.width);
   return (
     <Grid
       container
@@ -21,7 +26,7 @@ export default function AppHeader() {
         bgcolor: '#2B3445',
         minHeight: '40px',
         alignItems: 'center',
-        px: '20px',
+        px: windowDimensions.width < 700 ? '10px' : '25px',
       }}
     >
       <Grid
@@ -63,10 +68,18 @@ export default function AppHeader() {
         </Typography>
       </Grid>
       <IconButton
-        sx={{ transition: 'all 1s', display: { sm: 'block', md: 'none' }, p: 0 }}
+        sx={{ transition: 'all 1s', display: windowDimensions.width < 700 ? 'block' : 'none', p: 0 }}
         onClick={() => setShowMore(!showMore)}
       >
-        <ExpandMoreIcon
+        <ShareSharpIcon
+          sx={{
+            color: 'white',
+            fontSize: 19,
+            transition: 'transform 0.3s ease',
+            transform: showMore ? 'rotate(90deg)' : 'rotate(0deg)',
+          }}
+        />
+        {/* <ExpandMoreIcon
           sx={{
             color: 'white',
             fontSize: 20,
@@ -74,9 +87,13 @@ export default function AppHeader() {
             transform: showMore ? 'rotate(180deg)' : 'rotate(0deg)',
             // flexGrow: 10,
           }}
-        />
+        /> */}
       </IconButton>
-      <Collapse in={showMore} timeout={300}>
+      <Collapse
+        sx={{ width: windowDimensions.width < 700 ? '100%' : 'block' }}
+        in={showMore || windowDimensions.width >= 700}
+        timeout={300}
+      >
         <Grid
           container
           sx={{
@@ -84,20 +101,60 @@ export default function AppHeader() {
             minHeight: '40px',
           }}
         >
-          <PhoneIphoneIcon sx={{ color: 'white', fontSize: '20px' }} />
-          <Typography
-            sx={{
-              fontSize: '13px',
-              color: '#fff',
-              fontWeight: 100, // ✅ use 400 (guaranteed Roboto weight)
-              letterSpacing: '1px',
-              mx: '10px',
-            }}
+          <a
+            style={{ padding: 0, height: '20px', textDecoration: 'none', margin: '0 5px' }}
+            target="_blank"
+            href="viber://chat/?number=37455775311"
           >
-            +37477055777
-          </Typography>
-          <FacebookIcon sx={{ color: 'white', fontSize: '20px', mx: '10px' }} />
-          <InstagramIcon sx={{ color: 'white', fontSize: '20px' }} />
+            <ViberIcon />
+          </a>
+          <a
+            style={{ padding: 0, height: '20px', textDecoration: 'none', margin: '0 5px' }}
+            target="_blank"
+            aria-label="Chat on WhatsApp"
+            href="https://wa.me/37455775311"
+          >
+            <WhatsAppIcon sx={{ color: 'white', fontSize: '19px', bgcolor: 'green', borderRadius: '7px' }} />
+          </a>
+          <PhoneIphoneIcon sx={{ color: 'white', fontSize: '18px' }} />
+
+          <a
+            style={{ padding: 0, height: '20px', textDecoration: 'none', margin: '0 2px' }}
+            href="tel:+37455775311"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Typography
+              sx={{
+                fontSize: '13px',
+                color: '#fff',
+                fontWeight: 100, // ✅ use 400 (guaranteed Roboto weight)
+                letterSpacing: '1px',
+
+                // mx: '10px',
+              }}
+            >
+              +37455775311
+            </Typography>
+          </a>
+          <a
+            style={{ padding: 0, height: '20px', margin: '0 10px' }}
+            href="https://www.facebook.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FacebookIcon sx={{ color: 'white', fontSize: '19px' }} />
+          </a>
+          <a
+            style={{ padding: 0, height: '20px' }}
+            href="https://www.instagram.com/glowy__cosmetic/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <InstagramIcon sx={{ color: 'white', fontSize: '19px' }} />
+          </a>
+
+          {/* <InstagramIcon sx={{ fontSize: 20, color: 'white' }} /> */}
         </Grid>
       </Collapse>
     </Grid>
