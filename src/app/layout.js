@@ -6,6 +6,10 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import AppHeader from '@/components/AppHeader';
+import AppBarMenu from '@/components/AppBarMenu';
+import ThemeRegistry from '@/components/ThemeRegistry';
+
+
 
 
 export const metadata = {
@@ -19,10 +23,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
+      <body style={{ position: 'relative' }}>
         <AppRouterCacheProvider>
-          <AppHeader />
-          {children}
+          <ThemeRegistry>
+            <AppHeader />
+            <AppBarMenu />
+            {children}
+          </ThemeRegistry>
         </AppRouterCacheProvider>
       </body>
     </html>

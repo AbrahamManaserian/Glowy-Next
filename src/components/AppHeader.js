@@ -11,18 +11,48 @@ import { useState } from 'react';
 import useGetWindowDimensions from '@/hooks/useGetWindowSize';
 import { ViberIcon } from './icons';
 
+const hotBoxStyle = {
+  height: '24px',
+  borderRadius: '16px',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  bgcolor: '#D23F57',
+  color: 'white',
+  fontSize: '0.8125rem',
+  fontFamily: 'Roboto, sans-serif', // ✅ make sure fallback is same
+  px: '12px',
+  fontWeight: 400,
+  letterSpacing: '1px',
+  mr: '10px',
+};
+
 export default function AppHeader() {
   const [showMore, setShowMore] = useState(false);
   const windowDimensions = useGetWindowDimensions();
-  console.log(windowDimensions.width);
+  console.log(windowDimensions);
+  if (!windowDimensions)
+    return (
+      <Grid
+        container
+        justifyContent="space-between"
+        xs={12}
+        sx={{
+          bgcolor: '#2B3445',
+          minHeight: '40px',
+          alignItems: 'center',
+          minHeight: '40px',
+          px: '15px',
+        }}
+      ></Grid>
+    );
+
   return (
     <Grid
       container
       justifyContent="space-between"
-      xs={12} // ✅ use xs instead of size
+      xs={12}
       sx={{
-        position: 'sticky',
-        top: 0,
         bgcolor: '#2B3445',
         minHeight: '40px',
         alignItems: 'center',
@@ -37,30 +67,12 @@ export default function AppHeader() {
           minHeight: '40px',
         }}
       >
-        <Box
-          sx={{
-            height: '24px',
-            borderRadius: '16px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            bgcolor: '#D23F57',
-            color: 'white',
-            fontSize: '0.8125rem',
-            fontFamily: 'Roboto, sans-serif', // ✅ make sure fallback is same
-            px: '12px',
-            fontWeight: 400,
-            letterSpacing: '1px',
-            mr: '10px',
-          }}
-        >
-          HOT
-        </Box>
+        <Box sx={hotBoxStyle}>HOT</Box>
         <Typography
           sx={{
             fontSize: '11px',
             color: '#fff',
-            fontWeight: 100, // ✅ use 400 (guaranteed Roboto weight)
+            fontWeight: 100,
             letterSpacing: '1px',
           }}
         >
@@ -79,15 +91,6 @@ export default function AppHeader() {
             transform: showMore ? 'rotate(90deg)' : 'rotate(0deg)',
           }}
         />
-        {/* <ExpandMoreIcon
-          sx={{
-            color: 'white',
-            fontSize: 20,
-            transition: 'transform 0.3s ease',
-            transform: showMore ? 'rotate(180deg)' : 'rotate(0deg)',
-            // flexGrow: 10,
-          }}
-        /> */}
       </IconButton>
       <Collapse
         sx={{ width: windowDimensions.width < 700 ? '100%' : 'block' }}
@@ -153,8 +156,6 @@ export default function AppHeader() {
           >
             <InstagramIcon sx={{ color: 'white', fontSize: '19px' }} />
           </a>
-
-          {/* <InstagramIcon sx={{ fontSize: 20, color: 'white' }} /> */}
         </Grid>
       </Collapse>
     </Grid>

@@ -8,10 +8,7 @@ function getWindowDimensions() {
 }
 
 export default function useGetWindowDimensions() {
-  const [windowDimensions, setWindowDimensions] = useState({
-    width: 0,
-    height: 0,
-  });
+  const [windowDimensions, setWindowDimensions] = useState();
 
   useEffect(() => {
     // run only on client
