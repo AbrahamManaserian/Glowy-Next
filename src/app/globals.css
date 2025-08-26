@@ -4,6 +4,22 @@ html, body {
   box-sizing: border-box;
 }
 
+.bar-link{
+padding: 10px;  
+font-family: roboto;
+color: #505254;
+text-decoration: none;
+letter-spacing: 1px;
+font-size: 14px;
+transition: all 0.3s;
+border-radius: 5px;
+
+}
+
+.bar-link:hover{
+  color: #f44336;
+  background-color:rgba(243, 246, 247, 0.651);
+}
 
 /* :root {
   --background: #ffffff;

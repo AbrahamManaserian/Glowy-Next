@@ -30,23 +30,8 @@ const hotBoxStyle = {
 export default function AppHeader() {
   const [showMore, setShowMore] = useState(false);
   const windowDimensions = useGetWindowDimensions();
-  console.log(windowDimensions);
-  if (!windowDimensions)
-    return (
-      <Grid
-        container
-        justifyContent="space-between"
-        xs={12}
-        sx={{
-          bgcolor: '#2B3445',
-          minHeight: '40px',
-          alignItems: 'center',
-          minHeight: '40px',
-          px: '15px',
-        }}
-      ></Grid>
-    );
-
+  if (!windowDimensions) return null;
+  // console.log(windowDimensions.width);
   return (
     <Grid
       container
