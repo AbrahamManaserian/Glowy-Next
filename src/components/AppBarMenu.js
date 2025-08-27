@@ -1,7 +1,7 @@
 'use client';
 
-import { Badge, Drawer, Grid, Typography } from '@mui/material';
-import { FavoriteIcon, ShoppingBasketIcon, UserAvatar } from './icons';
+import { Badge, Collapse, Drawer, Grid, Typography } from '@mui/material';
+import { FavoriteIcon, SearchIcon, ShoppingBasketIcon, UserAvatar } from './icons';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
@@ -71,7 +71,7 @@ function DrawerMenu() {
   };
   return (
     <>
-      <MenuIcon sx={{ display: { xs: 'block', sm: 'none' } }} onClick={toggleDrawer(true)} />
+      <MenuIcon sx={{ display: { xs: 'block', sm: 'none' }, mr: '9px' }} onClick={toggleDrawer(true)} />
 
       <Drawer
         sx={{ '& .MuiDrawer-paper': { width: '100%', p: '10px' } }}
@@ -86,6 +86,7 @@ function DrawerMenu() {
 }
 
 export default function AppBarMenu() {
+  const [openSearch, setOpenSearch] = useState(false);
   return (
     <Grid
       sx={{
@@ -95,7 +96,7 @@ export default function AppBarMenu() {
         zIndex: 100,
         p: { xs: '10px', sm: '15px 45px' },
         boxShadow: 'rgba(27, 31, 35, 0.04) 0px 1px 0px, rgba(255, 255, 255, 0.25) 0px 1px 0px inset',
-        flexWrap: 'nowrap',
+        // flexWrap: 'nowrap',
         overflow: 'hidden',
       }}
       item
@@ -104,34 +105,39 @@ export default function AppBarMenu() {
       justifyContent="space-between"
       alignItems="center"
     >
-      <Link href="/" style={{ textDecoration: 'none', order: 1 }}>
-        <Typography
-          sx={{
-            // height: '24px',
-            borderRadius: '16px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            bgcolor: '#D23F57',
-            color: 'white',
-            fontSize: '17px',
-            fontFamily: 'Roboto, sans-serif', // ✅ make sure fallback is same
-            px: '12px',
-            fontWeight: 700,
-            letterSpacing: '1px',
-            // mr: '10px',
-          }}
-        >
-          GLOWY
-        </Typography>
-      </Link>
-      <DrawerMenu />
+      <Grid item container sx={{ order: 1 }}>
+        <DrawerMenu />
+        <Link href="/" style={{ textDecoration: 'none' }}>
+          <Typography
+            sx={{
+              // height: '24px',
+              borderRadius: '16px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              bgcolor: '#D23F57',
+              color: 'white',
+              fontSize: '17px',
+              fontFamily: 'Roboto, sans-serif', // ✅ make sure fallback is same
+              px: '12px',
+              fontWeight: 700,
+              letterSpacing: '1px',
+              // mr: '10px',
+            }}
+          >
+            GLOWY
+          </Typography>
+        </Link>
+      </Grid>
       <Grid item container sx={{ display: { xs: 'none', sm: 'flex' }, order: 2 }}>
         <BarMenu />
       </Grid>
 
       <Grid sx={{ order: 3, flexWrap: 'nowrap' }} item xs={12} container alignItems="center">
-        <Link href="/favorite" style={{ marginRight: '25px' }}>
+        <div onClick={() => setOpenSearch(!openSearch)}>
+          <SearchIcon />
+        </div>
+        <Link href="/favorite" style={{ margin: '0 25px 0 10px' }}>
           <StyledBadgeFavorite badgeContent={1}>
             <FavoriteIcon size={21} />
           </StyledBadgeFavorite>
@@ -145,6 +151,19 @@ export default function AppBarMenu() {
           <UserAvatar />
         </Link>
       </Grid>
+      <Collapse sx={{ width: '100%', order: 4 }} in={openSearch} timeout="auto" unmountOnExit>
+        <Grid
+          sx={
+            {
+              // boxShadow: 'rgba(27, 31, 35, 0.04) 0px 1px 0px, rgba(255, 255, 255, 0.25) 0px 1px 0px inset',
+            }
+          }
+          item
+          xs={12}
+        >
+          asd
+        </Grid>
+      </Collapse>
     </Grid>
   );
 }
