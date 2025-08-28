@@ -4,7 +4,6 @@ import { Box, Collapse, Grid, IconButton, Typography } from '@mui/material';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import ShareSharpIcon from '@mui/icons-material/ShareSharp';
 import { useState } from 'react';
@@ -39,7 +38,7 @@ export default function AppHeader() {
       xs={12}
       sx={{
         bgcolor: '#2B3445',
-        minHeight: '40px',
+        minHeight: '44px',
         alignItems: 'center',
         px: windowDimensions.width < 700 ? '10px' : '25px',
       }}

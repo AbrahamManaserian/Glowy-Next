@@ -8,9 +8,8 @@ import '@fontsource/roboto/700.css';
 import AppHeader from '@/components/AppHeader';
 import AppBarMenu from '@/components/AppBarMenu';
 import ThemeRegistry from '@/components/ThemeRegistry';
-
-
-
+import { Grid } from '@mui/material';
+import CategorySearch from '@/components/CategorySearch';
 
 export const metadata = {
   title: 'Glowy Perfume & Cosmetics',
@@ -28,6 +27,9 @@ export default function RootLayout({ children }) {
           <ThemeRegistry>
             <AppHeader />
             <AppBarMenu />
+
+            <CategorySearch />
+
             {children}
           </ThemeRegistry>
         </AppRouterCacheProvider>

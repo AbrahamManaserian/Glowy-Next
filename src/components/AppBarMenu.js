@@ -1,12 +1,23 @@
 'use client';
 
-import { Badge, Collapse, Drawer, Grid, Typography } from '@mui/material';
+import {
+  Badge,
+  Box,
+  Collapse,
+  Divider,
+  Drawer,
+  Grid,
+  List,
+  ListItem,
+  ListItemButton,
+  Typography,
+} from '@mui/material';
 import { FavoriteIcon, SearchIcon, ShoppingBasketIcon, UserAvatar } from './icons';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -35,33 +46,33 @@ const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function BarMenu() {
+function LogoHome() {
   return (
-    <Grid
-      direction={{ xs: 'column', sm: 'row' }}
-      sx={{ flexWrap: 'nowrap', overflow: 'hidden' }}
-      item
-      container
-      alignItems="flex-start"
-    >
-      <Link className="bar-link" href="/makeup">
-        Makeup
-      </Link>
-      <Link className="bar-link" href="/fragrance">
-        Fragrance
-      </Link>
-      <Link className="bar-link" href="/sale">
-        Sale
-      </Link>
-      <Link className="bar-link" href="/gifts">
-        Gifts
-      </Link>
-      <Link className="bar-link" href="/about">
-        About
-      </Link>
-    </Grid>
+    <Link href="/" style={{ textDecoration: 'none' }}>
+      <Typography
+        sx={{
+          // height: '24px',
+          borderRadius: '16px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          bgcolor: '#D23F57',
+          color: 'white',
+          fontSize: '17px',
+          fontFamily: 'Roboto, sans-serif', // ✅ make sure fallback is same
+          px: '12px',
+          fontWeight: 700,
+          letterSpacing: '1px',
+          // mr: '10px',
+        }}
+      >
+        GLOWY
+      </Typography>
+    </Link>
   );
 }
+
+const navObj = { makeup: 'Makeup', fragrance: 'Fragrance', sale: 'Sale', gifts: 'Gifts', about: 'About' };
 
 function DrawerMenu() {
   const [open, setOpen] = useState(false);
@@ -73,13 +84,27 @@ function DrawerMenu() {
     <>
       <MenuIcon sx={{ display: { xs: 'block', sm: 'none' }, mr: '9px' }} onClick={toggleDrawer(true)} />
 
-      <Drawer
-        sx={{ '& .MuiDrawer-paper': { width: '100%', p: '10px' } }}
-        open={open}
-        onClose={toggleDrawer(false)}
-      >
-        <CloseIcon sx={{ position: 'fixed', top: '10px', right: '10px' }} onClick={toggleDrawer(false)} />
-        <BarMenu />
+      <Drawer sx={{ '& .MuiDrawer-paper': { width: '100%' } }} open={open} onClose={toggleDrawer(false)}>
+        <Grid onClick={toggleDrawer(false)} item xs={12} container direction="column" sx={{ p: '20px' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
+            <LogoHome />
+            <CloseIcon sx={{ color: '#8a8c8dff' }} onClick={toggleDrawer(false)} />
+          </Box>
+          <List sx={{ pl: '10px' }}>
+            {Object.keys(navObj).map((key) => {
+              return (
+                <ListItem key={key} disablePadding>
+                  <ListItemButton sx={{ p: 0 }}>
+                    <Link style={{ width: '100%' }} className="bar-link" href={`/${key}`}>
+                      {navObj[key]}
+                    </Link>
+                  </ListItemButton>
+                </ListItem>
+              );
+            })}
+          </List>
+          <Divider />
+        </Grid>
       </Drawer>
     </>
   );
@@ -87,17 +112,34 @@ function DrawerMenu() {
 
 export default function AppBarMenu() {
   const [openSearch, setOpenSearch] = useState(false);
+  const [isSticky, setIsSticky] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <Grid
       sx={{
         position: 'sticky',
-        top: 0,
+        top: isSticky ? 0 : -300, // 👈 offset sticky start
         bgcolor: 'white',
-        zIndex: 100,
-        p: { xs: '10px', sm: '15px 45px' },
-        boxShadow: 'rgba(27, 31, 35, 0.04) 0px 1px 0px, rgba(255, 255, 255, 0.25) 0px 1px 0px inset',
-        // flexWrap: 'nowrap',
+        zIndex: 1200,
+        p: { xs: '10px', sm: '19px 45px' },
+        transition: 'top 0.8s ease, box-shadow 0.8s ease',
+        boxShadow: isSticky ? 'rgba(0, 0, 0, 0.1) 0px 2px 6px' : 'none',
+        flexWrap: 'nowrap',
         overflow: 'hidden',
+        width: '100%',
       }}
       item
       xs={12}
@@ -107,36 +149,22 @@ export default function AppBarMenu() {
     >
       <Grid item container sx={{ order: 1 }}>
         <DrawerMenu />
-        <Link href="/" style={{ textDecoration: 'none' }}>
-          <Typography
-            sx={{
-              // height: '24px',
-              borderRadius: '16px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              bgcolor: '#D23F57',
-              color: 'white',
-              fontSize: '17px',
-              fontFamily: 'Roboto, sans-serif', // ✅ make sure fallback is same
-              px: '12px',
-              fontWeight: 700,
-              letterSpacing: '1px',
-              // mr: '10px',
-            }}
-          >
-            GLOWY
-          </Typography>
-        </Link>
+        <LogoHome />
       </Grid>
       <Grid item container sx={{ display: { xs: 'none', sm: 'flex' }, order: 2 }}>
-        <BarMenu />
+        {Object.keys(navObj).map((key) => {
+          return (
+            <Link key={key} className="bar-link" href={`/${key}`}>
+              {navObj[key]}
+            </Link>
+          );
+        })}
       </Grid>
 
       <Grid sx={{ order: 3, flexWrap: 'nowrap' }} item xs={12} container alignItems="center">
-        <div onClick={() => setOpenSearch(!openSearch)}>
+        <Box sx={{ display: { xs: 'block', sm: 'none' } }} onClick={() => setOpenSearch(!openSearch)}>
           <SearchIcon />
-        </div>
+        </Box>
         <Link href="/favorite" style={{ margin: '0 25px 0 10px' }}>
           <StyledBadgeFavorite badgeContent={1}>
             <FavoriteIcon size={21} />
@@ -151,7 +179,7 @@ export default function AppBarMenu() {
           <UserAvatar />
         </Link>
       </Grid>
-      <Collapse sx={{ width: '100%', order: 4 }} in={openSearch} timeout="auto" unmountOnExit>
+      {/* <Collapse sx={{ width: '100%', order: 4 }} in={openSearch} timeout="auto" unmountOnExit>
         <Grid
           sx={
             {
@@ -163,7 +191,7 @@ export default function AppBarMenu() {
         >
           asd
         </Grid>
-      </Collapse>
+      </Collapse> */}
     </Grid>
   );
 }
