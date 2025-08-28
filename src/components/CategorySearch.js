@@ -19,9 +19,64 @@ import { useRef, useState } from 'react';
 import { SearchIcon } from './icons';
 import BasicList from './testList';
 
-const listItems = ['Abraham', 'Elen', 'Liana', 'Luse  '];
+const categories = {
+  Fragrance: { Fragrance: ['Men', 'Women', 'Uni'] },
+  Makeup: {
+    Face: [
+      'Foundation',
+      'Highlighter',
+      'Face Primer',
+      'Powder & Setting Spray',
+      'Contour',
+      'Concealer',
+      'Blush',
+      'BB & CC cream',
+    ],
+    Eye: ['Brow Gel', 'Eye Palettes', 'Eyebrow pencil', 'Eyeliner', 'Pencil'],
+    Lip: ['Lipstick', 'Liquid Lipstick', 'Lip Balm & Treatmentl', 'Lip Gloss', 'Lip Liner', 'Lip Oil'],
+  },
+  Skincare: {
+    Cleansers: ['Cleansers', 'Exfoliation', 'Face Wash', 'Makeup Removers', 'Toners & Lotions'],
+    'Eye Care': ['Dark Circles', 'Eye Patches', 'Lifting/Anti-age Eye Creams', ''],
+    Masks: ['Anti-age', 'Eye Patches', 'Face Masks', 'Hydrating'],
+    Moisturizers: [
+      'Face Creams',
+      'Face Oils',
+      'Mists',
+      'Moisturizers',
+      'Night Creams',
+      'Anti-Aging',
+      'Dark Spots',
+      'Lifting',
+      'Face Serums',
+    ],
+  },
+  'Bath & Body': {
+    'Bath & Shower': ['Gel', 'Hand Wash & Soap', 'Scrub & Exfoliation', 'Shampoo & Conditione'],
+    'Body Care': [
+      'Antiperspirants',
+      'Body Lotion & Body Oils',
+      'Body Moisturizers',
+      'Cellulite & Stretch Marks',
+      'Hand Cream & Foot Cream',
+      'Masks & Special Treatment',
+    ],
+  },
+  Hair: {
+    'Hair Styling': ['Gel', 'Hand Wash & Soap', 'Scrub & Exfoliation', 'Shampoo & Conditione'],
+  },
+  Nail: {
+    Nail: ['Cuticle care', 'Nail care', 'Nail color', 'Nail polish removers'],
+  },
+  'New Items': {
+    'New Items': [],
+  },
+  Accessories: {
+    Accessories: [],
+  },
+};
 
-function SingleCategory({ item, component }) {
+function SingleCategory({ item, component, ref }) {
   const [showMoreCategory1, setShowMoreCategory1] = useState(null);
   const nestedRef = useRef(null);
 
@@ -62,9 +117,17 @@ function SingleCategory({ item, component }) {
         />
         <Popper
           onMouseLeave={handleNestedClose}
-          sx={{ zIndex: 1900, pl: '10px' }}
+          sx={{
+            zIndex: 1100,
+            p: '10px',
+            width: 'calc(100vw - 360px)',
+            maxHeight: 'calc(100vh - 250px)',
+            // minHeight: '800px',
+            overflow: 'scroll',
+          }}
           open={open1}
-          anchorEl={showMoreCategory1}
+          // anchorEl={showMoreCategory1}
+          anchorEl={ref.current}
           disablePortal={true}
           placement="right-start"
           modifiers={[
@@ -76,7 +139,7 @@ function SingleCategory({ item, component }) {
             },
           ]}
         >
-          <Paper sx={{ width: '100%', zIndex: 1900 }}>{component}</Paper>
+          <Paper sx={{ zIndex: 1100, minHeight: '295px' }}>{component}</Paper>
         </Popper>
       </ListItemButton>
     </ListItem>
@@ -116,6 +179,7 @@ export default function CategorySearch() {
               },
               display: { xs: 'none', sm: 'flex' },
               mr: '15px',
+              height: '40px',
             }}
             variant="contained"
             onClick={handleClick}
@@ -135,15 +199,22 @@ export default function CategorySearch() {
             />
           </Button>
           <Popper
-            sx={{ width: '300px', zIndex: 1900 }}
+            sx={{ width: '300px', zIndex: 1100 }}
             open={open}
             anchorEl={showMoreCategory}
             disablePortal={true}
           >
-            <Paper sx={{ width: '100%', zIndex: 1900, mt: '10px' }}>
+            <Paper ref={nestedRef} sx={{ width: '100%', zIndex: 1100, mt: '10px' }}>
               <List>
-                {listItems.map((name, index) => {
-                  return <SingleCategory key={index} item={name} component={<BasicList name={name} />} />;
+                {Object.keys(categories).map((name, index) => {
+                  return (
+                    <SingleCategory
+                      key={index}
+                      item={name}
+                      ref={nestedRef}
+                      component={<BasicList name={name} data={categories[name]} />}
+                    />
+                  );
                 })}
               </List>
             </Paper>
@@ -161,6 +232,7 @@ export default function CategorySearch() {
 
           borderRadius: '4px',
           p: '0 12px',
+          height: '40px',
         }}
       >
         <InputBase sx={{ width: '100%', fontSize: '14px' }} placeholder="Searching for... " />

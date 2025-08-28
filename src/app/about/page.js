@@ -1,26 +1,30 @@
 import { db } from '@/firebase';
-import { collection, getDocs, limit, orderBy, query } from 'firebase/firestore';
+import { Box, Grid, Typography } from '@mui/material';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default async function Page() {
-  const obj = {};
-  const q = query(collection(db, 'orders'), orderBy('creationDate', 'desc'), limit(30));
-  const querySnapshot = await getDocs(q);
-  querySnapshot.forEach((doc) => {
-    // console.log(doc.id);
-    obj['+' + doc.id] = doc.data();
-  });
-  // console.log(obj);
+  let obj = [];
 
+  const orderRef = doc(db, 'orders', '38');
+  const docSnap = await getDoc(orderRef);
+  if (docSnap.data()) {
+    obj = docSnap.data().items;
+  }
+  // console.log(obj);
   return (
-    <ul>
-      {Object.keys(obj).map((id) => {
+    <Grid item container xs={12} justifyContent="center" alignItems="center">
+      <Typography>dfsd sale</Typography>
+      {obj.map((item, index) => {
         return (
-          <li key={id}>
-            <img src={obj[id].image.file} style={{ width: '15%', height: 'auto' }} />
-            {obj[id].updatedDate}
-          </li>
+          <Box
+            sx={{ disp: 'flex', alignItems: 'center', maxWidth: { xs: '45vw', sm: '20vw' }, p: '10px' }}
+            key={index}
+          >
+            <img src={item.images[0].file} style={{ width: '100%', height: 'auto' }} />
+            <Typography> {item.code} </Typography>
+          </Box>
         );
       })}
-    </ul>
+    </Grid>
   );
 }

@@ -135,7 +135,7 @@ export default function AppBarMenu() {
         bgcolor: 'white',
         zIndex: 1200,
         p: { xs: '10px', sm: '19px 45px' },
-        transition: 'top 0.8s ease, box-shadow 0.8s ease',
+        transition: 'top 0.5s ease, box-shadow 0.5s ease',
         boxShadow: isSticky ? 'rgba(0, 0, 0, 0.1) 0px 2px 6px' : 'none',
         flexWrap: 'nowrap',
         overflow: 'hidden',
@@ -179,19 +179,6 @@ export default function AppBarMenu() {
           <UserAvatar />
         </Link>
       </Grid>
-      {/* <Collapse sx={{ width: '100%', order: 4 }} in={openSearch} timeout="auto" unmountOnExit>
-        <Grid
-          sx={
-            {
-              // boxShadow: 'rgba(27, 31, 35, 0.04) 0px 1px 0px, rgba(255, 255, 255, 0.25) 0px 1px 0px inset',
-            }
-          }
-          item
-          xs={12}
-        >
-          asd
-        </Grid>
-      </Collapse> */}
     </Grid>
   );
 }
