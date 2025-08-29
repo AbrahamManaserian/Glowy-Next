@@ -200,6 +200,7 @@ export default function CategorySearch() {
               display: { xs: 'none', sm: 'flex' },
               mr: '15px',
               height: '40px',
+              borderRadius: '8px',
             }}
             variant="contained"
             onClick={handleClick}
@@ -242,29 +243,29 @@ export default function CategorySearch() {
         </div>
       </ClickAwayListener>
 
-      <Box
-        component="form"
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          flexGrow: 1,
-          bgcolor: '#d2cccc17',
-
-          borderRadius: '4px',
-          p: '0 12px',
-          height: '40px',
+      <InputBase
+        value={search}
+        onChange={(event) => {
+          setSearch(event.target.value);
         }}
-      >
-        <InputBase
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
-          }}
-          sx={{ width: '100%', fontSize: '14px' }}
-          placeholder="Searching for... "
-        />
-        <SearchIcon />
-      </Box>
+        sx={{
+          // width: '100%',
+          height: '40px',
+          fontSize: '14px',
+          bgcolor: '#d2cccc17',
+          borderRadius: '8px',
+          p: '0 20px',
+          border: 'solid 1px #ffffffff',
+          '&.Mui-focused': {
+            // bgcolor: 'red',
+            border: 'solid 1px #030303dd',
+          },
+          flexGrow: 1,
+        }}
+        placeholder="Searching for... "
+        endAdornment={<SearchIcon />}
+      />
+      {/* <SearchIcon /> */}
     </Grid>
   );
 }
