@@ -24,7 +24,7 @@ export default function BasicList({ name, data }) {
           //   <nav key={index} aria-label="main mailbox folders">
           <List
             key={index}
-            sx={{ flexGrow: 1 }}
+            sx={{ minWidth: '150px' }}
             // subheader={
             //   <ListSubheader component="div" id="nested-list-subheader">
             //     {category}

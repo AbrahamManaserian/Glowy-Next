@@ -10,14 +10,17 @@ import {
   List,
   ListItem,
   ListItemButton,
+  ListItemText,
   Typography,
 } from '@mui/material';
-import { FavoriteIcon, SearchIcon, ShoppingBasketIcon, UserAvatar } from './icons';
+import { FavoriteIcon, ShoppingBasketIcon, UserAvatar } from './icons';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { useEffect, useState } from 'react';
+import { categories } from './CategorySearch';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -74,32 +77,130 @@ function LogoHome() {
 
 const navObj = { makeup: 'Makeup', fragrance: 'Fragrance', sale: 'Sale', gifts: 'Gifts', about: 'About' };
 
+function SingleCategory({ category, subCategories, open, setOpen }) {
+  // const [open, setOpen] = useState(false);
+
+  const handleClick = () => {
+    if (open === category) {
+      setOpen('');
+    } else {
+      setOpen(category);
+    }
+  };
+  // const handleClickNested = () => {
+  //   setOpen(!open);
+  // };
+  // console.log(subCategories);
+  return (
+    <List sx={{ p: 0 }}>
+      <ListItem disablePadding>
+        <ListItemButton sx={{ p: '2px' }} onClick={handleClick}>
+          <ListItemText
+            primary={category}
+            primaryTypographyProps={{
+              fontSize: '17px',
+              fontWeight: 300,
+              letterSpacing: 0,
+              textTransform: 'capitalize',
+              color: open === category ? '#1574d3ff' : '',
+            }}
+          />
+          <NavigateNextIcon
+            sx={{
+              color: '#797676f8',
+              fontSize: '18px',
+              transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
+              transition: 'transform 0.3s ease',
+            }}
+          />
+        </ListItemButton>
+      </ListItem>
+      <Collapse in={open === category} timeout="auto" unmountOnExit>
+        {Object.keys(subCategories).map((item, index) => {
+          return (
+            <List key={index} sx={{ p: 0 }}>
+              <ListItem disablePadding>
+                <ListItemButton sx={{ p: '0 2px 5px 20px ' }} onClick={handleClick}>
+                  <ListItemText
+                    primary={item}
+                    primaryTypographyProps={{
+                      fontSize: '15px',
+                      fontWeight: 700,
+                      letterSpacing: 0,
+                      textTransform: 'capitalize',
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+              {subCategories[item].map((subItem, subIndex) => {
+                return (
+                  <ListItem key={subIndex} disablePadding>
+                    <ListItemButton sx={{ p: '0 2px 0 30px ' }} onClick={handleClick}>
+                      <ListItemText
+                        primary={subItem}
+                        primaryTypographyProps={{
+                          fontSize: '16px',
+                          fontWeight: 100,
+                          letterSpacing: 0,
+                          textTransform: 'capitalize',
+                        }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                );
+              })}
+            </List>
+          );
+        })}
+        {/* <List component="div" disablePadding>
+          <ListItemButton sx={{ pl: 4 }}>asd</ListItemButton>
+        </List> */}
+      </Collapse>
+    </List>
+  );
+}
+
 function DrawerMenu() {
   const [open, setOpen] = useState(false);
+  const [openNested, setOpenNested] = useState();
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
   return (
     <>
-      <MenuIcon sx={{ display: { xs: 'block', sm: 'none' }, mr: '9px' }} onClick={toggleDrawer(true)} />
+      <MenuIcon
+        sx={{
+          display: { xs: 'block', sm: 'none' },
+          // mr: '9px',
+          order: 9,
+          fontSize: '30px',
+          color: '#505152ff',
+        }}
+        onClick={toggleDrawer(true)}
+      />
 
-      <Drawer sx={{ '& .MuiDrawer-paper': { width: '100%' } }} open={open} onClose={toggleDrawer(false)}>
-        <Grid onClick={toggleDrawer(false)} item xs={12} container direction="column" sx={{ p: '20px' }}>
+      <Drawer
+        anchor={'right'}
+        sx={{ '& .MuiDrawer-paper': { width: '100%' } }}
+        open={open}
+        onClose={toggleDrawer(false)}
+      >
+        <Grid item xs={12} container direction="column" sx={{ p: '20px' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
             <LogoHome />
             <CloseIcon sx={{ color: '#8a8c8dff' }} onClick={toggleDrawer(false)} />
           </Box>
           <List sx={{ pl: '10px' }}>
-            {Object.keys(navObj).map((key) => {
+            {Object.keys(categories).map((key) => {
               return (
-                <ListItem key={key} disablePadding>
-                  <ListItemButton sx={{ p: 0 }}>
-                    <Link style={{ width: '100%' }} className="bar-link" href={`/${key}`}>
-                      {navObj[key]}
-                    </Link>
-                  </ListItemButton>
-                </ListItem>
+                <SingleCategory
+                  category={key}
+                  key={key}
+                  subCategories={categories[key]}
+                  open={openNested}
+                  setOpen={setOpenNested}
+                />
               );
             })}
           </List>
@@ -147,10 +248,10 @@ export default function AppBarMenu() {
       justifyContent="space-between"
       alignItems="center"
     >
-      <Grid item container sx={{ order: 1 }}>
-        <DrawerMenu />
-        <LogoHome />
-      </Grid>
+      <DrawerMenu />
+      {/* <Grid item container sx={{ order: 1 }}> */}
+      <LogoHome />
+      {/* </Grid> */}
       <Grid item container sx={{ display: { xs: 'none', sm: 'flex' }, order: 2 }}>
         {Object.keys(navObj).map((key) => {
           return (
@@ -161,10 +262,14 @@ export default function AppBarMenu() {
         })}
       </Grid>
 
-      <Grid sx={{ order: 3, flexWrap: 'nowrap' }} item xs={12} container alignItems="center">
-        <Box sx={{ display: { xs: 'block', sm: 'none' } }} onClick={() => setOpenSearch(!openSearch)}>
-          <SearchIcon />
-        </Box>
+      <Grid
+        sx={{ order: 3, flexWrap: 'nowrap', flexGrow: { xs: 1, sm: 0 } }}
+        item
+        xs={12}
+        container
+        alignItems="center"
+        justifyContent="flex-end"
+      >
         <Link href="/favorite" style={{ margin: '0 25px 0 10px' }}>
           <StyledBadgeFavorite badgeContent={1}>
             <FavoriteIcon size={21} />
@@ -175,7 +280,7 @@ export default function AppBarMenu() {
             <ShoppingBasketIcon />
           </StyledBadge>
         </Link>
-        <Link href="/user" style={{ marginLeft: '25px' }}>
+        <Link href="/user" style={{ margin: '0 15px 0 25px' }}>
           <UserAvatar />
         </Link>
       </Grid>

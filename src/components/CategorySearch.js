@@ -15,13 +15,14 @@ import {
 } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import MenuIcon from '@mui/icons-material/Menu';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SearchIcon } from './icons';
 import BasicList from './testList';
+import { usePathname } from 'next/navigation';
 
-const categories = {
-  Fragrance: { Fragrance: ['Men', 'Women', 'Uni'] },
-  Makeup: {
+export const categories = {
+  fragrance: { Fragrance: ['Men', 'Women', 'Uni'] },
+  makeup: {
     Face: [
       'Foundation',
       'Highlighter',
@@ -35,7 +36,7 @@ const categories = {
     Eye: ['Brow Gel', 'Eye Palettes', 'Eyebrow pencil', 'Eyeliner', 'Pencil'],
     Lip: ['Lipstick', 'Liquid Lipstick', 'Lip Balm & Treatmentl', 'Lip Gloss', 'Lip Liner', 'Lip Oil'],
   },
-  Skincare: {
+  skincare: {
     Cleansers: ['Cleansers', 'Exfoliation', 'Face Wash', 'Makeup Removers', 'Toners & Lotions'],
     'Eye Care': ['Dark Circles', 'Eye Patches', 'Lifting/Anti-age Eye Creams', ''],
     Masks: ['Anti-age', 'Eye Patches', 'Face Masks', 'Hydrating'],
@@ -62,16 +63,16 @@ const categories = {
       'Masks & Special Treatment',
     ],
   },
-  Hair: {
+  hair: {
     'Hair Styling': ['Gel', 'Hand Wash & Soap', 'Scrub & Exfoliation', 'Shampoo & Conditione'],
   },
-  Nail: {
+  nail: {
     Nail: ['Cuticle care', 'Nail care', 'Nail color', 'Nail polish removers'],
   },
   'New Items': {
     'New Items': [],
   },
-  Accessories: {
+  accessories: {
     Accessories: [],
   },
 };
@@ -107,6 +108,7 @@ function SingleCategory({ item, component, ref }) {
             fontSize: '14px',
             fontWeight: 400,
             letterSpacing: 0,
+            textTransform: 'capitalize',
           }}
         />
         <NavigateNextIcon
@@ -147,19 +149,37 @@ function SingleCategory({ item, component, ref }) {
 }
 
 export default function CategorySearch() {
+  const [search, setSearch] = useState('');
   const [showMoreCategory, setShowMoreCategory] = useState(null);
   const nestedRef = useRef(null);
+  const pathname = usePathname();
+  useEffect(() => {
+    setSearch('');
+  }, [pathname]);
 
   const handleClick = (event) => {
     setShowMoreCategory(showMoreCategory ? null : event.currentTarget);
   };
 
   const handleClose = (event) => {
-    if (showMoreCategory?.contains(event.target)) return;
+    // if (showMoreCategory?.contains(event.target)) return;
     setShowMoreCategory(null);
   };
-
   const open = Boolean(showMoreCategory);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (open) {
+        handleClose();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [open]);
 
   return (
     <Grid sx={{ p: '10px 25px' }} item xs={12} container>
@@ -235,7 +255,14 @@ export default function CategorySearch() {
           height: '40px',
         }}
       >
-        <InputBase sx={{ width: '100%', fontSize: '14px' }} placeholder="Searching for... " />
+        <InputBase
+          value={search}
+          onChange={(event) => {
+            setSearch(event.target.value);
+          }}
+          sx={{ width: '100%', fontSize: '14px' }}
+          placeholder="Searching for... "
+        />
         <SearchIcon />
       </Box>
     </Grid>
