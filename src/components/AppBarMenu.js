@@ -18,7 +18,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { categories } from './CategorySearch';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
@@ -49,6 +49,8 @@ const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
   },
 }));
 
+const navObj = { makeup: 'Makeup', fragrance: 'Fragrance', sale: 'Sale', gifts: 'Gifts', about: 'About' };
+
 function LogoHome() {
   return (
     <Link href="/" style={{ textDecoration: 'none' }}>
@@ -75,31 +77,24 @@ function LogoHome() {
   );
 }
 
-const navObj = { makeup: 'Makeup', fragrance: 'Fragrance', sale: 'Sale', gifts: 'Gifts', about: 'About' };
-
-function SingleCategory({ category, subCategories, open, setOpen }) {
-  // const [open, setOpen] = useState(false);
-
-  const handleClick = () => {
+function SingleCategory({ category, subCategories, open, setOpen, position, setPosition, rootProps }) {
+  const handleClick = (event) => {
     if (open === category) {
       setOpen('');
     } else {
       setOpen(category);
     }
   };
-  // const handleClickNested = () => {
-  //   setOpen(!open);
-  // };
-  // console.log(subCategories);
+
   return (
     <List sx={{ p: 0 }}>
-      <ListItem disablePadding>
+      <ListItem {...rootProps} disablePadding>
         <ListItemButton sx={{ p: '2px' }} onClick={handleClick}>
           <ListItemText
             primary={category}
             primaryTypographyProps={{
               fontSize: '17px',
-              fontWeight: 300,
+              fontWeight: 400,
               letterSpacing: 0,
               textTransform: 'capitalize',
               color: open === category ? '#1574d3ff' : '',
@@ -109,7 +104,7 @@ function SingleCategory({ category, subCategories, open, setOpen }) {
             sx={{
               color: '#797676f8',
               fontSize: '18px',
-              transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
+              transform: open === category ? 'rotate(90deg)' : 'rotate(0deg)',
               transition: 'transform 0.3s ease',
             }}
           />
@@ -132,47 +127,60 @@ function SingleCategory({ category, subCategories, open, setOpen }) {
                   />
                 </ListItemButton>
               </ListItem>
-              {subCategories[item].map((subItem, subIndex) => {
-                return (
-                  <ListItem key={subIndex} disablePadding>
-                    <ListItemButton sx={{ p: '0 2px 0 30px ' }} onClick={handleClick}>
-                      <ListItemText
-                        primary={subItem}
-                        primaryTypographyProps={{
-                          fontSize: '16px',
-                          fontWeight: 100,
-                          letterSpacing: 0,
-                          textTransform: 'capitalize',
-                        }}
-                      />
-                    </ListItemButton>
-                  </ListItem>
-                );
-              })}
+              <List sx={{ ml: '20px', p: 0, borderLeft: 'solid 1px #cdd1d4ff' }}>
+                {subCategories[item].map((subItem, subIndex) => {
+                  return (
+                    <ListItem key={subIndex} disablePadding>
+                      <ListItemButton sx={{ p: '0 2px 0 20px ' }} onClick={handleClick}>
+                        <ListItemText
+                          primary={subItem}
+                          primaryTypographyProps={{
+                            fontSize: '16px',
+                            fontWeight: 300,
+                            letterSpacing: 0,
+                            textTransform: 'capitalize',
+                          }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  );
+                })}
+              </List>
             </List>
           );
         })}
-        {/* <List component="div" disablePadding>
-          <ListItemButton sx={{ pl: 4 }}>asd</ListItemButton>
-        </List> */}
       </Collapse>
     </List>
   );
 }
 
 function DrawerMenu() {
+  const drawerRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [openNested, setOpenNested] = useState();
+  const [position, setPosition] = useState(0);
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
+
+  useEffect(() => {
+    if (openNested && drawerRef.current) {
+      const el = drawerRef.current.querySelector(`[data-category="${openNested}"]`);
+      if (el) {
+        drawerRef.current.scrollTo({
+          top: 0,
+          // behavior: 'smooth',
+        });
+      }
+    }
+  }, [openNested]);
+
   return (
     <>
       <MenuIcon
         sx={{
           display: { xs: 'block', sm: 'none' },
-          // mr: '9px',
           order: 9,
           fontSize: '30px',
           color: '#505152ff',
@@ -191,7 +199,7 @@ function DrawerMenu() {
             <LogoHome />
             <CloseIcon sx={{ color: '#8a8c8dff' }} onClick={toggleDrawer(false)} />
           </Box>
-          <List sx={{ pl: '10px' }}>
+          <List ref={drawerRef} sx={{ pl: '10px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
             {Object.keys(categories).map((key) => {
               return (
                 <SingleCategory
@@ -200,10 +208,14 @@ function DrawerMenu() {
                   subCategories={categories[key]}
                   open={openNested}
                   setOpen={setOpenNested}
+                  position={position}
+                  setPosition={setPosition}
+                  rootProps={{ 'data-category': key }}
                 />
               );
             })}
           </List>
+
           <Divider />
         </Grid>
       </Drawer>
@@ -212,7 +224,6 @@ function DrawerMenu() {
 }
 
 export default function AppBarMenu() {
-  const [openSearch, setOpenSearch] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
 
   useEffect(() => {
@@ -249,9 +260,7 @@ export default function AppBarMenu() {
       alignItems="center"
     >
       <DrawerMenu />
-      {/* <Grid item container sx={{ order: 1 }}> */}
       <LogoHome />
-      {/* </Grid> */}
       <Grid item container sx={{ display: { xs: 'none', sm: 'flex' }, order: 2 }}>
         {Object.keys(navObj).map((key) => {
           return (
