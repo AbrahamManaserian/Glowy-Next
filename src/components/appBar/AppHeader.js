@@ -8,7 +8,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import ShareSharpIcon from '@mui/icons-material/ShareSharp';
 import { useState } from 'react';
 import useGetWindowDimensions from '@/hooks/useGetWindowSize';
-import { ViberIcon } from './icons';
+import { ViberIcon } from '../icons';
 
 const hotBoxStyle = {
   height: '24px',

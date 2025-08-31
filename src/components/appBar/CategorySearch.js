@@ -16,9 +16,9 @@ import {
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useEffect, useRef, useState } from 'react';
-import { SearchIcon } from './icons';
-import BasicList from './testList';
 import { usePathname } from 'next/navigation';
+import { SearchIcon } from '../icons';
+import CategoryList from './CategoryList';
 
 export const categories = {
   fragrance: { Fragrance: ['Men', 'Women', 'Uni'] },
@@ -233,7 +233,7 @@ export default function CategorySearch() {
                       key={index}
                       item={name}
                       ref={nestedRef}
-                      component={<BasicList name={name} data={categories[name]} />}
+                      component={<CategoryList name={name} data={categories[name]} />}
                     />
                   );
                 })}
@@ -249,7 +249,6 @@ export default function CategorySearch() {
           setSearch(event.target.value);
         }}
         sx={{
-          // width: '100%',
           height: '40px',
           fontSize: '14px',
           bgcolor: '#d2cccc17',
@@ -257,7 +256,6 @@ export default function CategorySearch() {
           p: '0 20px',
           border: 'solid 1px #ffffffff',
           '&.Mui-focused': {
-            // bgcolor: 'red',
             border: 'solid 1px #030303dd',
           },
           flexGrow: 1,
@@ -265,7 +263,6 @@ export default function CategorySearch() {
         placeholder="Searching for... "
         endAdornment={<SearchIcon />}
       />
-      {/* <SearchIcon /> */}
     </Grid>
   );
 }

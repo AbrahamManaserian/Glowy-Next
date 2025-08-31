@@ -13,7 +13,6 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
-import { FavoriteIcon, ShoppingBasketIcon, UserAvatar } from './icons';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
@@ -21,6 +20,7 @@ import styled from '@emotion/styled';
 import { useEffect, useRef, useState } from 'react';
 import { categories } from './CategorySearch';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { FavoriteIcon, ShoppingBasketIcon, UserAvatar } from '../icons';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {

@@ -1,6 +1,6 @@
 'use client';
 
-import ImageCarousel from '@/components/ImageCarousel';
+import HomeSlide from '@/components/homePage/HomeSlide';
 import { Box, Button, Grid, Typography } from '@mui/material';
 import Link from 'next/link';
 
@@ -19,14 +19,10 @@ const images = [
 
 export default function Home() {
   return (
-    <Grid container xs={12} minHeight="320vh" alignContent="flex-start">
-      {/* {images.map((im, index) => {
-        return <img key={index} src={im} alt="Logo" width={200} height="auto" />;
-      })} */}
-
-      <Box sx={{ p: '20px 10px', overflow: 'hidden' }}>
-        <ImageCarousel images={images} />
-      </Box>
+    <Grid size={12} minHeight="320vh">
+      <div>
+        <HomeSlide />
+      </div>
       <Link href="/about">
         <Button>About</Button>
       </Link>

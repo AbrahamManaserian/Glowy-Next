@@ -6,9 +6,9 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 
-import { ListSubheader, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 
-export default function BasicList({ name, data }) {
+export default function CategoryList({ name, data }) {
   return (
     <Box
       sx={{
@@ -21,19 +21,8 @@ export default function BasicList({ name, data }) {
     >
       {Object.keys(data).map((category, index) => {
         return (
-          //   <nav key={index} aria-label="main mailbox folders">
-          <List
-            key={index}
-            sx={{ minWidth: '150px' }}
-            // subheader={
-            //   <ListSubheader component="div" id="nested-list-subheader">
-            //     {category}
-            //   </ListSubheader>
-            // }
-          >
-            {/* <ListSubheader component="div" id="nested-list-subheader"> */}
+          <List key={index} sx={{ minWidth: '150px' }}>
             <Typography sx={{ fontSize: '12px', ml: '7px', fontWeight: 500 }}>{category}</Typography>
-            {/* </ListSubheader> */}
             {data[category].map((item, index) => {
               return (
                 <ListItemButton key={index} sx={{ height: '35px' }}>
@@ -49,7 +38,6 @@ export default function BasicList({ name, data }) {
               );
             })}
           </List>
-          //   </nav>
         );
       })}
     </Box>
