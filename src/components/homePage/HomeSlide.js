@@ -1,6 +1,8 @@
 'use client';
 
 import { Box, Button, Grid, Typography } from '@mui/material';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useState } from 'react';
 
 const images = [
@@ -11,9 +13,25 @@ const images = [
 ];
 
 export default function HomeSlide() {
-  const [item, setitem] = useState(0);
+  const [item, setItem] = useState(0);
   const handleClick = (index) => {
-    setitem(index);
+    setItem(index);
+  };
+
+  const handleClickNextBack = (action) => {
+    if (action === 'next') {
+      if (item === images.length - 1) {
+        setItem(0);
+      } else {
+        setItem(item + 1);
+      }
+    } else {
+      if (item === 0) {
+        setItem(images.length - 1);
+      } else {
+        setItem(item - 1);
+      }
+    }
   };
 
   return (
@@ -33,7 +51,7 @@ export default function HomeSlide() {
             <Grid
               size={12}
               container
-              sx={{ bgcolor: '#d2cccc17', borderRadius: '15px', m: { xs: '10px', sm: '40px 25px' } }}
+              sx={{ bgcolor: '#d2cccc17', borderRadius: '15px', m: { xs: '15px', sm: '40px 25px' } }}
             >
               <Grid
                 // alignItems="baseline"
@@ -102,7 +120,9 @@ export default function HomeSlide() {
                 size={12}
                 container
                 // alignContent="center"
-                justifyContent="center"
+                // justifyContent="center"
+                justifyContent="space-between"
+                alignItems="center"
               >
                 <Box sx={{ display: 'flex' }}>
                   {images.map((it, index) => (
@@ -121,6 +141,22 @@ export default function HomeSlide() {
                       key={index}
                     ></Box>
                   ))}
+                </Box>
+                <Box>
+                  <ChevronLeftIcon
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleClickNextBack('back');
+                    }}
+                    sx={{ mr: '5px', color: '#747982ff', left: 10, fontSize: '30px', cursor: 'pointer' }}
+                  />
+                  <NavigateNextIcon
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleClickNextBack('next');
+                    }}
+                    sx={{ color: '#747982ff', right: 10, fontSize: '30px', cursor: 'pointer' }}
+                  />
                 </Box>
               </Grid>
             </Grid>

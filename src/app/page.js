@@ -1,5 +1,6 @@
 'use client';
 
+import CustumSolutions from '@/components/homePage/CustumSolutions';
 import HomeSlide from '@/components/homePage/HomeSlide';
 import { Box, Button, Grid, Typography } from '@mui/material';
 import Link from 'next/link';
@@ -22,6 +23,7 @@ export default function Home() {
     <Grid size={12} minHeight="320vh">
       <div>
         <HomeSlide />
+        <CustumSolutions />
       </div>
       <Link href="/about">
         <Button>About</Button>
