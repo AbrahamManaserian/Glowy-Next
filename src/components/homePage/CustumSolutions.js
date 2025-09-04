@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Grid, Typography } from '@mui/material';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 
 const images = [
   '/images/giftCollection/491418281_17894849493207296_8185218575935560017_n.jpg',
@@ -16,7 +17,7 @@ export default function CustumSolutions() {
       size={12}
       alignContent="flex-start"
       container
-      sx={{ borderRadius: '15px', m: { xs: '80px 15px', sm: '90px 25px' } }}
+      sx={{ borderRadius: '15px', m: { xs: '80px 15px', sm: '90px 25px' }, position: 'relative' }}
     >
       <Typography
         width={'100%'}
@@ -30,7 +31,13 @@ export default function CustumSolutions() {
         alignContent="flex-start"
         size={{ xs: 12, sm: 12, md: 4 }}
         container
-        sx={{ p: { xs: '10px 0 10px 0', sm: '10px 0 10px 0', md: '10px 10px 10px 0' } }}
+        sx={{
+          p: { xs: '10px 0 10px 0', sm: '10px 0 10px 0', md: '10px 10px 10px 0' },
+          position: 'relative',
+          '&:hover p': {
+            textDecoration: 'underline',
+          },
+        }}
       >
         <Box
           sx={{
@@ -40,7 +47,7 @@ export default function CustumSolutions() {
             alignItems: 'center',
             alignContent: 'center',
             borderRadius: '15px',
-            height: { xs: '205px', sm: '470px', md: '710px' },
+            height: { xs: '205px', sm: '470px', md: '810px' },
           }}
         >
           <Box
@@ -58,10 +65,46 @@ export default function CustumSolutions() {
             }}
           />
         </Box>
+        <Typography
+          style={{
+            position: 'absolute',
+            bottom: '40px',
+            left: '40px',
+            fontSize: { xs: '14px', sm: '20px' },
+            fontWeight: 600,
+            color: '#2B3445',
+            pointerEvents: 'none',
+          }}
+        >
+          Makeup Remover
+        </Typography>
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: '40px',
+            right: '40px',
+            height: '35px',
+            width: '35px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            bgcolor: 'white',
+            borderRadius: '10px',
+            pointerEvents: 'none',
+          }}
+        >
+          <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
+        </Box>
       </Grid>
       <Grid size={{ xs: 12, sm: 12, md: 8 }} container>
         <Grid
-          sx={{ p: { xs: '10px 0 10px 0', sm: '10px 10px 10px 0', md: '10px' } }}
+          sx={{
+            p: { xs: '10px 0 10px 0', sm: '10px 10px 10px 0', md: '10px' },
+            position: 'relative',
+            '&:hover p': {
+              textDecoration: 'underline',
+            },
+          }}
           size={{ xs: 12, sm: 6 }}
           container
           alignContent="flex-start"
@@ -74,7 +117,7 @@ export default function CustumSolutions() {
               alignItems: 'center',
               alignContent: 'center',
               borderRadius: '15px',
-              height: { xs: '205px', sm: '275px', md: '345px' },
+              height: { xs: '205px', sm: '275px', md: '395px' },
             }}
           >
             <Box
@@ -86,16 +129,52 @@ export default function CustumSolutions() {
                 ':hover': {
                   transform: { xs: 0, sm: 'scale(1.07)' },
                 },
+
                 transition: 'transform 0.6s ease',
                 cursor: 'pointer',
               }}
             />
+          </Box>
+
+          <Typography
+            style={{
+              position: 'absolute',
+              bottom: '40px',
+              left: '40px',
+              fontSize: { xs: '14px', sm: '20px' },
+              fontWeight: 600,
+              color: '#2B3445',
+              pointerEvents: 'none',
+            }}
+          >
+            Makeup Remover
+          </Typography>
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: '40px',
+              right: '40px',
+              height: '35px',
+              width: '35px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              bgcolor: 'white',
+              borderRadius: '10px',
+              pointerEvents: 'none',
+            }}
+          >
+            <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
           </Box>
         </Grid>
         <Grid
           sx={{
             p: { xs: '10px 0 10px 0', sm: '10px 0 10px 10px', md: '10px 0 10px 10px' },
             overflow: 'hidden',
+            position: 'relative',
+            '&:hover p': {
+              textDecoration: 'underline',
+            },
           }}
           size={{ xs: 12, sm: 6 }}
           container
@@ -109,7 +188,7 @@ export default function CustumSolutions() {
               alignItems: 'center',
               alignContent: 'center',
               borderRadius: '10px',
-              height: { xs: '205px', sm: '275px', md: '345px' },
+              height: { xs: '205px', sm: '275px', md: '395px' },
             }}
           >
             <Box
@@ -126,9 +205,46 @@ export default function CustumSolutions() {
               }}
             />
           </Box>
+          <Typography
+            style={{
+              position: 'absolute',
+              bottom: '40px',
+              left: '40px',
+              fontSize: { xs: '14px', sm: '20px' },
+              fontWeight: 600,
+              color: '#2B3445',
+              pointerEvents: 'none',
+            }}
+          >
+            Makeup Remover
+          </Typography>
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: '40px',
+              right: '40px',
+              height: '35px',
+              width: '35px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              bgcolor: 'white',
+              borderRadius: '10px',
+              pointerEvents: 'none',
+            }}
+          >
+            <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
+          </Box>
         </Grid>
         <Grid
-          sx={{ p: { xs: '10px 0 10px 0', sm: '10px 10px 10px 0', md: '10px' }, overflow: 'hidden' }}
+          sx={{
+            p: { xs: '10px 0 10px 0', sm: '10px 10px 10px 0', md: '10px' },
+            overflow: 'hidden',
+            position: 'relative',
+            '&:hover p': {
+              textDecoration: 'underline',
+            },
+          }}
           size={{ xs: 12, sm: 6 }}
           container
           alignContent="flex-start"
@@ -141,7 +257,7 @@ export default function CustumSolutions() {
               alignItems: 'center',
               alignContent: 'center',
               borderRadius: '10px',
-              height: { xs: '205px', sm: '275px', md: '345px' },
+              height: { xs: '205px', sm: '275px', md: '395px' },
             }}
           >
             <Box
@@ -158,11 +274,45 @@ export default function CustumSolutions() {
               }}
             />
           </Box>
+          <Typography
+            style={{
+              position: 'absolute',
+              bottom: '40px',
+              left: '40px',
+              fontSize: { xs: '14px', sm: '20px' },
+              fontWeight: 600,
+              color: '#2B3445',
+              pointerEvents: 'none',
+            }}
+          >
+            Makeup Remover
+          </Typography>
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: '40px',
+              right: '40px',
+              height: '35px',
+              width: '35px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              bgcolor: 'white',
+              borderRadius: '10px',
+              pointerEvents: 'none',
+            }}
+          >
+            <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
+          </Box>
         </Grid>
         <Grid
           sx={{
             p: { xs: '10px 0 10px 0', sm: '10px 0 10px 10px', md: '10px 0 10px 10px' },
             overflow: 'hidden',
+            position: 'relative',
+            '&:hover p': {
+              textDecoration: 'underline',
+            },
           }}
           size={{ xs: 12, sm: 6 }}
           container
@@ -176,7 +326,7 @@ export default function CustumSolutions() {
               alignItems: 'center',
               alignContent: 'center',
               borderRadius: '10px',
-              height: { xs: '205px', sm: '275px', md: '345px' },
+              height: { xs: '205px', sm: '275px', md: '395px' },
             }}
           >
             <Box
@@ -192,6 +342,36 @@ export default function CustumSolutions() {
                 cursor: 'pointer',
               }}
             />
+          </Box>
+          <Typography
+            style={{
+              position: 'absolute',
+              bottom: '40px',
+              left: '40px',
+              fontSize: { xs: '14px', sm: '20px' },
+              fontWeight: 600,
+              color: '#2B3445',
+              pointerEvents: 'none',
+            }}
+          >
+            Makeup Remover
+          </Typography>
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: '40px',
+              right: '40px',
+              height: '35px',
+              width: '35px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              bgcolor: 'white',
+              borderRadius: '10px',
+              pointerEvents: 'none',
+            }}
+          >
+            <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
           </Box>
         </Grid>
       </Grid>

@@ -5,7 +5,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useState } from 'react';
 
-const images = [
+export const images = [
   '/images/ov4x8tqv11m5xi1kcm868rz43f7isui0.webp',
   '/images/06lT4BbLdxYjqF7EjvbnSXT9ILosjlIZh539zWgD.webp',
   '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',

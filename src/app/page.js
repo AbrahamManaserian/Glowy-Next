@@ -1,6 +1,7 @@
 'use client';
 
 import CustumSolutions from '@/components/homePage/CustumSolutions';
+import FlashDeals from '@/components/homePage/FlashDeals';
 import HomeSlide from '@/components/homePage/HomeSlide';
 import { Box, Button, Grid, Typography } from '@mui/material';
 import Link from 'next/link';
@@ -24,6 +25,7 @@ export default function Home() {
       <div>
         <HomeSlide />
         <CustumSolutions />
+        <FlashDeals />
       </div>
       <Link href="/about">
         <Button>About</Button>
