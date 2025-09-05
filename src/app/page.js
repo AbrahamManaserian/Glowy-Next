@@ -3,6 +3,7 @@
 import CustumSolutions from '@/components/homePage/CustumSolutions';
 import FlashDeals from '@/components/homePage/FlashDeals';
 import HomeSlide from '@/components/homePage/HomeSlide';
+import SpecialOffer from '@/components/homePage/SpecialOffer';
 import { Box, Button, Grid, Typography } from '@mui/material';
 import Link from 'next/link';
 
@@ -26,6 +27,7 @@ export default function Home() {
         <HomeSlide />
         <CustumSolutions />
         <FlashDeals />
+        <SpecialOffer />
       </div>
       <Link href="/about">
         <Button>About</Button>

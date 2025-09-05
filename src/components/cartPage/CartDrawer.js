@@ -46,12 +46,15 @@ export default function CartDrawer() {
         onClose={toggleDrawer(false)}
         anchor="right"
       >
-        <Box sx={{ width: { xs: '380px', sm: '380px' }, height: '100vh' }} role="presentation">
+        <Box
+          sx={{ width: { xs: '100%', sm: '380px' }, height: '100vh' }}
+          //   role="presentation"
+        >
           <Box
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
-              p: '25px',
+              p: { xs: '16px', sm: '24px' },
               borderBottom: '0.5px solid #dde2e5ff',
             }}
           >
@@ -70,6 +73,8 @@ export default function CartDrawer() {
                       height: '110px',
                       borderBottom: '1px dashed #dde2e5ff',
                       overflow: 'hidden',
+                      p: { xs: '0 16px', sm: '0 24px' },
+                      boxSizing: 'border-box',
                     }}
                   >
                     <Box
@@ -82,8 +87,8 @@ export default function CartDrawer() {
                         boxSizing: 'border-box',
                         bgcolor: '#d2cccc30',
                         //   bgcolor: 'red',
-                        m: '10px 15px 10px 25px',
-                        borderRadius: '15px',
+                        // m: '10px 15px 10px 25px',
+                        borderRadius: '10px',
                         width: '80px',
                         height: '80px',
                         overflow: 'hidden',
@@ -99,45 +104,158 @@ export default function CartDrawer() {
                     </Box>
                     <Box
                       sx={{
-                        // alignSelf: 'flex-start',
                         display: 'flex',
+                        flexGrow: 1,
                         flexDirection: 'column',
-                        height: '100%',
-                        mt: '15px',
+                        boxSizing: 'border-box',
+                        height: '80px',
+                        justifyContent: 'space-between',
+                        overflow: 'hidden',
+                        ml: '15px',
                       }}
                     >
-                      <Typography
-                        sx={{
-                          fontSize: '14px',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          maxWidth: '220px',
-                          color: '#191818f6',
-                          fontWeight: 300,
-                        }}
-                      >
-                        Armani Stronger With yuo Absolutely
-                      </Typography>
-                      <Typography
-                        sx={{
-                          fontSize: '15px',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          maxWidth: '220px',
-                          mt: '2px',
-                        }}
-                      >
-                        $ 230.00
-                      </Typography>
+                      <div>
+                        <Typography
+                          sx={{
+                            fontSize: '14px',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '240px',
+                            color: '#191818f6',
+                            fontWeight: 300,
+                          }}
+                        >
+                          Armani Stronger With yuo Absolutely
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '15px',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '220px',
+                            mt: '2px',
+                          }}
+                        >
+                          $ 230.00
+                        </Typography>
+                      </div>
                       <Box
                         sx={{
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'flex-end',
-                          flexGrow: 1,
-                          mb: '30px',
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            border: 'solid 0.5px #65626263',
+                            borderRadius: '5px',
+                            height: '24px',
+                            width: '70px',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Typography sx={{ fontSize: '15px', lineHeight: '18px' }}>+</Typography>
+                          <Typography sx={{ fontSize: '13px', lineHeight: '18px', mx: '10px' }}>1</Typography>
+                          <Typography sx={{ fontSize: '18px', lineHeight: '18px' }}>-</Typography>
+                        </Box>
+                        <DeleteOutlinedIcon
+                          sx={{ fontSize: '18px', color: '#868282f6', cursor: 'pointer' }}
+                        />
+                      </Box>
+                    </Box>
+                  </Box>
+                );
+              })}
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              {images.map((item, index) => {
+                return (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      height: '110px',
+                      borderBottom: '1px dashed #dde2e5ff',
+                      overflow: 'hidden',
+                      p: { xs: '0 16px', sm: '0 24px' },
+                      boxSizing: 'border-box',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        alignContent: 'center',
+                        padding: '5px',
+                        boxSizing: 'border-box',
+                        bgcolor: '#d2cccc30',
+                        //   bgcolor: 'red',
+                        // m: '10px 15px 10px 25px',
+                        borderRadius: '10px',
+                        width: '80px',
+                        height: '80px',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <Image
+                        src={item}
+                        alt=""
+                        width={200}
+                        height={200}
+                        style={{ width: '100%', height: 'auto' }}
+                      />
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexGrow: 1,
+                        flexDirection: 'column',
+                        boxSizing: 'border-box',
+                        height: '80px',
+                        justifyContent: 'space-between',
+                        overflow: 'hidden',
+                        ml: '15px',
+                      }}
+                    >
+                      <div>
+                        <Typography
+                          sx={{
+                            fontSize: '14px',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '240px',
+                            color: '#191818f6',
+                            fontWeight: 300,
+                          }}
+                        >
+                          Armani Stronger With yuo Absolutely
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '15px',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '220px',
+                            mt: '2px',
+                          }}
+                        >
+                          $ 230.00
+                        </Typography>
+                      </div>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-end',
                         }}
                       >
                         <Box
@@ -165,12 +283,12 @@ export default function CartDrawer() {
               })}
             </Box>
           </div>
-          <div
-            style={{
+          <Box
+            sx={{
               position: 'absolute',
               bottom: 0,
               width: '100%',
-              padding: '0 20px 20px 20px',
+              padding: { xs: '0 12px 15px 12px', sm: '0 20px 20px 20px' },
               boxSizing: 'border-box',
             }}
           >
@@ -218,7 +336,7 @@ export default function CartDrawer() {
                 View Cart
               </Button>
             </Link>
-          </div>
+          </Box>
         </Box>
       </Drawer>
     </div>
