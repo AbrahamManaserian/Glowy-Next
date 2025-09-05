@@ -21,6 +21,7 @@ import { useEffect, useRef, useState } from 'react';
 import { categories } from './CategorySearch';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { FavoriteIcon, ShoppingBasketIcon, UserAvatar } from '../icons';
+import CartDrawer from '../cartPage/CartDrawer';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -284,11 +285,8 @@ export default function AppBarMenu() {
             <FavoriteIcon size={21} />
           </StyledBadgeFavorite>
         </Link>
-        <Link href="/cart">
-          <StyledBadge badgeContent={2}>
-            <ShoppingBasketIcon />
-          </StyledBadge>
-        </Link>
+
+        <CartDrawer />
         <Link href="/user" style={{ margin: '0 15px 0 25px' }}>
           <UserAvatar />
         </Link>

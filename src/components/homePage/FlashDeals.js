@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Button, Grid, Typography } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useCallback, useEffect, useState } from 'react';
@@ -19,7 +19,8 @@ export const images = [
   '/images/w33w5wkxtoc8ine2mnc4pbfwqt40rfsh.webp',
 ];
 
-export function EmblaCarousel() {
+export function Carousel() {
+  const [showButtons, setShowButtons] = useState();
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, align: 'start' }
     //   [Autoplay({ delay: 3000, align: 'start' })] // autoplay every 3s
@@ -59,13 +60,37 @@ export function EmblaCarousel() {
         width: '100%',
       }}
     >
+      <Box sx={{ display: 'flex' }}>
+        <Typography
+          sx={{ fontSize: { xs: '22px', sm: '32px' }, mb: '20px', flexGrow: 1 }}
+          fontWeight={700}
+          color="#2B3445"
+        >
+          Flash Deals
+        </Typography>
+        <ChevronLeftIcon
+          onClick={scrollPrev}
+          sx={{
+            color: '#747982ff',
+            fontSize: '30px',
+            cursor: 'pointer',
+            mr: '5px',
+          }}
+        />
+        <NavigateNextIcon
+          onClick={scrollNext}
+          sx={{
+            color: '#747982ff',
+            fontSize: '30px',
+            cursor: 'pointer',
+          }}
+        />
+      </Box>
       {/* Carousel viewport */}
       <div
         ref={emblaRef}
         style={{
           overflow: 'hidden',
-
-          //   borderRadius: '12px',
         }}
       >
         <Box sx={{ display: 'flex' }}>
@@ -80,6 +105,8 @@ export function EmblaCarousel() {
               }}
             >
               <Box
+                onMouseEnter={() => setShowButtons(index)}
+                onMouseLeave={() => setShowButtons()}
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -97,7 +124,7 @@ export function EmblaCarousel() {
                     justifyContent: 'center',
                     alignItems: 'center',
                     alignContent: 'center',
-                    // height: '250px',
+                    height: '265px',
                     overflow: 'hidden',
                   }}
                 >
@@ -106,8 +133,53 @@ export function EmblaCarousel() {
                     alt=""
                     width={200}
                     height={200}
-                    style={{ width: '100%', height: 'auto' }}
+                    style={{ width: 'auto', height: '100%' }}
                   />
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    opacity: { xs: 1, sm: showButtons === index ? 1 : 0 },
+                    justifyContent: 'center',
+                    mt: showButtons === index ? '10px' : '15px',
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    sx={{
+                      textTransform: 'capitalize',
+                      mr: '5px',
+                      p: '10px 35px',
+                      bgcolor: '#2B3445',
+                      borderRadius: '10px',
+                      fontWeight: 400,
+                      textWrap: 'nowrap',
+                      boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
+                      ':hover': { boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)' },
+                    }}
+                  >
+                    Add To Cart
+                  </Button>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      textTransform: 'capitalize',
+                      ml: '5px',
+                      p: '10px 35px',
+                      bgcolor: '#ffffffff',
+                      borderRadius: '10px',
+                      fontWeight: 400,
+                      color: '#2B3445',
+                      boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
+                      ':hover': {
+                        boxShadow: '1px 3px 2px -2px rgba(248, 244, 244, 0.2)',
+                      },
+                      textWrap: 'nowrap',
+                    }}
+                  >
+                    Quick View
+                  </Button>
                 </Box>
                 <Box
                   sx={{
@@ -158,31 +230,6 @@ export function EmblaCarousel() {
           ))}
         </Box>
       </div>
-
-      <ChevronLeftIcon
-        onClick={scrollPrev}
-        sx={{
-          color: '#747982ff',
-          position: 'absolute',
-          top: { xs: '-52px', sm: '-68px' },
-          right: '30px',
-          fontSize: '30px',
-          cursor: 'pointer',
-          mr: '5px',
-        }}
-      />
-      <NavigateNextIcon
-        onClick={scrollNext}
-        sx={{
-          color: '#747982ff',
-          right: '10px',
-          fontSize: '30px',
-          cursor: 'pointer',
-          position: 'absolute',
-          top: { xs: '-52px', sm: '-68px' },
-          right: 0,
-        }}
-      />
     </div>
   );
 }
@@ -190,16 +237,7 @@ export function EmblaCarousel() {
 export default function FlashDeals() {
   return (
     <Grid sx={{ m: { xs: '80px 15px', sm: '90px 25px' } }} size={12} container justifyContent="space-between">
-      <Typography
-        width={'50%'}
-        sx={{ fontSize: { xs: '22px', sm: '32px' }, mb: '20px' }}
-        fontWeight={700}
-        color="#2B3445"
-      >
-        Flash Deals
-      </Typography>
-
-      <EmblaCarousel />
+      <Carousel />
     </Grid>
   );
 }
