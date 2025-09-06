@@ -3,6 +3,7 @@
 import CustumSolutions from '@/components/homePage/CustumSolutions';
 import FlashDeals from '@/components/homePage/FlashDeals';
 import HomeSlide from '@/components/homePage/HomeSlide';
+import PopularProducts from '@/components/homePage/PopularProducts';
 import SpecialOffer from '@/components/homePage/SpecialOffer';
 import { Box, Button, Grid, Typography } from '@mui/material';
 import Link from 'next/link';
@@ -22,13 +23,14 @@ const images = [
 
 export default function Home() {
   return (
-    <Grid size={12} minHeight="320vh">
-      <div>
+    <Grid minHeight="320vh">
+      <Grid sx={{ p: { xs: 0, sm: '10px' } }}>
         <HomeSlide />
         <CustumSolutions />
         <FlashDeals />
         <SpecialOffer />
-      </div>
+        <PopularProducts />
+      </Grid>
       <Link href="/about">
         <Button>About</Button>
       </Link>
