@@ -310,9 +310,6 @@ export default function CustumSolutions() {
             p: { xs: '10px 0 10px 0', sm: '10px 0 10px 10px', md: '10px 0 10px 10px' },
             overflow: 'hidden',
             position: 'relative',
-            '&:hover p': {
-              textDecoration: 'underline',
-            },
           }}
           size={{ xs: 12, sm: 6 }}
           container

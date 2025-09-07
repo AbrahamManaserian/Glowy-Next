@@ -6,7 +6,6 @@ import Image from 'next/image';
 export default async function Page() {
   let obj = [];
   let obj1 = [];
-  console.log('asd');
   const orderRef = doc(db, 'orders', '38');
   const orderRef1 = doc(db, 'orders', '27');
   const docSnap = await getDoc(orderRef1);
