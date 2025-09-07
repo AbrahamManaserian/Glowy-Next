@@ -19,13 +19,7 @@ export default function PopularProducts() {
   const [tabIndex, setTabIndex] = useState(0);
   const handleClick = (i) => setTabIndex(i);
   return (
-    <Grid
-      minHeight="100vh"
-      sx={{ m: { xs: '80px 15px', sm: '90px 25px' } }}
-      size={12}
-      container
-      alignContent={'flex-start'}
-    >
+    <Grid sx={{ m: { xs: '80px 15px', sm: '90px 25px' } }} size={12} container alignContent={'flex-start'}>
       <Typography
         sx={{ fontSize: { xs: '22px', sm: '32px' }, mb: '20px', flexGrow: 1 }}
         fontWeight={700}

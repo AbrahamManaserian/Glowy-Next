@@ -10,6 +10,7 @@ import { Grid } from '@mui/material';
 import AppHeader from '@/components/appBar/AppHeader';
 import AppBarMenu from '@/components/appBar/AppBarMenu';
 import CategorySearch from '@/components/appBar/CategorySearch';
+import Footer from '@/components/footer/Footer';
 
 export const metadata = {
   title: 'Glowy Perfume & Cosmetics',
@@ -27,10 +28,9 @@ export default function RootLayout({ children }) {
           <ThemeRegistry>
             <AppHeader />
             <AppBarMenu />
-
             <CategorySearch />
-
             {children}
+            <Footer />
           </ThemeRegistry>
         </AppRouterCacheProvider>
       </body>
