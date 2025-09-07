@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <Box sx={{ p: { xs: 0, sm: '10px' } }}>
       <HomeSlide />
-      {/* <CustumSolutions /> */}
+      <CustumSolutions />
       <FlashDeals />
       <SpecialOffer />
       <PopularProducts />

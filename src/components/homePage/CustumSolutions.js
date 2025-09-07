@@ -2,6 +2,7 @@
 
 import { Box, Grid, Typography } from '@mui/material';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
+import Image from 'next/image';
 
 const images = [
   '/images/giftCollection/491418281_17894849493207296_8185218575935560017_n.jpg',
@@ -41,28 +42,27 @@ export default function CustumSolutions() {
       >
         <Box
           sx={{
+            position: 'relative',
+            width: { xs: '100%', sm: '100%', md: '100%' },
+            height: { xs: 205, sm: 275, md: '810px' }, // same fixed heights you had
+            borderRadius: '15px',
             overflow: 'hidden',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            alignContent: 'center',
-            borderRadius: '15px',
-            height: { xs: '205px', sm: '470px', md: '810px' },
+            cursor: 'pointer',
           }}
         >
-          <Box
-            component="img"
+          <Image
             src={images[1]}
-            alt="slide"
-            sx={{
-              width: { xs: '100%', sm: '100%', md: 'auto' }, // 👈 changes at breakpoints
-              height: { xs: 'auto', sm: 'auto', md: '1000px' },
-              ':hover': {
-                transform: { xs: 0, sm: 'scale(1.07)' },
-              },
+            alt="Makeup Remover"
+            fill
+            sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            style={{
+              objectFit: 'cover',
               transition: 'transform 0.6s ease',
-              cursor: 'pointer',
             }}
+            className="hover-scale"
           />
         </Box>
         <Typography
@@ -111,28 +111,27 @@ export default function CustumSolutions() {
         >
           <Box
             sx={{
+              position: 'relative',
+              width: { xs: '100%', sm: '100%', md: '100%' },
+              height: { xs: '205px', sm: '275px', md: '395px' }, // same fixed heights you had
+              borderRadius: '15px',
               overflow: 'hidden',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              alignContent: 'center',
-              borderRadius: '15px',
-              height: { xs: '205px', sm: '275px', md: '395px' },
+              cursor: 'pointer',
             }}
           >
-            <Box
-              component="img"
+            <Image
               src={images[0]}
-              sx={{
-                width: '110%',
-                height: 'auto',
-                ':hover': {
-                  transform: { xs: 0, sm: 'scale(1.07)' },
-                },
-
+              alt="Makeup Remover"
+              fill
+              sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              style={{
+                objectFit: 'cover',
                 transition: 'transform 0.6s ease',
-                cursor: 'pointer',
               }}
+              className="hover-scale"
             />
           </Box>
 
@@ -182,29 +181,31 @@ export default function CustumSolutions() {
         >
           <Box
             sx={{
+              position: 'relative',
+              width: { xs: '100%', sm: '100%', md: '100%' },
+              height: { xs: '205px', sm: '275px', md: '395px' }, // same fixed heights you had
+
+              borderRadius: '15px',
               overflow: 'hidden',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              alignContent: 'center',
-              borderRadius: '10px',
-              height: { xs: '205px', sm: '275px', md: '395px' },
+              cursor: 'pointer',
             }}
           >
-            <Box
-              component="img"
+            <Image
               src={images[2]}
-              sx={{
-                width: '140%',
-                height: 'auto',
-                ':hover': {
-                  transform: { xs: 0, sm: 'scale(1.07)' },
-                },
+              alt="Makeup Remover"
+              fill
+              sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              style={{
+                objectFit: 'cover',
                 transition: 'transform 0.6s ease',
-                cursor: 'pointer',
               }}
+              className="hover-scale"
             />
           </Box>
+
           <Typography
             style={{
               position: 'absolute',
@@ -251,29 +252,31 @@ export default function CustumSolutions() {
         >
           <Box
             sx={{
+              position: 'relative',
+              width: { xs: '100%', sm: '100%', md: '100%' },
+              height: { xs: '205px', sm: '275px', md: '395px' }, // same fixed heights you had
+
+              borderRadius: '15px',
               overflow: 'hidden',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              alignContent: 'center',
-              borderRadius: '10px',
-              height: { xs: '205px', sm: '275px', md: '395px' },
+              cursor: 'pointer',
             }}
           >
-            <Box
-              component="img"
+            <Image
               src={images[3]}
-              sx={{
-                width: '140%',
-                height: 'auto',
-                ':hover': {
-                  transform: { xs: 0, sm: 'scale(1.07)' },
-                },
+              alt="Makeup Remover"
+              fill
+              sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              style={{
+                objectFit: 'cover',
                 transition: 'transform 0.6s ease',
-                cursor: 'pointer',
               }}
+              className="hover-scale"
             />
           </Box>
+
           <Typography
             style={{
               position: 'absolute',
@@ -317,29 +320,31 @@ export default function CustumSolutions() {
         >
           <Box
             sx={{
+              position: 'relative',
+              width: { xs: '100%', sm: '100%', md: '100%' },
+              height: { xs: '205px', sm: '275px', md: '395px' }, // same fixed heights you had
+
+              borderRadius: '15px',
               overflow: 'hidden',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              alignContent: 'center',
-              borderRadius: '10px',
-              height: { xs: '205px', sm: '275px', md: '395px' },
+              cursor: 'pointer',
             }}
           >
-            <Box
-              component="img"
+            <Image
               src={images[4]}
-              sx={{
-                width: '140%',
-                height: 'auto',
-                ':hover': {
-                  transform: { xs: 0, sm: 'scale(1.07)' },
-                },
+              alt="Makeup Remover"
+              fill
+              sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              style={{
+                objectFit: 'cover',
                 transition: 'transform 0.6s ease',
-                cursor: 'pointer',
               }}
+              className="hover-scale"
             />
           </Box>
+
           <Typography
             style={{
               position: 'absolute',
