@@ -43,7 +43,7 @@ export function Carousel() {
     };
 
     updateItemsPerView();
-    window.addEventListener('resize', updateItemsPerView, { passive: true });
+    window.addEventListener('resize', updateItemsPerView);
     return () => window.removeEventListener('resize', updateItemsPerView);
   }, []);
 
