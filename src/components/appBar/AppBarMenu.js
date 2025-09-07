@@ -52,7 +52,7 @@ const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
 
 const navObj = { makeup: 'Makeup', fragrance: 'Fragrance', sale: 'Sale', gifts: 'Gifts', about: 'About' };
 
-function LogoHome() {
+export function LogoHome() {
   return (
     <Link href="/" style={{ textDecoration: 'none' }}>
       <Typography
