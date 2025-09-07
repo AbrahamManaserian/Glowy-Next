@@ -12,10 +12,10 @@ export default function Home() {
   return (
     <Box sx={{ p: { xs: 0, sm: '10px' } }}>
       <HomeSlide />
-      <CustumSolutions />
-      {/* <FlashDeals /> */}
-      {/* <SpecialOffer /> */}
-      {/* <PopularProducts /> */}
+      {/* <CustumSolutions /> */}
+      <FlashDeals />
+      <SpecialOffer />
+      <PopularProducts />
       <Link href="/about">
         <Button>About</Button>
       </Link>
