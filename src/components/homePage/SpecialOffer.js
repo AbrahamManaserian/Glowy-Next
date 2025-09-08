@@ -163,7 +163,7 @@ function DealCountdown() {
 
   useEffect(() => {
     // Example: deal ends in 3 days from now
-    const dealEndTime = new Date('2025-09-06T23:59:59').getTime();
+    const dealEndTime = new Date('2025-09-10T23:59:59').getTime();
 
     const updateTime = () => {
       setTimeLeft(dealEndTime - new Date().getTime());
