@@ -6,7 +6,6 @@ import { DeliveryIcon, PaymentIcon, ViberIcon } from '../icons';
 import { LogoHome } from '../appBar/AppBarMenu';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
-import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 export default function Footer() {

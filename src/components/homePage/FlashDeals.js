@@ -1,8 +1,9 @@
 'use client';
 
-import { Box, Button, Grid, Typography } from '@mui/material';
+import { Box, Button, Dialog, Grid, Rating, Typography } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import CloseIcon from '@mui/icons-material/Close';
 import { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 
@@ -19,8 +20,157 @@ export const images = [
   '/images/w33w5wkxtoc8ine2mnc4pbfwqt40rfsh.webp',
 ];
 
+function OpenDialog({ quickView, handleClose }) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
+  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+
+  return (
+    <Dialog scroll={'paper'} onClose={handleClose} open={quickView || quickView === 0}>
+      <div
+        ref={emblaRef}
+        style={{
+          overflow: 'hidden',
+          maxWidth: '500px',
+          position: 'relative',
+        }}
+      >
+        <CloseIcon
+          sx={{ color: '#8a8c8dff', cursor: 'pointer', position: 'absolute', top: '10px', right: '10px' }}
+          onClick={handleClose}
+        />
+        <Box sx={{ display: 'flex' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              alignContent: 'center',
+              overflow: 'hidden',
+              height: '300px',
+              flex: `0 0 100%`, // responsive width
+              minWidth: '0',
+              padding: '10px',
+              boxSizing: 'border-box', // ✅ keeps padding inside width
+              bgcolor: '#807d7d14',
+            }}
+          >
+            <Image
+              src={images[quickView] || images[0]}
+              alt=""
+              width={200}
+              height={200}
+              style={{ width: '50%', height: 'auto' }}
+            />
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              alignContent: 'center',
+              overflow: 'hidden',
+              height: '300px',
+              flex: `0 0 100%`, // responsive width
+              minWidth: '0',
+              padding: '10px',
+              boxSizing: 'border-box', // ✅ keeps padding inside width
+              bgcolor: '#807d7d14',
+            }}
+          >
+            <Image
+              src={images[quickView] || images[0]}
+              alt=""
+              width={200}
+              height={200}
+              style={{ width: '50%', height: 'auto' }}
+            />
+          </Box>
+        </Box>
+        <ChevronLeftIcon
+          onClick={scrollPrev}
+          sx={{
+            color: '#747982ff',
+            fontSize: '30px',
+            cursor: 'pointer',
+
+            position: 'absolute',
+            top: '48%',
+          }}
+        />
+        <NavigateNextIcon
+          onClick={scrollNext}
+          sx={{
+            color: '#747982ff',
+            fontSize: '30px',
+            cursor: 'pointer',
+            position: 'absolute',
+            top: '48%',
+            right: 0,
+          }}
+        />
+      </div>
+      <Box sx={{ padding: { xs: '10px', sm: '30px' }, maxWidth: '500px', boxSizing: 'border-box' }}>
+        <Typography sx={{ fontSize: '20px', fontWeight: 500 }}>
+          Armani Stronger With yuo Absolutely
+        </Typography>
+        <Typography sx={{ fontSize: '20px', fontWeight: 500, my: '10px' }}>$105.00</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Rating name="read-only" value={5} readOnly size="small" />
+          <Typography ml="10px"> (50) </Typography>
+        </Box>
+        <Typography sx={{ fontSize: '14px', fontWeight: 300, my: '10px' }}>
+          Sed egestas, ante et vulputate volutpat, eros pede semper est, vitae luctus metus libero eu augue.
+          Morbi purus liberpuro ate vol faucibus adipiscing.
+        </Typography>
+        <Button
+          variant="contained"
+          sx={{
+            textTransform: 'capitalize',
+            mt: '10px',
+            p: '10px 35px',
+            bgcolor: '#2B3445',
+            borderRadius: '10px',
+            fontWeight: 400,
+            textWrap: 'nowrap',
+            boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
+            ':hover': { boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)' },
+          }}
+        >
+          Add To Cart
+        </Button>
+        <Typography
+          sx={{
+            fontSize: '14px',
+            fontWeight: 400,
+            mt: '15px ',
+            ':hover': { borderBottom: 'solid 1px rgba(98, 91, 91, 0.6)' },
+            flexGrow: 0,
+            cursor: 'pointer',
+            width: 'fit-content',
+            borderBottom: 'solid 1px rgba(98, 91, 91, 0)',
+            // boxSizing: 'border-box',
+          }}
+        >
+          View Product Details
+        </Typography>
+      </Box>
+    </Dialog>
+  );
+}
+
 export function Carousel() {
+  const [quickView, setQuicjView] = useState();
   const [showButtons, setShowButtons] = useState();
+
+  const handleClickOpen = (index) => {
+    setQuicjView(index);
+  };
+
+  const handleClose = (value) => {
+    setQuicjView();
+  };
+
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, align: 'start' }
     //   [Autoplay({ delay: 3000, align: 'start' })] // autoplay every 3s
@@ -51,7 +201,8 @@ export function Carousel() {
 
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
-  if (!itemsPerView) return null;
+  if (!itemsPerView)
+    return <Box sx={{ width: '100%', height: { xs: '400px', sm: '470px' }, bgcolor: '#d2cccc17' }}></Box>;
   return (
     <div
       style={{
@@ -60,6 +211,7 @@ export function Carousel() {
         width: '100%',
       }}
     >
+      <OpenDialog quickView={quickView} handleClose={handleClose} />
       <Box sx={{ display: 'flex' }}>
         <Typography
           sx={{ fontSize: { xs: '22px', sm: '32px' }, mb: '20px', flexGrow: 1 }}
@@ -162,6 +314,7 @@ export function Carousel() {
                     Add To Cart
                   </Button>
                   <Button
+                    onClick={() => handleClickOpen(index)}
                     variant="contained"
                     sx={{
                       textTransform: 'capitalize',

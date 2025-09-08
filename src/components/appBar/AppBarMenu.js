@@ -20,7 +20,7 @@ import styled from '@emotion/styled';
 import { useEffect, useRef, useState } from 'react';
 import { categories } from './CategorySearch';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { FavoriteIcon, ShoppingBasketIcon, UserAvatar } from '../icons';
+import { FavoriteIcon, UserAvatar } from '../icons';
 import CartDrawer from '../cartPage/CartDrawer';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({

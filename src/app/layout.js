@@ -1,4 +1,3 @@
-// import { Geist, Geist_Mono } from "next/font/google";
 import './globals.css';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import '@fontsource/roboto/300.css';
@@ -6,7 +5,6 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import ThemeRegistry from '@/components/ThemeRegistry';
-import { Grid } from '@mui/material';
 import AppHeader from '@/components/appBar/AppHeader';
 import AppBarMenu from '@/components/appBar/AppBarMenu';
 import CategorySearch from '@/components/appBar/CategorySearch';

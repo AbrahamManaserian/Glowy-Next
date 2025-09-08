@@ -5,7 +5,7 @@ import FlashDeals from '@/components/homePage/FlashDeals';
 import HomeSlide from '@/components/homePage/HomeSlide';
 import PopularProducts from '@/components/homePage/PopularProducts';
 import SpecialOffer from '@/components/homePage/SpecialOffer';
-import { Box, Button, Grid } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import Link from 'next/link';
 
 export default function Home() {
