@@ -18,24 +18,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { useEffect, useRef, useState } from 'react';
-import { categories } from './CategorySearch';
+// import { categories } from './CategorySearch';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { FavoriteIcon, UserAvatar } from '../icons';
 import CartDrawer from '../cartPage/CartDrawer';
+import { categories } from '../ui/CategoriesDekstop';
 
-const StyledBadge = styled(Badge)(({ theme }) => ({
-  '& .MuiBadge-badge': {
-    right: -1,
-    top: 0,
-    border: `2px solid ${(theme.vars ?? theme).palette.background.paper}`,
-    padding: '0 4px',
-    backgroundColor: '#f44336',
-    color: 'white',
-    height: '20px',
-    width: '20px',
-    borderRadius: '13px',
-  },
-}));
 const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
     right: -4,
@@ -77,14 +65,18 @@ export function LogoHome() {
     </Link>
   );
 }
-
-function SingleCategory({ category, subCategories, open, setOpen, position, setPosition, rootProps }) {
+function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer }) {
+  // console.log(data);
   const handleClick = (event) => {
     if (open === category) {
       setOpen('');
     } else {
       setOpen(category);
     }
+  };
+  const handleCloseDrawer = (event) => {
+    closeDrawer(false);
+    setOpen();
   };
 
   return (
@@ -111,39 +103,72 @@ function SingleCategory({ category, subCategories, open, setOpen, position, setP
           />
         </ListItemButton>
       </ListItem>
+
       <Collapse in={open === category} timeout="auto" unmountOnExit>
-        {Object.keys(subCategories).map((item, index) => {
+        <List sx={{ p: 0 }}>
+          <Link href={`/${data.routTo}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <ListItem disablePadding>
+              <ListItemButton sx={{ p: '0 2px 5px 20px ' }} onClick={() => handleCloseDrawer()}>
+                <ListItemText
+                  primary="All Items "
+                  primaryTypographyProps={{
+                    fontSize: '15px',
+                    fontWeight: 700,
+                    letterSpacing: 0,
+                    textTransform: 'capitalize',
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          </Link>
+        </List>
+        {Object.keys(data).map((item, index) => {
+          if (item === 'routTo') return null;
+          // console.log(data[item]);
           return (
             <List key={index} sx={{ p: 0 }}>
-              <ListItem disablePadding>
-                <ListItemButton sx={{ p: '0 2px 5px 20px ' }} onClick={handleClick}>
-                  <ListItemText
-                    primary={item}
-                    primaryTypographyProps={{
-                      fontSize: '15px',
-                      fontWeight: 700,
-                      letterSpacing: 0,
-                      textTransform: 'capitalize',
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
+              <Link
+                href={`/${data.routTo}?category=${data[item].routTo}`}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <ListItem disablePadding>
+                  <ListItemButton sx={{ p: '0 2px 5px 20px ' }} onClick={() => handleCloseDrawer()}>
+                    <ListItemText
+                      primary={item}
+                      primaryTypographyProps={{
+                        fontSize: '15px',
+                        fontWeight: 700,
+                        letterSpacing: 0,
+                        textTransform: 'capitalize',
+                      }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </Link>
               <List sx={{ ml: '20px', p: 0, borderLeft: 'solid 1px #cdd1d4ff' }}>
-                {subCategories[item].map((subItem, subIndex) => {
+                {Object.keys(data[item]).map((subItem, subIndex) => {
+                  // console.log(data[item][subItem]);
+                  if (subItem === 'routTo') return null;
                   return (
-                    <ListItem key={subIndex} disablePadding>
-                      <ListItemButton sx={{ p: '0 2px 0 20px ' }} onClick={handleClick}>
-                        <ListItemText
-                          primary={subItem}
-                          primaryTypographyProps={{
-                            fontSize: '16px',
-                            fontWeight: 300,
-                            letterSpacing: 0,
-                            textTransform: 'capitalize',
-                          }}
-                        />
-                      </ListItemButton>
-                    </ListItem>
+                    <Link
+                      key={subIndex}
+                      href={`/${data.routTo}?category=${data[item].routTo}&type=${data[item][subItem]}`}
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      <ListItem disablePadding>
+                        <ListItemButton sx={{ p: '0 2px 0 20px ' }} onClick={() => handleCloseDrawer()}>
+                          <ListItemText
+                            primary={subItem}
+                            primaryTypographyProps={{
+                              fontSize: '16px',
+                              fontWeight: 300,
+                              letterSpacing: 0,
+                              textTransform: 'capitalize',
+                            }}
+                          />
+                        </ListItemButton>
+                      </ListItem>
+                    </Link>
                   );
                 })}
               </List>
@@ -159,9 +184,8 @@ function DrawerMenu() {
   const drawerRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [openNested, setOpenNested] = useState();
-  const [position, setPosition] = useState(0);
 
-  const toggleDrawer = (newOpen) => () => {
+  const toggleDrawer = (newOpen) => {
     setOpen(newOpen);
   };
 
@@ -186,31 +210,30 @@ function DrawerMenu() {
           fontSize: '30px',
           color: '#505152ff',
         }}
-        onClick={toggleDrawer(true)}
+        onClick={() => toggleDrawer(true)}
       />
 
       <Drawer
         anchor={'right'}
         sx={{ '& .MuiDrawer-paper': { width: '100%' } }}
         open={open}
-        onClose={toggleDrawer(false)}
+        onClose={() => toggleDrawer(false)}
       >
         <Grid item xs={12} container direction="column" sx={{ p: '20px' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
             <LogoHome />
-            <CloseIcon sx={{ color: '#8a8c8dff' }} onClick={toggleDrawer(false)} />
+            <CloseIcon sx={{ color: '#8a8c8dff' }} onClick={() => toggleDrawer(false)} />
           </Box>
           <List ref={drawerRef} sx={{ pl: '10px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
             {Object.keys(categories).map((key) => {
               return (
                 <SingleCategory
+                  data={categories[key]}
                   category={key}
                   key={key}
-                  subCategories={categories[key]}
                   open={openNested}
                   setOpen={setOpenNested}
-                  position={position}
-                  setPosition={setPosition}
+                  closeDrawer={toggleDrawer}
                   rootProps={{ 'data-category': key }}
                 />
               );
