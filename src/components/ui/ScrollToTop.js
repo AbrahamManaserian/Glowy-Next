@@ -1,20 +1,31 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function ScrollToTop() {
   const pathname = usePathname();
+  const isPop = useRef(false);
+  console.log(isPop);
 
   useEffect(() => {
-    // Check if navigation was back/forward
-    const navEntries = performance.getEntriesByType('navigation');
-    const navType = navEntries[0]?.type;
-    // console.log(navEntries[0]);
-    if (navType !== 'back_forward' && navType !== 'reload') {
-      // Only scroll on fresh navigation (Link click, reload, etc.)
-      window.scrollTo({ top: 0 });
+    const handlePopState = () => {
+      isPop.current = true; // user went back/forward
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isPop.current) {
+      // normal link navigation → scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    isPop.current = false; // reset after each navigation
   }, [pathname]);
 
   return null;
