@@ -31,7 +31,7 @@ export default function SortBy() {
         sx={{
           color: '#55585aff',
           fontSize: '14px',
-          top: '-5px',
+          top: '-8px',
           // Only adjust the unshrunk position
           '&.MuiInputLabel-shrink': {
             top: 0,
@@ -54,7 +54,7 @@ export default function SortBy() {
         IconComponent={ExpandMoreIcon}
         sx={{
           position: 'relative',
-          height: '40px',
+          height: '35px',
           fontSize: '14px',
           color: '#55585aff',
           display: 'flex',

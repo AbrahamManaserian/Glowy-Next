@@ -26,11 +26,17 @@ export default async function Page() {
             <Box
               key={index}
               sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignContent: 'center',
+                alignItems: 'center',
                 width: { xs: 'calc(50% - 30px)', sm: 'calc(25% - 30px)' },
                 padding: '10px',
                 margin: 0,
                 backgroundColor: 'red',
                 margin: '5px',
+                height: { xs: '150px', sm: '250px' },
+                overflow: 'hidden',
               }}
             >
               <Image
@@ -55,11 +61,17 @@ export default async function Page() {
             <Box
               key={index}
               sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignContent: 'center',
+                alignItems: 'center',
                 width: { xs: 'calc(50% - 30px)', sm: 'calc(25% - 30px)' },
                 padding: '10px',
                 margin: 0,
                 backgroundColor: 'red',
                 margin: '5px',
+                height: { xs: '150px', sm: '250px' },
+                overflow: 'hidden',
               }}
             >
               <Image
