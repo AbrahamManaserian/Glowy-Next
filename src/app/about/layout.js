@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <div style={{ minHeight: '100vh' }}>
+    <div>
       <main>{children}</main>
     </div>
   );

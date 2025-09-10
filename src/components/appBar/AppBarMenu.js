@@ -248,31 +248,33 @@ function DrawerMenu() {
 }
 
 export default function AppBarMenu() {
-  const [isSticky, setIsSticky] = useState(false);
+  // const [isSticky, setIsSticky] = useState(true);
+  //
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     if (window.scrollY > 300) {
+  //       setIsSticky(true);
+  //     } else {
+  //       setIsSticky(false);
+  //     }
+  //   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 300) {
-        setIsSticky(true);
-      } else {
-        setIsSticky(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  //   window.addEventListener('scroll', handleScroll, { passive: true });
+  //   return () => window.removeEventListener('scroll', handleScroll);
+  // }, []);
 
   return (
     <Grid
       sx={{
         position: 'sticky',
-        top: isSticky ? 0 : -300, // 👈 offset sticky start
+        // top: isSticky ? 0 : -300, // 👈 offset sticky start
+        top: 0, // 👈 offset sticky start
         bgcolor: 'white',
         zIndex: 1200,
         p: { xs: '10px', sm: '19px 45px' },
         transition: 'top 0.5s ease, box-shadow 0.5s ease',
-        boxShadow: isSticky ? 'rgba(0, 0, 0, 0.1) 0px 2px 6px' : 'none',
+        // boxShadow: isSticky ? 'rgba(0, 0, 0, 0.1) 0px 2px 6px' : 'none',
+        boxShadow: 'rgba(0, 0, 0, 0.1) 0px 2px 6px',
         flexWrap: 'nowrap',
         overflow: 'hidden',
         width: '100%',
