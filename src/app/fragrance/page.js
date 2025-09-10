@@ -1,12 +1,17 @@
 'use client';
 
-import { Button, Grid, Typography } from '@mui/material';
-import Link from 'next/link';
+import SortBy from '@/components/fragrance/SortBy';
+import { Box, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 
-export default function Home() {
+export default function Page() {
   return (
-    <Grid container xs={12} direction="column" minHeight="320vh">
-      <Typography>Fragrance Page</Typography>
+    <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' } }} item container xs={12}>
+      <Typography sx={{ fontSize: { xs: '20px', sm: '30px' }, fontWeight: 600, flexGrow: 1 }}>
+        Fragrance
+      </Typography>
+      <Box sx={{ display: 'flex' }}>
+        <SortBy />
+      </Box>
     </Grid>
   );
 }
