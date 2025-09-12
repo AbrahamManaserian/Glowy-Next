@@ -11,7 +11,6 @@ import Footer from '@/components/footer/Footer';
 import { Grid } from '@mui/material';
 import SearchComponent from '@/components/ui/SearchComponent';
 import CategoriesDekstop from '@/components/ui/CategoriesDekstop';
-import ScrollToTop from '@/components/ui/ScrollToTop';
 
 export const metadata = {
   title: 'Glowy Perfume & Cosmetics',
@@ -25,7 +24,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body style={{ position: 'relative' }}>
-        {/* <ScrollToTop /> */}
         <AppRouterCacheProvider>
           <ThemeRegistry>
             <AppHeader />

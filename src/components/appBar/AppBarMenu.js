@@ -106,7 +106,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
 
       <Collapse in={open === category} timeout="auto" unmountOnExit>
         <List sx={{ p: 0 }}>
-          <Link href={`/${data.routTo}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link scroll={true} href={`/${data.routTo}`} style={{ textDecoration: 'none', color: 'inherit' }}>
             <ListItem disablePadding>
               <ListItemButton sx={{ p: '0 2px 5px 20px ' }} onClick={() => handleCloseDrawer()}>
                 <ListItemText
@@ -128,6 +128,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
           return (
             <List key={index} sx={{ p: 0 }}>
               <Link
+                scroll={true}
                 href={`/${data.routTo}?category=${data[item].routTo}`}
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
@@ -151,6 +152,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
                   if (subItem === 'routTo') return null;
                   return (
                     <Link
+                      scroll={true}
                       key={subIndex}
                       href={`/${data.routTo}?category=${data[item].routTo}&type=${data[item][subItem]}`}
                       style={{ textDecoration: 'none', color: 'inherit' }}
@@ -248,33 +250,33 @@ function DrawerMenu() {
 }
 
 export default function AppBarMenu() {
-  // const [isSticky, setIsSticky] = useState(true);
-  //
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     if (window.scrollY > 300) {
-  //       setIsSticky(true);
-  //     } else {
-  //       setIsSticky(false);
-  //     }
-  //   };
+  const [isSticky, setIsSticky] = useState(false);
 
-  //   window.addEventListener('scroll', handleScroll, { passive: true });
-  //   return () => window.removeEventListener('scroll', handleScroll);
-  // }, []);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <Grid
       sx={{
         position: 'sticky',
-        // top: isSticky ? 0 : -300, // 👈 offset sticky start
-        top: 0, // 👈 offset sticky start
+        top: isSticky ? 0 : -300, // 👈 offset sticky start
+        // top: 0, // 👈 offset sticky start
         bgcolor: 'white',
         zIndex: 1200,
         p: { xs: '10px', sm: '19px 45px' },
         transition: 'top 0.5s ease, box-shadow 0.5s ease',
-        // boxShadow: isSticky ? 'rgba(0, 0, 0, 0.1) 0px 2px 6px' : 'none',
-        boxShadow: 'rgba(0, 0, 0, 0.1) 0px 2px 6px',
+        boxShadow: isSticky ? 'rgba(0, 0, 0, 0.1) 0px 2px 6px' : 'none',
+        // boxShadow: 'rgba(0, 0, 0, 0.1) 0px 2px 6px',
         flexWrap: 'nowrap',
         overflow: 'hidden',
         width: '100%',
@@ -290,7 +292,7 @@ export default function AppBarMenu() {
       <Grid item container sx={{ display: { xs: 'none', sm: 'flex' }, order: 2 }}>
         {Object.keys(navObj).map((key) => {
           return (
-            <Link key={key} className="bar-link" href={`/${key}`}>
+            <Link scroll={true} key={key} className="bar-link" href={`/${key}`}>
               {navObj[key]}
             </Link>
           );
