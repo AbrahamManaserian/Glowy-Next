@@ -23,6 +23,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { FavoriteIcon, UserAvatar } from '../icons';
 import CartDrawer from '../cartPage/CartDrawer';
 import { categories } from '../ui/CategoriesDekstop';
+import { useRouter } from 'next/navigation';
 
 const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -66,6 +67,12 @@ export function LogoHome() {
   );
 }
 function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer }) {
+  const router = useRouter();
+
+  const handleClickRout = (url) => {
+    router.push(url);
+    window.scrollTo(0, 0);
+  };
   // console.log(data);
   const handleClick = (event) => {
     if (open === category) {
@@ -74,9 +81,12 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
       setOpen(category);
     }
   };
-  const handleCloseDrawer = (event) => {
+  const handleCloseDrawer = (url) => {
     closeDrawer(false);
     setOpen();
+
+    router.push(url);
+    window.scrollTo(0, 0);
   };
 
   return (
@@ -106,71 +116,83 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
 
       <Collapse in={open === category} timeout="auto" unmountOnExit>
         <List sx={{ p: 0 }}>
-          <Link scroll={true} href={`/${data.routTo}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <ListItem disablePadding>
-              <ListItemButton sx={{ p: '0 2px 5px 20px ' }} onClick={() => handleCloseDrawer()}>
-                <ListItemText
-                  primary="All Items "
-                  primaryTypographyProps={{
-                    fontSize: '15px',
-                    fontWeight: 700,
-                    letterSpacing: 0,
-                    textTransform: 'capitalize',
-                  }}
-                />
-              </ListItemButton>
-            </ListItem>
-          </Link>
+          {/* <Link href={`/${data.routTo}`} style={{ textDecoration: 'none', color: 'inherit' }}> */}
+          <ListItem disablePadding>
+            <ListItemButton
+              sx={{ p: '0 2px 5px 20px ' }}
+              onClick={() => handleCloseDrawer(`/${data.routTo}`)}
+            >
+              <ListItemText
+                primary="All Items "
+                primaryTypographyProps={{
+                  fontSize: '15px',
+                  fontWeight: 700,
+                  letterSpacing: 0,
+                  textTransform: 'capitalize',
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+          {/* </Link> */}
         </List>
         {Object.keys(data).map((item, index) => {
           if (item === 'routTo') return null;
           // console.log(data[item]);
           return (
             <List key={index} sx={{ p: 0 }}>
-              <Link
+              {/* <Link
                 scroll={true}
                 href={`/${data.routTo}?category=${data[item].routTo}`}
                 style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                <ListItem disablePadding>
-                  <ListItemButton sx={{ p: '0 2px 5px 20px ' }} onClick={() => handleCloseDrawer()}>
-                    <ListItemText
-                      primary={item}
-                      primaryTypographyProps={{
-                        fontSize: '15px',
-                        fontWeight: 700,
-                        letterSpacing: 0,
-                        textTransform: 'capitalize',
-                      }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              </Link>
+              > */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  sx={{ p: '0 2px 5px 20px ' }}
+                  onClick={() => handleCloseDrawer(`/${data.routTo}?category=${data[item].routTo}`)}
+                >
+                  <ListItemText
+                    primary={item}
+                    primaryTypographyProps={{
+                      fontSize: '15px',
+                      fontWeight: 700,
+                      letterSpacing: 0,
+                      textTransform: 'capitalize',
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+              {/* </Link> */}
               <List sx={{ ml: '20px', p: 0, borderLeft: 'solid 1px #cdd1d4ff' }}>
                 {Object.keys(data[item]).map((subItem, subIndex) => {
                   // console.log(data[item][subItem]);
                   if (subItem === 'routTo') return null;
                   return (
-                    <Link
-                      scroll={true}
-                      key={subIndex}
-                      href={`/${data.routTo}?category=${data[item].routTo}&type=${data[item][subItem]}`}
-                      style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                      <ListItem disablePadding>
-                        <ListItemButton sx={{ p: '0 2px 0 20px ' }} onClick={() => handleCloseDrawer()}>
-                          <ListItemText
-                            primary={subItem}
-                            primaryTypographyProps={{
-                              fontSize: '16px',
-                              fontWeight: 300,
-                              letterSpacing: 0,
-                              textTransform: 'capitalize',
-                            }}
-                          />
-                        </ListItemButton>
-                      </ListItem>
-                    </Link>
+                    // <Link
+                    //   key={subIndex}
+                    //   href={`/${data.routTo}?category=${data[item].routTo}&type=${data[item][subItem]}`}
+                    //   style={{ textDecoration: 'none', color: 'inherit' }}
+                    // >
+                    <ListItem key={subIndex} disablePadding>
+                      <ListItemButton
+                        sx={{ p: '0 2px 0 20px ' }}
+                        onClick={() =>
+                          handleCloseDrawer(
+                            `/${data.routTo}?category=${data[item].routTo}&type=${data[item][subItem]}`
+                          )
+                        }
+                      >
+                        <ListItemText
+                          primary={subItem}
+                          primaryTypographyProps={{
+                            fontSize: '16px',
+                            fontWeight: 300,
+                            letterSpacing: 0,
+                            textTransform: 'capitalize',
+                          }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                    // </Link>
                   );
                 })}
               </List>
