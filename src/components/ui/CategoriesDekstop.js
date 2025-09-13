@@ -26,6 +26,15 @@ export const categories = {
       routTo: 'fragrance',
     },
     routTo: 'fragrance',
+    'Car Air Fresheners': {
+      routTo: 'car-air-fresheners',
+    },
+    'Home Air Fresheners': {
+      routTo: 'home-air-fresheners',
+    },
+    Deodorant: {
+      routTo: 'deodorant',
+    },
   },
 
   Makeup: {
@@ -342,7 +351,9 @@ export default function CategoriesDekstop() {
                         if (item === 'routTo') return null;
                         return (
                           <Link
-                            href={`/${data.routTo}?category=${data[category].routTo}&type=${data[category][item]}`}
+                            href={`/${data.routTo}?category=${data[category].routTo}&${
+                              data[category].routTo === 'fragrance' ? 'gender' : 'type'
+                            }=${data[category][item]}`}
                             key={index}
                             style={{ textDecoration: 'none', color: 'inherit' }}
                           >

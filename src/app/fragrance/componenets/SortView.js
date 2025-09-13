@@ -5,7 +5,7 @@ import { GridViewIcon, ListViewIcon } from '@/components/icons';
 
 export default function SortView({ handleChangeParams, paramsState }) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+    <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
       <div
         onClick={() => handleChangeParams('view', 'list')}
         style={{

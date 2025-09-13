@@ -68,13 +68,7 @@ export function LogoHome() {
 }
 function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer }) {
   const router = useRouter();
-
-  const handleClickRout = (url) => {
-    router.push(url);
-    window.scrollTo(0, 0);
-  };
-  // console.log(data);
-  const handleClick = (event) => {
+  const handleClick = () => {
     if (open === category) {
       setOpen('');
     } else {
@@ -84,7 +78,6 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
   const handleCloseDrawer = (url) => {
     closeDrawer(false);
     setOpen();
-
     router.push(url);
     window.scrollTo(0, 0);
   };
@@ -116,7 +109,6 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
 
       <Collapse in={open === category} timeout="auto" unmountOnExit>
         <List sx={{ p: 0 }}>
-          {/* <Link href={`/${data.routTo}`} style={{ textDecoration: 'none', color: 'inherit' }}> */}
           <ListItem disablePadding>
             <ListItemButton
               sx={{ p: '0 2px 5px 20px ' }}
@@ -133,18 +125,12 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
               />
             </ListItemButton>
           </ListItem>
-          {/* </Link> */}
         </List>
         {Object.keys(data).map((item, index) => {
           if (item === 'routTo') return null;
           // console.log(data[item]);
           return (
             <List key={index} sx={{ p: 0 }}>
-              {/* <Link
-                scroll={true}
-                href={`/${data.routTo}?category=${data[item].routTo}`}
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              > */}
               <ListItem disablePadding>
                 <ListItemButton
                   sx={{ p: '0 2px 5px 20px ' }}
@@ -161,23 +147,19 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
                   />
                 </ListItemButton>
               </ListItem>
-              {/* </Link> */}
               <List sx={{ ml: '20px', p: 0, borderLeft: 'solid 1px #cdd1d4ff' }}>
                 {Object.keys(data[item]).map((subItem, subIndex) => {
                   // console.log(data[item][subItem]);
                   if (subItem === 'routTo') return null;
                   return (
-                    // <Link
-                    //   key={subIndex}
-                    //   href={`/${data.routTo}?category=${data[item].routTo}&type=${data[item][subItem]}`}
-                    //   style={{ textDecoration: 'none', color: 'inherit' }}
-                    // >
                     <ListItem key={subIndex} disablePadding>
                       <ListItemButton
                         sx={{ p: '0 2px 0 20px ' }}
                         onClick={() =>
                           handleCloseDrawer(
-                            `/${data.routTo}?category=${data[item].routTo}&type=${data[item][subItem]}`
+                            `/${data.routTo}?category=${data[item].routTo}&${
+                              data[item].routTo === 'fragrance' ? 'gender' : 'type'
+                            }=${data[item][subItem]}`
                           )
                         }
                       >
@@ -192,7 +174,6 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
                         />
                       </ListItemButton>
                     </ListItem>
-                    // </Link>
                   );
                 })}
               </List>
