@@ -22,7 +22,7 @@ export default function Filter({ handleChangeParams, paramsState, handleChangeCa
   const [openCollapsePrice, setOpenCollapsePrice] = useState(true);
   return (
     <Grid container sx={{ width: '250px' }} direction={'column'}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', my: '10px' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '10px' }}>
         <Typography sx={{ color: '#263045fb', fontWeight: 500 }}>Price</Typography>
         {openCollapsePrice ? (
           <RemoveOutlinedIcon

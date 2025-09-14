@@ -1,16 +1,34 @@
 'use client';
 
-import { Box, Grid, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Drawer,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+} from '@mui/material';
 import { useEffect, useState } from 'react';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import SortView from './componenets/SortView';
 import Filter from './componenets/Filter';
+import TuneIcon from '@mui/icons-material/Tune';
+import CloseIcon from '@mui/icons-material/Close';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 export default function FragrancePage() {
+  const [openDrawer, setOpenDrawer] = useState(false);
   const [paramsState, setParamsState] = useState({ sortBy: '', view: '', gender: [], category: [] });
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const toggleDrawer = (newOpen) => {
+    setOpenDrawer(newOpen);
+  };
 
   useEffect(() => {
     const keys = ['sortBy', 'view', 'gender', 'category'];
@@ -80,26 +98,76 @@ export default function FragrancePage() {
           flexWrap: 'wrap',
         }}
       >
-        <Box sx={{ display: 'flex', width: '100%', mb: '60px', alignItems: 'flex-start' }}>
+        <Box sx={{ display: 'flex', width: '100%', alignItems: 'flex-start', flexWrap: 'wrap' }}>
           <Typography
             sx={{
               fontSize: { xs: '18px', sm: '30px' },
               fontWeight: { xs: 500, sm: 600 },
               flexGrow: 1,
               lineHeight: { xs: '20px', sm: '30px' },
+              mb: '20px',
             }}
           >
             Fragrance
           </Typography>
-          <SortView handleChangeParams={handleChangeParams} paramsState={paramsState} />
+          <SortView
+            toggleDrawer={toggleDrawer}
+            handleChangeParams={handleChangeParams}
+            paramsState={paramsState}
+          />
         </Box>
-        {/* <Box sx={{ display: { xs: 'block', sm: 'none' } }}> */}
-        <Filter
-          handleChangeCategoryParams={handleChangeCategoryParams}
-          handleChangeParams={handleChangeParams}
-          paramsState={paramsState}
-        />
-        {/* </Box> */}
+        {/* <TuneIcon
+          onClick={() => toggleDrawer(true)}
+          sx={{ display: { xs: 'block', sm: 'block', md: 'none' }, color: '#8a8c8dff' }}
+        /> */}
+
+        <Box sx={{ display: { xs: 'none', sm: 'none', md: 'block' }, mt: '40px' }}>
+          <Filter
+            handleChangeCategoryParams={handleChangeCategoryParams}
+            handleChangeParams={handleChangeParams}
+            paramsState={paramsState}
+          />
+        </Box>
+
+        <Drawer
+          // anchor={'right'}
+          sx={{ '& .MuiDrawer-paper': { width: '100%' } }}
+          open={openDrawer}
+          onClose={() => toggleDrawer(false)}
+        >
+          <div>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                position: 'sticky',
+                top: 0,
+                bgcolor: 'white',
+                boxShadow: 'rgba(0, 0, 0, 0.1) 0px 2px 6px',
+                p: ' 10px 15px',
+                zIndex: 100,
+                alignItems: 'center',
+              }}
+            >
+              <CloseIcon sx={{ color: '#8a8c8dff' }} onClick={() => toggleDrawer(false)} />
+              <Button variant="text" sx={{ m: 0 }}>
+                Aply
+              </Button>
+            </Box>
+            <div style={{ padding: '15px' }}>
+              <Filter
+                handleChangeCategoryParams={handleChangeCategoryParams}
+                handleChangeParams={handleChangeParams}
+                paramsState={paramsState}
+              />
+              <Filter
+                handleChangeCategoryParams={handleChangeCategoryParams}
+                handleChangeParams={handleChangeParams}
+                paramsState={paramsState}
+              />
+            </div>
+          </div>
+        </Drawer>
       </Box>
     </Grid>
   );

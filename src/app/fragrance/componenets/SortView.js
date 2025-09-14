@@ -1,11 +1,22 @@
-import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
+import TuneIcon from '@mui/icons-material/Tune';
 import { GridViewIcon, ListViewIcon } from '@/components/icons';
 
-export default function SortView({ handleChangeParams, paramsState }) {
+export default function SortView({ handleChangeParams, paramsState, toggleDrawer }) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        width: { xs: '100%', sm: '100%', md: 'auto' },
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+      }}
+    >
+      <Box sx={{ flexGrow: 1, display: { xs: 'flex', sm: 'flex', md: 'none' } }}>
+        <TuneIcon onClick={() => toggleDrawer(true)} sx={{ color: '#8a8c8dff' }} />
+        <Typography sx={{ color: '#262b2eff', fontSize: '14px', ml: '10px' }}>Filters</Typography>
+      </Box>
       <div
         onClick={() => handleChangeParams('view', 'list')}
         style={{
