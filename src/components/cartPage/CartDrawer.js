@@ -35,7 +35,7 @@ export default function CartDrawer() {
 
   return (
     <div>
-      <div style={{ cursor: 'pointer' }} onClick={toggleDrawer(true)}>
+      <div style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }} onClick={toggleDrawer(true)}>
         <StyledBadge badgeContent={1}>
           <ShoppingBasketIcon />
         </StyledBadge>

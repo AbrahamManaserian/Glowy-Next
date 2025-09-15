@@ -116,10 +116,6 @@ export default function FragrancePage() {
             paramsState={paramsState}
           />
         </Box>
-        {/* <TuneIcon
-          onClick={() => toggleDrawer(true)}
-          sx={{ display: { xs: 'block', sm: 'block', md: 'none' }, color: '#8a8c8dff' }}
-        /> */}
 
         <Box sx={{ display: { xs: 'none', sm: 'none', md: 'block' }, mt: '40px' }}>
           <Filter

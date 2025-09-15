@@ -43,7 +43,7 @@ const navObj = { makeup: 'Makeup', fragrance: 'Fragrance', sale: 'Sale', gifts: 
 
 export function LogoHome() {
   return (
-    <Link href="/" style={{ textDecoration: 'none' }}>
+    <Link href="/" style={{ textDecoration: 'none', WebkitTapHighlightColor: 'transparent' }}>
       <Typography
         sx={{
           // height: '24px',
@@ -76,10 +76,10 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
     }
   };
   const handleCloseDrawer = (url) => {
+    router.push(url);
     closeDrawer(false);
     setOpen();
-    router.push(url);
-    window.scrollTo(0, 0);
+    // window.scrollTo(0, 0);
   };
 
   return (
@@ -310,14 +310,14 @@ export default function AppBarMenu() {
         alignItems="center"
         justifyContent="flex-end"
       >
-        <Link href="/favorite" style={{ margin: '0 25px 0 10px' }}>
+        <Link href="/favorite" style={{ margin: '0 25px 0 10px', WebkitTapHighlightColor: 'transparent' }}>
           <StyledBadgeFavorite badgeContent={1}>
             <FavoriteIcon size={21} />
           </StyledBadgeFavorite>
         </Link>
 
         <CartDrawer />
-        <Link href="/user" style={{ margin: '0 15px 0 25px' }}>
+        <Link href="/user" style={{ margin: '0 15px 0 25px', WebkitTapHighlightColor: 'transparent' }}>
           <UserAvatar />
         </Link>
       </Grid>

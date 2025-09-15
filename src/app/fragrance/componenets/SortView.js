@@ -15,7 +15,12 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
     >
       <Box sx={{ flexGrow: 1, display: { xs: 'flex', sm: 'flex', md: 'none' } }}>
         <TuneIcon onClick={() => toggleDrawer(true)} sx={{ color: '#8a8c8dff' }} />
-        <Typography sx={{ color: '#262b2eff', fontSize: '14px', ml: '10px' }}>Filters</Typography>
+        <Typography
+          onClick={() => toggleDrawer(true)}
+          sx={{ color: '#262b2eff', fontSize: '14px', ml: '10px' }}
+        >
+          Filters
+        </Typography>
       </Box>
       <div
         onClick={() => handleChangeParams('view', 'list')}
