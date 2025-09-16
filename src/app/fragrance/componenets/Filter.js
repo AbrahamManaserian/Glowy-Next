@@ -16,10 +16,11 @@ import { useState } from 'react';
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
-export default function Filter({ handleChangeParams, paramsState, handleChangeCategoryParams }) {
+export default function Filter({ handleChangeParams, paramsState, handleChangeCategoryParams, makeRout }) {
   const [openCollapseGender, setOpenCollapseGender] = useState(true);
   const [openCollapseCategory, setOpenCollapseCategory] = useState(true);
   const [openCollapsePrice, setOpenCollapsePrice] = useState(true);
+
   return (
     <Grid container sx={{ width: '250px' }} direction={'column'}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '10px' }}>
@@ -152,7 +153,11 @@ export default function Filter({ handleChangeParams, paramsState, handleChangeCa
                   },
                 }}
                 checked={paramsState.category.includes('fragrance')}
-                onChange={() => handleChangeCategoryParams('fragrance')}
+                onChange={() =>
+                  makeRout
+                    ? handleChangeCategoryParams('fragrance')
+                    : handleChangeCategoryParams('fragrance', true)
+                }
               />
             }
             label="Fragrance"
@@ -174,7 +179,11 @@ export default function Filter({ handleChangeParams, paramsState, handleChangeCa
                   },
                 }}
                 checked={paramsState.category.includes('car-air-fresheners')}
-                onChange={() => handleChangeCategoryParams('car-air-fresheners')}
+                onChange={() =>
+                  makeRout
+                    ? handleChangeCategoryParams('car-air-fresheners')
+                    : handleChangeCategoryParams('car-air-fresheners', true)
+                }
               />
             }
             label="Car Air Fresheners"
@@ -197,7 +206,11 @@ export default function Filter({ handleChangeParams, paramsState, handleChangeCa
                   },
                 }}
                 checked={paramsState.category.includes('home-air-fresheners')}
-                onChange={() => handleChangeCategoryParams('home-air-fresheners')}
+                onChange={() =>
+                  makeRout
+                    ? handleChangeCategoryParams('home-air-fresheners')
+                    : handleChangeCategoryParams('home-air-fresheners', true)
+                }
               />
             }
             label="Home Air Fresheners"
@@ -219,7 +232,11 @@ export default function Filter({ handleChangeParams, paramsState, handleChangeCa
                   },
                 }}
                 checked={paramsState.category.includes('deodorant')}
-                onChange={() => handleChangeCategoryParams('deodorant')}
+                onChange={() =>
+                  makeRout
+                    ? handleChangeCategoryParams('deodorant')
+                    : handleChangeCategoryParams('deodorant', true)
+                }
               />
             }
             label="Deodorant"
@@ -260,7 +277,11 @@ export default function Filter({ handleChangeParams, paramsState, handleChangeCa
                   },
                 }}
                 checked={paramsState.gender.includes('women')}
-                onChange={() => handleChangeParams('gender', 'women')}
+                onChange={() =>
+                  makeRout
+                    ? handleChangeParams('gender', 'women')
+                    : handleChangeParams('gender', 'women', true)
+                }
               />
             }
             label="Women"
@@ -283,7 +304,9 @@ export default function Filter({ handleChangeParams, paramsState, handleChangeCa
                   },
                 }}
                 checked={paramsState.gender.includes('men')}
-                onChange={() => handleChangeParams('gender', 'men')}
+                onChange={() =>
+                  makeRout ? handleChangeParams('gender', 'men') : handleChangeParams('gender', 'men', true)
+                }
               />
             }
             label="Men"
@@ -305,7 +328,9 @@ export default function Filter({ handleChangeParams, paramsState, handleChangeCa
                   },
                 }}
                 checked={paramsState.gender.includes('uni')}
-                onChange={() => handleChangeParams('gender', 'uni')}
+                onChange={() =>
+                  makeRout ? handleChangeParams('gender', 'uni') : handleChangeParams('gender', 'uni', true)
+                }
               />
             }
             label="Uni"

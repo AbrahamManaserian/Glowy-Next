@@ -13,17 +13,20 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
         justifyContent: 'flex-start',
       }}
     >
-      <Box sx={{ flexGrow: 1, display: { xs: 'flex', sm: 'flex', md: 'none' } }}>
-        <TuneIcon onClick={() => toggleDrawer(true)} sx={{ color: '#8a8c8dff' }} />
-        <Typography
-          onClick={() => toggleDrawer(true)}
-          sx={{ color: '#262b2eff', fontSize: '14px', ml: '10px' }}
-        >
-          Filters
-        </Typography>
+      <Box sx={{ display: { xs: 'flex', sm: 'flex', md: 'none' }, flexGrow: 1 }}>
+        <Box onClick={() => toggleDrawer(true)} sx={{ display: 'flex' }}>
+          <TuneIcon sx={{ color: '#8a8c8dff' }} />
+          <Typography
+            // onClick={() => toggleDrawer(true)}
+            sx={{ color: '#262b2eff', fontSize: '14px', ml: '10px' }}
+          >
+            Filters
+          </Typography>
+        </Box>
       </Box>
+
       <div
-        onClick={() => handleChangeParams('view', 'list')}
+        onClick={() => handleChangeParams('view', 'list', true)}
         style={{
           display: 'flex',
           justifyContent: 'center',
@@ -37,7 +40,7 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
         <ListViewIcon />
       </div>
       <div
-        onClick={() => handleChangeParams('view', 'grid')}
+        onClick={() => handleChangeParams('view', 'grid', true)}
         style={{
           display: 'flex',
           justifyContent: 'center',
@@ -49,6 +52,7 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
       >
         <GridViewIcon />
       </div>
+
       <FormControl
         sx={{
           width: { xs: '100px', sm: '150px' },
@@ -79,7 +83,7 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
           id="demo-simple-select"
           label="Sort by"
           value={paramsState.sortBy}
-          onChange={(event) => handleChangeParams('sortBy', event.target.value)}
+          onChange={(event) => handleChangeParams('sortBy', event.target.value, true)}
           IconComponent={ExpandMoreIcon}
           sx={{
             position: 'relative',

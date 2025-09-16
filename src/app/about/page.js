@@ -18,7 +18,7 @@ export default async function AboutPage() {
   }
   // console.log(obj);
   return (
-    <Grid item container xs={12} justifyContent="center" alignItems="center">
+    <Grid container size={12} justifyContent="center" alignItems="center">
       {obj.map((item, index) => {
         // console.log(index);
         if (index < 80) {

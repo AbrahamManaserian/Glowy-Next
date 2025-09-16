@@ -47,7 +47,20 @@ export default function FragrancePage() {
 
   // console.log(paramsState);
 
-  const handleChangeCategoryParams = (value) => {
+  const makeRout = (obj) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.keys(obj).forEach((key) => {
+      if (key !== 'sortBy' && key !== 'view') {
+        params.set(key, obj[key].join(','));
+      } else {
+        params.set(key, obj[key]);
+      }
+    });
+
+    router.push(`?${params.toString()}`, undefined, { scroll: true });
+  };
+
+  const handleChangeCategoryParams = (value, routTo) => {
     let categories = [];
     if (paramsState.category.includes(value)) {
       categories = paramsState.category.filter((f) => f !== value);
@@ -56,13 +69,12 @@ export default function FragrancePage() {
     }
     const newState = { ...paramsState, category: categories };
     setParamsState(newState);
-    const params = new URLSearchParams(searchParams.toString());
-
-    params.set('category', categories.join(','));
-    router.push(`?${params.toString()}`);
+    if (routTo) {
+      makeRout(newState);
+    }
   };
 
-  const handleChangeParams = (key, value) => {
+  const handleChangeParams = (key, value, routTo) => {
     if (key === 'gender') {
       let genderArr = [];
       if (paramsState[key].includes(value)) {
@@ -73,20 +85,21 @@ export default function FragrancePage() {
 
       const newState = { ...paramsState, [key]: genderArr };
       setParamsState(newState);
-      const params = new URLSearchParams(searchParams.toString());
 
-      params.set('gender', genderArr.join(','));
-      router.push(`?${params.toString()}`);
+      if (routTo) {
+        makeRout(newState);
+      }
       // }
     } else {
       const newState = { ...paramsState, [key]: value };
       setParamsState(newState);
-      const params = new URLSearchParams(searchParams.toString());
-
-      params.set(key, value);
-      router.push(`${pathname}?${params.toString()}`);
+      if (routTo) {
+        makeRout(newState);
+      }
     }
   };
+
+  // console.log(paramsState);
 
   return (
     <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' } }} size={12}>
@@ -126,7 +139,6 @@ export default function FragrancePage() {
         </Box>
 
         <Drawer
-          // anchor={'right'}
           sx={{ '& .MuiDrawer-paper': { width: '100%' } }}
           open={openDrawer}
           onClose={() => toggleDrawer(false)}
@@ -146,7 +158,14 @@ export default function FragrancePage() {
               }}
             >
               <CloseIcon sx={{ color: '#8a8c8dff' }} onClick={() => toggleDrawer(false)} />
-              <Button variant="text" sx={{ m: 0 }}>
+              <Button
+                onClick={() => {
+                  toggleDrawer(false);
+                  makeRout(paramsState);
+                }}
+                variant="text"
+                sx={{ m: 0 }}
+              >
                 Aply
               </Button>
             </Box>
@@ -155,11 +174,13 @@ export default function FragrancePage() {
                 handleChangeCategoryParams={handleChangeCategoryParams}
                 handleChangeParams={handleChangeParams}
                 paramsState={paramsState}
+                makeRout={makeRout}
               />
               <Filter
                 handleChangeCategoryParams={handleChangeCategoryParams}
                 handleChangeParams={handleChangeParams}
                 paramsState={paramsState}
+                makeRout={makeRout}
               />
             </div>
           </div>
