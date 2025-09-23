@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Button, Drawer, Grid, Typography } from '@mui/material';
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Filter from './componenets/Filter';
 import { useRouter, useSearchParams } from 'next/navigation';
 import SortView from './componenets/SortView';
@@ -91,91 +91,89 @@ export default function FragrancePage() {
   }, [searchParams]);
 
   return (
-    <Suspense fallback={null}>
-      <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' } }} size={12}>
-        <Box
-          sx={{
-            display: 'flex',
-            maxWidth: '1200px',
-            margin: '0 auto',
-            flexWrap: 'wrap',
-          }}
+    <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' } }} size={12}>
+      <Box
+        sx={{
+          display: 'flex',
+          maxWidth: '1200px',
+          margin: '0 auto',
+          flexWrap: 'wrap',
+        }}
+      >
+        <Box sx={{ display: 'flex', width: '100%', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <Typography
+            sx={{
+              fontSize: { xs: '18px', sm: '30px' },
+              fontWeight: { xs: 500, sm: 600 },
+              flexGrow: 1,
+              lineHeight: { xs: '20px', sm: '30px' },
+              mb: '20px',
+            }}
+          >
+            Fragrance
+          </Typography>
+          <SortView
+            toggleDrawer={toggleDrawer}
+            handleChangeParams={handleChangeParams}
+            paramsState={paramsState}
+          />
+        </Box>
+        <Box sx={{ display: { xs: 'none', sm: 'none', md: 'block' }, mt: '40px' }}>
+          <Filter
+            paramsState={paramsState}
+            handleChangeParams={handleChangeParams}
+            makeRout={true}
+            handleChangeArrayParams={handleChangeArrayParams}
+          />
+        </Box>
+        <Drawer
+          sx={{ '& .MuiDrawer-paper': { width: '100%' } }}
+          open={openDrawer}
+          onClose={() => toggleDrawer(false)}
         >
-          <Box sx={{ display: 'flex', width: '100%', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-            <Typography
+          <div>
+            <Box
               sx={{
-                fontSize: { xs: '18px', sm: '30px' },
-                fontWeight: { xs: 500, sm: 600 },
-                flexGrow: 1,
-                lineHeight: { xs: '20px', sm: '30px' },
-                mb: '20px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                position: 'sticky',
+                top: 0,
+                bgcolor: 'white',
+                boxShadow: 'rgba(0, 0, 0, 0.1) 0px 2px 6px',
+                p: ' 10px 15px',
+                zIndex: 100,
+                alignItems: 'center',
               }}
             >
-              Fragrance
-            </Typography>
-            <SortView
-              toggleDrawer={toggleDrawer}
-              handleChangeParams={handleChangeParams}
-              paramsState={paramsState}
-            />
-          </Box>
-          <Box sx={{ display: { xs: 'none', sm: 'none', md: 'block' }, mt: '40px' }}>
-            <Filter
-              paramsState={paramsState}
-              handleChangeParams={handleChangeParams}
-              makeRout={true}
-              handleChangeArrayParams={handleChangeArrayParams}
-            />
-          </Box>
-          <Drawer
-            sx={{ '& .MuiDrawer-paper': { width: '100%' } }}
-            open={openDrawer}
-            onClose={() => toggleDrawer(false)}
-          >
-            <div>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  position: 'sticky',
-                  top: 0,
-                  bgcolor: 'white',
-                  boxShadow: 'rgba(0, 0, 0, 0.1) 0px 2px 6px',
-                  p: ' 10px 15px',
-                  zIndex: 100,
-                  alignItems: 'center',
+              <CloseIcon sx={{ color: '#8a8c8dff' }} onClick={() => toggleDrawer(false)} />
+              <Button
+                onClick={() => {
+                  toggleDrawer(false);
+                  applyFilters(paramsState);
                 }}
+                variant="text"
+                sx={{ m: 0 }}
               >
-                <CloseIcon sx={{ color: '#8a8c8dff' }} onClick={() => toggleDrawer(false)} />
-                <Button
-                  onClick={() => {
-                    toggleDrawer(false);
-                    applyFilters(paramsState);
-                  }}
-                  variant="text"
-                  sx={{ m: 0 }}
-                >
-                  Aply
-                </Button>
-              </Box>
-              <div style={{ padding: '15px' }}>
-                <Filter
-                  paramsState={paramsState}
-                  handleChangeParams={handleChangeParams}
-                  makeRout={false}
-                  handleChangeArrayParams={handleChangeArrayParams}
-                />
-                <Filter
-                  paramsState={paramsState}
-                  handleChangeParams={handleChangeParams}
-                  makeRout={false}
-                  handleChangeArrayParams={handleChangeArrayParams}
-                />
-              </div>
+                Aply
+              </Button>
+            </Box>
+            <div style={{ padding: '15px' }}>
+              <Filter
+                paramsState={paramsState}
+                handleChangeParams={handleChangeParams}
+                makeRout={false}
+                handleChangeArrayParams={handleChangeArrayParams}
+              />
+              <Filter
+                paramsState={paramsState}
+                handleChangeParams={handleChangeParams}
+                makeRout={false}
+                handleChangeArrayParams={handleChangeArrayParams}
+              />
             </div>
-          </Drawer>
-        </Box>
-      </Grid>
-    </Suspense>
+          </div>
+        </Drawer>
+      </Box>
+    </Grid>
   );
 }

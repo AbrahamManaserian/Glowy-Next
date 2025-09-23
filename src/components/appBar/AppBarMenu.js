@@ -17,7 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 // import { categories } from './CategorySearch';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { FavoriteIcon, UserAvatar } from '../icons';
@@ -25,7 +25,6 @@ import { FavoriteIcon, UserAvatar } from '../icons';
 import { categories } from '../ui/CategoriesDekstop';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import CartDrawer from '../cartPage/CartDrawer';
-
 
 const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -215,7 +214,7 @@ function DrawerMenu() {
   }, [openNested]);
 
   return (
-    <Suspense fallback={null}>
+    <>
       <MenuIcon
         sx={{
           display: { xs: 'block', sm: 'none' },
@@ -256,7 +255,7 @@ function DrawerMenu() {
           <Divider />
         </Grid>
       </Drawer>
-    </Suspense>
+    </>
   );
 }
 

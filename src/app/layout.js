@@ -27,14 +27,16 @@ export default function RootLayout({ children }) {
       <body style={{ position: 'relative' }}>
         <AppRouterCacheProvider>
           <ThemeRegistry>
-            <AppHeader />
-            <AppBarMenu />
-            <Grid sx={{ p: '10px 25px' }} item xs={12} container>
-              <CategoriesDekstop />
-              <SearchComponent />
-            </Grid>
-            <Suspense fallback={null}>{children}</Suspense>
-            <Footer />
+            <Suspense fallback={null}>
+              <AppHeader />
+              <AppBarMenu />
+              <Grid sx={{ p: '10px 25px' }} item xs={12} container>
+                <CategoriesDekstop />
+                <SearchComponent />
+              </Grid>
+              {children}
+              <Footer />
+            </Suspense>
           </ThemeRegistry>
         </AppRouterCacheProvider>
       </body>
