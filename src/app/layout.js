@@ -12,7 +12,7 @@ import { Grid } from '@mui/material';
 import SearchComponent from '@/components/ui/SearchComponent';
 import CategoriesDekstop from '@/components/ui/CategoriesDekstop';
 import { Suspense } from 'react';
-import { NavigationEvents } from '@/components/navigation-events';
+import ClientScrollWrapper from '@/components/ClientScrollWrapper';
 
 export const metadata = {
   title: 'Glowy Perfume & Cosmetics',
@@ -35,10 +35,8 @@ export default function RootLayout({ children }) {
                 <CategoriesDekstop />
                 <SearchComponent />
               </Grid>
-              {children}
-              <Suspense fallback={null}>
-                <NavigationEvents />
-              </Suspense>
+              {/* {children} */}
+              <ClientScrollWrapper>{children}</ClientScrollWrapper>
               <Footer />
             </Suspense>
           </ThemeRegistry>
