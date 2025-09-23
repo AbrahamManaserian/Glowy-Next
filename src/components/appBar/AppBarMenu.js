@@ -17,7 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 // import { categories } from './CategorySearch';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { FavoriteIcon, UserAvatar } from '../icons';
@@ -215,7 +215,7 @@ function DrawerMenu() {
   }, [openNested]);
 
   return (
-    <>
+    <Suspense fallback={null}>
       <MenuIcon
         sx={{
           display: { xs: 'block', sm: 'none' },
@@ -256,7 +256,7 @@ function DrawerMenu() {
           <Divider />
         </Grid>
       </Drawer>
-    </>
+    </Suspense>
   );
 }
 

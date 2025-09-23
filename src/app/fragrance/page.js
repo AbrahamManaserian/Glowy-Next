@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Button, Drawer, Grid, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Filter from './componenets/Filter';
 import { useRouter, useSearchParams } from 'next/navigation';
 import SortView from './componenets/SortView';
@@ -73,24 +73,25 @@ export default function FragrancePage() {
       makeRout(prop, value);
     }
   };
-    
-    useEffect(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      toggleDrawer(false);
-      const newState = {};
-      Object.keys(paramsState).forEach((key) => {
-        if (key === 'gender' || key === 'category' || key === 'brands') {
-          const items = searchParams.get(key);
-          const arrItems = items ? items.split(',') : [];
-          newState[key] = arrItems;
-        } else {
-          newState[key] = searchParams.get(key) || '';
-        }
-      });
-      setParamsState(newState);
-    }, [searchParams]);
 
-    return (
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    toggleDrawer(false);
+    const newState = {};
+    Object.keys(paramsState).forEach((key) => {
+      if (key === 'gender' || key === 'category' || key === 'brands') {
+        const items = searchParams.get(key);
+        const arrItems = items ? items.split(',') : [];
+        newState[key] = arrItems;
+      } else {
+        newState[key] = searchParams.get(key) || '';
+      }
+    });
+    setParamsState(newState);
+  }, [searchParams]);
+
+  return (
+    <Suspense fallback={null}>
       <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' } }} size={12}>
         <Box
           sx={{
@@ -175,5 +176,6 @@ export default function FragrancePage() {
           </Drawer>
         </Box>
       </Grid>
-    );
+    </Suspense>
+  );
 }
