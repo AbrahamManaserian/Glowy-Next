@@ -309,8 +309,9 @@ export default function CartDrawer() {
                 bgcolor: 'white',
               }}
             >
-              <Link onClick={() => toggleDrawer(false)} href="cart">
+              <Link href="cart">
                 <Button
+                  onClick={() => toggleDrawer(false)}
                   variant="contained"
                   sx={{
                     textTransform: 'capitalize',
@@ -330,8 +331,9 @@ export default function CartDrawer() {
                   Procced To Checkout
                 </Button>
               </Link>
-              <Link onClick={() => toggleDrawer(false)} href="cart">
+              <Link href="cart">
                 <Button
+                  onClick={() => toggleDrawer(false)}
                   variant="outlined"
                   sx={{
                     width: '100%',

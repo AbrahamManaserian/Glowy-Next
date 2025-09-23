@@ -37,20 +37,20 @@ export default function FragrancePage() {
       }
     });
 
-    router.push(`?${params.toString()}`, undefined, { scroll: false });
+    router.push(`?${params.toString()}`);
     toggleDrawer(false);
   };
 
   const makeRout = (prop, value) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set(prop, value);
-    router.push(`?${params.toString()}`, undefined, { scroll: false });
+    router.push(`?${params.toString()}`);
   };
 
   const makeArrayRoute = (prop, arr) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set(prop, arr.join(','));
-    router.push(`?${params.toString()}`, undefined, { scroll: false });
+    router.push(`?${params.toString()}`);
   };
 
   const handleChangeArrayParams = (prop, value, rout) => {

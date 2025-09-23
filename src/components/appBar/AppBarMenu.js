@@ -79,7 +79,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
   const handleCloseDrawer = (url) => {
     closeDrawer(false);
     setOpen();
-    router.push(url, undefined, { scroll: true });
+    router.push(url);
   };
 
   return (
@@ -301,7 +301,7 @@ export default function AppBarMenu() {
       <Grid item container sx={{ display: { xs: 'none', sm: 'flex' }, order: 2 }}>
         {Object.keys(navObj).map((key) => {
           return (
-            <Link scroll={true} key={key} className="bar-link" href={`/${key}`}>
+            <Link key={key} className="bar-link" href={`/${key}`}>
               {navObj[key]}
             </Link>
           );
