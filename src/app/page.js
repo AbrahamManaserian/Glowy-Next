@@ -8,18 +8,21 @@ import PopularProducts from '@/components/PopularProducts';
 import SpecialOffer from '@/components/SpecialOffer';
 import { Box, Button } from '@mui/material';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 export default function Home() {
   return (
-    <Box sx={{ p: { xs: 0, sm: '10px' } }}>
-      <HomeSlide />
-      <CustumSolutions />
-      <FlashDeals />
-      <SpecialOffer />
-      <PopularProducts />
-      <Link href="/about">
-        <Button>About</Button>
-      </Link>
-    </Box>
+    <Suspense fallback={null}>
+      <Box sx={{ p: { xs: 0, sm: '10px' } }}>
+        <HomeSlide />
+        <CustumSolutions />
+        <FlashDeals />
+        <SpecialOffer />
+        <PopularProducts />
+        <Link href="/about">
+          <Button>About</Button>
+        </Link>
+      </Box>
+    </Suspense>
   );
 }
