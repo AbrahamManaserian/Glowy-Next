@@ -45,7 +45,7 @@ export default function CartDrawer() {
   }, [searchParams, pathname]);
 
   return (
-    <Suspense fallback={<p>Loading profile...</p>}>
+    <Suspense fallback={null}>
       <div>
         <div
           style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}
