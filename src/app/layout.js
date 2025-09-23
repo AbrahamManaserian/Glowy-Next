@@ -13,7 +13,6 @@ import SearchComponent from '@/components/ui/SearchComponent';
 import CategoriesDekstop from '@/components/ui/CategoriesDekstop';
 import { Suspense } from 'react';
 
-
 export const metadata = {
   title: 'Glowy Perfume & Cosmetics',
   description: 'Perfume & Cosmetics Online Store ',
@@ -35,8 +34,8 @@ export default function RootLayout({ children }) {
                 <CategoriesDekstop />
                 <SearchComponent />
               </Grid>
-              {children}
 
+              {children}
               <Footer />
             </Suspense>
           </ThemeRegistry>

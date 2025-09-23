@@ -19,10 +19,10 @@ export default function Home() {
       <SpecialOffer />
       <PopularProducts />
 
-      <Link href="/fragrance?category=fragrance&gender=women">
+      <Link scroll={false} href="/fragrance?category=fragrance&gender=women">
         <Button>About</Button>
       </Link>
-      <Link href="/fragrance">
+      <Link scroll={false} href="/fragrance">
         <Button>About</Button>
       </Link>
     </Box>
