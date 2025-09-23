@@ -22,6 +22,9 @@ export default function Home() {
       <Link href="/fragrance?category=fragrance&gender=women">
         <Button>About</Button>
       </Link>
+      <Link href="/fragrance">
+        <Button>About</Button>
+      </Link>
     </Box>
   );
 }
