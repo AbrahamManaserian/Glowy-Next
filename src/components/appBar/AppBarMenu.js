@@ -79,7 +79,10 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
   const handleCloseDrawer = (url) => {
     console.log(window.scrollY);
     closeDrawer(false);
-    router.push(url, undefined, { scroll: true });
+    router.push(url, undefined, { scroll: true }).then(() => {
+      // Always scroll to top manually
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
     setOpen();
     // window.scrollTo(0, 0);
   };
