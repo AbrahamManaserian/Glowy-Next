@@ -3,12 +3,13 @@
 import { Box, Button, Drawer, Grid, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import Filter from './componenets/Filter';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import SortView from './componenets/SortView';
 import CloseIcon from '@mui/icons-material/Close';
 
 export default function FragrancePage() {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const router = useRouter();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [paramsState, setParamsState] = useState({
@@ -88,7 +89,7 @@ export default function FragrancePage() {
       }
     });
     setParamsState(newState);
-  }, [searchParams]);
+  }, [pathname, searchParams.toString()]);
 
   return (
     <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' } }} size={12}>

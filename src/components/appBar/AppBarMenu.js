@@ -77,11 +77,9 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
     }
   };
   const handleCloseDrawer = (url) => {
-    console.log(window.scrollY);
     closeDrawer(false);
     setOpen();
     router.push(url, undefined, { scroll: true });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
