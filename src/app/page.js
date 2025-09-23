@@ -18,7 +18,8 @@ export default function Home() {
       <FlashDeals />
       <SpecialOffer />
       <PopularProducts />
-      <Link href="/about">
+
+      <Link href="/fragrance?category=fragrance&gender=women">
         <Button>About</Button>
       </Link>
     </Box>
