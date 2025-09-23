@@ -1,22 +1,28 @@
-// useScrollRestoration.js
 'use client';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const scrollPositions = {};
 
 export function useScrollRestoration() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const key = pathname + searchParams.toString(); // unique per path + query
+  const key = pathname + '?' + searchParams.toString();
+  const [hydrated, setHydrated] = useState(false);
 
-  // Restore scroll on mount
+  // Wait until hydration completes
   useEffect(() => {
-    const pos = scrollPositions[key] ?? 0;
-    window.scrollTo({ top: pos });
-  }, [key]);
+    setHydrated(true);
+  }, []);
 
-  // Save scroll on unmount
+  // Restore scroll only after hydration
+  useEffect(() => {
+    if (!hydrated) return;
+    const pos = scrollPositions[key] ?? 0;
+    window.scrollTo({ top: pos, behavior: 'auto' });
+  }, [hydrated, key]);
+
+  // Save scroll when leaving page
   useEffect(() => {
     return () => {
       scrollPositions[key] = window.scrollY;
