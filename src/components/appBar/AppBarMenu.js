@@ -24,7 +24,8 @@ import { FavoriteIcon, UserAvatar } from '../icons';
 
 import { categories } from '../ui/CategoriesDekstop';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import CartDrawer from '@/app/cart/components/CartDrawer';
+import CartDrawer from '../cartPage/CartDrawer';
+
 
 const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
