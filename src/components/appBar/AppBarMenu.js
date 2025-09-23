@@ -21,9 +21,10 @@ import { useEffect, useRef, useState } from 'react';
 // import { categories } from './CategorySearch';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { FavoriteIcon, UserAvatar } from '../icons';
-import CartDrawer from '../cartPage/CartDrawer';
+
 import { categories } from '../ui/CategoriesDekstop';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import CartDrawer from '@/app/cart/components/CartDrawer';
 
 const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -76,8 +77,8 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
     }
   };
   const handleCloseDrawer = (url) => {
-    router.push(url, undefined, { scroll: true });
     closeDrawer(false);
+    router.push(url, undefined, { scroll: true });
     setOpen();
     // window.scrollTo(0, 0);
   };
@@ -189,10 +190,16 @@ function DrawerMenu() {
   const drawerRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [openNested, setOpenNested] = useState();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const toggleDrawer = (newOpen) => {
     setOpen(newOpen);
   };
+
+  useEffect(() => {
+    toggleDrawer(false);
+  }, [pathname, searchParams]);
 
   useEffect(() => {
     if (openNested && drawerRef.current) {

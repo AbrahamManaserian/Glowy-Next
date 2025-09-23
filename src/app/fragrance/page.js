@@ -18,23 +18,9 @@ export default function FragrancePage() {
     maxPrice: '',
     gender: [],
     category: [],
+    brands: [],
+    inStock: 'noCheck',
   });
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    toggleDrawer(false);
-    const newState = {};
-    Object.keys(paramsState).forEach((key) => {
-      if (key === 'gender' || key === 'category') {
-        const items = searchParams.get(key);
-        const arrItems = items ? items.split(',') : [];
-        newState[key] = arrItems;
-      } else {
-        newState[key] = searchParams.get(key) || '';
-      }
-    });
-    setParamsState(newState);
-  }, [searchParams]);
 
   const toggleDrawer = (newOpen) => {
     setOpenDrawer(newOpen);
@@ -68,7 +54,8 @@ export default function FragrancePage() {
 
   const handleChangeArrayParams = (prop, value, rout) => {
     let items = [];
-    if (paramsState[prop].includes(value)) {
+    if (value === 'clean') {
+    } else if (paramsState[prop].includes(value)) {
       items = paramsState[prop].filter((f) => f !== value);
     } else {
       items = [...paramsState[prop], value];
@@ -86,15 +73,30 @@ export default function FragrancePage() {
       makeRout(prop, value);
     }
   };
+    
+    useEffect(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      toggleDrawer(false);
+      const newState = {};
+      Object.keys(paramsState).forEach((key) => {
+        if (key === 'gender' || key === 'category' || key === 'brands') {
+          const items = searchParams.get(key);
+          const arrItems = items ? items.split(',') : [];
+          newState[key] = arrItems;
+        } else {
+          newState[key] = searchParams.get(key) || '';
+        }
+      });
+      setParamsState(newState);
+    }, [searchParams]);
 
-    //   console.log(paramsState);
     return (
       <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' } }} size={12}>
         <Box
           sx={{
             display: 'flex',
             maxWidth: '1200px',
-            margin: '0 auto', // center horizontally
+            margin: '0 auto',
             flexWrap: 'wrap',
           }}
         >

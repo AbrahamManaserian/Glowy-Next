@@ -1,11 +1,14 @@
+'use client';
+
 import styled from '@emotion/styled';
 import { Badge, Box, Button, Drawer, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import { ShoppingBasketIcon } from '../icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ShoppingBasketIcon } from '@/components/icons';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 const images = [
   '/images/ov4x8tqv11m5xi1kcm868rz43f7isui0.webp',
@@ -29,13 +32,23 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 }));
 export default function CartDrawer() {
   const [openDrawer, setOpenDrawer] = useState(false);
-  const toggleDrawer = (newOpen) => () => {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const toggleDrawer = (newOpen) => {
     setOpenDrawer(newOpen);
   };
 
+  useEffect(() => {
+    toggleDrawer(false);
+  }, [searchParams, pathname]);
+
   return (
     <div>
-      <div style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }} onClick={toggleDrawer(true)}>
+      <div
+        style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}
+        onClick={() => toggleDrawer(true)}
+      >
         <StyledBadge badgeContent={1}>
           <ShoppingBasketIcon />
         </StyledBadge>
@@ -43,7 +56,7 @@ export default function CartDrawer() {
       <Drawer
         sx={{ '& .MuiDrawer-paper': { width: { xs: '100%', sm: 'auto' } } }}
         open={openDrawer}
-        onClose={toggleDrawer(false)}
+        onClose={() => toggleDrawer(false)}
         anchor="right"
       >
         <Box
@@ -62,7 +75,7 @@ export default function CartDrawer() {
             }}
           >
             <Typography sx={{ fontSize: '15px' }}>Your Cart (5)</Typography>
-            <CloseIcon sx={{ color: '#8a8c8dff', cursor: 'pointer' }} onClick={toggleDrawer(false)} />
+            <CloseIcon sx={{ color: '#8a8c8dff', cursor: 'pointer' }} onClick={() => toggleDrawer(false)} />
           </Box>
           <div style={{}}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -295,7 +308,7 @@ export default function CartDrawer() {
                 bgcolor: 'white',
               }}
             >
-              <Link onClick={toggleDrawer(false)} href="cart">
+              <Link onClick={() => toggleDrawer(false)} href="cart">
                 <Button
                   variant="contained"
                   sx={{
@@ -316,7 +329,7 @@ export default function CartDrawer() {
                   Procced To Checkout
                 </Button>
               </Link>
-              <Link onClick={toggleDrawer(false)} href="cart">
+              <Link onClick={() => toggleDrawer(false)} href="cart">
                 <Button
                   variant="outlined"
                   sx={{

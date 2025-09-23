@@ -7,12 +7,14 @@ import {
   FormControlLabel,
   FormGroup,
   Grid,
+  Switch,
   TextField,
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import styled from '@emotion/styled';
 
 const categoryObj = {
   fragrance: 'Fragrance',
@@ -21,7 +23,21 @@ const categoryObj = {
   deodorant: 'Deodorant',
 };
 
-const genderBoj = { women: 'Women', men: 'Men', uni: 'Uni' };
+const brandsObj = {
+  'v-canto': 'V CANTO',
+  'TIZIANA-TERENZI': 'TIZIANA TERENZI',
+  CREED: 'CREED',
+  BURBERRY: 'BURBERRY',
+  BIOTHERM: 'BIOTHERM',
+  AZZARO: 'AZZARO',
+  ARCADIA: 'ARCADIA',
+  'ARMAND-BASI': 'ARMAND BASI',
+  ADIDAS: 'ADIDAS',
+  'ELIZABETH-ARDEN': 'ELIZABETH ARDEN',
+  RABANNE: 'RABANNE',
+};
+
+const genderObj = { women: 'Women', men: 'Men', uni: 'Uni' };
 
 const textFieldStyle = {
   width: '120px',
@@ -49,6 +65,54 @@ const textFieldStyle = {
     padding: 0, // remove default padding
   },
 };
+
+const IOSSwitch = styled(({ makeRout, checked, handleChangeParams, ...props }) => (
+  <Switch
+    onChange={(e) =>
+      makeRout
+        ? handleChangeParams('inStock', e.target.checked ? 'check' : 'noCheck', true)
+        : handleChangeParams('inStock', e.target.checked ? 'check' : 'noCheck')
+    }
+    checked={checked}
+    focusVisibleClassName=".Mui-focusVisible"
+    disableRipple
+    {...props}
+  />
+))(({ theme }) => ({
+  width: 36,
+  height: 20,
+  padding: 0,
+  '& .MuiSwitch-switchBase': {
+    padding: 0,
+    margin: 2,
+    transitionDuration: '300ms',
+    '&.Mui-checked': {
+      transform: 'translateX(16px)',
+      color: '#fff',
+      '& + .MuiSwitch-track': {
+        backgroundColor: '#f44336',
+        opacity: 1,
+        border: 0,
+      },
+    },
+  },
+  '& .MuiSwitch-thumb': {
+    boxSizing: 'border-box',
+    width: 16,
+    height: 16,
+  },
+  '& .MuiSwitch-track': {
+    borderRadius: 26 / 2,
+    backgroundColor: '#bdbdc3ff',
+    opacity: 1,
+    transition: theme.transitions.create(['background-color'], {
+      duration: 500,
+    }),
+    ...theme.applyStyles('dark', {
+      backgroundColor: '#39393D',
+    }),
+  },
+}));
 
 const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
   return (
@@ -103,8 +167,9 @@ export default function Filter({ paramsState, handleChangeParams, makeRout, hand
     gender: true,
     category: true,
     price: true,
+    brands: true,
   });
-  //   console.log(makeRout);
+
   const handleCangeCollapse = (key, value) => {
     setCollapseItems({ ...collapseItems, [key]: value });
   };
@@ -188,14 +253,67 @@ export default function Filter({ paramsState, handleChangeParams, makeRout, hand
       />
       <Collapse in={collapseItems.gender} timeout="auto" unmountOnExit>
         <FormGroup sx={{ pl: '8px', mb: '5px' }}>
-          {Object.keys(genderBoj).map((name, index) => {
+          {Object.keys(genderObj).map((name, index) => {
             return (
               <FormItem
                 key={index}
                 handleChangeArrayParams={handleChangeArrayParams}
                 array={paramsState.gender}
                 prop="gender"
-                name={genderBoj[name]}
+                name={genderObj[name]}
+                value={name}
+                makeRout={makeRout}
+              />
+            );
+          })}
+        </FormGroup>
+      </Collapse>
+
+      <Box sx={{ display: 'flex', my: '10px' }}>
+        <IOSSwitch
+          handleChangeParams={handleChangeParams}
+          checked={paramsState.inStock === 'check'}
+          makeRout={makeRout}
+        />
+
+        <Typography sx={{ color: '#263045fb', fontWeight: 500, ml: '15px' }}>Only in Stock</Typography>
+      </Box>
+      <ColllapseItem
+        prop="brands"
+        name="Brands"
+        open={collapseItems.brands}
+        handleCangeCollapse={handleCangeCollapse}
+      />
+      <Collapse in={collapseItems.brands} timeout="auto" unmountOnExit>
+        <FormGroup
+          sx={{
+            pl: '8px',
+            mb: '5px',
+            maxHeight: '380px',
+            overflow: 'scroll',
+            flexWrap: 'nowrap',
+            border: 'solid #dbdde1fb 0.5px',
+            borderRadius: '10px',
+            p: '10px',
+            mt: '10px',
+          }}
+        >
+          <FormItem
+            handleChangeArrayParams={handleChangeArrayParams}
+            array={paramsState.brands}
+            prop="brands"
+            name="Clean All"
+            value="clean"
+            makeRout={makeRout}
+          />
+          {Object.keys(brandsObj).map((name, index) => {
+            return (
+              <FormItem
+                key={index}
+                handleChangeArrayParams={handleChangeArrayParams}
+                array={paramsState.brands}
+                prop="brands"
+                name={brandsObj[name]}
                 value={name}
                 makeRout={makeRout}
               />
