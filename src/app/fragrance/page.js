@@ -7,9 +7,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import SortView from './componenets/SortView';
 import CloseIcon from '@mui/icons-material/Close';
 
-export default function FragrancePage({ params }) {
-  const { filters } = use(params);
-  console.log(filters);
+export default function FragrancePage() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -33,7 +31,6 @@ export default function FragrancePage({ params }) {
     toggleDrawer(false);
     const params = new URLSearchParams(searchParams.toString());
     Object.keys(obj).forEach((key) => {
-      console.log(key);
       if (key === 'gender' && key === 'category' && key === 'brands') {
         params.set(key, obj[key].join(','));
       } else {
