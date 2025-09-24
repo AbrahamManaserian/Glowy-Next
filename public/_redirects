@@ -1,1 +1,10 @@
-/*    /index.html   200
+# Next.js internal assets
+/_next/*  /_next/:splat  200
+
+# Static files
+/images/* /images/:splat  200
+/fonts/*  /fonts/:splat   200
+/favicon.ico /favicon.ico 200
+
+# SPA fallback
+/*       /index.html    200
