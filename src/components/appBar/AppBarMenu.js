@@ -79,7 +79,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
   const handleCloseDrawer = (url) => {
     closeDrawer(false);
     setOpen();
-    router.push(url);
+    router.push(url, undefined, { scroll: true });
   };
 
   return (
@@ -301,7 +301,7 @@ export default function AppBarMenu() {
       <Grid item container sx={{ display: { xs: 'none', sm: 'flex' }, order: 2 }}>
         {Object.keys(navObj).map((key) => {
           return (
-            <Link key={key} className="bar-link" href={`/${key}`}>
+            <Link scroll={true} key={key} className="bar-link" href={`/${key}`}>
               {navObj[key]}
             </Link>
           );
@@ -316,14 +316,22 @@ export default function AppBarMenu() {
         alignItems="center"
         justifyContent="flex-end"
       >
-        <Link href="/favorite" style={{ margin: '0 25px 0 10px', WebkitTapHighlightColor: 'transparent' }}>
+        <Link
+          scroll={true}
+          href="/favorite"
+          style={{ margin: '0 25px 0 10px', WebkitTapHighlightColor: 'transparent' }}
+        >
           <StyledBadgeFavorite badgeContent={1}>
             <FavoriteIcon size={21} />
           </StyledBadgeFavorite>
         </Link>
 
         <CartDrawer />
-        <Link href="/user" style={{ margin: '0 15px 0 25px', WebkitTapHighlightColor: 'transparent' }}>
+        <Link
+          scroll={true}
+          href="/user"
+          style={{ margin: '0 15px 0 25px', WebkitTapHighlightColor: 'transparent' }}
+        >
           <UserAvatar />
         </Link>
       </Grid>
