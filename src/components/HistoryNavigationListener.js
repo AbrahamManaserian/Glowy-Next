@@ -24,6 +24,7 @@ export default function HistoryNavigationListener() {
 
     // Handle push
     const onPushState = () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       console.log('Navigation type:', lastAction);
     };
 

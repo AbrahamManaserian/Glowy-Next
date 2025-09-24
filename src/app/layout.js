@@ -38,7 +38,7 @@ export default function RootLayout({ children }) {
                 <CategoriesDekstop />
                 <SearchComponent />
               </Grid>
-              {/* <HistoryNavigationListener /> */}
+              <HistoryNavigationListener />
               {/* <ScrollRestorationManager /> */}
               {children}
               <Footer />

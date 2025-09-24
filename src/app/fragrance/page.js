@@ -28,29 +28,31 @@ export default function FragrancePage() {
   };
 
   const applyFilters = (obj) => {
+    toggleDrawer(false);
     const params = new URLSearchParams(searchParams.toString());
     Object.keys(obj).forEach((key) => {
-      if (key !== 'sortBy' && key !== 'view' && key !== 'minPrice' && key !== 'maxPrice') {
+      console.log(key);
+      if (key === 'gender' && key === 'category' && key === 'brands') {
         params.set(key, obj[key].join(','));
       } else {
         params.set(key, obj[key]);
       }
     });
 
-    router.push(`?${params.toString()}`);
-    toggleDrawer(false);
+    // sessionStorage.setItem('app-scroll:' + params.toString(), String(window.scrollY));
+    router.push(`?${params.toString()}`, { scroll: false });
   };
 
   const makeRout = (prop, value) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set(prop, value);
-    router.push(`?${params.toString()}`);
+    router.push(`?${params.toString()}`, { scroll: false });
   };
 
   const makeArrayRoute = (prop, arr) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set(prop, arr.join(','));
-    router.push(`?${params.toString()}`);
+    router.push(`?${params.toString()}`, { scroll: false });
   };
 
   const handleChangeArrayParams = (prop, value, rout) => {
@@ -149,7 +151,7 @@ export default function FragrancePage() {
               <CloseIcon sx={{ color: '#8a8c8dff' }} onClick={() => toggleDrawer(false)} />
               <Button
                 onClick={() => {
-                  toggleDrawer(false);
+                  // toggleDrawer(false);
                   applyFilters(paramsState);
                 }}
                 variant="text"
