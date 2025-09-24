@@ -19,10 +19,10 @@ export default function Home() {
       <SpecialOffer />
       <PopularProducts />
 
-      <Link prefetch={false} href="/fragrance?category=fragrance&gender=women">
+      <Link href="/fragrance?category=fragrance&gender=women">
         <Button>About</Button>
       </Link>
-      <Link prefetch={false} href="/fragrance">
+      <Link href="/fragrance">
         <Button>About</Button>
       </Link>
     </Box>
