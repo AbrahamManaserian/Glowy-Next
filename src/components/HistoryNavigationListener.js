@@ -1,10 +1,13 @@
 'use client';
 
+import { saveScrollPosition } from '@/app/functions/saveScrollPosition';
+
 import { useEffect } from 'react';
 
 export default function HistoryNavigationListener() {
   useEffect(() => {
     let lastAction = null; // "push" | "back/forward" | "reload"
+    let previousUrl = window.location.pathname + window.location.search; // start with current page
 
     // Save original pushState
     const originalPushState = history.pushState;
@@ -17,15 +20,26 @@ export default function HistoryNavigationListener() {
     };
 
     // Handle back/forward
+
     const onPopState = () => {
       lastAction = 'back/forward';
+      const currentUrl = window.location.pathname + window.location.search;
+
       console.log('Navigation type:', lastAction);
+      console.log('from-', previousUrl, 'to-', currentUrl);
+      // console.log('Went to:', currentUrl);
+
+      previousUrl = currentUrl; // update tracker
     };
 
     // Handle push
     const onPushState = () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const currentUrl = window.location.pathname + window.location.search;
       console.log('Navigation type:', lastAction);
+      previousUrl = currentUrl;
+      saveScrollPosition(previousUrl);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // console.log('Navigation type:', lastAction);
     };
 
     window.addEventListener('popstate', onPopState);

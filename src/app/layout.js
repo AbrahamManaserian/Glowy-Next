@@ -12,7 +12,7 @@ import { Grid } from '@mui/material';
 import SearchComponent from '@/components/ui/SearchComponent';
 import CategoriesDekstop from '@/components/ui/CategoriesDekstop';
 import { Suspense } from 'react';
-import HistoryNavigationListener from '@/components/HistoryNavigationListener';
+// import HistoryNavigationListener from '@/components/HistoryNavigationListener';
 // import { ScrollRestorationManager } from '@/components/ScrollRestorationManager';
 // import { ScrollRestoration } from '@/components/ScrollRestoration';
 // import { ScrollRestoration } from '@/components/ScrollRestoration';
@@ -38,7 +38,7 @@ export default function RootLayout({ children }) {
                 <CategoriesDekstop />
                 <SearchComponent />
               </Grid>
-              <HistoryNavigationListener />
+              {/* <HistoryNavigationListener /> */}
               {/* <ScrollRestorationManager /> */}
               {children}
               <Footer />
