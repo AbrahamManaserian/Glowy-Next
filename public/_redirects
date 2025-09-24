@@ -1,13 +1,14 @@
-# Next.js JS/CSS bundles
+# 1. Next.js internal assets (JS/CSS)
+# Must come first
 /_next/* /_next/:splat 200
 
-# All images (including subfolders)
-# Note the order: before the SPA fallback
+# 2. Static images (including subfolders)
+# Serve everything inside /images correctly
 /images/* /images/:splat 200
 
-# Optional: fonts, favicon
+# 3. Optional: fonts, favicon
 /fonts/* /fonts/:splat 200
 /favicon.ico /favicon.ico 200
 
-# SPA fallback for all other routes
+# 4. SPA fallback for all other routes
 /* /index.html 200
