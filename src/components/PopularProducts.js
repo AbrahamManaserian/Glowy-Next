@@ -1,8 +1,9 @@
 'use client';
 
-import { Box, Grid, Rating, Typography } from '@mui/material';
+import { Box, Button, Grid, Rating, Typography } from '@mui/material';
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export const images = [
   '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',
@@ -132,6 +133,12 @@ export default function PopularProducts() {
           );
         })}
       </Grid>
+      <Link href="/fragrance?category=fragrance&gender=women">
+        <Button>About</Button>
+      </Link>
+      <Link href="/fragrance">
+        <Button>About</Button>
+      </Link>
     </Grid>
   );
 }

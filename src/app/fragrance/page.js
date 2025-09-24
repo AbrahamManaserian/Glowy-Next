@@ -1,13 +1,15 @@
 'use client';
 
 import { Box, Button, Drawer, Grid, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import Filter from './componenets/Filter';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import SortView from './componenets/SortView';
 import CloseIcon from '@mui/icons-material/Close';
 
-export default function FragrancePage() {
+export default function FragrancePage({ params }) {
+  const { filters } = use(params);
+  console.log(filters);
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
