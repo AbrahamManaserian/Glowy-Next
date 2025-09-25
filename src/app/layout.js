@@ -26,7 +26,9 @@ export default function RootLayout({ children }) {
         <ThemeRegistry>
           <Suspense fallback={null}>
             <TopOfPage />
-            <HistoryNavigationListener />
+            <Suspense fallback={null}>
+              <HistoryNavigationListener />
+            </Suspense>
             {/* <ScrollManager /> */}
             {children}
             <Footer />

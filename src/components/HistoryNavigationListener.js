@@ -45,8 +45,9 @@ export default function HistoryNavigationListener() {
 
       saveScrollPosition(previousUrl);
       previousUrl = currentUrl;
-      window.scrollTo({ top: 500, behavior: 'smooth' });
-      // console.log('Navigation type:', lastAction);
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 500, behavior: 'smooth' });
+      });
     };
 
     window.addEventListener('popstate', onPopState);
