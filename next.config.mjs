@@ -9,6 +9,9 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+    experimental: {
+      scrollRestoration: true, // enables native browser restoration
+    },
   },
 };
 

@@ -6,6 +6,10 @@ import { useEffect } from 'react';
 
 export default function HistoryNavigationListener() {
   useEffect(() => {
+    // Disable native browser scroll restoration
+    history.scrollRestoration = 'manual';
+  }, []);
+  useEffect(() => {
     let lastAction = null; // "push" | "back/forward" | "reload"
     let previousUrl = window.location.pathname + window.location.search; // start with current page
 
@@ -21,8 +25,10 @@ export default function HistoryNavigationListener() {
 
     // Handle back/forward
 
-    const onPopState = () => {
+    const onPopState = (e) => {
+      console.log(e.target);
       lastAction = 'back/forward';
+      saveScrollPosition(previousUrl);
       const currentUrl = window.location.pathname + window.location.search;
 
       console.log('Navigation type:', lastAction);
@@ -36,9 +42,10 @@ export default function HistoryNavigationListener() {
     const onPushState = () => {
       const currentUrl = window.location.pathname + window.location.search;
       console.log('Navigation type:', lastAction);
-      previousUrl = currentUrl;
+
       saveScrollPosition(previousUrl);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      previousUrl = currentUrl;
+      window.scrollTo({ top: 500, behavior: 'smooth' });
       // console.log('Navigation type:', lastAction);
     };
 
