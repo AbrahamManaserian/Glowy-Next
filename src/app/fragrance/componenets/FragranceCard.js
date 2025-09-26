@@ -17,7 +17,7 @@ export default function FragranceCard({ img, name, id }) {
       container
       direction={'column'}
     >
-      <Link href={`/fragrance/${id}`}>
+      <Link style={{ WebkitTapHighlightColor: 'transparent' }} href={`/fragrance/${id}`}>
         <Box
           sx={{
             flexShrink: 0,

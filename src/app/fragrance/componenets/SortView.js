@@ -35,6 +35,7 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
           borderRadius: '5px',
           marginRight: '10px',
           cursor: 'pointer',
+          WebkitTapHighlightColor: 'transparent',
         }}
       >
         <ListViewIcon />
@@ -48,6 +49,7 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
           backgroundColor: paramsState.view === 'grid' ? '#807d7d48' : '',
           borderRadius: '5px',
           cursor: 'pointer',
+          WebkitTapHighlightColor: 'transparent',
         }}
       >
         <GridViewIcon />

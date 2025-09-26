@@ -31,6 +31,7 @@ export function Options() {
               borderRadius: '8px',
               mr: '8px',
               cursor: 'pointer',
+              WebkitTapHighlightColor: 'transparent',
             }}
           >
             <Typography sx={{ color: '#212122da', fontSize: '14px', fontWeight: 500 }}>{opt} ml</Typography>
@@ -78,7 +79,7 @@ export function Options() {
           >
             Add to cart
           </Button>
-          <Link href="/cart">
+          <Link style={{ WebkitTapHighlightColor: 'transparent' }} href="/cart">
             <Button sx={{ ml: '10px', bgcolor: '#f44336', borderRadius: '10px' }} variant="contained">
               Buy now
             </Button>
