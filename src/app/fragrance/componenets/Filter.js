@@ -14,6 +14,7 @@ import {
 import { useState } from 'react';
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import styled from '@emotion/styled';
 
 const categoryObj = {
@@ -289,7 +290,7 @@ export default function Filter({ paramsState, handleChangeParams, makeRout, hand
           sx={{
             pl: '8px',
             mb: '5px',
-            maxHeight: '380px',
+            maxHeight: '370px',
             overflow: 'scroll',
             flexWrap: 'nowrap',
             border: 'solid #dbdde1fb 0.5px',
@@ -298,14 +299,21 @@ export default function Filter({ paramsState, handleChangeParams, makeRout, hand
             mt: '10px',
           }}
         >
-          <FormItem
-            handleChangeArrayParams={handleChangeArrayParams}
-            array={paramsState.brands}
-            prop="brands"
-            name="Clean All"
-            value="clean"
-            makeRout={makeRout}
-          />
+          <Box
+            onClick={() => handleChangeArrayParams('brands', 'clean', makeRout)}
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignContent: 'center',
+              cursor: 'pointer',
+              bgcolor: '#ede6e65e',
+              borderRadius: '5px',
+              py: '5px',
+            }}
+          >
+            <DeleteOutlinedIcon sx={{ fontSize: '20px', color: '#474141f6', mr: '5px' }} />
+            <Typography>Clear All</Typography>
+          </Box>
           {Object.keys(brandsObj).map((name, index) => {
             return (
               <FormItem

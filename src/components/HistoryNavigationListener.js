@@ -45,9 +45,18 @@ export default function HistoryNavigationListener() {
 
       saveScrollPosition(previousUrl);
       previousUrl = currentUrl;
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: 500, behavior: 'smooth' });
-      });
+      const tryScroll = () => {
+        console.log('asd');
+        // Use a selector that exists on the real page, e.g., main content
+        const pageReady = document.querySelector('main'); // adjust to your page wrapper
+        if (pageReady) {
+          window.scrollTo({ top: 500, behavior: 'auto' });
+        } else {
+          requestAnimationFrame(tryScroll);
+        }
+      };
+
+      tryScroll();
     };
 
     window.addEventListener('popstate', onPopState);

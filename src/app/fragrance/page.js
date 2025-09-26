@@ -1,11 +1,16 @@
 'use client';
 
-import { Box, Button, Drawer, Grid, Typography } from '@mui/material';
+import { Box, Button, Drawer, Grid, Pagination, Stack, Typography } from '@mui/material';
 import { use, useEffect, useState } from 'react';
 import Filter from './componenets/Filter';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import SortView from './componenets/SortView';
 import CloseIcon from '@mui/icons-material/Close';
+import FragranceCard from './componenets/FragranceCard';
+import { images } from '@/components/PopularProducts';
+import FragrancePagination from './componenets/FragrancePagination';
+// import Pagination from './componenets/Pagination';
+// import { images } from '@/components/FlashDeals';
 
 export default function FragrancePage() {
   const searchParams = useSearchParams();
@@ -120,14 +125,33 @@ export default function FragrancePage() {
             paramsState={paramsState}
           />
         </Box>
-        <Box sx={{ display: { xs: 'none', sm: 'none', md: 'block' }, mt: '40px' }}>
-          <Filter
-            paramsState={paramsState}
-            handleChangeParams={handleChangeParams}
-            makeRout={true}
-            handleChangeArrayParams={handleChangeArrayParams}
-          />
-        </Box>
+        <Grid container sx={{ width: '100%', flexWrap: 'nowrap' }}>
+          <Box sx={{ display: { xs: 'none', sm: 'none', md: 'flex' }, width: '250px', mt: '40px' }}>
+            <Filter
+              paramsState={paramsState}
+              handleChangeParams={handleChangeParams}
+              makeRout={true}
+              handleChangeArrayParams={handleChangeArrayParams}
+            />
+          </Box>
+          <Grid
+            alignContent={'flex-start'}
+            container
+            sx={{ flexGrow: 1, m: { xs: '25px 0 0 0', sm: '25px 0 0 0', md: '5px 0 0 40px' } }}
+            spacing={'20px'}
+          >
+            {images.map((img, index) => {
+              return <FragranceCard key={index} img={img} name={index} id={index} />;
+            })}
+            {images.map((img, index) => {
+              return <FragranceCard key={index} img={img} name={index} id={index} />;
+            })}
+            <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '10px' }}>
+              <FragrancePagination />
+            </div>
+          </Grid>
+        </Grid>
+
         <Drawer
           sx={{ '& .MuiDrawer-paper': { width: '100%' } }}
           open={openDrawer}
@@ -160,12 +184,6 @@ export default function FragrancePage() {
               </Button>
             </Box>
             <div style={{ padding: '15px' }}>
-              <Filter
-                paramsState={paramsState}
-                handleChangeParams={handleChangeParams}
-                makeRout={false}
-                handleChangeArrayParams={handleChangeArrayParams}
-              />
               <Filter
                 paramsState={paramsState}
                 handleChangeParams={handleChangeParams}

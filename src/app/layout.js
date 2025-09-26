@@ -7,8 +7,6 @@ import ThemeRegistry from '@/components/ThemeRegistry';
 import Footer from '@/components/footer/Footer';
 import { Suspense } from 'react';
 import TopOfPage from '@/components/appBar/TopOfPage';
-import HistoryNavigationListener from '@/components/HistoryNavigationListener';
-import ScrollManager from '@/components/ScrollManager';
 
 export const metadata = {
   title: 'Glowy Perfume & Cosmetics',
@@ -26,10 +24,7 @@ export default function RootLayout({ children }) {
         <ThemeRegistry>
           <Suspense fallback={null}>
             <TopOfPage />
-            <Suspense fallback={null}>
-              <HistoryNavigationListener />
-            </Suspense>
-            {/* <ScrollManager /> */}
+
             {children}
             <Footer />
           </Suspense>

@@ -10,9 +10,6 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    scrollRestoration: true, // enables native browser restoration
-  },
 };
 
 export default nextConfig;
