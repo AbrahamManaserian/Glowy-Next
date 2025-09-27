@@ -7,6 +7,8 @@ import ThemeRegistry from '@/components/ThemeRegistry';
 import Footer from '@/components/footer/Footer';
 import { Suspense } from 'react';
 import TopOfPage from '@/components/appBar/TopOfPage';
+import ScrollToTop from '@/components/ScrollToTop';
+import Loading from './loading';
 
 export const metadata = {
   title: 'Glowy Perfume & Cosmetics',
@@ -22,7 +24,8 @@ export default function RootLayout({ children }) {
       <body style={{ position: 'relative' }}>
         <div></div>
         <ThemeRegistry>
-          <Suspense fallback={null}>
+          <Suspense fallback={<Loading />}>
+            <ScrollToTop />
             <TopOfPage />
 
             {children}

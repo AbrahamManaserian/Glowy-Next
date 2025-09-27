@@ -3,6 +3,7 @@ import { Box, Grid, Typography } from '@mui/material';
 import { doc, getDoc } from 'firebase/firestore';
 import Image from 'next/image';
 
+
 export default async function AboutPage() {
   let obj = [];
   let obj1 = [];
