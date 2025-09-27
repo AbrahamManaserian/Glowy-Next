@@ -24,7 +24,8 @@ import { FavoriteIcon, UserAvatar } from '../icons';
 
 import { categories } from '../ui/CategoriesDekstop';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import CartDrawer from '../cartPage/CartDrawer';
+import CartDrawer from '@/app/cart/components/CartDrawer';
+import { useGlobalContext } from '@/app/GlobalContext';
 
 const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -259,7 +260,7 @@ function DrawerMenu() {
 }
 
 export default function AppBarMenu() {
-  const [isSticky, setIsSticky] = useState(false);
+  const { isSticky, setIsSticky } = useGlobalContext();
 
   useEffect(() => {
     const handleScroll = () => {

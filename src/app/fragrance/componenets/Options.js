@@ -6,13 +6,20 @@ import AddIcon from '@mui/icons-material/Add';
 import { useState } from 'react';
 import Link from 'next/link';
 import { ShoppingBasketIcon } from '@/components/icons';
+import { useGlobalContext } from '@/app/GlobalContext';
 
-export function Options() {
+export function Options({ id }) {
+  const { setCart, setOpenCartAlert, setIsSticky } = useGlobalContext();
   const [option, setOption] = useState(100);
   const [quantity, setQuantity] = useState(1);
   const handleClickOption = (opt) => {
     setOption(opt);
   };
+
+  const handleClickAddToCart = (id) => {
+    setOpenCartAlert(id);
+  };
+
   return (
     <Box sx={{ display: 'flex', mt: '25px', flexWrap: 'wrap' }}>
       <Typography sx={{ color: '#212122da', fontSize: '15px', fontWeight: 500, width: '100%', mb: '10px' }}>
@@ -73,6 +80,7 @@ export function Options() {
 
         <Box sx={{ display: 'flex', mt: '15px' }}>
           <Button
+            onClick={() => handleClickAddToCart(id)}
             sx={{ bgcolor: '#2B3445', borderRadius: '10px' }}
             variant="contained"
             endIcon={<ShoppingBasketIcon color={'white'} />}

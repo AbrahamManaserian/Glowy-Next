@@ -3,8 +3,9 @@ import { Box, Grid, LinearProgress, Rating, Typography } from '@mui/material';
 import { doc, getDoc } from 'firebase/firestore';
 import Image from 'next/image';
 import { Options } from '../componenets/Options';
+import AlertAddCartItem from '@/app/cart/components/AlertAddCartItem';
 
-const images = [
+export const images = [
   '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',
   '/images/ov4x8tqv11m5xi1kcm868rz43f7isui0.webp',
   '/images/12.webp',
@@ -109,9 +110,10 @@ export default async function FragranceProduct({ params }) {
             inspired by the unbreakable strength of togetherness. Engagingly masculine STRONGER WITH YOU
             INTENSELY reflect the personality of a young man empowered by an
           </Typography>
-          <Options />
+          <Options id={+product} />
         </Grid>
       </Box>
+      <AlertAddCartItem />
     </Grid>
   );
 }

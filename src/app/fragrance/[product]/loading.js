@@ -1,5 +1,15 @@
-import { Box, LinearProgress } from '@mui/material';
+import { Box, LinearProgress, Typography } from '@mui/material';
 
 export default function Loading() {
-  return null;
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+      }}
+    >
+      <Box sx={{ width: '100%' }}>
+        <LinearProgress />
+      </Box>
+    </div>
+  );
 }
