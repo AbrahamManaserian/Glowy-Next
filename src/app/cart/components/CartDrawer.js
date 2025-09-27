@@ -1,8 +1,10 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { Badge, Box, Button, Drawer, Grow, Menu, Paper, Popper, Typography } from '@mui/material';
+import { Badge, Box, Button, Drawer, Grow, IconButton, Menu, Paper, Popper, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import RemoveIcon from '@mui/icons-material/Remove';
+import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
@@ -148,7 +150,7 @@ export default function CartDrawer() {
                         sx={{
                           display: 'flex',
                           alignItems: 'center',
-                          height: '110px',
+                          height: '140px',
                           borderBottom: '1px dashed #dde2e5ff',
                           overflow: 'hidden',
                           p: { xs: '0 16px', sm: '0 24px' },
@@ -167,8 +169,8 @@ export default function CartDrawer() {
                             //   bgcolor: 'red',
                             // m: '10px 15px 10px 25px',
                             borderRadius: '10px',
-                            width: '80px',
-                            height: '80px',
+                            width: '100px',
+                            height: '100px',
                             overflow: 'hidden',
                           }}
                         >
@@ -186,7 +188,7 @@ export default function CartDrawer() {
                             flexGrow: 1,
                             flexDirection: 'column',
                             boxSizing: 'border-box',
-                            height: '80px',
+                            height: '100px',
                             justifyContent: 'space-between',
                             overflow: 'hidden',
                             ml: '15px',
@@ -228,34 +230,37 @@ export default function CartDrawer() {
                           >
                             <Box
                               sx={{
-                                display: 'flex',
+                                display: 'inline-flex',
                                 border: 'solid 0.5px #65626263',
-                                borderRadius: '5px',
-                                height: '24px',
-                                width: '70px',
+                                borderRadius: '10px',
                                 justifyContent: 'center',
-                                alignItems: 'center',
+                                alignContent: 'center',
+                                // mr: '15px',
                               }}
                             >
-                              <Typography
-                                onClick={() => increaseQuantity(key)}
-                                sx={{ fontSize: '15px', lineHeight: '18px' }}
+                              <IconButton
+                                size="small"
+                                onClick={() => decreaseQuantity(key)}
+                                aria-label="delete"
+                                // sx={{ cursor: quantity < 2 ? 'not-allowed' : 'pointer' }}
                               >
-                                +
-                              </Typography>
-                              <Typography sx={{ fontSize: '13px', lineHeight: '18px', mx: '10px' }}>
+                                <RemoveIcon />
+                              </IconButton>
+                              <Typography sx={{ bgcolor: '#6562620f', p: '6px 15px', fontSize: '14px' }}>
                                 {cart.items[key].quantity}
                               </Typography>
-                              <Typography
-                                onClick={() => decreaseQuantity(key)}
-                                sx={{ fontSize: '18px', lineHeight: '18px' }}
+                              <IconButton
+                                size="small"
+                                onClick={() => increaseQuantity(key)}
+                                aria-label="delete"
                               >
-                                -
-                              </Typography>
+                                <AddIcon />
+                              </IconButton>
                             </Box>
+
                             <DeleteOutlinedIcon
                               onClick={() => deleteItem(key)}
-                              sx={{ fontSize: '18px', color: '#868282f6', cursor: 'pointer' }}
+                              sx={{ fontSize: '28px', color: '#ca4d4df6', cursor: 'pointer' }}
                             />
                           </Box>
                         </Box>
