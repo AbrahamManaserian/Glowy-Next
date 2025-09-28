@@ -134,7 +134,7 @@ export default function FragranceCard({ img, name, id }) {
               mb: '3px',
               fontSize: '13px',
               textTransform: 'none',
-              p: '0 10px',
+              p: '2px 10px',
             }}
             variant="contained"
           >
