@@ -150,7 +150,7 @@ export function LogoIcon({ width, height, color, hide, hidePC }) {
   );
 }
 
-export function ShoppingBasketIcon({ color }) {
+export function ShoppingBasketIcon({ color, size }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -160,8 +160,8 @@ export function ShoppingBasketIcon({ color }) {
       clipRule="evenodd"
       viewBox="0 0 32 32"
       id="shopping-bag"
-      width="22"
-      height="22"
+      width={size ? size : '22'}
+      height={size ? size : '22'}
     >
       <path
         fill={color}

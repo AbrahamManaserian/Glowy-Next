@@ -1,10 +1,20 @@
 'use client';
 
-import { Box, Grid, Rating, Typography } from '@mui/material';
+import { Box, Button, Grid, Rating, Typography } from '@mui/material';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ShoppingBasketIcon } from '@/components/icons';
+import { useGlobalContext } from '@/app/GlobalContext';
+import { handleAddItemToWishList } from '@/app/functions/hadleAddItemToWishList';
 
 export default function FragranceCard({ img, name, id }) {
+  const { setOpenCartAlert, setWishList, wishList } = useGlobalContext();
+
+  const handleClickAddToCart = (id) => {
+    setOpenCartAlert(id);
+  };
   return (
     <Grid
       sx={{
@@ -12,11 +22,49 @@ export default function FragranceCard({ img, name, id }) {
         overflow: 'hidden',
         // borderBottom: 1,
         flexWrap: 'nowrap',
+        position: 'relative',
       }}
       size={{ xs: 6, sm: 4, md: 4, lg: 3 }}
       container
       direction={'column'}
     >
+      {id % 2 === 0 ? (
+        <Typography
+          sx={{
+            position: 'absolute',
+            fontSize: '13px',
+            lineHeight: '13px',
+            fontWeight: 500,
+            top: '10px',
+            right: '10px',
+            bgcolor: '#d4e7f7ff',
+            borderRadius: '7px',
+            color: '#1565c0',
+            p: '5px 8px',
+            zIndex: 1,
+          }}
+        >
+          NEW
+        </Typography>
+      ) : (
+        <Typography
+          sx={{
+            position: 'absolute',
+            fontSize: '13px',
+            lineHeight: '13px',
+            fontWeight: 500,
+            top: '10px',
+            right: '10px',
+            bgcolor: '#f1ddd7fe',
+            borderRadius: '7px',
+            color: '#dd2c00',
+            p: '5px 8px',
+            zIndex: 1,
+          }}
+        >
+          SALE
+        </Typography>
+      )}
       <Link style={{ WebkitTapHighlightColor: 'transparent' }} href={`/fragrance/${id}`}>
         <Box
           sx={{
@@ -55,6 +103,44 @@ export default function FragranceCard({ img, name, id }) {
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '5px' }}>
         <Rating name="read-only" value={1} readOnly size="small" />
         <Typography sx={{ color: '#3c4354a3', fontSize: 12, lineHeight: '12px' }}> 50 Sold </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', gap: 1, mt: '10px', alignItems: 'flex-end' }}>
+        <div
+          style={{ cursor: 'pointer', WebkitTapHighlightColor: 'Background' }}
+          onClick={() => handleClickAddToCart(id)}
+        >
+          <ShoppingBasketIcon size={'25'} />
+        </div>
+        {wishList.includes(id) ? (
+          <FavoriteIcon
+            onClick={() => handleAddItemToWishList(id, setWishList)}
+            sx={{ color: '#ff3d00', ml: '5px', mb: '2px' }}
+          />
+        ) : (
+          <FavoriteBorderIcon
+            onClick={() => handleAddItemToWishList(id, setWishList)}
+            sx={{ color: '#ff3d00', ml: '5px', mb: '2px' }}
+          />
+        )}
+        <Link
+          style={{ WebkitTapHighlightColor: 'transparent', marginLeft: 'auto' }}
+          href={`/cart?item=${id}`}
+        >
+          <Button
+            size="small"
+            sx={{
+              bgcolor: '#2B3445',
+              borderRadius: '10px',
+              mb: '3px',
+              fontSize: '13px',
+              textTransform: 'none',
+              p: '0 10px',
+            }}
+            variant="contained"
+          >
+            Buy now
+          </Button>
+        </Link>
       </Box>
     </Grid>
   );

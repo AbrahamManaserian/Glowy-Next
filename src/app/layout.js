@@ -10,7 +10,7 @@ import TopOfPage from '@/components/appBar/TopOfPage';
 import ScrollToTop from '@/components/ScrollToTop';
 import Loading from './loading';
 import { GlobalProvider } from './GlobalContext';
-
+import AlertAddCartItem from './cart/components/AlertAddCartItem';
 
 export const metadata = {
   title: 'Glowy Perfume & Cosmetics',
@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
             <GlobalProvider>
               <ScrollToTop />
               <TopOfPage />
-
+              <AlertAddCartItem />
               {children}
               <Footer />
             </GlobalProvider>

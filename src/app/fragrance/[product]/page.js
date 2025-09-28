@@ -3,7 +3,6 @@ import { Box, Grid, LinearProgress, Rating, Typography } from '@mui/material';
 import { doc, getDoc } from 'firebase/firestore';
 import Image from 'next/image';
 import { Options } from '../componenets/Options';
-import AlertAddCartItem from '@/app/cart/components/AlertAddCartItem';
 
 export const images = [
   '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',
@@ -113,7 +112,6 @@ export default async function FragranceProduct({ params }) {
           <Options id={+product} />
         </Grid>
       </Box>
-      <AlertAddCartItem />
     </Grid>
   );
 }

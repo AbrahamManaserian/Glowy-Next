@@ -11,6 +11,8 @@ const GlobalContext = createContext({
   setOpenCartAlert: () => {},
   isSticky: false,
   setIsSticky: () => {},
+  wishList: [],
+  setWishList: () => {},
 });
 
 export function GlobalProvider({ children }) {
@@ -19,6 +21,7 @@ export function GlobalProvider({ children }) {
   const [user, setUser] = useState(null);
   const [cart, setCart] = useState({ length: 0, items: {} });
   const [openCartAlert, setOpenCartAlert] = useState(null);
+  const [wishList, setWishList] = useState([]);
 
   const handleClickError = () => {
     setCart({ length: 0, items: {} });
@@ -27,15 +30,30 @@ export function GlobalProvider({ children }) {
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem('cart');
+
       if (savedCart) {
         setCart(JSON.parse(savedCart));
       } else {
         localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
-        setCart({ length: 0, items: {} });
+        // setCart({ length: 0, items: {} });
       }
     } catch (error) {
       localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
       setCart({ length: 0, items: {} });
+      console.log(error);
+    }
+
+    try {
+      const savedWishList = localStorage.getItem('fav');
+      if (savedWishList) {
+        setWishList(JSON.parse(savedWishList));
+      } else {
+        localStorage.setItem('fav', JSON.stringify([]));
+      }
+    } catch (error) {
+      localStorage.setItem('fav', JSON.stringify([]));
+      setWishList([]);
+      console.log(error);
     }
   }, []);
 
@@ -51,6 +69,8 @@ export function GlobalProvider({ children }) {
         openCartAlert,
         setOpenCartAlert,
         handleClickError,
+        wishList,
+        setWishList,
       }}
     >
       {children}

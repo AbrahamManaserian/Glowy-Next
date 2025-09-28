@@ -138,7 +138,7 @@ export default function FragrancePage() {
             alignContent={'flex-start'}
             container
             sx={{ flexGrow: 1, m: { xs: '25px 0 0 0', sm: '25px 0 0 0', md: '5px 0 0 40px' } }}
-            spacing={'20px'}
+            spacing={'30px'}
           >
             {images.map((img, index) => {
               return <FragranceCard key={index} img={img} name={index} id={index} />;

@@ -260,7 +260,8 @@ function DrawerMenu() {
 }
 
 export default function AppBarMenu() {
-  const { isSticky, setIsSticky } = useGlobalContext();
+  
+  const { isSticky, setIsSticky, wishList } = useGlobalContext();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -322,7 +323,7 @@ export default function AppBarMenu() {
           href="/favorite"
           style={{ margin: '0 25px 0 10px', WebkitTapHighlightColor: 'transparent' }}
         >
-          <StyledBadgeFavorite badgeContent={1}>
+          <StyledBadgeFavorite badgeContent={wishList.length}>
             <FavoriteIcon size={21} />
           </StyledBadgeFavorite>
         </Link>

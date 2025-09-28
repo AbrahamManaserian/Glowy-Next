@@ -11,6 +11,7 @@ import React, { useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Image from 'next/image';
+import { handleAddItemToCart } from '@/app/functions/hadleAddItemToCart';
 
 const images = [
   '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',
@@ -25,32 +26,8 @@ const images = [
 
 export default function AlertAddCartItem({ item }) {
   const { openCartAlert, setOpenCartAlert, setCart } = useGlobalContext();
-  // console.log(openCartAlert);
   const handleClose = () => {
     setOpenCartAlert(null);
-  };
-
-  const handleAddItem = () => {
-    try {
-      let cartItems = JSON.parse(localStorage.getItem('cart'));
-      if (Object.keys(cartItems.items).includes(openCartAlert + '')) {
-        cartItems.items[openCartAlert].quantity = ++cartItems.items[openCartAlert].quantity;
-        cartItems.length = cartItems.length + 1;
-        localStorage.setItem('cart', JSON.stringify(cartItems));
-        setCart(cartItems);
-      } else {
-        cartItems.length = cartItems.length + 1;
-        cartItems.items[openCartAlert] = { quantity: 1 };
-        localStorage.setItem('cart', JSON.stringify(cartItems));
-        setCart(cartItems);
-      }
-      setOpenCartAlert(null);
-    } catch (error) {
-      localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
-      setOpenCartAlert(null);
-      setCart({ length: 0, items: {} });
-      console.log(error);
-    }
   };
 
   return (
@@ -144,7 +121,10 @@ export default function AlertAddCartItem({ item }) {
 
         <DialogActions>
           <Button onClick={handleClose}>Disagree</Button>
-          <Button onClick={() => handleAddItem()} autoFocus>
+          <Button
+            onClick={() => handleAddItemToCart(openCartAlert + '', setCart, setOpenCartAlert)}
+            autoFocus
+          >
             Agree
           </Button>
         </DialogActions>
