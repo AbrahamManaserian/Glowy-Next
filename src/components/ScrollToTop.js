@@ -16,10 +16,8 @@ export default function ScrollToTop() {
     if (searchParams.size) {
       if ('scrollRestoration' in window.history) {
         window.history.scrollRestoration = 'manual';
+        window.scrollTo(0, 0);
       }
-      // const params = Object.fromEntries(searchParams.entries());
-      // console.log(params);
-      // console.log(searchParams.size);
     }
     // This effect runs on every route change
     // Doing nothing here disables Next.js auto scroll
@@ -29,6 +27,8 @@ export default function ScrollToTop() {
 
   return null;
 }
+
+
 // export default function ScrollToTop() {
 //   const pathname = usePathname();
 
