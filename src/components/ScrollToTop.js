@@ -13,10 +13,17 @@ export default function ScrollToTop() {
   //   }
   // }, []);
   useEffect(() => {
+    // console.log(window.history.scrollRestoration);
     if (searchParams.size) {
+      // console.log('asd');
       if ('scrollRestoration' in window.history) {
         window.history.scrollRestoration = 'manual';
-        window.scrollTo(0, 0);
+        // window.scrollTo(0, 0);
+      }
+    } else {
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'auto';
+        // window.scrollTo(0, 0);
       }
     }
     // This effect runs on every route change
