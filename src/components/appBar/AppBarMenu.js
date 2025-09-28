@@ -45,7 +45,7 @@ const navObj = { makeup: 'Makeup', fragrance: 'Fragrance', sale: 'Sale', gifts: 
 
 export function LogoHome() {
   return (
-    <Link href="/" style={{ textDecoration: 'none', WebkitTapHighlightColor: 'transparent' }}>
+    <Link scroll={false} href="/" style={{ textDecoration: 'none', WebkitTapHighlightColor: 'transparent' }}>
       <Typography
         sx={{
           // height: '24px',
@@ -80,7 +80,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
   const handleCloseDrawer = (url) => {
     closeDrawer(false);
     setOpen();
-    router.push(url, undefined, { scroll: true });
+    router.push(url, undefined, { scroll: false });
   };
 
   return (
@@ -260,7 +260,6 @@ function DrawerMenu() {
 }
 
 export default function AppBarMenu() {
-  
   const { isSticky, setIsSticky, wishList } = useGlobalContext();
 
   useEffect(() => {
@@ -303,7 +302,7 @@ export default function AppBarMenu() {
       <Grid item container sx={{ display: { xs: 'none', sm: 'flex' }, order: 2 }}>
         {Object.keys(navObj).map((key) => {
           return (
-            <Link scroll={true} key={key} className="bar-link" href={`/${key}`}>
+            <Link scroll={false} key={key} className="bar-link" href={`/${key}`}>
               {navObj[key]}
             </Link>
           );
@@ -319,7 +318,7 @@ export default function AppBarMenu() {
         justifyContent="flex-end"
       >
         <Link
-          scroll={true}
+          scroll={false}
           href="/favorite"
           style={{ margin: '0 25px 0 10px', WebkitTapHighlightColor: 'transparent' }}
         >
@@ -330,7 +329,7 @@ export default function AppBarMenu() {
 
         <CartDrawer />
         <Link
-          scroll={true}
+          scroll={false}
           href="/user"
           style={{ margin: '0 15px 0 25px', WebkitTapHighlightColor: 'transparent' }}
         >
