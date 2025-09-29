@@ -33,11 +33,11 @@ export default function RootLayout({ children }) {
               <TopOfPage />
               <AlertAddCartItem />
               {children}
-              <ScrollRestoration />
               <Footer />
             </GlobalProvider>
           </Suspense>
         </ThemeRegistry>
+        <ScrollRestoration />
       </body>
     </html>
   );
