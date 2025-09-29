@@ -44,19 +44,19 @@ export default function FragrancePage() {
     });
 
     // sessionStorage.setItem('app-scroll:' + params.toString(), String(window.scrollY));
-    router.push(`?${params.toString()}&scroll=true`, { scroll: true });
+    router.push(`?${params.toString()}&scroll=false`, { scroll: false });
   };
 
   const makeRout = (prop, value) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set(prop, value);
-    router.push(`?${params.toString()}&scroll=true`, { scroll: true });
+    router.push(`?${params.toString()}&scroll=false`, { scroll: false });
   };
 
   const makeArrayRoute = (prop, arr) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set(prop, arr.join(','));
-    router.push(`?${params.toString()}&scroll=true`, { scroll: true });
+    router.push(`?${params.toString()}&scroll=false`, { scroll: false });
   };
 
   const handleChangeArrayParams = (prop, value, rout) => {
