@@ -11,7 +11,7 @@ import TopOfPage from '@/components/appBar/TopOfPage';
 import Loading from './loading';
 import { GlobalProvider } from './GlobalContext';
 import AlertAddCartItem from './cart/components/AlertAddCartItem';
-import { ScrollRestoration } from 'next-scroll-restoration';
+import ClientSideScrollRestorer from '@/components/ClientSideScrollRestorer';
 
 export const metadata = {
   title: 'Glowy Perfume & Cosmetics',
@@ -34,10 +34,12 @@ export default function RootLayout({ children }) {
               <AlertAddCartItem />
               {children}
               <Footer />
+              <Suspense fallback={<Loading />}>
+                <ClientSideScrollRestorer />
+              </Suspense>
             </GlobalProvider>
           </Suspense>
         </ThemeRegistry>
-        <ScrollRestoration />
       </body>
     </html>
   );
