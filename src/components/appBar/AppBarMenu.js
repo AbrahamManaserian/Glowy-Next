@@ -280,6 +280,7 @@ export default function AppBarMenu() {
       sx={{
         position: 'sticky',
         top: isSticky ? 0 : -300, // 👈 offset sticky start
+        top: 0,
         // top: 0, // 👈 offset sticky start
         bgcolor: 'white',
         zIndex: 1200,
