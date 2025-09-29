@@ -1,20 +1,18 @@
-// app/ClientSideScrollRestorer.tsx
+// app/ScrollRestorationClient.tsx
 'use client';
 
+import { useEffect } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { ScrollRestoration } from 'next-scroll-restoration';
 
 export default function ClientSideScrollRestorer() {
-  return (
-    <ScrollRestoration
-      shouldUpdateScroll={(prev, next) => {
-        // if pathname changes → restore
-        if (prev.pathname !== next.pathname) return true;
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-        // if search params changed → scroll to top
-        if (prev.search !== next.search) return [0, 0];
+  useEffect(() => {
+    // On every search param change, scroll to top
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, [pathname, searchParams.toString()]);
 
-        return false; // default
-      }}
-    />
-  );
+  return <ScrollRestoration />;
 }
