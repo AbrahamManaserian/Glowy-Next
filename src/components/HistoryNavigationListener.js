@@ -10,12 +10,13 @@ export default function HistoryNavigationListener() {
     history.scrollRestoration = 'manual';
   }, []);
   useEffect(() => {
+    let navType = '';
+    let navObj = {};
     let num1 = 0;
     let num2 = 0;
     let arr = [];
     let lastAction = null; // "push" | "back/forward" | "reload"
     let previousUrl = window.location.pathname + window.location.search; // start with current page
-    let previousUrl1 = window.location.pathname + window.location.search; // start with current page
 
     // Save original pushState
     const originalPushState = history.pushState;
@@ -32,28 +33,42 @@ export default function HistoryNavigationListener() {
     const onPopState = (e) => {
       // console.log(e.target);
       lastAction = 'back/forward';
-      saveScrollPosition(previousUrl);
-      const currentUrl = window.location.pathname + window.location.search;
-      console.log(arr[num2 - 1]);
-      console.log(num2);
-      console.log(arr);
-      if (arr[num2 - 1] === currentUrl) {
-        arr.push(currentUrl);
-        num2 = num2 - 1;
-      } else {
-        console.log(num2);
-        arr.push(currentUrl);
-        num2 = num2 + 1;
-      }
 
-      // if (previousUrl1 === currentUrl) {
-      //   num = num - 1;
-      // }
-      // console.log(previousUrl1);
-      // console.log(previousUrl);
-      // console.log('Navigation type:', lastAction);
-      // console.log('from-', previousUrl, 'to-', currentUrl);
-      // console.log('Went to:', currentUrl);
+      const currentUrl = window.location.pathname + window.location.search;
+      // console.log(arr[num2 - 1]);
+      // console.log(num2);
+
+      if (arr[num2 - 1] === currentUrl) {
+        if (num2 === num1) {
+          arr.push(`${previousUrl}`);
+          // console.log(num1, 'back');
+          navObj[num1] = { url: previousUrl, pos: window.scrollY };
+          saveScrollPosition(navObj, num1 - 1);
+          // window.scrollTo(0, window.scrollY);
+          console.log(navObj);
+          console.log(num1 - 1);
+        } else {
+          // console.log(num2, 'back');
+          navObj[num2] = { url: previousUrl, pos: window.scrollY };
+          saveScrollPosition(navObj, num2 - 1);
+          // window.scrollTo(0, window.scrollY);
+          console.log(navObj);
+          console.log(num2 - 1);
+        }
+        // navObj[num2] = { url: previousUrl, pos: window.scrollY };
+        num2 = num2 - 1;
+        navType = 'back';
+      } else {
+        // console.log(num2, 'next');
+        navObj[num2] = { url: previousUrl, pos: window.scrollY };
+        saveScrollPosition(navObj, num2 + 1);
+        // window.scrollTo(0, window.scrollY);
+        // console.log(navObj);
+        // console.log(num2 + 1);
+        num2 = num2 + 1;
+        navType = 'next';
+      }
+      // console.log(navObj);
 
       previousUrl = currentUrl; // update tracker
     };
@@ -61,18 +76,30 @@ export default function HistoryNavigationListener() {
     // Handle push
     const onPushState = () => {
       const currentUrl = window.location.pathname + window.location.search;
-      console.log('Navigation type:', lastAction);
+      // console.log('Navigation type:', lastAction);
 
-      saveScrollPosition(previousUrl);
-      num1 = num1 + 1;
-      num2 = num2 + 1;
+      if (navType === 'back' || navType === 'next') {
+        // console.log(num2, 'push-fromb/n');
+        navObj[num2] = { url: previousUrl, pos: window.scrollY };
+
+        arr = arr.slice(0, num2);
+        // console.log(num2, num1);
+        navType = '';
+        num1 = num2 + 1;
+        num2 = num2 + 1;
+      } else {
+        // console.log(num1, 'push');
+        navObj[num1] = { url: previousUrl, pos: window.scrollY };
+
+        num1 = num1 + 1;
+        num2 = num2 + 1;
+      }
       arr.push(previousUrl);
-      // console.log(previousUrl1);
-      // console.log(previousUrl);
-      // console.log(currentUrl);
-      previousUrl1 = previousUrl;
       previousUrl = currentUrl;
-      // console.log(num1);
+      saveScrollPosition(navObj, null);
+      //  console.log(navObj);
+      //  console.log(num2 + 1);
+      // console.log(navObj);
     };
 
     window.addEventListener('popstate', onPopState);

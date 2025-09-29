@@ -279,8 +279,8 @@ export default function AppBarMenu() {
     <Grid
       sx={{
         position: 'sticky',
-        top: isSticky ? 0 : -300, // 👈 offset sticky start
-        // top: 0, // 👈 offset sticky start
+        // top: isSticky ? 0 : -300, // 👈 offset sticky start
+        top: 0, // 👈 offset sticky start
         bgcolor: 'white',
         zIndex: 1200,
         p: { xs: '10px', sm: '19px 45px' },
@@ -291,8 +291,7 @@ export default function AppBarMenu() {
         overflow: 'hidden',
         width: '100%',
       }}
-      item
-      xs={12}
+      size={12}
       container
       justifyContent="space-between"
       alignItems="center"
