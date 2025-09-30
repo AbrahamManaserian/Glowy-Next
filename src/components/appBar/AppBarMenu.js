@@ -42,6 +42,19 @@ const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
 }));
 
 const navObj = { makeup: 'Makeup', fragrance: 'Fragrance', sale: 'Sale', gifts: 'Gifts', about: 'About' };
+const navObjGeneral = { home: 'Home', sale: 'Sale', gifts: 'Gifts', about: 'About', blog: 'Blog' };
+const navObjAbout = {
+  about: 'Story',
+  'about#2': 'Our Goals',
+  'about#3': 'Terms & Conditions',
+  'about#4': 'Privacy Policy',
+};
+const navObjCusCare = {
+  help: 'Help Center',
+  'help#2': 'Track Your Order',
+  'help#3': 'Returns & Refunds',
+  'help#4': 'FAQ',
+};
 
 export function LogoHome() {
   return (
@@ -231,11 +244,29 @@ function DrawerMenu() {
         open={open}
         onClose={() => toggleDrawer(false)}
       >
-        <Grid item xs={12} container direction="column" sx={{ p: '20px' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
-            <LogoHome />
-            <CloseIcon sx={{ color: '#8a8c8dff' }} onClick={() => toggleDrawer(false)} />
-          </Box>
+        <Grid item xs={12} container direction="column" sx={{ p: '0 20px 20px 20px' }}>
+          <div
+            style={{
+              backgroundColor: 'white',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              width: '100%',
+              position: 'sticky',
+              top: 0,
+              zIndex: 10,
+            }}
+          >
+            <CloseIcon
+              sx={{
+                color: '#8a8c8dff',
+                my: '10px',
+              }}
+              onClick={() => toggleDrawer(false)}
+            />
+          </div>
+          <Typography sx={{ fontSize: '13px', fontWeight: 500, color: '#434a4eff' }}>
+            All Categories
+          </Typography>
           <List ref={drawerRef} sx={{ pl: '10px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
             {Object.keys(categories).map((key) => {
               return (
@@ -251,8 +282,67 @@ function DrawerMenu() {
               );
             })}
           </List>
-
-          <Divider />
+          {/* <Divider /> */}
+          <Typography sx={{ fontSize: '13px', fontWeight: 500, color: '#434a4eff', mb: '10px' }}>
+            General
+          </Typography>
+          {Object.keys(navObjGeneral).map((key, index) => {
+            return (
+              <Link key={index} scroll={true} href={`/${key}`} style={{ textDecoration: 'none' }}>
+                <Typography
+                  sx={{
+                    fontSize: '17px',
+                    fontWeight: 400,
+                    color: 'black',
+                    textDecoration: 'none',
+                    m: ' 0 0 10px 13px',
+                  }}
+                >
+                  {navObjGeneral[key]}
+                </Typography>
+              </Link>
+            );
+          })}
+          <Typography sx={{ fontSize: '13px', fontWeight: 500, color: '#434a4eff', mb: '10px' }}>
+            Customer Care
+          </Typography>
+          {Object.keys(navObjCusCare).map((key, index) => {
+            return (
+              <Link key={index} scroll={true} href={`/${key}`} style={{ textDecoration: 'none' }}>
+                <Typography
+                  sx={{
+                    fontSize: '17px',
+                    fontWeight: 400,
+                    color: 'black',
+                    textDecoration: 'none',
+                    m: ' 0 0 10px 13px',
+                  }}
+                >
+                  {navObjCusCare[key]}
+                </Typography>
+              </Link>
+            );
+          })}
+          <Typography sx={{ fontSize: '13px', fontWeight: 500, color: '#434a4eff', mb: '10px' }}>
+            About Us
+          </Typography>
+          {Object.keys(navObjAbout).map((key, index) => {
+            return (
+              <Link key={index} scroll={true} href={`/${key}`} style={{ textDecoration: 'none' }}>
+                <Typography
+                  sx={{
+                    fontSize: '17px',
+                    fontWeight: 400,
+                    color: 'black',
+                    textDecoration: 'none',
+                    m: ' 0 0 10px 13px',
+                  }}
+                >
+                  {navObjAbout[key]}
+                </Typography>
+              </Link>
+            );
+          })}
         </Grid>
       </Drawer>
     </>

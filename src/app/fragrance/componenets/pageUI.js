@@ -2,13 +2,13 @@
 
 import { Box, Button, Drawer, Grid, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import Filter from './componenets/Filter';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import SortView from './componenets/SortView';
 import CloseIcon from '@mui/icons-material/Close';
-import FragranceCard from './componenets/FragranceCard';
 import { images } from '@/components/PopularProducts';
-import FragrancePagination from './componenets/FragrancePagination';
+import SortView from './SortView';
+import Filter from './Filter';
+import FragranceCard from './FragranceCard';
+import FragrancePagination from './FragrancePagination';
 // import Pagination from './componenets/Pagination';
 // import { images } from '@/components/FlashDeals';
 
