@@ -12,7 +12,7 @@ import FragrancePagination from './componenets/FragrancePagination';
 // import Pagination from './componenets/Pagination';
 // import { images } from '@/components/FlashDeals';
 
-export default function FragrancePage() {
+export default function FragrancePageUi() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -27,7 +27,7 @@ export default function FragrancePage() {
     brands: [],
     inStock: 'noCheck',
   });
-
+  // console.log(searchParams);
   const toggleDrawer = (newOpen) => {
     setOpenDrawer(newOpen);
   };

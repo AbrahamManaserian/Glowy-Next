@@ -1,50 +1,40 @@
-// 'use client';
+import { Box, Button, Grid, Typography } from '@mui/material';
+import Link from 'next/link';
+import SortView from './componenets/SortView1';
+import FragrancePageUi from './pageUI';
 
-import { Grid } from '@mui/material';
-
-// import { Box, Grid, Typography } from '@mui/material';
-// import { use, useState } from 'react';
-// import Filter from './componenets/Filter';
-
-// export default function Page({ params, searchParams }) {
-//   const [paramsState, setParamsState] = useState({
-//     sortBy: '',
-//     view: '',
-//     minPrice: '',
-//     maxPrice: '',
-//     gender: [],
-//     category: [],
-//     brands: [],
-//     inStock: 'noCheck',
-//   });
-//   const slug = use(params);
-//   const query = use(searchParams);
-//   console.log(query);
-//   return (
-//     <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' }, minHeight: '100vh' }} size={12}>
-//       <Typography>fragrance</Typography>
-//       <Box sx={{ display: { xs: 'none', sm: 'none', md: 'flex' }, width: '250px', mt: '40px' }}>
-//         <Filter
-//           paramsState={paramsState}
-//           // handleChangeParams={handleChangeParams}
-//           makeRout={true}
-//           // handleChangeArrayParams={handleChangeArrayParams}
-//         />
-//       </Box>
-//     </Grid>
-//   );
-// }
-
-export default async function Page({ searchParams }) {
+export default async function FragrancePage({ searchParams }) {
   const search = await searchParams;
-  console.log(search);
+
+  console.log(search.category);
 
   return (
-    <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' }, minHeight: '100vh' }} size={12}>
-      <h1>ng</h1>
-      <p>Search query: </p>
-      <p>Current page: </p>
-      <p>Sort order: </p>
-    </Grid>
+    <>
+      <FragrancePageUi />
+    </>
+
+    // <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' }, minHeight: '100vh' }} size={12}>
+    //   <Box sx={{ display: 'flex', width: '100%', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+    //     <Typography
+    //       sx={{
+    //         fontSize: { xs: '18px', sm: '30px' },
+    //         fontWeight: { xs: 500, sm: 600 },
+    //         flexGrow: 1,
+    //         lineHeight: { xs: '20px', sm: '30px' },
+    //         mb: '20px',
+    //       }}
+    //     >
+    //       Fragrance
+    //     </Typography>
+
+    //     <SortView
+    //       //   toggleDrawer={toggleDrawer}
+    //       //   handleChangeParams={handleChangeParams}
+    //       //   paramsState={paramsState}
+    //       searchParams={searchParams}
+    //     />
+    //     <Link href="/fragrance?category=fragrance&gender=women">About</Link>
+    //   </Box>
+    // </Grid>
   );
 }
