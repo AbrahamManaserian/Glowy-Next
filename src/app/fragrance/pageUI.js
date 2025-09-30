@@ -1,7 +1,7 @@
 'use client';
 
-import { Box, Button, Drawer, Grid, Pagination, Stack, Typography } from '@mui/material';
-import { use, useEffect, useState } from 'react';
+import { Box, Button, Drawer, Grid, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
 import Filter from './componenets/Filter';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import SortView from './componenets/SortView';
@@ -82,11 +82,7 @@ export default function FragrancePageUi() {
   };
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  useEffect(() => {
-    // window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     toggleDrawer(false);
     const newState = {};
     Object.keys(paramsState).forEach((key) => {
