@@ -9,7 +9,7 @@ import { ShoppingBasketIcon } from '@/components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { handleAddItemToWishList } from '@/app/functions/hadleAddItemToWishList';
 
-export default function FragranceCard({ img, name, id }) {
+export default function FragranceCard({ img, height, id }) {
   const { setOpenCartAlert, setWishList, wishList } = useGlobalContext();
 
   const handleClickAddToCart = (id) => {
@@ -74,7 +74,7 @@ export default function FragranceCard({ img, name, id }) {
             alignContent: 'center',
             alignItems: 'center',
             overflow: 'hidden',
-            height: { xs: '40vw', sm: '25vw', md: '20vw', lg: '13vw' },
+            height: height,
             //   height: '180px',
             bgcolor: '#98a4cb16',
             boxSizing: 'border-box',

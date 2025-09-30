@@ -4,7 +4,6 @@ import { Box, Grid } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import useEmblaCarousel from 'embla-carousel-react';
-
 import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -145,56 +144,5 @@ export const ProductImageComp = ({ images, idNum }) => {
         </div>
       </Box>
     </Grid>
-  );
-};
-
-const ImageCarousel = ({ images, idNum }) => {
-  const [itemsPerView, setItemsPerView] = useState(5);
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, align: 'start' }
-    //   [Autoplay({ delay: 3000, align: 'start' })] // autoplay every 3s
-  );
-  return (
-    <div
-      style={{
-        position: 'relative',
-        margin: '0 auto',
-        width: '100%',
-      }}
-    >
-      <div
-        ref={emblaRef}
-        style={{
-          overflow: 'hidden',
-        }}
-      >
-        <Box sx={{ display: 'flex' }}>
-          {images.map((img, index) => {
-            // if (index < 3)
-            return (
-              <Box
-                key={index}
-                sx={{
-                  flex: `0 0 ${100 / itemsPerView}%`, // responsive width
-                  minWidth: '0',
-                  padding: '10px',
-                  boxSizing: 'border-box', // ✅ keeps padding inside width
-                  opacity: idNum === index ? 1 : 0.5,
-                }}
-              >
-                <Image
-                  width={200}
-                  height={200}
-                  style={{ width: '100%', height: 'auto' }}
-                  //   src={arr[+product].images[0].file}
-                  src={img}
-                  alt="image"
-                />
-              </Box>
-            );
-          })}
-        </Box>
-      </div>
-    </div>
   );
 };
