@@ -82,6 +82,10 @@ export default function FragrancePage() {
   };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     // window.scrollTo({ top: 0, behavior: 'smooth' });
     toggleDrawer(false);
     const newState = {};

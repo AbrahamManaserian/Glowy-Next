@@ -7,13 +7,9 @@ import ThemeRegistry from '@/components/ThemeRegistry';
 import Footer from '@/components/footer/Footer';
 import { Suspense } from 'react';
 import TopOfPage from '@/components/appBar/TopOfPage';
-// import ScrollToTop from '@/components/ScrollToTop';
 import Loading from './loading';
 import { GlobalProvider } from './GlobalContext';
 import AlertAddCartItem from './cart/components/AlertAddCartItem';
-import HistoryNavigationListener from '@/components/HistoryNavigationListener';
-// import CustomScrollREstoration1 from '@/components/CustomScrollREstoration1';
-// import CustomScrollRestoration from '@/components/CustomScrollRestoration';
 
 export const metadata = {
   title: 'Glowy Perfume & Cosmetics',
@@ -33,11 +29,6 @@ export default function RootLayout({ children }) {
             <GlobalProvider>
               <TopOfPage />
               <AlertAddCartItem />
-
-              <HistoryNavigationListener />
-
-              {/* <CustomScrollREstoration1 /> */}
-
               {children}
               <Footer />
             </GlobalProvider>
