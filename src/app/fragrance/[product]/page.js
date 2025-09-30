@@ -3,6 +3,7 @@ import { Box, Grid, LinearProgress, Rating, Typography } from '@mui/material';
 import { doc, getDoc } from 'firebase/firestore';
 import Image from 'next/image';
 import { Options } from '../componenets/Options';
+import { ProductImageComp } from './ImageCarousel';
 
 export const images = [
   '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',
@@ -17,15 +18,6 @@ export const images = [
 
 export default async function FragranceProduct({ params }) {
   const { product } = await params;
-  //   let arr = [];
-
-  //   const orderRef = doc(db, 'orders', '38');
-
-  //   const docSnap = await getDoc(orderRef);
-  //   if (docSnap.data()) {
-  //     arr = docSnap.data().items;
-  //   }
-  //   console.log(arr);
 
   return (
     <Grid sx={{ m: { xs: '0 15px 60px 15px', sm: '0 25px 60px 25px' } }} container size={12}>
@@ -36,9 +28,10 @@ export default async function FragranceProduct({ params }) {
           maxWidth: '1150px',
           margin: '0 auto',
           flexWrap: 'wrap',
+          alignItems: 'flex-start',
         }}
       >
-        <Grid
+        {/* <Grid
           sx={{ bgcolor: '#98a4cb16', borderRadius: '25px', mt: '50px' }}
           size={{ xs: 12, sm: 12, md: 6 }}
           container
@@ -53,7 +46,13 @@ export default async function FragranceProduct({ params }) {
             src={images[+product]}
             alt="image"
           />
-        </Grid>
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <div style={{ maxWidth: '80%' }}>
+              <ImageCarousel images={images} />
+            </div>
+          </Box>
+        </Grid> */}
+        <ProductImageComp images={images} idNum={+product} />
         <Grid
           sx={{ mt: '50px' }}
           pl={{ xs: 0, sm: 0, md: '60px' }}
@@ -115,3 +114,4 @@ export default async function FragranceProduct({ params }) {
     </Grid>
   );
 }
+

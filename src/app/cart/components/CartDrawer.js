@@ -284,7 +284,7 @@ export default function CartDrawer() {
                 bgcolor: 'white',
               }}
             >
-              <Link scroll={true} href="cart">
+              <Link scroll={true} href="/cart">
                 <Button
                   onClick={() => toggleDrawer(false)}
                   variant="contained"
@@ -306,7 +306,7 @@ export default function CartDrawer() {
                   Procced To Checkout
                 </Button>
               </Link>
-              <Link scroll={true} href="cart">
+              <Link scroll={true} href="/cart">
                 <Button
                   onClick={() => toggleDrawer(false)}
                   variant="outlined"

@@ -17,7 +17,7 @@ export function Options({ id }) {
   };
 
   const handleClickAddToCart = (id) => {
-    setOpenCartAlert(id);
+    setOpenCartAlert({ id: id, qount: quantity });
   };
 
   return (
@@ -87,7 +87,7 @@ export function Options({ id }) {
           >
             Add to cart
           </Button>
-          <Link style={{ WebkitTapHighlightColor: 'transparent' }} href="/cart">
+          <Link style={{ WebkitTapHighlightColor: 'transparent' }} href={`/cart?item=${id}`}>
             <Button sx={{ ml: '10px', bgcolor: '#f44336', borderRadius: '10px' }} variant="contained">
               Buy now
             </Button>

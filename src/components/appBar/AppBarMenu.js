@@ -264,7 +264,7 @@ function DrawerMenu() {
               onClick={() => toggleDrawer(false)}
             />
           </div>
-          <Typography sx={{ fontSize: '13px', fontWeight: 500, color: '#434a4eff' }}>
+          <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#434a4eff' }}>
             All Categories
           </Typography>
           <List ref={drawerRef} sx={{ pl: '10px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
@@ -282,8 +282,8 @@ function DrawerMenu() {
               );
             })}
           </List>
-          {/* <Divider /> */}
-          <Typography sx={{ fontSize: '13px', fontWeight: 500, color: '#434a4eff', mb: '10px' }}>
+          <Divider sx={{ mb: '10px' }} />
+          <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
             General
           </Typography>
           {Object.keys(navObjGeneral).map((key, index) => {
@@ -303,7 +303,8 @@ function DrawerMenu() {
               </Link>
             );
           })}
-          <Typography sx={{ fontSize: '13px', fontWeight: 500, color: '#434a4eff', mb: '10px' }}>
+          <Divider sx={{ mb: '10px' }} />
+          <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
             Customer Care
           </Typography>
           {Object.keys(navObjCusCare).map((key, index) => {
@@ -323,7 +324,8 @@ function DrawerMenu() {
               </Link>
             );
           })}
-          <Typography sx={{ fontSize: '13px', fontWeight: 500, color: '#434a4eff', mb: '10px' }}>
+          <Divider sx={{ mb: '10px' }} />
+          <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
             About Us
           </Typography>
           {Object.keys(navObjAbout).map((key, index) => {

@@ -13,7 +13,7 @@ export default function FragranceCard({ img, name, id }) {
   const { setOpenCartAlert, setWishList, wishList } = useGlobalContext();
 
   const handleClickAddToCart = (id) => {
-    setOpenCartAlert(id);
+    setOpenCartAlert({ id: id, qount: 1 });
   };
   return (
     <Grid
@@ -119,7 +119,7 @@ export default function FragranceCard({ img, name, id }) {
         ) : (
           <FavoriteBorderIcon
             onClick={() => handleAddItemToWishList(id, setWishList)}
-            sx={{ color: '#ff3d00', ml: '5px', mb: '2px' }}
+            sx={{ color: '#ff3d00', ml: '5px', mb: '2px', cursor: 'pointer' }}
           />
         )}
         <Link

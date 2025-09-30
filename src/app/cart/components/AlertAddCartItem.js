@@ -33,12 +33,12 @@ export default function AlertAddCartItem({ item }) {
   return (
     <React.Fragment>
       <Dialog
-        open={openCartAlert || openCartAlert === 0}
+        open={openCartAlert}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Use Google's location service?"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{'Add To Cart'}</DialogTitle>
         <Box
           sx={{
             display: 'flex',
@@ -67,9 +67,9 @@ export default function AlertAddCartItem({ item }) {
               overflow: 'hidden',
             }}
           >
-            {(openCartAlert || openCartAlert === 0) && (
+            {openCartAlert && (
               <Image
-                src={images[openCartAlert]}
+                src={images[openCartAlert.id]}
                 alt=""
                 width={200}
                 height={200}
@@ -120,12 +120,17 @@ export default function AlertAddCartItem({ item }) {
         </Box>
 
         <DialogActions>
-          <Button onClick={handleClose}>Disagree</Button>
+          <Button sx={{ textTransform: 'capitalize' }} onClick={handleClose}>
+            Cancel
+          </Button>
           <Button
-            onClick={() => handleAddItemToCart(openCartAlert + '', setCart, setOpenCartAlert)}
+            sx={{ textTransform: 'capitalize' }}
+            onClick={() =>
+              handleAddItemToCart(openCartAlert.id + '', setCart, setOpenCartAlert, openCartAlert.qount)
+            }
             autoFocus
           >
-            Agree
+            Add to cart
           </Button>
         </DialogActions>
       </Dialog>
