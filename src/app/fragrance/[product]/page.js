@@ -3,7 +3,14 @@ import { Options } from '../componenets/Options';
 import { ProductImageComp } from './ProductImageComp';
 import FragranceCard from '../componenets/FragranceCard';
 import Image from 'next/image';
+import Link from 'next/link';
 
+const giftImage = [
+  '/images/giftCollection/491418281_17894849493207296_8185218575935560017_n.jpg',
+  '/images/giftCollection/491444976_17895688209207296_701226333239409337_n.jpg',
+  '/images/giftCollection/503000504_17899019925207296_2081947318050669149_n.jpg',
+  '/images/giftCollection/527451955_17906711424207296_2969023766760293256_n.jpg',
+];
 export const images = [
   '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',
   '/images/ov4x8tqv11m5xi1kcm868rz43f7isui0.webp',
@@ -90,7 +97,13 @@ export default async function FragranceProduct({ params }) {
         </Grid>
       </Box>
 
-      <Grid alignContent={'flex-start'} container size={12} mt={'120px'} justifyContent={'center'}>
+      <Grid
+        alignContent={'flex-start'}
+        container
+        size={12}
+        mt={{ xs: '90px', sm: '120px' }}
+        justifyContent={'center'}
+      >
         <Grid sx={{ maxWidth: '1100px' }} spacing={'30px'} container>
           <Typography
             sx={{ fontSize: { xs: '18px', sm: '22px' }, width: '100%' }}
@@ -105,82 +118,53 @@ export default async function FragranceProduct({ params }) {
           })}
         </Grid>
         <Typography
-          sx={{ fontSize: { xs: '18px', sm: '22px' }, width: '100%', mt: '140px', mb: '30px' }}
+          sx={{
+            fontSize: { xs: '18px', sm: '22px' },
+            width: '100%',
+            mt: { xs: '100px', sm: '140px' },
+            mb: '30px',
+          }}
           fontWeight={700}
           color="#2B3445"
         >
           Create Your Gift Box
         </Typography>
-        <Grid justifyContent={'space-between'} sx={{ backgroundColor: '#98a4cb16' }} size={12} container>
-          <Grid size={{ xs: 12, sm: 4 }} borderRight={1} container>
-            <Image
-              width={200}
-              height={200}
-              style={{
-                borderRadius: '25px',
-                overflow: 'hidden',
-                width: '100%',
-                height: 'auto',
-                // backgroundColor: '#98a4cb16',
-                WebkitTapHighlightColor: 'transparent',
-              }}
-              //   src={arr[+product].images[0].file}
-              src={images[1]}
-              alt="image"
-            />
-          </Grid>
-          <Grid alignItems={'center'} alignContent={'center'} size={{ xs: 4, sm: 2 }} container>
-            <Image
-              width={200}
-              height={200}
-              style={{
-                borderRadius: '25px',
-                overflow: 'hidden',
-                width: '100%',
-                height: 'auto',
-                // backgroundColor: '#98a4cb16',
-                WebkitTapHighlightColor: 'transparent',
-              }}
-              //   src={arr[+product].images[0].file}
-              src={images[1]}
-              alt="image"
-            />
-            <Typography>asd</Typography>
-          </Grid>
-          <Grid alignItems={'center'} size={{ xs: 4, sm: 2 }} container>
-            <Image
-              width={200}
-              height={200}
-              style={{
-                borderRadius: '25px',
-                overflow: 'hidden',
-                width: '100%',
-                height: 'auto',
-                // backgroundColor: '#98a4cb16',
-                WebkitTapHighlightColor: 'transparent',
-              }}
-              //   src={arr[+product].images[0].file}
-              src={images[5]}
-              alt="image"
-            />
-          </Grid>
-          <Grid alignItems={'center'} size={{ xs: 4, sm: 2 }} container>
-            <Image
-              width={200}
-              height={200}
-              style={{
-                borderRadius: '25px',
-                overflow: 'hidden',
-                width: '100%',
-                height: 'auto',
-                // backgroundColor: '#98a4cb16',
-                WebkitTapHighlightColor: 'transparent',
-              }}
-              src={images[3]}
-              alt="image"
-            />
-          </Grid>
-        </Grid>
+
+        <Link style={{ WebkitTapHighlightColor: 'transparent', width: '100%' }} href={`/gifts`}>
+          <Box
+            sx={{
+              // position: 'relative',
+              width: '100%',
+              overflow: 'hidden',
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            {giftImage.map((img, index) => {
+              return (
+                <Box
+                  sx={{ p: { xs: '10px', sm: '20px' }, boxSizing: 'border-box', width: '50%' }}
+                  key={index}
+                >
+                  <Image
+                    src={img}
+                    alt="Makeup Remover"
+                    width={200}
+                    height={300}
+                    style={{
+                      objectFit: 'cover',
+                      transition: 'transform 0.6s ease',
+                      width: '100%',
+                    }}
+                  />
+                </Box>
+              );
+            })}
+          </Box>
+        </Link>
       </Grid>
     </Grid>
   );

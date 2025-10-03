@@ -9,32 +9,52 @@ import { useCallback, useEffect, useState } from 'react';
 
 export const ProductImageComp = ({ images, idNum }) => {
   const [imgIndex, setImgIndex] = useState(idNum);
-  const [itemsPerView, setItemsPerView] = useState(5);
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: false, align: 'center' }
-    //   [Autoplay({ delay: 3000, align: 'start' })] // autoplay every 3s
-  );
+  const [emblaRefBig, emblaApiBig] = useEmblaCarousel({ loop: false, align: 'center', startIndex: idNum });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: 'center', dragFree: true });
+
+  const scrollPrev = useCallback(() => {
+    return emblaApiBig && emblaApiBig.scrollPrev();
+  }, [emblaApiBig]);
 
   useEffect(() => {
-    const updateItemsPerView = () => {
-      if (window.innerWidth < 400) {
-        setItemsPerView(3); // mobile
-      } else if (window.innerWidth >= 400 && window.innerWidth < 800) {
-        setItemsPerView(4); // tablet
-        //   } else if (window.innerWidth >= 750 && window.innerWidth < 1000) {
-        //     setItemsPerView(3); // tablet
+    if (!emblaApiBig || !emblaApi) return;
+    if (emblaApiBig.selectedScrollSnap() - emblaApi.selectedScrollSnap() > 2) {
+      emblaApi.scrollNext();
+    } else {
+      emblaApi.scrollPrev();
+    }
+  }, [imgIndex]);
+
+  useEffect(() => {
+    console.log(imgIndex);
+    if (!emblaApiBig) return;
+    emblaApiBig.on('select', (EmblaEventType) => {
+      // emblaApi.scrollTo(emblaApiBig.selectedScrollSnap());
+      setImgIndex(emblaApiBig.selectedScrollSnap());
+    });
+  }, [emblaApiBig]);
+
+  const scrollNext = useCallback(() => emblaApiBig && emblaApiBig.scrollNext(), [emblaApiBig]);
+
+  const handleClickCarouselScroll = (action, index) => {
+    if (index || index === 0) {
+      emblaApiBig.scrollTo(index);
+      setImgIndex(index);
+    } else {
+      if (action === 'next') {
+        if (imgIndex === images.length - 1) return;
+
+        setImgIndex(imgIndex + 1);
+        scrollNext();
       } else {
-        setItemsPerView(5); // desktop
+        if (imgIndex === 0) return;
+
+        setImgIndex(imgIndex - 1);
+        scrollPrev();
       }
-    };
+    }
+  };
 
-    updateItemsPerView();
-    window.addEventListener('resize', updateItemsPerView);
-    return () => window.removeEventListener('resize', updateItemsPerView);
-  }, []);
-
-  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
   return (
     <Grid
       sx={{ borderRadius: '25px', mt: '50px' }}
@@ -43,25 +63,10 @@ export const ProductImageComp = ({ images, idNum }) => {
       justifyContent={'center'}
       alignItems={'center'}
     >
-      <Image
-        width={200}
-        height={200}
-        style={{
-          borderRadius: '25px',
-          overflow: 'hidden',
-          width: '90%',
-          height: 'auto',
-          backgroundColor: '#98a4cb16',
-          WebkitTapHighlightColor: 'transparent',
-        }}
-        //   src={arr[+product].images[0].file}
-        src={images[imgIndex]}
-        alt="image"
-      />
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <div style={{ maxWidth: '80%', position: 'relative' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: '15px' }}>
+        <div style={{ position: 'relative' }}>
           <ChevronLeftIcon
-            onClick={scrollPrev}
+            onClick={() => handleClickCarouselScroll()}
             sx={{
               color: '#747982ff',
               fontSize: '30px',
@@ -69,21 +74,77 @@ export const ProductImageComp = ({ images, idNum }) => {
               mr: '5px',
               position: 'absolute',
               top: 'calc(50% - 10px)',
-              left: '-30px',
+              left: 0,
               WebkitTapHighlightColor: 'transparent',
+              zIndex: 10,
             }}
           />
           <NavigateNextIcon
-            onClick={scrollNext}
+            onClick={() => handleClickCarouselScroll('next')}
             sx={{
               color: '#747982ff',
               fontSize: '30px',
               cursor: 'pointer',
               position: 'absolute',
               top: 'calc(50% - 10px)',
-              right: '-30px',
+              right: 0,
+              zIndex: 10,
             }}
           />
+          <div
+            style={{
+              position: 'relative',
+              margin: '0 auto',
+              width: '100%',
+            }}
+          >
+            <div
+              ref={emblaRefBig}
+              style={{
+                overflow: 'hidden',
+              }}
+            >
+              <Box sx={{ display: 'flex' }}>
+                {images.map((img, index) => {
+                  //   if (index < 3)
+                  return (
+                    <div
+                      key={index}
+                      style={{
+                        flex: `0 0 ${100}%`,
+                        boxSizing: 'border-box',
+                        padding: '5px',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          padding: '5px',
+                          boxSizing: 'border-box', // ✅ keeps padding inside width
+                          cursor: 'pointer',
+                          borderRadius: '20px',
+                          transition: ' all 0.5s ease',
+                          backgroundColor: '#98a4cb16',
+                        }}
+                      >
+                        <Image
+                          width={200}
+                          height={200}
+                          style={{ width: '100%', height: 'auto' }}
+                          src={img}
+                          alt="image"
+                        />
+                      </Box>
+                    </div>
+                  );
+                })}
+              </Box>
+            </div>
+          </div>
+        </div>
+      </Box>
+
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '80%', position: 'relative' }}>
           <div
             style={{
               position: 'relative',
@@ -97,20 +158,20 @@ export const ProductImageComp = ({ images, idNum }) => {
                 overflow: 'hidden',
               }}
             >
-              <Box sx={{ display: 'flex', p: '20px 0' }}>
+              <Box sx={{ display: 'flex' }}>
                 {images.map((img, index) => {
                   //   if (index < 3)
                   return (
                     <div
                       key={index}
+                      onClick={() => handleClickCarouselScroll('', index)}
                       style={{
-                        flex: `0 0 ${100 / itemsPerView}%`,
+                        flex: `0 0 20%`,
                         boxSizing: 'border-box',
                         padding: '5px',
                       }}
                     >
                       <Box
-                        onClick={() => setImgIndex(index)}
                         sx={{
                           WebkitTapHighlightColor: 'transparent',
                           //   flex: `0 0 ${100 / itemsPerView}%`, // responsive width
