@@ -146,18 +146,25 @@ export default async function FragranceProduct({ params }) {
             {giftImage.map((img, index) => {
               return (
                 <Box
-                  sx={{ p: { xs: '10px', sm: '20px' }, boxSizing: 'border-box', width: '50%' }}
+                  sx={{
+                    p: { xs: '5px', sm: '20px' },
+                    height: { xs: '180px', sm: '300px' },
+                    boxSizing: 'border-box',
+                    width: '50%',
+                    overflow: 'hidden',
+                  }}
                   key={index}
                 >
                   <Image
                     src={img}
                     alt="Makeup Remover"
                     width={200}
-                    height={300}
+                    height={200}
                     style={{
                       objectFit: 'cover',
                       transition: 'transform 0.6s ease',
                       width: '100%',
+                      height: 'auto',
                     }}
                   />
                 </Box>

@@ -26,7 +26,6 @@ export const ProductImageComp = ({ images, idNum }) => {
   }, [imgIndex]);
 
   useEffect(() => {
-    console.log(imgIndex);
     if (!emblaApiBig) return;
     emblaApiBig.on('select', (EmblaEventType) => {
       // emblaApi.scrollTo(emblaApiBig.selectedScrollSnap());
