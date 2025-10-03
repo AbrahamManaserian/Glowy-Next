@@ -148,7 +148,7 @@ export default async function FragranceProduct({ params }) {
                 <Box
                   sx={{
                     p: { xs: '5px', sm: '20px' },
-                    height: { xs: '180px', sm: '300px' },
+                    height: { xs: '150px', sm: '300px' },
                     boxSizing: 'border-box',
                     width: '50%',
                     overflow: 'hidden',

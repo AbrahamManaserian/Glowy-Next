@@ -73,7 +73,7 @@ export const ProductImageComp = ({ images, idNum }) => {
               mr: '5px',
               position: 'absolute',
               top: 'calc(50% - 10px)',
-              left: 0,
+              left: '10px',
               WebkitTapHighlightColor: 'transparent',
               zIndex: 10,
             }}
@@ -86,7 +86,7 @@ export const ProductImageComp = ({ images, idNum }) => {
               cursor: 'pointer',
               position: 'absolute',
               top: 'calc(50% - 10px)',
-              right: 0,
+              right: '10px',
               zIndex: 10,
             }}
           />
@@ -143,7 +143,7 @@ export const ProductImageComp = ({ images, idNum }) => {
       </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: '80%', position: 'relative' }}>
+        <Box sx={{ width: { xs: '95%', sm: '60%' }, position: 'relative' }}>
           <div
             style={{
               position: 'relative',
@@ -175,7 +175,7 @@ export const ProductImageComp = ({ images, idNum }) => {
                           WebkitTapHighlightColor: 'transparent',
                           //   flex: `0 0 ${100 / itemsPerView}%`, // responsive width
                           //   minWidth: '0',
-                          padding: '5px',
+                          // padding: '5px',
                           boxSizing: 'border-box', // ✅ keeps padding inside width
                           opacity: imgIndex === index ? 1 : 0.5,
                           border: 2,
@@ -201,7 +201,7 @@ export const ProductImageComp = ({ images, idNum }) => {
               </Box>
             </div>
           </div>
-        </div>
+        </Box>
       </Box>
     </Grid>
   );

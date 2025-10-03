@@ -80,6 +80,7 @@ export default function FragranceCard({ img, height, id }) {
             boxSizing: 'border-box',
             borderRadius: '15px',
             width: '100%',
+            py: '20px',
           }}
         >
           <Image
