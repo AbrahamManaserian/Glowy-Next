@@ -13,6 +13,7 @@ import { ShoppingBasketIcon } from '@/components/icons';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { images } from '@/app/fragrance/[product]/page';
 import { useGlobalContext } from '@/app/GlobalContext';
+import { decreaseQuantity, deleteItem, increaseQuantity } from '../functions/addDeleteIncDecreaseCart';
 
 // const images = [
 //   '/images/ov4x8tqv11m5xi1kcm868rz43f7isui0.webp',
@@ -38,67 +39,10 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 export default function CartDrawer() {
   const { cart, setCart, handleClickError } = useGlobalContext();
   const [openDrawer, setOpenDrawer] = useState(false);
-  // console.log(cart);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const toggleDrawer = (newOpen) => {
     setOpenDrawer(newOpen);
-  };
-
-  const increaseQuantity = (id) => {
-    console.log(cart.items[id]);
-    try {
-      let cartItems = {
-        ...cart,
-        length: cart.length + 1,
-        items: { ...cart.items, [id]: { quantity: cart.items[id].quantity + 1 } },
-      };
-      localStorage.setItem('cart', JSON.stringify(cartItems));
-      setCart(cartItems);
-    } catch (error) {
-      localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
-
-      setCart({ length: 0, items: {} });
-      console.log(error);
-    }
-  };
-
-  const deleteItem = (id) => {
-    try {
-      let cartItems = { ...cart, length: cart.length - cart.items[id].quantity };
-      delete cartItems.items[id];
-      localStorage.setItem('cart', JSON.stringify(cartItems));
-      setCart(cartItems);
-    } catch (error) {
-      localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
-
-      setCart({ length: 0, items: {} });
-      console.log(error);
-    }
-  };
-
-  const decreaseQuantity = (id) => {
-    try {
-      if (cart.items[id].quantity < 2) {
-        let cartItems = { ...cart, length: cart.length - 1 };
-        delete cartItems.items[id];
-        localStorage.setItem('cart', JSON.stringify(cartItems));
-        setCart(cartItems);
-      } else {
-        let cartItems = {
-          ...cart,
-          length: cart.length - 1,
-          items: { ...cart.items, [id]: { quantity: cart.items[id].quantity - 1 } },
-        };
-        localStorage.setItem('cart', JSON.stringify(cartItems));
-        setCart(cartItems);
-      }
-    } catch (error) {
-      localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
-
-      setCart({ length: 0, items: {} });
-      console.log(error);
-    }
   };
 
   useEffect(() => {
@@ -240,7 +184,7 @@ export default function CartDrawer() {
                             >
                               <IconButton
                                 size="small"
-                                onClick={() => decreaseQuantity(key)}
+                                onClick={() => decreaseQuantity(key, cart, setCart)}
                                 aria-label="delete"
                                 // sx={{ cursor: quantity < 2 ? 'not-allowed' : 'pointer' }}
                               >
@@ -251,7 +195,7 @@ export default function CartDrawer() {
                               </Typography>
                               <IconButton
                                 size="small"
-                                onClick={() => increaseQuantity(key)}
+                                onClick={() => increaseQuantity(key, cart, setCart)}
                                 aria-label="delete"
                               >
                                 <AddIcon />
@@ -259,7 +203,7 @@ export default function CartDrawer() {
                             </Box>
 
                             <DeleteOutlinedIcon
-                              onClick={() => deleteItem(key)}
+                              onClick={() => deleteItem(key, cart, setCart)}
                               sx={{ fontSize: '28px', color: '#ca4d4df6', cursor: 'pointer' }}
                             />
                           </Box>

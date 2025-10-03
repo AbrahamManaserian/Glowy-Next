@@ -9,8 +9,7 @@ import SortView from './SortView';
 import Filter from './Filter';
 import FragranceCard from './FragranceCard';
 import FragrancePagination from './FragrancePagination';
-// import Pagination from './componenets/Pagination';
-// import { images } from '@/components/FlashDeals';
+
 
 export default function FragrancePageUi() {
   const searchParams = useSearchParams();

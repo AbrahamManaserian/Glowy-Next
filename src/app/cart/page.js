@@ -1,12 +1,18 @@
 import { Grid, Typography } from '@mui/material';
+import CartPageUi from './components/CartPageUi';
 
 export default async function CartPage({ searchParams }) {
   const { item } = await searchParams;
-  // console.log(item);
 
   return (
-    <Grid container xs={12} direction="column" minHeight="320vh">
+    <Grid
+      sx={{ m: { xs: '0 15px 60px 15px', sm: '0 25px 60px 25px' } }}
+      container
+      justifyContent={'center'}
+      size={12}
+    >
       <Typography> Cart page - item: {item}</Typography>
+      <CartPageUi />
     </Grid>
   );
 }

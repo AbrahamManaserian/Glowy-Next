@@ -9,9 +9,10 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useGlobalContext } from '@/app/GlobalContext';
 import React, { useState } from 'react';
 import { Box, Typography } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+
 import Image from 'next/image';
-import { handleAddItemToCart } from '@/app/functions/hadleAddItemToCart';
+import { handleAddItemToCart } from '../functions/addDeleteIncDecreaseCart';
+
 
 const images = [
   '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',
