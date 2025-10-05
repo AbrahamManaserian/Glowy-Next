@@ -1,26 +1,16 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { Badge, Box, Button, Drawer, Grow, IconButton, Menu, Paper, Popper, Typography } from '@mui/material';
+import { Badge, Box, Button, Drawer, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import RemoveIcon from '@mui/icons-material/Remove';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import { useEffect, useState } from 'react';
+
 import Link from 'next/link';
 import { ShoppingBasketIcon } from '@/components/icons';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { images } from '@/app/fragrance/[product]/page';
 import { useGlobalContext } from '@/app/GlobalContext';
-import { decreaseQuantity, deleteItem, increaseQuantity } from '../functions/addDeleteIncDecreaseCart';
-
-// const images = [
-//   '/images/ov4x8tqv11m5xi1kcm868rz43f7isui0.webp',
-//   '/images/06lT4BbLdxYjqF7EjvbnSXT9ILosjlIZh539zWgD.webp',
-//   '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',
-//   '/images/w33w5wkxtoc8ine2mnc4pbfwqt40rfsh.webp',
-// ];
+import CartItem from './CartItem';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -83,132 +73,13 @@ export default function CartDrawer() {
             <Typography sx={{ fontSize: '15px' }}>Your Cart ({cart.length || 0})</Typography>
             <CloseIcon sx={{ color: '#8a8c8dff', cursor: 'pointer' }} onClick={() => toggleDrawer(false)} />
           </Box>
-          <div style={{}}>
+          <div>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               {(() => {
                 try {
                   return Object.keys(cart.items).map((key, index) => {
                     return (
-                      <Box
-                        key={index}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          height: '140px',
-                          borderBottom: '1px dashed #dde2e5ff',
-                          overflow: 'hidden',
-                          p: { xs: '0 16px', sm: '0 24px' },
-                          boxSizing: 'border-box',
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            alignContent: 'center',
-                            padding: '5px',
-                            boxSizing: 'border-box',
-                            bgcolor: '#d2cccc30',
-                            //   bgcolor: 'red',
-                            // m: '10px 15px 10px 25px',
-                            borderRadius: '10px',
-                            width: '100px',
-                            height: '100px',
-                            overflow: 'hidden',
-                          }}
-                        >
-                          <Image
-                            src={images[key]}
-                            alt=""
-                            width={200}
-                            height={200}
-                            style={{ width: '100%', height: 'auto' }}
-                          />
-                        </Box>
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            flexGrow: 1,
-                            flexDirection: 'column',
-                            boxSizing: 'border-box',
-                            height: '100px',
-                            justifyContent: 'space-between',
-                            overflow: 'hidden',
-                            ml: '15px',
-                          }}
-                        >
-                          <div>
-                            <Typography
-                              sx={{
-                                fontSize: '14px',
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                maxWidth: '240px',
-                                color: '#191818f6',
-                                fontWeight: 300,
-                              }}
-                            >
-                              Armani Stronger With yuo Absolutely
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontSize: '15px',
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                maxWidth: '220px',
-                                mt: '2px',
-                              }}
-                            >
-                              $ 230.00
-                            </Typography>
-                          </div>
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'flex-end',
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                display: 'inline-flex',
-                                border: 'solid 0.5px #65626263',
-                                borderRadius: '10px',
-                                justifyContent: 'center',
-                                alignContent: 'center',
-                                // mr: '15px',
-                              }}
-                            >
-                              <IconButton
-                                size="small"
-                                onClick={() => decreaseQuantity(key, cart, setCart)}
-                                aria-label="delete"
-                                // sx={{ cursor: quantity < 2 ? 'not-allowed' : 'pointer' }}
-                              >
-                                <RemoveIcon />
-                              </IconButton>
-                              <Typography sx={{ bgcolor: '#6562620f', p: '6px 15px', fontSize: '14px' }}>
-                                {cart.items[key].quantity}
-                              </Typography>
-                              <IconButton
-                                size="small"
-                                onClick={() => increaseQuantity(key, cart, setCart)}
-                                aria-label="delete"
-                              >
-                                <AddIcon />
-                              </IconButton>
-                            </Box>
-
-                            <DeleteOutlinedIcon
-                              onClick={() => deleteItem(key, cart, setCart)}
-                              sx={{ fontSize: '28px', color: '#ca4d4df6', cursor: 'pointer' }}
-                            />
-                          </Box>
-                        </Box>
-                      </Box>
+                      <CartItem id={key} key={index} image={images[key]} cart={cart} setCart={setCart} />
                     );
                   });
                 } catch (error) {

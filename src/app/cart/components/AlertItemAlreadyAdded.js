@@ -1,18 +1,9 @@
 'use client';
 
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
 import { useGlobalContext } from '@/app/GlobalContext';
-import React, { useState } from 'react';
-import { Box, Typography } from '@mui/material';
-
+import { Box, Button, Dialog, DialogActions, DialogTitle, Typography } from '@mui/material';
 import Image from 'next/image';
-import { handleAddItemToCart } from '../functions/addDeleteIncDecreaseCart';
-
+import React from 'react';
 
 const images = [
   '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',
@@ -25,21 +16,21 @@ const images = [
   '/images/12.webp',
 ];
 
-export default function AlertAddCartItem({ item }) {
-  const { openCartAlert, setOpenCartAlert, setCart, cart } = useGlobalContext();
+export default function AlertItemAlreadyAdded() {
+  const { openItemAddedAlert, setOpenItemAddedAlert } = useGlobalContext();
   const handleClose = () => {
-    setOpenCartAlert(null);
+    setOpenItemAddedAlert(null);
   };
 
   return (
     <React.Fragment>
       <Dialog
-        open={openCartAlert}
+        open={openItemAddedAlert}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{'Add To Cart'}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{'Item is already in your cart'}</DialogTitle>
         <Box
           sx={{
             display: 'flex',
@@ -68,9 +59,9 @@ export default function AlertAddCartItem({ item }) {
               overflow: 'hidden',
             }}
           >
-            {openCartAlert && (
+            {openItemAddedAlert && (
               <Image
-                src={images[openCartAlert.id]}
+                src={images[openItemAddedAlert]}
                 alt=""
                 width={200}
                 height={200}
@@ -122,16 +113,7 @@ export default function AlertAddCartItem({ item }) {
 
         <DialogActions>
           <Button sx={{ textTransform: 'capitalize' }} onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button
-            sx={{ textTransform: 'capitalize' }}
-            onClick={() =>
-              handleAddItemToCart(openCartAlert.id + '', setCart, setOpenCartAlert, openCartAlert.qount, cart)
-            }
-            autoFocus
-          >
-            Add to cart
+            Ok
           </Button>
         </DialogActions>
       </Dialog>

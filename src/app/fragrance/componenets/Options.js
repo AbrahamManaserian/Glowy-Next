@@ -9,7 +9,7 @@ import { ShoppingBasketIcon } from '@/components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
 
 export function Options({ id }) {
-  const { setCart, setOpenCartAlert, setIsSticky } = useGlobalContext();
+  const { cart, setOpenCartAlert, setOpenItemAddedAlert } = useGlobalContext();
   const [option, setOption] = useState(100);
   const [quantity, setQuantity] = useState(1);
   const handleClickOption = (opt) => {
@@ -17,7 +17,12 @@ export function Options({ id }) {
   };
 
   const handleClickAddToCart = (id) => {
-    setOpenCartAlert({ id: id, qount: quantity });
+    if (cart.items[id]) {
+      setOpenItemAddedAlert(id);
+    } else {
+      setOpenCartAlert({ id: id, qount: quantity });
+    }
+    // setOpenCartAlert({ id: id, qount: quantity });
   };
 
   return (

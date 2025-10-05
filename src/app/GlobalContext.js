@@ -9,6 +9,8 @@ const GlobalContext = createContext({
   setCart: () => {},
   openCartAlert: null,
   setOpenCartAlert: () => {},
+  openItemAddedAlert: null,
+  setOpenItemAddedAlert: () => {},
   isSticky: false,
   setIsSticky: () => {},
   wishList: [],
@@ -21,6 +23,7 @@ export function GlobalProvider({ children }) {
   const [user, setUser] = useState(null);
   const [cart, setCart] = useState({ length: 0, items: {} });
   const [openCartAlert, setOpenCartAlert] = useState(null);
+  const [openItemAddedAlert, setOpenItemAddedAlert] = useState(null);
   const [wishList, setWishList] = useState([]);
 
   const handleClickError = () => {
@@ -71,6 +74,8 @@ export function GlobalProvider({ children }) {
         handleClickError,
         wishList,
         setWishList,
+        setOpenItemAddedAlert,
+        openItemAddedAlert,
       }}
     >
       {children}

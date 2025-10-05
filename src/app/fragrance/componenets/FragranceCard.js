@@ -8,13 +8,32 @@ import Link from 'next/link';
 import { ShoppingBasketIcon } from '@/components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { handleAddItemToWishList } from '@/app/functions/hadleAddItemToWishList';
+import { handleAddItemToCart } from '@/app/cart/functions/addDeleteIncDecreaseCart';
+import { useRouter } from 'next/navigation';
 
 export default function FragranceCard({ img, height, id }) {
-  const { setOpenCartAlert, setWishList, wishList } = useGlobalContext();
+  const router = useRouter();
+
+  const { setCart, setOpenCartAlert, setOpenItemAddedAlert, setWishList, wishList, cart } =
+    useGlobalContext();
 
   const handleClickAddToCart = (id) => {
-    setOpenCartAlert({ id: id, qount: 1 });
+    if (cart.items[id]) {
+      setOpenItemAddedAlert(id);
+    } else {
+      setOpenCartAlert({ id: id, qount: 1 });
+    }
   };
+
+  const handelClickBuyNow = (id) => {
+    if (cart.items[id]) {
+      router.push(`/cart?item=${id}`);
+    } else {
+      handleAddItemToCart(id, setCart, setOpenCartAlert, 1, cart);
+      router.push(`/cart?item=${id}`);
+    }
+  };
+
   return (
     <Grid
       sx={{
@@ -123,25 +142,26 @@ export default function FragranceCard({ img, height, id }) {
             sx={{ color: '#ff3d00', ml: '5px', mb: '2px', cursor: 'pointer' }}
           />
         )}
-        <Link
+        {/* <Link
           style={{ WebkitTapHighlightColor: 'transparent', marginLeft: 'auto' }}
           href={`/cart?item=${id}`}
+        > */}
+        <Button
+          onClick={() => handelClickBuyNow(id)}
+          size="small"
+          sx={{
+            bgcolor: '#2B3445',
+            borderRadius: '10px',
+            mb: '3px',
+            fontSize: '13px',
+            textTransform: 'none',
+            p: '2px 10px',
+          }}
+          variant="contained"
         >
-          <Button
-            size="small"
-            sx={{
-              bgcolor: '#2B3445',
-              borderRadius: '10px',
-              mb: '3px',
-              fontSize: '13px',
-              textTransform: 'none',
-              p: '2px 10px',
-            }}
-            variant="contained"
-          >
-            Buy now
-          </Button>
-        </Link>
+          Buy now
+        </Button>
+        {/* </Link> */}
       </Box>
     </Grid>
   );

@@ -1,4 +1,4 @@
-import { Grid, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
 import CartPageUi from './components/CartPageUi';
 
 export default async function CartPage({ searchParams }) {
@@ -11,7 +11,6 @@ export default async function CartPage({ searchParams }) {
       justifyContent={'center'}
       size={12}
     >
-      <Typography> Cart page - item: {item}</Typography>
       <CartPageUi />
     </Grid>
   );
