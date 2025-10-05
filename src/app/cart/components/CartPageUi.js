@@ -18,7 +18,6 @@ export default function CartPageUi({ items }) {
   return (
     <Grid
       sx={{
-        display: 'flex',
         width: '100%',
         maxWidth: '1150px',
         margin: '0 auto',
@@ -36,14 +35,19 @@ export default function CartPageUi({ items }) {
       >
         Cart ({cart.length})
       </Typography>
-      <Grid container sx={{ overflow: 'hidden' }} size={{ xs: 12, sm: 8 }} direction={'column'}>
+      <Grid
+        sx={{ overflow: 'hidden', boxSizing: 'border-box' }}
+        size={{ xs: 12, sm: 8 }}
+        direction={'column'}
+        // sx={{width:'100%'}}
+      >
         {Object.keys(cart.items).map((id, index) => {
           return (
-            <CartItem check={true} key={index} id={id} image={images[id]} cart={cart} setCart={setCart} />
+            <CartItem check={false} key={index} id={id} image={images[id]} cart={cart} setCart={setCart} />
           );
         })}
       </Grid>
-      <Grid size={4} sx={{ border: 'solid 1px #c5c7cc8a', borderRadius: '15px', p: '25px' }}>
+      <Grid size={{ xs: 12, sm: 4 }} sx={{ border: 'solid 1px #c5c7cc8a', borderRadius: '15px', p: '25px' }}>
         <Typography
           sx={{
             color: '#263045fb',

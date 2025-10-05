@@ -1,5 +1,4 @@
 export const increaseQuantity = (id, cart, setCart) => {
-  console.log(cart.items[id]);
   try {
     let cartItems = {
       ...cart,

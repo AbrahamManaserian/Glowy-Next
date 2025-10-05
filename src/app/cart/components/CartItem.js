@@ -6,8 +6,9 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import Image from 'next/image';
 import { decreaseQuantity, deleteItem, increaseQuantity } from '../functions/addDeleteIncDecreaseCart';
+import Link from 'next/link';
 
-export default function CartItem({ id, image, cart, setCart, check }) {
+export default function CartItem({ id, image, cart, setCart, check, padding }) {
   return (
     <Box
       sx={{
@@ -16,27 +17,33 @@ export default function CartItem({ id, image, cart, setCart, check }) {
         height: '140px',
         borderBottom: '1px dashed #dde2e5ff',
         overflow: 'hidden',
-        p: { xs: '0 16px', sm: '0 24px' },
+        p: padding,
         boxSizing: 'border-box',
+        maxWidth: '700px',
       }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          alignContent: 'center',
-          padding: '5px',
-          boxSizing: 'border-box',
-          bgcolor: '#d2cccc30',
-          borderRadius: '10px',
-          width: '100px',
-          height: '100px',
-          overflow: 'hidden',
-        }}
-      >
-        <Image src={image} alt="" width={200} height={200} style={{ width: '100%', height: 'auto' }} />
-      </Box>
+      <div style={{ borderRadius: '10px', overflow: 'hidden' }}>
+        <Link
+          href={`/fragrance/${id}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            alignContent: 'center',
+            padding: '5px',
+            boxSizing: 'border-box',
+            backgroundColor: '#d2cccc30',
+
+            width: '100px',
+            height: '100px',
+            overflow: 'hidden',
+            WebkitTapHighlightColor: 'rgba(43, 137, 219, 0.04)',
+          }}
+        >
+          <Image src={image} alt="" width={200} height={200} style={{ width: '100%', height: 'auto' }} />
+        </Link>
+      </div>
+
       <Box
         sx={{
           display: 'flex',
@@ -56,7 +63,7 @@ export default function CartItem({ id, image, cart, setCart, check }) {
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              maxWidth: '240px',
+              //   maxWidth: '240px',
               color: '#191818f6',
               fontWeight: 300,
             }}
@@ -69,7 +76,7 @@ export default function CartItem({ id, image, cart, setCart, check }) {
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              maxWidth: '220px',
+              //   maxWidth: '220px',
               mt: '2px',
             }}
           >

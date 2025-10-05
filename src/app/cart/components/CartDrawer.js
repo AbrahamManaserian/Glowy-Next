@@ -79,7 +79,14 @@ export default function CartDrawer() {
                 try {
                   return Object.keys(cart.items).map((key, index) => {
                     return (
-                      <CartItem id={key} key={index} image={images[key]} cart={cart} setCart={setCart} />
+                      <CartItem
+                        padding={{ xs: '0 16px', sm: '0 24px' }}
+                        id={key}
+                        key={index}
+                        image={images[key]}
+                        cart={cart}
+                        setCart={setCart}
+                      />
                     );
                   });
                 } catch (error) {
