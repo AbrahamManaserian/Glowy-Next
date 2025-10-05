@@ -9,7 +9,8 @@ export default async function CartPage({ searchParams }) {
       sx={{
         p: { xs: '0 15px 60px 15px', sm: '0 25px 60px 25px' },
         boxSizing: 'border-box',
-        overflow: 'hidden',
+        // overflow: 'hidden',
+        position: 'relative',
       }}
       container
       justifyContent={'center'}
