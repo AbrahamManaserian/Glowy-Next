@@ -14,12 +14,12 @@ export default function DetailedCartItem({ id, image, cart, setCart, check, padd
       sx={{
         display: 'flex',
         alignItems: 'center',
-        height: '140px',
         borderBottom: '1px dashed #dde2e5ff',
         overflow: 'hidden',
         p: padding,
         boxSizing: 'border-box',
         maxWidth: '700px',
+        py: '20px',
       }}
     >
       <Link
@@ -29,11 +29,10 @@ export default function DetailedCartItem({ id, image, cart, setCart, check, padd
           alignItems: 'center',
           justifyContent: 'center',
           alignContent: 'center',
-          padding: '5px',
           boxSizing: 'border-box',
           backgroundColor: '#d2cccc30',
           borderRadius: '10px',
-          width: '100px',
+          maxWidth: '100px',
           height: '100px',
           overflow: 'hidden',
           WebkitTapHighlightColor: 'rgba(43, 137, 219, 0.04)',

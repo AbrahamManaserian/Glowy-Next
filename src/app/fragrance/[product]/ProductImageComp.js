@@ -117,7 +117,6 @@ export const ProductImageComp = ({ images, idNum }) => {
                     >
                       <Box
                         sx={{
-                          padding: '5px',
                           boxSizing: 'border-box', // ✅ keeps padding inside width
                           cursor: 'pointer',
                           borderRadius: '20px',

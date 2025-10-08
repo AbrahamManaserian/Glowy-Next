@@ -7,13 +7,26 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ShoppingBasketIcon } from '@/components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
+import { useRouter } from 'next/navigation';
+import { handleAddItemToCart } from '@/app/cart/functions/addDeleteIncDecreaseCart';
 
 export function Options({ id }) {
-  const { cart, setOpenCartAlert, setOpenItemAddedAlert } = useGlobalContext();
+  const { cart, setCart, setOpenCartAlert, setOpenItemAddedAlert } = useGlobalContext();
   const [option, setOption] = useState(100);
   const [quantity, setQuantity] = useState(1);
+  const router = useRouter();
+
   const handleClickOption = (opt) => {
     setOption(opt);
+  };
+
+  const handelClickBuyNow = (id) => {
+    if (cart.items[id]) {
+      router.push(`/cart?item=${id}`);
+    } else {
+      handleAddItemToCart(id, setCart, setOpenCartAlert, 1, cart);
+      router.push(`/cart?item=${id}`);
+    }
   };
 
   const handleClickAddToCart = (id) => {
@@ -92,11 +105,13 @@ export function Options({ id }) {
           >
             Add to cart
           </Button>
-          <Link style={{ WebkitTapHighlightColor: 'transparent' }} href={`/cart?item=${id}`}>
-            <Button sx={{ ml: '10px', bgcolor: '#f44336', borderRadius: '10px' }} variant="contained">
-              Buy now
-            </Button>
-          </Link>
+          <Button
+            onClick={() => handelClickBuyNow(id)}
+            sx={{ ml: '10px', bgcolor: '#f44336', borderRadius: '10px' }}
+            variant="contained"
+          >
+            Buy now
+          </Button>
         </Box>
       </div>
     </Box>

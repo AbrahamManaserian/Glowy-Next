@@ -99,13 +99,13 @@ export default function FragranceCard({ img, height, id }) {
             boxSizing: 'border-box',
             borderRadius: '15px',
             width: '100%',
-            py: '20px',
+            // py: '20px',
           }}
         >
           <Image
             width={200}
             height={200}
-            style={{ overflow: 'hidden', width: '80%', height: 'auto' }}
+            style={{ overflow: 'hidden', width: '100%', height: 'auto' }}
             src={img}
             alt="image"
           />

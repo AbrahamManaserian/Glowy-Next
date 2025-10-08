@@ -30,7 +30,6 @@ export default function CartItem({ id, image, cart, setCart, check, padding }) {
             alignItems: 'center',
             justifyContent: 'center',
             alignContent: 'center',
-            padding: '5px',
             boxSizing: 'border-box',
             backgroundColor: '#d2cccc30',
 
