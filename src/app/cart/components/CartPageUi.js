@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react';
 
 const inputTextGroup = ['Full name', 'Phone number', 'Shipping address', 'Email address'];
 
-const ShippingMethod = ({ method, checked, handleClick }) => {
+const ShippingMethod = ({ checked }) => {
   return (
     <Box
       sx={{
@@ -63,10 +63,10 @@ export default function CartPageUi() {
   const { cart, setCart } = useGlobalContext();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
-  useEffect(() => {
-    // console.log(params);
-    window.scrollTo({ top: 0, behavior: 'auto' });
-  }, [searchParams]);
+  // useEffect(() => {
+  //   // console.log(params);
+  //   window.scrollTo({ top: 0, behavior: 'auto' });
+  // }, [searchParams]);
   // console.log(params.has('checkout'));
 
   return (
