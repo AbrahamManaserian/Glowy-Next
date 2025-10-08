@@ -11,7 +11,7 @@ import DoneIcon from '@mui/icons-material/Done';
 import DirectionsBikeIcon from '@mui/icons-material/DirectionsBike';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LocalAtmRoundedIcon from '@mui/icons-material/LocalAtmRounded';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const inputTextGroup = ['Full name', 'Phone number', 'Shipping address', 'Email address'];
 
@@ -63,6 +63,10 @@ export default function CartPageUi() {
   const { cart, setCart } = useGlobalContext();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
+  useEffect(() => {
+    console.log(params);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [searchParams]);
   // console.log(params.has('checkout'));
 
   return (
@@ -356,7 +360,7 @@ export default function CartPageUi() {
             mb: '20px',
           }}
         >
-          Summary
+          Summary - ({cart.length}) items
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
           <Typography
@@ -468,25 +472,49 @@ export default function CartPageUi() {
             </Button>
           </Link>
         ) : (
-          <Button
-            variant="contained"
-            sx={{
-              textTransform: 'capitalize',
-              width: '100%',
-              p: '10px 35px',
-              bgcolor: '#2B3445',
-              borderRadius: '8px',
-              fontWeight: 400,
-              textWrap: 'nowrap',
-              boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
-              ':hover': {
+          <>
+            <Button
+              variant="contained"
+              sx={{
+                textTransform: 'capitalize',
+                width: '100%',
+                p: '10px 35px',
+                bgcolor: '#2B3445',
+                borderRadius: '8px',
+                fontWeight: 400,
+                textWrap: 'nowrap',
                 boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
-              },
-              mb: '10px',
-            }}
-          >
-            Order
-          </Button>
+                ':hover': {
+                  boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
+                },
+                mb: '10px',
+              }}
+            >
+              Go to payment
+            </Button>
+            <Link scroll={true} href={`/cart`}>
+              <Button
+                variant="contained"
+                sx={{
+                  textTransform: 'capitalize',
+                  width: '100%',
+                  p: '10px 35px',
+                  bgcolor: '#e65100',
+                  // color: '#2B3445',
+                  borderRadius: '8px',
+                  fontWeight: 400,
+                  textWrap: 'nowrap',
+                  boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
+                  ':hover': {
+                    boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
+                  },
+                  mb: '10px',
+                }}
+              >
+                Back to cart
+              </Button>
+            </Link>
+          </>
         )}
       </Grid>
     </Grid>

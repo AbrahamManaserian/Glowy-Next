@@ -106,7 +106,7 @@ export default function CartDrawer() {
                 bgcolor: 'white',
               }}
             >
-              <Link scroll={true} href="/cart">
+              <Link scroll={true} href="/cart?checkout">
                 <Button
                   onClick={() => toggleDrawer(false)}
                   variant="contained"
