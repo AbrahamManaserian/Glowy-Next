@@ -64,8 +64,8 @@ export default function CartPageUi() {
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
   useEffect(() => {
-    console.log(params);
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    // console.log(params);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [searchParams]);
   // console.log(params.has('checkout'));
 
