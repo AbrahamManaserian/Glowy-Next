@@ -63,10 +63,10 @@ export default function CartPageUi() {
   const { cart, setCart } = useGlobalContext();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
-  // useEffect(() => {
-  //   // console.log(params);
-  //   window.scrollTo({ top: 0, behavior: 'auto' });
-  // }, [searchParams]);
+  useEffect(() => {
+    // console.log(params);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [searchParams]);
   // console.log(params.has('checkout'));
 
   return (
