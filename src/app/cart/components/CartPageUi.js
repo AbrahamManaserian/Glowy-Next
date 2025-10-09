@@ -2,7 +2,7 @@
 
 
 import { useGlobalContext } from '@/app/GlobalContext';
-import { Box, Button, Checkbox, Grid, InputBase, Typography } from '@mui/material';
+import { Box, Button, Checkbox, duration, FormControl, Grid, InputBase, Typography } from '@mui/material';
 import { images } from '@/components/PopularProducts';
 import Link from 'next/link';
 import DetailedCartItem from './DetailedCartItem';
@@ -11,11 +11,40 @@ import DoneIcon from '@mui/icons-material/Done';
 import DirectionsBikeIcon from '@mui/icons-material/DirectionsBike';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LocalAtmRoundedIcon from '@mui/icons-material/LocalAtmRounded';
-import { useEffect, useState } from 'react';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import RocketLaunchOutlinedIcon from '@mui/icons-material/RocketLaunchOutlined';
+import { useEffect, useRef, useState } from 'react';
 
-const inputTextGroup = ['Full name', 'Phone number', 'Shipping address', 'Email address'];
+const inputTextGroupObj = {
+  fullName: 'Full name',
+  phoneNumber: 'Phone number',
+  address: 'Shipping address',
+  email: 'Email address',
+  note: 'Notes',
+};
 
-const ShippingMethod = ({ checked }) => {
+const shippingMethodObj = {
+  free: {
+    type: 'Free',
+    deliveryDuration: '5-7 days delivery',
+    icon: <DirectionsBikeIcon sx={{ fontSize: '20px', mr: '8px' }} />,
+    price: '$0',
+  },
+  standart: {
+    type: 'Standart',
+    deliveryDuration: '3-5 days delivery',
+    icon: <LocalShippingOutlinedIcon sx={{ fontSize: '20px', mr: '8px' }} />,
+    price: '$10',
+  },
+  express: {
+    type: 'Express',
+    deliveryDuration: '1 day delivery',
+    icon: <RocketLaunchOutlinedIcon sx={{ fontSize: '20px', mr: '8px' }} />,
+    price: '$15',
+  },
+};
+
+const ShippingMethod = ({ checked, icon, type, duration, price }) => {
   return (
     <Box
       sx={{
@@ -45,12 +74,12 @@ const ShippingMethod = ({ checked }) => {
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', flexGrow: 1, flexWrap: 'wrap' }}>
         <Box sx={{ display: 'flex' }}>
-          <DirectionsBikeIcon sx={{ fontSize: '20px', mr: '8px' }} />
-          <Typography>Free</Typography>
+          {icon}
+          <Typography>{type}</Typography>
         </Box>
-        <Typography>$0</Typography>
+        <Typography>{price}</Typography>
         <Typography sx={{ width: '100%', color: '#666a72ff', fontSize: '14px', fontWeight: 300 }}>
-          5-7 days delivery
+          {duration}
         </Typography>
       </Box>
     </Box>
@@ -58,16 +87,32 @@ const ShippingMethod = ({ checked }) => {
 };
 
 export default function CartPageUi() {
-  const [selectedShippMethod, setSelectedShippMethod] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [cartState, setCartState] = useState({
+    shippingMethod: 'free',
+    paymentMethod: 'cash',
+    fullName: '',
+    phoneNumber: '',
+    address: '',
+    email: '',
+    note: '',
+  });
   const { cart, setCart } = useGlobalContext();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
+
+  const handleInputChange = (event) => {
+    if (!event.nativeEvent.data) {
+      setCartState({ ...cartState, [event.target.name]: event.target.value });
+    }
+  };
+
+  const handleInputBlur = (name, value) => {
+    setCartState({ ...cartState, [name]: value });
+  };
+
   useEffect(() => {
-    // console.log(params);
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, [searchParams]);
-  // console.log(params.has('checkout'));
 
   return (
     <Grid
@@ -129,7 +174,7 @@ export default function CartPageUi() {
             <Typography sx={{ fontWeight: 500, fontSize: '18px' }}>Personal details</Typography>
           </Box>
           <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-            {inputTextGroup.map((text, index) => {
+            {Object.keys(inputTextGroupObj).map((key, index) => {
               return (
                 <Box
                   key={index}
@@ -147,14 +192,21 @@ export default function CartPageUi() {
                     variant="body2"
                     sx={{ mb: '3px', ml: '3px', fontSize: '13px', fontWeight: 500, color: '#333' }}
                   >
-                    {text}
+                    {inputTextGroupObj[key]}
                   </Typography>
-
                   <InputBase
-                    // value={search}
-                    // onChange={(event) => {
-                    //   setSearch(event.target.value);
-                    // }}
+                    defaultValue={cartState[key]}
+                    onChange={(e) => {
+                      handleInputChange(e);
+                    }}
+                    type={key === 'phoneNumber' ? 'number' : ''}
+                    onKeyDown={(e) => {
+                      if (key === 'phoneNumber' && ['e', 'E', '-'].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    name={key}
+                    onBlur={(e) => handleInputBlur(e.target.name, e.target.value, e)}
                     sx={{
                       height: '50px',
                       fontSize: '14px',
@@ -166,9 +218,11 @@ export default function CartPageUi() {
                         border: 'solid 1px #030303dd',
                       },
                       flexGrow: 1,
+                      '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
+                        {
+                          WebkitAppearance: 'none', // Chrome, Safari, Edge
+                        },
                     }}
-                    // placeholder={text}
-                    // endAdornment={<SearchIcon />}
                   />
                 </Box>
               );
@@ -193,18 +247,19 @@ export default function CartPageUi() {
             <Typography sx={{ fontWeight: 500, fontSize: '18px' }}>Shipping method</Typography>
           </Box>
           <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-            {[1, 2, 3].map((item, index) => {
+            {Object.keys(shippingMethodObj).map((key, index) => {
               return (
                 <Box
                   key={index}
-                  onClick={() => setSelectedShippMethod(index)}
+                  onClick={() => setCartState({ ...cartState, shippingMethod: key })}
                   sx={{
                     borderRadius: '11px',
                     width: { xs: '100%', sm: 'calc(50% - 5px)' },
                     my: '10px',
                     p: 0,
                     cursor: 'pointer',
-                    border: index === selectedShippMethod ? 'solid 1.5px #3c3e448a' : 'solid 1.5px #c5c7cc08',
+                    border:
+                      key === cartState.shippingMethod ? 'solid 1.5px #3c3e448a' : 'solid 1.5px #c5c7cc08',
                     boxSizing: 'border-box',
                     mr: { xs: 0, sm: index % 2 !== 0 ? 0 : '5px' },
                     ml: { xs: 0, sm: index % 2 == 0 ? 0 : '5px' },
@@ -212,7 +267,13 @@ export default function CartPageUi() {
                     WebkitTapHighlightColor: 'transparent',
                   }}
                 >
-                  <ShippingMethod method={item} checked={index === selectedShippMethod} />
+                  <ShippingMethod
+                    icon={shippingMethodObj[key].icon}
+                    type={shippingMethodObj[key].type}
+                    duration={shippingMethodObj[key].deliveryDuration}
+                    price={shippingMethodObj[key].price}
+                    checked={key === cartState.shippingMethod}
+                  />
                 </Box>
               );
             })}
@@ -237,14 +298,15 @@ export default function CartPageUi() {
           </Box>
           <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
             <Box
-              onClick={() => setPaymentMethod('card')}
+              onClick={() => setCartState({ ...cartState, paymentMethod: 'card' })}
               sx={{
                 borderRadius: '11px',
                 width: { xs: '100%', sm: 'calc(50% - 5px)' },
                 my: '10px',
                 p: 0,
                 cursor: 'pointer',
-                border: paymentMethod === 'card' ? 'solid 1.5px #3c3e448a' : 'solid 1.5px #c5c7cc08',
+                border:
+                  cartState.paymentMethod === 'card' ? 'solid 1.5px #3c3e448a' : 'solid 1.5px #c5c7cc08',
                 boxSizing: 'border-box',
                 mr: { xs: 0, sm: '5px' },
 
@@ -265,14 +327,14 @@ export default function CartPageUi() {
               >
                 <Box
                   sx={{
-                    bgcolor: paymentMethod === 'card' ? '#e65100' : 'white',
+                    bgcolor: cartState.paymentMethod === 'card' ? '#e65100' : 'white',
                     borderRadius: '50%',
                     width: '20px',
                     height: '20px',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    border: paymentMethod !== 'card' ? 'solid 1px #c5c7cc8a' : 'solid 1px #f8f8f8',
+                    border: cartState.paymentMethod !== 'card' ? 'solid 1px #c5c7cc8a' : 'solid 1px #f8f8f8',
                     mr: '15px',
                   }}
                 >
@@ -288,14 +350,15 @@ export default function CartPageUi() {
               </Box>
             </Box>
             <Box
-              onClick={() => setPaymentMethod('cash')}
+              onClick={() => setCartState({ ...cartState, paymentMethod: 'cash' })}
               sx={{
                 borderRadius: '11px',
                 width: { xs: '100%', sm: 'calc(50% - 5px)' },
                 my: '10px',
                 p: 0,
                 cursor: 'pointer',
-                border: paymentMethod === 'cash' ? 'solid 1.5px #3c3e448a' : 'solid 1.5px #c5c7cc08',
+                border:
+                  cartState.paymentMethod === 'cash' ? 'solid 1.5px #3c3e448a' : 'solid 1.5px #c5c7cc08',
                 boxSizing: 'border-box',
                 ml: { xs: 0, sm: '5px' },
 
@@ -316,14 +379,14 @@ export default function CartPageUi() {
               >
                 <Box
                   sx={{
-                    bgcolor: paymentMethod === 'cash' ? '#e65100' : 'white',
+                    bgcolor: cartState.paymentMethod === 'cash' ? '#e65100' : 'white',
                     borderRadius: '50%',
                     width: '20px',
                     height: '20px',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    border: paymentMethod !== 'cash' ? 'solid 1px #c5c7cc8a' : 'solid 1px #f8f8f8',
+                    border: cartState.paymentMethod !== 'cash' ? 'solid 1px #c5c7cc8a' : 'solid 1px #f8f8f8',
                     mr: '15px',
                   }}
                 >
