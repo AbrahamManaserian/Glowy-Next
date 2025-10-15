@@ -22,3 +22,15 @@ export default function Home() {
     </Box>
   );
 }
+
+// import { NextIntlClientProvider } from 'next-intl';
+// import HomePage from './[locale]/page'; // reuse your [locale] page
+// import hyMessages from '../locales/hy.json';
+
+// export default function ArmenianHome() {
+//   return (
+//     <NextIntlClientProvider messages={hyMessages} locale="hy">
+//       <HomePage />
+//     </NextIntlClientProvider>
+//   );
+// }

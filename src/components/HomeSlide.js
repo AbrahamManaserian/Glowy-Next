@@ -4,6 +4,7 @@ import { Box, Button, Grid, Typography } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useState } from 'react';
+// import { useTranslations } from 'next-intl';
 
 export const images = [
   '/images/ov4x8tqv11m5xi1kcm868rz43f7isui0.webp',
@@ -13,6 +14,7 @@ export const images = [
 ];
 
 export default function HomeSlide() {
+  // const t = useTranslations('Home');
   const [item, setItem] = useState(0);
   const handleClick = (index) => {
     setItem(index);

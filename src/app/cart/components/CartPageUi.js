@@ -101,7 +101,7 @@ export default function CartPageUi() {
   const params = new URLSearchParams(searchParams);
 
   const handleInputChange = (event) => {
-    if (!event.nativeEvent.data) {
+    if (!event.nativeEvent.data && event.nativeEvent.data !== null) {
       setCartState({ ...cartState, [event.target.name]: event.target.value });
     }
   };
@@ -205,14 +205,16 @@ export default function CartPageUi() {
                         e.preventDefault();
                       }
                     }}
+                    multiline={key === 'note' ? true : false}
                     name={key}
                     onBlur={(e) => handleInputBlur(e.target.name, e.target.value, e)}
                     sx={{
-                      height: '50px',
+                      minHeight: '50px',
                       fontSize: '14px',
+
                       bgcolor: '#d2cccc17',
                       borderRadius: '8px',
-                      p: '0 20px',
+                      p: '4px 20px',
                       border: 'solid 1px #ffffffff',
                       '&.Mui-focused': {
                         border: 'solid 1px #030303dd',
