@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Button, Grid } from '@mui/material';
 import Link from 'next/link';
 import { doc, getDoc } from 'firebase/firestore';
