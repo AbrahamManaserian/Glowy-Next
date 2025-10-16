@@ -4,11 +4,13 @@ import { Grid } from '@mui/material';
 import Link from 'next/link';
 
 import { AdminProvider } from './components/AdminContext';
-import { getSuppliers } from '../lib/firebase/getSuppliers';
-
 
 export default async function AddminLayout({ children }) {
-  const suppliers = await getSuppliers();
+  // const suppliers = await getSuppliers();
+  const res = await fetch('https://glowy-store-next.netlify.app/api/admin');
+  const suppliers = await res.json();
+  // console.log(resData);
+  // console.log(suppliers);
 
   return (
     <Grid alignItems={'flex-start'} justifyContent={'center'} size={12} container>
