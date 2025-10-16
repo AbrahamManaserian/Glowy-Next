@@ -7,7 +7,7 @@ export default function Home() {
   const [suppliers, setSuppliers] = useState();
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await fetch('/api/admin');
+      const res = await fetch('/api/suppliers');
       const data = await res.json();
       setSuppliers(data);
     };

@@ -5,13 +5,12 @@ export async function GET(req) {
     const url = new URL(req.url);
     const suppliers = await getSuppliers();
     // Check if the request is from admin pages
-    
 
     return new Response(JSON.stringify(suppliers), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-store', // no caching for admin
+        'Cache-Control': `public, max-age=3600, s-maxage=7200, stale-while-revalidate=3600`, // no caching for admin
       },
     });
   } catch (error) {
