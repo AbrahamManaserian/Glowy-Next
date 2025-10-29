@@ -4,26 +4,20 @@ import { Grid } from '@mui/material';
 import Link from 'next/link';
 
 import { AdminProvider } from './components/AdminContext';
+import AdminNavBar from './components/AdminNavBar';
 
 export default async function AddminLayout({ children }) {
-  // const suppliers = await getSuppliers();
-  const res = await fetch('https://glowy-store-next.netlify.app/api/admin');
-  const suppliers = await res.json();
-  // console.log(resData);
-  // console.log(suppliers);
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${baseUrl}/api/admin`, {
+    cache: 'no-store', // avoids caching issues
+  });
+
+  const data = await res.json();
 
   return (
     <Grid alignItems={'flex-start'} justifyContent={'center'} size={12} container>
-      <Link className="bar-link" href="/admin/add-product">
-        Add Product
-      </Link>
-      <Link className="bar-link" href="/admin/change-product">
-        Change Product
-      </Link>
-      <Link className="bar-link" href="/admin/manage-suppliers">
-        Manage Suppliers
-      </Link>
-      <AdminProvider data={{ suppliers }}>{children}</AdminProvider>
+      <AdminNavBar />
+      <AdminProvider data={{ ...data }}>{children}</AdminProvider>
     </Grid>
   );
 }
