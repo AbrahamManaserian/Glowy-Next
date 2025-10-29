@@ -25,7 +25,7 @@ export const categories = {
       Uni: 'uni',
       routTo: 'fragrance',
     },
-    routTo: 'fragrance',
+
     'Car Air Fresheners': {
       routTo: 'car-air-fresheners',
     },
@@ -35,6 +35,7 @@ export const categories = {
     Deodorant: {
       routTo: 'deodorant',
     },
+    routTo: 'fragrance',
   },
 
   Makeup: {

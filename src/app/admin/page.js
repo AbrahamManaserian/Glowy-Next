@@ -1,7 +1,6 @@
 'use client';
 
 import { Grid } from '@mui/material';
-import Link from 'next/link';
 
 export default function AdminPage() {
   return (

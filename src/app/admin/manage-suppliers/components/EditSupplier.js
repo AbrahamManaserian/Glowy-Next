@@ -20,12 +20,12 @@ import { db } from '@/firebase';
 import { useAdminData } from '../../components/AdminContext';
 
 export default function EditSSupplier() {
-  const { suppliers } = useAdminData();
-  const data = suppliers;
+  
+  const { data, loading, setLoading } = useAdminData();
+
   const [supplier, setSupplier] = useState('');
   const router = useRouter();
   const [requiredFields, setRequiredFields] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [inputs, setInputs] = useState({
     name: '',
     address: '',
@@ -39,10 +39,10 @@ export default function EditSSupplier() {
   useEffect(() => {
     if (supplier) {
       setInputs({
-        id: data[supplier].id,
-        name: data[supplier].name,
-        address: data[supplier].address,
-        phone: data[supplier].phone,
+        id: data.suppliers.suppliers[supplier].id,
+        name: data.suppliers.suppliers[supplier].name,
+        address: data.suppliers.suppliers[supplier].address,
+        phone: data.suppliers.suppliers[supplier].phone,
       });
     } else {
       setInputs({
@@ -59,14 +59,15 @@ export default function EditSSupplier() {
 
   const deletSupplier = async () => {
     if (!supplier) return;
+    console.log(supplier);
     try {
       setLoading(true);
-      delete data[supplier];
+      delete data.suppliers.suppliers[supplier];
       setSupplier('');
       const docRef = doc(db, 'details', 'suppliers');
-
+      router.refresh();
       await updateDoc(docRef, {
-        suppliers: data,
+        suppliers: data.suppliers.suppliers,
       });
       setLoading(false);
     } catch (error) {
@@ -85,7 +86,11 @@ export default function EditSSupplier() {
       const docRef = doc(db, 'details', 'suppliers');
 
       await updateDoc(docRef, {
-        [`suppliers.${supplier}`]: { ...data[supplier], ...inputs, updatedAt: Date.now() },
+        [`suppliers.${supplier}`]: {
+          ...data.suppliers.suppliers[supplier],
+          ...inputs,
+          updatedAt: Date.now(),
+        },
       });
       router.refresh();
       setSupplier('');
@@ -107,13 +112,15 @@ export default function EditSSupplier() {
           //   mb: '15px',
         }}
         size="small"
+
+        // color="success"
       >
         <InputLabel>Select Suplier</InputLabel>
         <Select value={supplier} label="Select Suplier" onChange={handleChangeSelect}>
-          {Object.keys(data).map((key, index) => {
+          {Object.keys(data.suppliers.suppliers).map((key, index) => {
             return (
               <MenuItem sx={{ textTransform: 'capitalize' }} key={index} value={key}>
-                {data[key].name || 'No name'}
+                {data.suppliers.suppliers[key].name || 'No name'}
               </MenuItem>
             );
           })}
@@ -124,19 +131,23 @@ export default function EditSSupplier() {
         Created
       </Typography>
       <Typography fontSize={'14px'} borderBottom={'solid 1px #bdbdbd'} mb={'15px'} pl={'10px'}>
-        {data[supplier]?.createdAt ? new Date(data[supplier].createdAt).toLocaleString() : 'Creation Date'}
+        {data.suppliers.suppliers[supplier]?.createdAt
+          ? new Date(data.suppliers.suppliers[supplier].createdAt).toLocaleString()
+          : 'Creation Date'}
       </Typography>
       <Typography color="textSecondary" ml={'10px'} fontSize={'12px'}>
         Updated
       </Typography>
       <Typography fontSize={'14px'} borderBottom={'solid 1px #bdbdbd'} mb={'15px'} pl={'10px'}>
-        {data[supplier]?.updatedAt ? new Date(data[supplier].updatedAt).toLocaleString() : 'Updated Date'}
+        {data.suppliers.suppliers[supplier]?.updatedAt
+          ? new Date(data.suppliers.suppliers[supplier].updatedAt).toLocaleString()
+          : 'Updated Date'}
       </Typography>
       <Typography color="textSecondary" ml={'10px'} fontSize={'12px'}>
         Supplier Id
       </Typography>
       <Typography borderBottom={'solid 1px #bdbdbd'} mb={'15px'} pl={'10px'}>
-        {data[supplier]?.id}
+        {data.suppliers.suppliers[supplier]?.id}
       </Typography>
 
       <SupplierInputs
