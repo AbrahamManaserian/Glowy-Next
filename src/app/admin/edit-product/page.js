@@ -34,7 +34,6 @@ export default function ChangeProductPage() {
     supplier: '',
     cost: null,
   });
-  console.log(inputs);
 
   useEffect(() => {
     if (product) {

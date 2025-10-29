@@ -7,7 +7,10 @@ import { AdminProvider } from './components/AdminContext';
 import AdminNavBar from './components/AdminNavBar';
 
 export default async function AddminLayout({ children }) {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const baseUrl =
+    process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://glowy-store-next.netlify.app';
+
+  
   const res = await fetch(`${baseUrl}/api/admin`, {
     cache: 'no-store', // avoids caching issues
   });
