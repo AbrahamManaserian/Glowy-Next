@@ -424,7 +424,7 @@ export default function AddEditProductInputs({
         {inputs.mainImage && (
           <>
             <CloseOutlinedIcon
-              onClick={() => setInputs({ ...inputs, mainImage: '' })}
+              onClick={() => setInputs({ ...inputs, mainImage: '', smallImage: '' })}
               sx={{ bgcolor: 'red', position: 'absolute', top: 0, right: 0, color: 'white' }}
             />
 

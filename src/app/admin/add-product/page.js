@@ -11,7 +11,7 @@ import { useAdminData } from '../components/AdminContext';
 import AddEditProductInputs from '../components/AddEditProductInputs';
 import { useRouter } from 'next/navigation';
 
-const resizeFile = (file, quality) =>
+export const resizeFile = (file, quality) =>
   new Promise((resolve) => {
     Resizer.imageFileResizer(
       file,
@@ -195,7 +195,7 @@ export default function AddProduct() {
 
             await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
               return getDownloadURL(snapshot.ref).then((url) => {
-                imageArr.push({ ...inputs.images[index], file: url });
+                imageArr.push({ ...inputs.images[index], file: url, id: index });
                 // console.log(url);
               });
             });
