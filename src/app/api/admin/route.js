@@ -1,5 +1,4 @@
 import { getAdminData } from '@/app/lib/firebase/getAdminData';
-import { getSuppliers } from '@/app/lib/firebase/getSuppliers';
 
 export async function GET(req) {
   try {

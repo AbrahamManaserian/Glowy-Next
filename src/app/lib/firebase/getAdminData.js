@@ -9,12 +9,6 @@ export const getAdminData = async () => {
       // doc.data() is never undefined for query doc snapshots
       data[doc.id] = doc.data();
     });
-    // const suppliersDocRef = doc(db, 'details', 'suppliers');
-
-    // const docSnap = await getDoc(docRef);
-
-    // const data = docSnap.data();
-
     return data;
   } catch (error) {
     console.log(error);

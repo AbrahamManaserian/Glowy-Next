@@ -8,10 +8,15 @@ export const AdminProvider = ({ data, children }) => {
   const [loading, setLoading] = useState(false);
   return (
     <AdminContext.Provider value={{ data, loading, setLoading }}>
-      <Backdrop sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })} open={loading}>
+      {/* {loading && ( */}
+      <Backdrop
+        sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+        open={loading}
+        // onClick={handleClose}
+      >
         <CircularProgress color="inherit" />
       </Backdrop>
-
+      {/* )} */}
       {children}
     </AdminContext.Provider>
   );
