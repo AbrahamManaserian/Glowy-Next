@@ -30,8 +30,7 @@ export default function AddProductPage() {
   const [height, setHeight] = useState(0);
   const { data, setLoading } = useAdminData();
   const router = useRouter();
-  const [requiredFields, setRequiredFields] = useState(false);
-  const [requiredOption, setRequiredOption] = useState(false);
+
   const [inputs, setInputs] = useState({
     name: '',
     category: '',
@@ -170,27 +169,6 @@ export default function AddProductPage() {
     // }
   };
 
-  const addMoreOption = () => {
-    if (!inputs.optionKey || !inputs.optionValue || !inputs.optionPrice) {
-      setRequiredOption(true);
-      return;
-    }
-    const item = {
-      optionKey: inputs.optionKey,
-      optionValue: inputs.optionValue,
-      optionPrice: inputs.optionPrice,
-    };
-    const availableOptions = inputs.availableOptions;
-    availableOptions.push(item);
-    setInputs({
-      ...inputs,
-      availableOptions: availableOptions,
-      optionKey: '',
-      optionValue: '',
-      optionPrice: '',
-    });
-  };
-
   const hadleChangeInputs = (e) => {
     if (e.target.name === 'category') {
       setInputs({
@@ -312,13 +290,6 @@ export default function AddProductPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  useEffect(() => {
-    if (requiredFields || requiredOption) {
-      setRequiredFields(false);
-      setRequiredOption(false);
-    }
-  }, [inputs]);
-
   return (
     <Grid
       sx={{
@@ -338,13 +309,10 @@ export default function AddProductPage() {
         data={data.suppliers}
         inputs={inputs}
         setInputs={setInputs}
-        requiredFields={requiredFields}
         hadleChangeInputs={hadleChangeInputs}
         buttonText="Add Product"
         height={height}
         handleClick={addProduct}
-        addMoreOption={addMoreOption}
-        requiredOption={requiredOption}
       />
     </Grid>
   );

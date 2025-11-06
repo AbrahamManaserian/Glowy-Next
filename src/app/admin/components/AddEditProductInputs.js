@@ -17,11 +17,12 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import EditIcon from '@mui/icons-material/Edit';
 import ClearIcon from '@mui/icons-material/Clear';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import NextImage from 'next/image';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const availableOptionKeys = {
   color: { name: 'Color' },
@@ -259,17 +260,45 @@ export default function AddEditProductInputs({
   data,
   inputs,
   setInputs,
-  requiredFields,
   hadleChangeInputs,
   handleUploadMainImage,
   handleUploadImages,
   height,
   buttonText,
   handleClick,
-  addMoreOption,
-  requiredOption,
 }) {
   const [open, setOpen] = useState(false);
+  const [editState, setEditState] = useState(null);
+  const [requiredOption, setRequiredOption] = useState(false);
+  const [requiredFields, setRequiredFields] = useState(false);
+
+  const addEditOption = (index) => {
+    if (!inputs.optionKey || !inputs.optionValue || !inputs.optionPrice) {
+      setRequiredOption(true);
+      return;
+    }
+    const item = {
+      optionKey: inputs.optionKey,
+      optionValue: inputs.optionValue,
+      optionPrice: inputs.optionPrice,
+    };
+
+    if (editState || editState === 0) {
+      const updetedArr = inputs.availableOptions.map((it, i) => (i === editState ? item : it));
+      setInputs({ ...inputs, availableOptions: updetedArr, optionKey: '', optionValue: '', optionPrice: '' });
+      setEditState(null);
+    } else {
+      const availableOptions = inputs.availableOptions;
+      availableOptions.push(item);
+      setInputs({
+        ...inputs,
+        availableOptions: availableOptions,
+        optionKey: '',
+        optionValue: '',
+        optionPrice: '',
+      });
+    }
+  };
 
   const deleteOption = (index) => {
     const filteredOptions = inputs.availableOptions.filter((item, i) => i !== index);
@@ -283,6 +312,13 @@ export default function AddEditProductInputs({
   const imagePreviews = useMemo(() => {
     return inputs.images.map((i) => URL.createObjectURL(i.file));
   }, [inputs.images]);
+
+  useEffect(() => {
+    if (requiredFields || requiredOption) {
+      setRequiredFields(false);
+      setRequiredOption(false);
+    }
+  }, [inputs]);
 
   return (
     <Grid
@@ -628,7 +664,7 @@ export default function AddEditProductInputs({
           />
 
           <Button
-            onClick={addMoreOption}
+            onClick={addEditOption}
             variant="contained"
             color="success"
             sx={{
@@ -639,32 +675,90 @@ export default function AddEditProductInputs({
               ml: { xs: '10px', sm: 0 },
             }}
           >
-            Add option
+            {editState || editState === 0 ? 'Edit option' : 'Add option'}
           </Button>
+
+          {(editState || editState === 0) && (
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setEditState(null);
+                setInputs({ ...inputs, optionKey: '', optionValue: '', optionPrice: '' });
+              }}
+              sx={{
+                textTransform: 'capitalize',
+                width: { xs: 'calc(50% - 5px)', sm: 'calc(20% - 10px)' },
+                mr: { xs: 0, sm: '10px' },
+              }}
+            >
+              Cancel
+            </Button>
+          )}
+
           <div style={{ display: 'flex', flexWrap: 'wrap', margin: '0 5px 10px 5px' }}>
-            <Typography sx={{ width: '100%' }}>Added Available Options</Typography>
+            <Typography sx={{ width: '100%', mb: '10px' }}>Added Available Options</Typography>
             {inputs.availableOptions.map((item, index) => {
-              return (
-                <div
-                  style={{
-                    border: 'solid 0.5px',
-                    padding: '20px',
-                    margin: '5px',
-                    position: 'relative',
-                    borderRadius: '5px',
-                    overflow: 'hidden',
-                  }}
-                  key={index}
-                >
-                  <ClearIcon
-                    onClick={() => deleteOption(index)}
-                    sx={{ position: 'absolute', top: 0, right: 0, color: 'white', bgcolor: 'red' }}
-                  />
-                  <Typography>
-                    {availableOptionKeys[item.optionKey].name} - {item.optionValue}
-                  </Typography>
-                </div>
-              );
+              if ((editState || editState === 0) && editState === index) {
+                return (
+                  <div
+                    style={{
+                      border: 'solid 0.5px',
+                      padding: ' 30px 20px',
+                      margin: '0 15px 15px 0',
+                      position: 'relative',
+                      borderRadius: '5px',
+                      overflow: 'hidden',
+                    }}
+                    key={index}
+                  >
+                    <EditIcon
+                      onClick={() => {
+                        setEditState(index);
+                        setInputs({ ...inputs, ...item });
+                      }}
+                      sx={{ position: 'absolute', top: 0, left: 0, color: 'white', bgcolor: '#03a9f4' }}
+                    />
+                    <ClearIcon
+                      onClick={() => deleteOption(index)}
+                      sx={{ position: 'absolute', top: 0, right: 0, color: 'white', bgcolor: 'red' }}
+                    />
+                    <Typography>
+                      {availableOptionKeys[item.optionKey].name} - {item.optionValue}
+                    </Typography>
+                    <Typography>Price - {item.optionPrice}</Typography>
+                  </div>
+                );
+              } else if (!editState && editState !== 0) {
+                return (
+                  <div
+                    style={{
+                      border: 'solid 0.5px',
+                      padding: '30px 20px',
+                      margin: '0 15px 15px 0',
+                      position: 'relative',
+                      borderRadius: '5px',
+                      overflow: 'hidden',
+                    }}
+                    key={index}
+                  >
+                    <EditIcon
+                      onClick={() => {
+                        setEditState(index);
+                        setInputs({ ...inputs, ...item });
+                      }}
+                      sx={{ position: 'absolute', top: 0, left: 0, color: 'white', bgcolor: '#03a9f4' }}
+                    />
+                    <ClearIcon
+                      onClick={() => deleteOption(index)}
+                      sx={{ position: 'absolute', top: 0, right: 0, color: 'white', bgcolor: 'red' }}
+                    />
+                    <Typography>
+                      {availableOptionKeys[item.optionKey].name} - {item.optionValue}
+                    </Typography>
+                    <Typography>Price - {item.optionPrice}</Typography>
+                  </div>
+                );
+              }
             })}
           </div>
         </Collapse>
