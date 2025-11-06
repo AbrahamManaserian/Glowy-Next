@@ -5,6 +5,10 @@ import AddEditProductInputs from '../components/AddEditProductInputs';
 import { useEffect, useState } from 'react';
 import { useAdminData } from '../components/AdminContext';
 import Resizer from 'react-image-file-resizer';
+import { arrayUnion, doc, getDoc, increment, setDoc, updateDoc } from 'firebase/firestore';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { db } from '@/firebase';
+import { useRouter } from 'next/navigation';
 
 const resizeFile = (file, quality) =>
   new Promise((resolve) => {
@@ -25,13 +29,17 @@ const resizeFile = (file, quality) =>
 export default function AddProductPage() {
   const [height, setHeight] = useState(0);
   const { data, setLoading } = useAdminData();
+  const router = useRouter();
   const [requiredFields, setRequiredFields] = useState(false);
+  const [requiredOption, setRequiredOption] = useState(false);
   const [inputs, setInputs] = useState({
     name: '',
     category: '',
     subCategory: '',
-    subCategory: '',
     brand: '',
+    model: '',
+    size: '',
+    unit: '',
     type: '',
     coast: '',
     price: '',
@@ -44,7 +52,145 @@ export default function AddProductPage() {
     descriptionAm: '',
     descriptionEn: '',
     descriptionRu: '',
+    optionKey: '',
+    optionValue: '',
+    optionPrice: '',
+    availableOptions: [],
   });
+
+  const addProduct = async () => {
+    console.log(inputs);
+    if (!inputs.name || !inputs.mainImage) {
+      // console.log(data['project-details'].lastProductId);
+      // setRequiredFields(true);
+      // window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // try {
+    //   setLoading(true);
+    //   function getNextProductId(id) {
+    //     const next = parseInt(id, 10) + 1; // increase by 1
+    //     return next.toString().padStart(6, '0'); // keep 7 digits
+    //   }
+
+    //   const newId = getNextProductId(data['project-details'].lastProductId);
+    //   const storage = getStorage();
+    //   const mainImageStorageRef = ref(storage, `glowy-products/${newId}/main`);
+    //   const smallImageStorageRef = ref(storage, `glowy-products/${newId}/small`);
+    //   const productRef = doc(db, 'glowy-products', newId);
+    //   const detailRef = doc(db, 'details', 'project-details');
+    //   let smallImage = {};
+    //   let mainImage = {};
+    //   const imageArr = [];
+    //   console.log(newId);
+
+    //   await Promise.all(
+    //     inputs.images.map(async (img, index) => {
+    //       try {
+    //         const imageStorageRef = ref(storage, `glowy-products/${newId}/images/${index}`);
+
+    //         // console.log(img);
+
+    //         await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
+    //           return getDownloadURL(snapshot.ref).then((url) => {
+    //             imageArr.push({ ...inputs.images[index], file: url, id: index });
+    //             // console.log(url);
+    //           });
+    //         });
+    //       } catch (error) {
+    //         console.log(error);
+    //       }
+    //     })
+    //   );
+
+    //   await uploadBytes(mainImageStorageRef, inputs.mainImage.file).then((snapshot) => {
+    //     return getDownloadURL(snapshot.ref).then((url) => {
+    //       mainImage = { ...inputs.mainImage, file: url };
+    //       // console.log(url);
+    //     });
+    //   });
+
+    //   await uploadBytes(smallImageStorageRef, inputs.smallImage.file).then((snapshot) => {
+    //     return getDownloadURL(snapshot.ref).then((url) => {
+    //       smallImage = { ...inputs.smallImage, file: url };
+    //       // console.log(url);
+    //     });
+    //   });
+
+    //   const productData = {
+    //     ...inputs,
+    //     id: newId,
+    //     createdAt: Date.now(),
+    //     updatedAt: Date.now(),
+    //     mainImage: mainImage,
+    //     smallImage: smallImage,
+    //     images: imageArr,
+    //   };
+
+    //   await setDoc(productRef, productData);
+
+    //   await updateDoc(detailRef, {
+    //     allProductsIds: arrayUnion({ id: newId, name: inputs.name }),
+    //     lastProductId: newId,
+    //   });
+
+    //   router.refresh();
+    //   setLoading(false);
+    //   window.scrollTo({ top: 0, behavior: 'smooth' });
+    // setInputs({
+    //   name: '',
+    //   category: '',
+    //   subCategory: '',
+    //   brand: '',
+    //   model: '',
+    //   size: '',
+    //   unit: '',
+    //   type: '',
+    //   coast: '',
+    //   price: '',
+    //   disacountedPrice: '',
+    //   qouantity: '',
+    //   supplier: '',
+    //   images: [],
+    //   smallImage: '',
+    //   mainImage: '',
+    //   descriptionAm: '',
+    //   descriptionEn: '',
+    //   descriptionRu: '',
+    // optionKey: '',
+    // optionValue:'',
+    // optionPrice: '',
+    //  availableOptions: []
+
+    // });
+    // } catch (e) {
+    //   setLoading(false);
+    //   console.log(e);
+    // }
+  };
+
+  const addMoreOption = () => {
+    if (!inputs.optionKey || !inputs.optionValue || !inputs.optionPrice) {
+      setRequiredOption(true);
+      return;
+    }
+    const item = {
+      optionKey: inputs.optionKey,
+      optionValue: inputs.optionValue,
+      optionPrice: inputs.optionPrice,
+    };
+    const availableOptions = inputs.availableOptions;
+    availableOptions.push(item);
+    setInputs({
+      ...inputs,
+      availableOptions: availableOptions,
+      optionKey: '',
+      optionValue: '',
+      optionPrice: '',
+    });
+  };
+
   const hadleChangeInputs = (e) => {
     if (e.target.name === 'category') {
       setInputs({
@@ -52,6 +198,9 @@ export default function AddProductPage() {
         category: e.target.value,
         subCategory: '',
         brand: '',
+        model: '',
+        size: '',
+        unit: '',
         type: '',
         coast: '',
         price: '',
@@ -64,6 +213,10 @@ export default function AddProductPage() {
         descriptionAm: '',
         descriptionEn: '',
         descriptionRu: '',
+        optionKey: '',
+        optionValue: '',
+        optionPrice: '',
+        availableOptions: [],
       });
     } else if (e.target.name === 'subCategory') {
       setInputs({
@@ -71,6 +224,9 @@ export default function AddProductPage() {
         category: inputs.category,
         subCategory: e.target.value,
         brand: '',
+        model: '',
+        size: '',
+        unit: '',
         type: '',
         coast: '',
         price: '',
@@ -83,6 +239,10 @@ export default function AddProductPage() {
         descriptionAm: '',
         descriptionEn: '',
         descriptionRu: '',
+        optionKey: '',
+        optionValue: '',
+        optionPrice: '',
+        availableOptions: [],
       });
     } else {
       setInputs({ ...inputs, [e.target.name]: e.target.value });
@@ -144,10 +304,6 @@ export default function AddProductPage() {
     setLoading(false);
   };
 
-  const handleClick = async () => {
-    console.log(inputs);
-  };
-
   useEffect(() => {
     const handleResize = () => setHeight(window.innerWidth);
     handleResize(); // set initial height
@@ -155,6 +311,13 @@ export default function AddProductPage() {
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (requiredFields || requiredOption) {
+      setRequiredFields(false);
+      setRequiredOption(false);
+    }
+  }, [inputs]);
 
   return (
     <Grid
@@ -179,7 +342,9 @@ export default function AddProductPage() {
         hadleChangeInputs={hadleChangeInputs}
         buttonText="Add Product"
         height={height}
-        handleClick={handleClick}
+        handleClick={addProduct}
+        addMoreOption={addMoreOption}
+        requiredOption={requiredOption}
       />
     </Grid>
   );

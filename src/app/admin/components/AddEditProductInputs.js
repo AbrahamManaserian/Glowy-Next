@@ -5,6 +5,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  Collapse,
   FormControl,
   FormHelperText,
   Grid,
@@ -14,36 +15,20 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import ClearIcon from '@mui/icons-material/Clear';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import NextImage from 'next/image';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
-const inputsArray = [
-  { key: 'brand', name: 'Brand' },
-  { key: 'name', name: 'Name' },
-  { key: 'coast', name: 'Coast', type: 'number' },
-  { key: 'price', name: 'Price', type: 'number' },
-  { key: 'disacountedPrice', name: 'Disacounted price', type: 'number' },
-  { key: 'qouantity', name: 'Qouantity', type: 'number' },
-  { key: 'supplier', name: 'Supplier' },
-  { key: 'descriptionAm', name: 'Description Armenian' },
-  { key: 'descriptionEn', name: 'Description English' },
-  { key: 'descriptionRu', name: 'Description Russian' },
-];
-
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
+const availableOptionKeys = {
+  color: { name: 'Color' },
+  size: { name: 'Size' },
+  number: { name: 'Number' },
+  other: { name: 'Other' },
+};
 
 const fragranceBrands = [
   'Acqua di Parma',
@@ -97,6 +82,44 @@ const fragranceBrands = [
   'Yves Saint Laurent',
   'Zara',
 ];
+
+const unitOptions = [
+  { label: 'Milliliters (ml)', value: 'ml' },
+  { label: 'Liters (L)', value: 'L' },
+  { label: 'Grams (g)', value: 'g' },
+  { label: 'Kilograms (kg)', value: 'kg' },
+];
+
+const descriptionInputsArray = [
+  { key: 'descriptionAm', name: 'Description Armenian' },
+  { key: 'descriptionEn', name: 'Description English' },
+  { key: 'descriptionRu', name: 'Description Russian' },
+];
+
+const inputsArray = [
+  { key: 'brand', name: 'Brand' },
+  { key: 'model', name: 'Model' },
+  { key: 'name', name: 'Name' },
+  { key: 'size', name: 'Size', type: 'number', marginRight: '5px' },
+  { key: 'unit', name: 'Unit', type: 'number', marginLeft: '5px' },
+  { key: 'coast', name: 'Coast', type: 'number', marginRight: '5px' },
+  { key: 'price', name: 'Price', type: 'number', marginLeft: '5px' },
+  { key: 'disacountedPrice', name: 'Disacounted price', type: 'number', marginRight: '5px' },
+  { key: 'qouantity', name: 'Qouantity', type: 'number', marginLeft: '5px' },
+  { key: 'supplier', name: 'Supplier' },
+];
+
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
 
 export const categoriesObj = {
   fragrance: {
@@ -243,8 +266,15 @@ export default function AddEditProductInputs({
   height,
   buttonText,
   handleClick,
+  addMoreOption,
+  requiredOption,
 }) {
-  // console.log(inputs);
+  const [open, setOpen] = useState(false);
+
+  const deleteOption = (index) => {
+    const filteredOptions = inputs.availableOptions.filter((item, i) => i !== index);
+    setInputs({ ...inputs, availableOptions: filteredOptions });
+  };
 
   const mainImage = useMemo(() => {
     if (inputs.mainImage) return URL.createObjectURL(inputs.mainImage.file);
@@ -253,6 +283,7 @@ export default function AddEditProductInputs({
   const imagePreviews = useMemo(() => {
     return inputs.images.map((i) => URL.createObjectURL(i.file));
   }, [inputs.images]);
+
   return (
     <Grid
       sx={{
@@ -272,9 +303,9 @@ export default function AddEditProductInputs({
           boxSizing: 'border-box',
           width: { xs: '100%', sm: 'calc(25% - 10px)' },
           mr: { xs: 0, sm: '10px' },
+          mb: '15px',
         }}
         size="small"
-        error={!!requiredFields && !inputs.category}
       >
         <InputLabel>Category</InputLabel>
         <Select name="category" value={inputs.category} label="Category" onChange={hadleChangeInputs}>
@@ -286,15 +317,14 @@ export default function AddEditProductInputs({
             );
           })}
         </Select>
-        <FormHelperText>{requiredFields && !inputs.category ? 'Required' : ' '}</FormHelperText>
       </FormControl>
 
       <FormControl
-        error={!!requiredFields && !inputs.subCategory}
         sx={{
           boxSizing: 'border-box',
           width: { xs: '100%', sm: 'calc(25% - 10px)' },
           mr: { xs: 0, sm: '10px' },
+          mb: '15px',
         }}
         size="small"
       >
@@ -317,15 +347,14 @@ export default function AddEditProductInputs({
               }
             })}
         </Select>
-        <FormHelperText>{requiredFields && !inputs.subCategory ? 'Required' : ' '}</FormHelperText>
       </FormControl>
 
       <FormControl
-        error={!!requiredFields && !inputs.type}
         sx={{
           boxSizing: 'border-box',
           width: { xs: '100%', sm: 'calc(25% - 10px)' },
           mr: { xs: 0, sm: '10px' },
+          mb: '15px',
         }}
         size="small"
       >
@@ -350,257 +379,473 @@ export default function AddEditProductInputs({
               );
             })}
         </Select>
-        <FormHelperText>{requiredFields && !inputs.type.type ? 'Required' : ' '}</FormHelperText>
+        {/* <FormHelperText> </FormHelperText> */}
       </FormControl>
 
-      {inputs.subCategory && (
-        <>
-          {inputsArray.map((item, index) => {
-            // console.log(`${index}${item.key}`);
-            if (item.key === 'supplier') {
-              return (
-                <FormControl
-                  key={`${index}${item.key}`}
-                  sx={{
-                    boxSizing: 'border-box',
-                    width: { xs: '100%', sm: 'calc(25% - 10px)' },
-                  }}
-                  size="small"
+      <>
+        {inputsArray.map((item, index) => {
+          if (item.key === 'supplier') {
+            return (
+              <FormControl
+                key={`${index}${item.key}`}
+                sx={{
+                  boxSizing: 'border-box',
+                  width: { xs: '100%', sm: 'calc(25% - 10px)' },
+                  mb: '15px',
+                }}
+                size="small"
+              >
+                <InputLabel>Select Suplier</InputLabel>
+                <Select
+                  name="supplier"
+                  value={inputs.supplier}
+                  label="Select Suplier"
+                  onChange={hadleChangeInputs}
                 >
-                  <InputLabel>Select Suplier</InputLabel>
-                  <Select
-                    name="supplier"
-                    value={inputs.supplier}
-                    label="Select Suplier"
-                    onChange={hadleChangeInputs}
-                  >
-                    {Object.keys(data.suppliers).map((key, index) => {
-                      return (
-                        <MenuItem
-                          sx={{ textTransform: 'capitalize' }}
-                          key={index}
-                          value={data.suppliers[key].name}
-                        >
-                          {data.suppliers[key].name || 'No name'}
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                  <FormHelperText>{requiredFields && !inputs.supplier ? 'Required' : ' '}</FormHelperText>
-                </FormControl>
-              );
-            } else if (item.key === 'brand') {
-              return (
-                <Autocomplete
-                  key={`${index}${item.key}`}
-                  sx={{
-                    boxSizing: 'border-box',
-                    width: { xs: '100%', sm: 'calc(25% - 10px)' },
-                    mr: { xs: 0, sm: '10px' },
-                  }}
-                  size="small"
-                  freeSolo
-                  options={(categoriesObj?.[inputs.category]?.[inputs.subCategory]?.brands || []).map(
-                    (option) => option
-                  )}
-                  renderInput={(params) => (
-                    <TextField
-                      helperText={requiredFields && !inputs.brand ? 'Required' : ' '}
-                      {...params}
-                      label="Brand"
-                    />
-                  )}
-                  value={inputs.brand}
-                  onBlur={(e) => {
-                    setInputs({ ...inputs, brand: e.target.value });
-                  }}
-                />
-              );
-            } else {
-              return (
-                <TextField
-                  multiline={item.key.includes('description') ? true : false}
-                  type={item.type === 'number' ? 'number' : ''}
-                  minRows={4}
-                  key={`${index}-${item.key}-${inputs[item.key] ?? ''}`}
-                  error={!!requiredFields && !inputs.name}
-                  defaultValue={inputs[item.key]}
-                  name={item.key}
-                  onBlur={(e) => hadleChangeInputs(e)}
-                  onChange={(e) => {
-                    if (!e.nativeEvent.data && e.nativeEvent.data !== null) {
-                      setInputs({ ...inputs, [e.target.name]: e.target.value });
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (item.type === 'number') {
-                      if (['e', 'E', '+', '-'].includes(e.key)) {
-                        e.preventDefault();
-                      }
-                    }
-                  }}
-                  sx={{
-                    boxSizing: 'border-box',
-                    width: {
-                      xs: '100%',
-                      sm: item.key.includes('description') ? '100%' : 'calc(25% - 10px)',
-                    },
-                    mr: { xs: 0, sm: '10px' },
-                    '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
-                      {
-                        WebkitAppearance: 'none', // Chrome, Safari, Edge
-                      },
-                  }}
-                  helperText={' '}
-                  size="small"
-                  label={item.name}
-                  variant="outlined"
-                />
-              );
-            }
-          })}
-
-          <div style={{ width: '100%' }}>
-            <Button
-              sx={{ textTransform: 'capitalize' }}
-              component="label"
-              role={undefined}
-              variant="contained"
-              startIcon={<CloudUploadIcon />}
-            >
-              Upload main image
-              <VisuallyHiddenInput
-                name="mainImage"
-                accept="image/*"
-                type="file"
-                onChange={(e) => {
-                  handleUploadMainImage(e);
-                  e.target.value = '';
+                  {Object.keys(data.suppliers).map((key, index) => {
+                    return (
+                      <MenuItem
+                        sx={{ textTransform: 'capitalize' }}
+                        key={index}
+                        value={data.suppliers[key].name}
+                      >
+                        {data.suppliers[key].name || 'No name'}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            );
+          } else if (item.key === 'brand') {
+            return (
+              <Autocomplete
+                key={`${index}${item.key}`}
+                sx={{
+                  boxSizing: 'border-box',
+                  width: { xs: '100%', sm: 'calc(25% - 10px)' },
+                  mr: { xs: 0, sm: '10px' },
+                  mb: '15px',
+                }}
+                size="small"
+                freeSolo
+                options={(categoriesObj?.[inputs.category]?.[inputs.subCategory]?.brands || []).map(
+                  (option) => option
+                )}
+                renderInput={(params) => <TextField name={item.key} {...params} label="Brand" />}
+                value={inputs.brand}
+                onBlur={(e) => {
+                  hadleChangeInputs(e);
                 }}
               />
-            </Button>
-          </div>
-
-          <Typography
-            color="error"
+            );
+          } else if (item.key === 'name') {
+            return (
+              <TextField
+                key={`${index}-${item.key}-${inputs[item.key] ?? ''}`}
+                value={`${inputs.brand} - ${inputs.model}`}
+                onKeyDown={(e) => {
+                  e.preventDefault();
+                }}
+                sx={{
+                  boxSizing: 'border-box',
+                  width: {
+                    xs: '100%',
+                    sm: 'calc(50% - 10px)',
+                  },
+                  mr: { xs: 0, sm: '10px' },
+                  mb: '15px',
+                  '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
+                    {
+                      WebkitAppearance: 'none', // Chrome, Safari, Edge
+                    },
+                }}
+                size="small"
+                label="Name"
+                variant="outlined"
+              />
+            );
+          } else if (item.key === 'unit') {
+            return (
+              <FormControl
+                sx={{
+                  boxSizing: 'border-box',
+                  width: { xs: 'calc(50% - 5px)', sm: 'calc(12.5% - 10px)' },
+                  mr: { xs: 0, sm: '10px' },
+                  ml: { xs: '5px', sm: 0 },
+                  mb: '15px',
+                }}
+                size="small"
+                key={`${index}-${item.key}-${inputs[item.key] ?? ''}`}
+              >
+                <InputLabel>Unit</InputLabel>
+                <Select name="unit" value={inputs.unit} label="Unit" onChange={hadleChangeInputs}>
+                  {unitOptions.map((option, index) => {
+                    return (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            );
+          } else {
+            return (
+              <TextField
+                type={item.type === 'number' ? 'number' : ''}
+                key={`${index}-${item.key}-${inputs[item.key] ?? ''}`}
+                defaultValue={inputs[item.key]}
+                name={item.key}
+                onBlur={(e) => hadleChangeInputs(e)}
+                onChange={(e) => {
+                  if (!e.nativeEvent.data && e.nativeEvent.data !== null) {
+                    setInputs({ ...inputs, [e.target.name]: e.target.value });
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (item.type === 'number') {
+                    if (['e', 'E', '+', '-'].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }
+                }}
+                sx={{
+                  boxSizing: 'border-box',
+                  width: {
+                    xs: item.type ? 'calc(50% - 5px)' : '100%',
+                    sm: item.type ? 'calc(12.5% - 10px)' : 'calc(25% - 10px)',
+                  },
+                  mr: { xs: item.marginRight || '', sm: '10px' },
+                  ml: { xs: item.marginLeft || '', sm: 0 },
+                  mb: '15px',
+                  '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
+                    {
+                      WebkitAppearance: 'none', // Chrome, Safari, Edge
+                    },
+                }}
+                helperText={item.key === 'name' && requiredFields ? 'Required' : ''}
+                size="small"
+                label={`${item.name}${item.key === 'name' ? ' *' : ''}`}
+                variant="outlined"
+              />
+            );
+          }
+        })}
+      </>
+      <div style={{ width: '100%' }}>
+        <Button
+          sx={{ textTransform: 'capitalize', mb: '10px' }}
+          color="secondary"
+          endIcon={open ? <RemoveIcon /> : <AddIcon />}
+          onClick={() => setOpen(!open)}
+        >
+          More options
+        </Button>
+        <Collapse in={open} timeout="auto" unmountOnExit>
+          <FormControl
             sx={{
-              visibility: requiredFields && !inputs.mainImage ? 'visible' : 'hidden',
-              width: '100%',
-              fontSize: '12px',
-              // my: '3px',
-            }}
-          >
-            Required
-          </Typography>
-          <Box
-            sx={{
-              position: 'relative',
-              border: '1px solid #bdc5c9ff',
-              width: { xs: '100%', sm: '250px' },
-              height: { xs: `${height - 10}px`, sm: '250px' },
-              p: '10px',
-              overflow: 'hidden',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              flexWrap: 'wrap',
               boxSizing: 'border-box',
+              width: { xs: 'calc(50% - 5px)', sm: 'calc(20% - 10px)' },
+              mr: { xs: '5px', sm: '10px' },
+              // mb: '15px',
+            }}
+            size="small"
+            error={!inputs.optionKey && requiredOption ? true : false}
+          >
+            <InputLabel>Option key</InputLabel>
+            <Select name="optionKey" value={inputs.optionKey} label="Option key" onChange={hadleChangeInputs}>
+              {Object.keys(availableOptionKeys).map((key, index) => {
+                return (
+                  <MenuItem sx={{ textTransform: 'capitalize' }} key={index} value={key}>
+                    {availableOptionKeys[key].name}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+
+            <FormHelperText> {!inputs.optionKey && requiredOption ? 'Required' : ' '}</FormHelperText>
+          </FormControl>
+
+          <TextField
+            key={`optionValue ${inputs.optionValue}`}
+            defaultValue={inputs.optionValue}
+            name="optionValue"
+            onBlur={(e) => hadleChangeInputs(e)}
+            onChange={(e) => {
+              if (!e.nativeEvent.data && e.nativeEvent.data !== null) {
+                setInputs({ ...inputs, optionValue: e.target.value });
+              }
+            }}
+            sx={{
+              boxSizing: 'border-box',
+              width: { xs: 'calc(50% - 5px)', sm: 'calc(20% - 10px)' },
+              mr: { xs: 0, sm: '10px' },
+              // mb: '15px',
+              ml: { xs: '5px', sm: 0 },
+              '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
+                {
+                  WebkitAppearance: 'none', // Chrome, Safari, Edge
+                },
+            }}
+            size="small"
+            label="Option value"
+            variant="outlined"
+            error={!inputs.optionValue && requiredOption ? true : false}
+            helperText={!inputs.optionValue && requiredOption ? 'Required' : ' '}
+          />
+
+          <TextField
+            key={`${inputs.optionPrice}`}
+            defaultValue={inputs.optionPrice}
+            type="number"
+            name="optionPrice"
+            onBlur={(e) => hadleChangeInputs(e)}
+            onChange={(e) => {
+              if (!e.nativeEvent.data && e.nativeEvent.data !== null) {
+                setInputs({ ...inputs, optionPrice: e.target.value });
+              }
+            }}
+            onKeyDown={(e) => {
+              if (['e', 'E', '+', '-'].includes(e.key)) {
+                e.preventDefault();
+              }
+            }}
+            sx={{
+              boxSizing: 'border-box',
+              width: { xs: 'calc(50% - 5px)', sm: 'calc(20% - 10px)' },
+              mr: { xs: 0, sm: '10px' },
+
+              '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
+                {
+                  WebkitAppearance: 'none', // Chrome, Safari, Edge
+                },
+            }}
+            size="small"
+            label="Price"
+            variant="outlined"
+            error={!inputs.optionPrice && requiredOption ? true : false}
+            helperText={!inputs.optionPrice && requiredOption ? 'Required' : ' '}
+          />
+
+          <Button
+            onClick={addMoreOption}
+            variant="contained"
+            color="success"
+            sx={{
+              textTransform: 'capitalize',
+              width: { xs: 'calc(50% - 5px)', sm: 'calc(20% - 10px)' },
+              mr: { xs: 0, sm: '10px' },
+
+              ml: { xs: '10px', sm: 0 },
             }}
           >
-            {inputs.mainImage && (
-              <>
+            Add option
+          </Button>
+          <div style={{ display: 'flex', flexWrap: 'wrap', margin: '0 5px 10px 5px' }}>
+            <Typography sx={{ width: '100%' }}>Added Available Options</Typography>
+            {inputs.availableOptions.map((item, index) => {
+              return (
+                <div
+                  style={{
+                    border: 'solid 0.5px',
+                    padding: '20px',
+                    margin: '5px',
+                    position: 'relative',
+                    borderRadius: '5px',
+                    overflow: 'hidden',
+                  }}
+                  key={index}
+                >
+                  <ClearIcon
+                    onClick={() => deleteOption(index)}
+                    sx={{ position: 'absolute', top: 0, right: 0, color: 'white', bgcolor: 'red' }}
+                  />
+                  <Typography>
+                    {availableOptionKeys[item.optionKey].name} - {item.optionValue}
+                  </Typography>
+                </div>
+              );
+            })}
+          </div>
+        </Collapse>
+      </div>
+      <>
+        {descriptionInputsArray.map((item, index) => {
+          return (
+            <TextField
+              multiline={true}
+              minRows={4}
+              key={`${index}-${item.key}-${inputs[item.key] ?? ''}`}
+              defaultValue={inputs[item.key]}
+              name={item.key}
+              onBlur={(e) => hadleChangeInputs(e)}
+              onChange={(e) => {
+                if (!e.nativeEvent.data && e.nativeEvent.data !== null) {
+                  setInputs({ ...inputs, [e.target.name]: e.target.value });
+                }
+              }}
+              sx={{
+                boxSizing: 'border-box',
+                width: {
+                  xs: item.type ? 'calc(50% - 5px)' : '100%',
+                  sm: '100%',
+                },
+                mr: { xs: 0, sm: '10px' },
+                mb: '15px',
+                '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
+                  {
+                    WebkitAppearance: 'none', // Chrome, Safari, Edge
+                  },
+              }}
+              size="small"
+              label={item.name}
+              variant="outlined"
+            />
+          );
+        })}
+      </>
+      <div style={{ width: '100%' }}>
+        <Button
+          sx={{ textTransform: 'capitalize' }}
+          component="label"
+          role={undefined}
+          variant="contained"
+          startIcon={<CloudUploadIcon />}
+        >
+          Upload main image
+          <VisuallyHiddenInput
+            name="mainImage"
+            accept="image/*"
+            type="file"
+            onChange={(e) => {
+              handleUploadMainImage(e);
+              e.target.value = '';
+            }}
+          />
+        </Button>
+      </div>
+
+      <Typography
+        color="error"
+        sx={{
+          visibility: requiredFields && !inputs.mainImage ? 'visible' : 'hidden',
+          width: '100%',
+          fontSize: '12px',
+          // my: '3px',
+        }}
+      >
+        Required
+      </Typography>
+
+      <Box
+        sx={{
+          position: 'relative',
+          border: '1px solid #bdc5c9ff',
+          width: { xs: '100%', sm: '250px' },
+          height: { xs: `${height - 10}px`, sm: '250px' },
+          p: '10px',
+          overflow: 'hidden',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          boxSizing: 'border-box',
+        }}
+      >
+        {inputs.mainImage && (
+          <>
+            <CloseOutlinedIcon
+              onClick={() => setInputs({ ...inputs, mainImage: '', smallImage: '' })}
+              sx={{ bgcolor: 'red', position: 'absolute', top: 0, right: 0, color: 'white' }}
+            />
+
+            <NextImage
+              src={mainImage}
+              alt="Preview"
+              width={200}
+              height={200}
+              style={{
+                width: inputs.mainImage.height < inputs.mainImage.width ? '100%' : 'auto',
+                height: inputs.mainImage.height >= inputs.mainImage.width ? '100%' : 'auto',
+              }}
+            />
+          </>
+        )}
+      </Box>
+
+      <div style={{ width: '100%', margin: '15px 0' }}>
+        <Button
+          sx={{ textTransform: 'capitalize' }}
+          component="label"
+          role={undefined}
+          variant="contained"
+          startIcon={<CloudUploadIcon />}
+        >
+          Upload images
+          <VisuallyHiddenInput
+            accept="image/*"
+            type="file"
+            onChange={(event) => {
+              handleUploadImages(event.target.files);
+              event.target.value = '';
+            }}
+            multiple
+          />
+        </Button>
+      </div>
+
+      <Grid size={12} container spacing={2}>
+        {[1, 2, 3, 4, 5, 6].map((img, index) => {
+          return (
+            <Box
+              key={index}
+              sx={{
+                position: 'relative',
+                border: '1px solid #bdc5c9ff',
+                width: { xs: 'calc(50% - 10px)', sm: '150px' },
+                height: { xs: `${height / 2 - 10}px`, sm: '150px' },
+                // p: '10px',
+                overflow: 'hidden',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                boxSizing: 'border-box',
+              }}
+            >
+              {imagePreviews[index] && (
                 <CloseOutlinedIcon
-                  onClick={() => setInputs({ ...inputs, mainImage: '', smallImage: '' })}
+                  onClick={() =>
+                    setInputs({ ...inputs, images: inputs.images.filter((_, i) => i !== index) })
+                  }
                   sx={{ bgcolor: 'red', position: 'absolute', top: 0, right: 0, color: 'white' }}
                 />
-
+              )}
+              {imagePreviews[index] && (
                 <NextImage
-                  src={mainImage}
+                  src={imagePreviews[index]}
                   alt="Preview"
                   width={200}
                   height={200}
                   style={{
-                    width: inputs.mainImage.height < inputs.mainImage.width ? '100%' : 'auto',
-                    height: inputs.mainImage.height >= inputs.mainImage.width ? '100%' : 'auto',
+                    width: inputs.images[index].height < inputs.images[index].width ? '100%' : 'auto',
+                    height: inputs.images[index].height >= inputs.images[index].width ? '100%' : 'auto',
                   }}
                 />
-              </>
-            )}
-          </Box>
-          <div style={{ width: '100%', margin: '15px 0' }}>
-            <Button
-              sx={{ textTransform: 'capitalize' }}
-              component="label"
-              role={undefined}
-              variant="contained"
-              startIcon={<CloudUploadIcon />}
-            >
-              Upload images
-              <VisuallyHiddenInput
-                accept="image/*"
-                type="file"
-                onChange={(event) => {
-                  handleUploadImages(event.target.files);
-                  event.target.value = '';
-                }}
-                multiple
-              />
-            </Button>
-          </div>
+              )}
+            </Box>
+          );
+        })}
+      </Grid>
 
-          <Grid size={12} container spacing={2}>
-            {[1, 2, 3, 4, 5, 6].map((img, index) => {
-              return (
-                <Box
-                  key={index}
-                  sx={{
-                    position: 'relative',
-                    border: '1px solid #bdc5c9ff',
-                    width: { xs: 'calc(50% - 10px)', sm: '150px' },
-                    height: { xs: `${height / 2 - 10}px`, sm: '150px' },
-                    // p: '10px',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    boxSizing: 'border-box',
-                  }}
-                >
-                  {imagePreviews[index] && (
-                    <CloseOutlinedIcon
-                      onClick={() =>
-                        setInputs({ ...inputs, images: inputs.images.filter((_, i) => i !== index) })
-                      }
-                      sx={{ bgcolor: 'red', position: 'absolute', top: 0, right: 0, color: 'white' }}
-                    />
-                  )}
-                  {imagePreviews[index] && (
-                    <NextImage
-                      src={imagePreviews[index]}
-                      alt="Preview"
-                      width={200}
-                      height={200}
-                      style={{
-                        width: inputs.images[index].height < inputs.images[index].width ? '100%' : 'auto',
-                        height: inputs.images[index].height >= inputs.images[index].width ? '100%' : 'auto',
-                      }}
-                    />
-                  )}
-                </Box>
-              );
-            })}
-          </Grid>
-          <Button
-            onClick={handleClick}
-            color="success"
-            sx={{ textTransform: 'capitalize', mt: '20px' }}
-            variant="contained"
-          >
-            {buttonText}
-          </Button>
-        </>
-      )}
+      <Button
+        onClick={handleClick}
+        color="success"
+        sx={{ textTransform: 'capitalize', mt: '20px' }}
+        variant="contained"
+      >
+        {buttonText}
+      </Button>
     </Grid>
   );
 }
