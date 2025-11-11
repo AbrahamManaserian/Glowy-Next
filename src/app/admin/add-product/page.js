@@ -67,7 +67,7 @@ const fragranceBrands = [
   'Zara',
 ];
 
-const categoriesObj = {
+export const categoriesObj = {
   fragrance: {
     category: 'Fragrance',
     fragrance: {
@@ -115,93 +115,75 @@ const categoriesObj = {
     category: 'Makeup',
   },
 
-  Skincare: {
-    Cleansers: {
-      Cleansers: 'cleansers',
-      Exfoliation: 'exfoliation',
-      'Face Wash': 'face-wash',
-      'Makeup Removers': 'makeup-removers',
-      'Toners & Lotions': 'toners-lotions',
-      routTo: 'cleansers',
+  skincare: {
+    category: 'Skincare',
+    cleansers: {
+      category: 'Cleansers',
+      type: ['Cleansers', 'Exfoliation', 'Face Wash', 'Makeup Removers', 'Toners & Lotions'],
     },
-
-    'Eye Care': {
-      'Dark Circles': 'dark-circles',
-      'Eye Patches': 'eye-patches',
-      'Lifting/Anti-age Eye Creams': 'lifting-anti-age-eye-creams',
-      routTo: 'eye-care',
+    eyeCare: {
+      category: 'Eye Care',
+      type: ['Dark Circles', 'Eye Patches', 'Lifting/Anti-age Eye Creams'],
     },
-    Masks: {
-      'Anti-age': 'anti-age',
-      'Eye Patches': 'eye-patches',
-      'Face Masks': 'face-masks',
-      Hydrating: 'hydrating',
-      routTo: 'masks',
+    masks: {
+      category: 'Masks',
+      type: ['Anti-age', 'Eye Patches', 'Face Masks', 'Hydrating'],
     },
-    Moisturizers: {
-      'Face Creams': 'face-creams',
-      'Face Oils': 'face-oils',
-      Mists: 'mists',
-      Moisturizers: 'moisturizers',
-      'Night Creams': 'night-creams',
-      'Anti-Aging': 'anti-aging',
-      'Dark Spots': 'dark-spots',
-      Lifting: 'lifting',
-      'Face Serums': 'face-serums',
-      routTo: 'masks',
+    moisturizers: {
+      category: 'Moisturizers',
+      type: [
+        'Face Serums',
+        'Face Creams',
+        'Face Oils',
+        'Mists',
+        'Moisturizers',
+        'Night Creams',
+        'Anti-Aging',
+        'Dark Spots',
+        'Lifting',
+      ],
     },
-    routTo: 'moisturizers',
   },
-  'Bath & Body': {
-    'Bath & Shower': {
-      Gel: 'gel',
-      'Hand Wash & Soap': 'hand-wash-soap',
-      'Scrub & Exfoliation': 'scrub-exfoliation',
-      'Shampoo & Conditione': 'shampoo-conditione',
+  bathBody: {
+    category: 'Bath & Body',
+    bathShower: {
+      category: 'Bath & Shower',
+      type: ['Gel', 'Hand Wash & Soap', 'Scrub & Exfoliation', 'Shampoo & Conditione'],
       routTo: 'bath-shower',
     },
-    'Body Care': {
-      Antiperspirants: 'antiperspirants',
-      'Body Lotion & Body Oils': 'body-lotion-body-oils',
-      'Body Moisturizers': 'body-moisturizers',
-      'Cellulite & Stretch Marks': 'cellulite-stretch-marks',
-      'Hand Cream & Foot Cream': 'hand-cream–foot-ream',
-      'Masks & Special Treatment': 'masks-special-treatment',
-      routTo: 'body-care',
+    bodyCare: {
+      category: 'Body Care',
+      type: [
+        'Antiperspirants',
+        'Body Lotion & Body Oils',
+        'Body Moisturizers',
+        'Cellulite & Stretch Marks',
+        'Hand Cream & Foot Cream',
+        'Masks & Special Treatment',
+      ],
     },
-    routTo: 'bath-body',
   },
-  Hair: {
-    'Hair Styling': {
-      Gel: 'gel',
-      'Hand Wash & Soap': 'hand-wash-soap',
-      'Scrub & Exfoliation': 'scrub-exfoliation',
-      'Shampoo & Conditione': 'shampoo-conditione',
-      routTo: 'hair-styling',
+  hair: {
+    category: 'Hair',
+    hairStyling: {
+      category: 'Hair Styling',
+      type: ['Gel', 'Hand Wash & Soap', 'Scrub & Exfoliation', 'Shampoo & Conditione'],
     },
-    routTo: 'hair',
   },
-  Nail: {
-    Nail: {
-      'Cuticle care': 'cuticle-care',
-      'Nail care': 'nail-care',
-      'Nail color': 'nail-color',
-      'Nail polish removers': 'nail-polish-removers',
-      routTo: 'nail',
+  nail: {
+    category: 'Nail',
+    nail: {
+      category: 'Nail',
+      type: ['Cuticle care', 'Nail care', 'Nail color', 'Nail polish removers'],
     },
-    routTo: 'nail',
   },
-  'New Items': {
-    'New Items': { routTo: 'new-items' },
-    routTo: 'new-items',
-  },
-  Accessories: {
-    Accessories: { routTo: 'accessories' },
-    routTo: 'accessories',
+  accessories: {
+    category: 'Accessories',
+    accessories: { category: 'Accessories', type: [] },
   },
 };
 
-const resizeFile = (file, quality) =>
+export const resizeFile = (file, quality) =>
   new Promise((resolve) => {
     Resizer.imageFileResizer(
       file,
@@ -255,8 +237,6 @@ export default function AddProductPage() {
   });
 
   const addProduct = async () => {
-    console.log(inputs);
-    console.log(options);
     if (!inputs.brand || !inputs.model || !inputs.mainImage || !inputs.category || !inputs.subCategory) {
       setRequiredFields(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -279,19 +259,14 @@ export default function AddProductPage() {
       let smallImage = {};
       let mainImage = {};
       const imageArr = [];
-      console.log(newId);
 
       await Promise.all(
         inputs.images.map(async (img, index) => {
           try {
             const imageStorageRef = ref(storage, `glowy-products/${newId}/images/${index}`);
-
-            // console.log(img);
-
             await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
               return getDownloadURL(snapshot.ref).then((url) => {
                 imageArr.push({ ...inputs.images[index], file: url, id: index });
-                // console.log(url);
               });
             });
           } catch (error) {
@@ -303,14 +278,12 @@ export default function AddProductPage() {
       await uploadBytes(mainImageStorageRef, inputs.mainImage.file).then((snapshot) => {
         return getDownloadURL(snapshot.ref).then((url) => {
           mainImage = { ...inputs.mainImage, file: url };
-          // console.log(url);
         });
       });
 
       await uploadBytes(smallImageStorageRef, inputs.smallImage.file).then((snapshot) => {
         return getDownloadURL(snapshot.ref).then((url) => {
           smallImage = { ...inputs.smallImage, file: url };
-          // console.log(url);
         });
       });
 
@@ -328,7 +301,7 @@ export default function AddProductPage() {
       await setDoc(productRef, productData);
 
       await updateDoc(detailRef, {
-        allProductsIds: arrayUnion({ id: newId, name: inputs.brand + ' - ' + inputs.model }),
+        [`allProductsIds.${newId}`]: inputs.brand + ' - ' + inputs.model,
         lastProductId: newId,
       });
 
@@ -446,8 +419,6 @@ export default function AddProductPage() {
   };
 
   const handleUploadMainImage = async (e) => {
-    // console.log(e.target.files);
-    const input = e.target;
     try {
       const file = e.target.files?.[0];
       if (!file) return;
@@ -495,7 +466,6 @@ export default function AddProductPage() {
       });
 
     await Promise.all(fileArray.map(loadImage)).then((loadedImages) => {
-      // console.log(loadedImages);
       setInputs((prev) => ({
         ...prev,
         images: prev.images.concat(loadedImages),

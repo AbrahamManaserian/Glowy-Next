@@ -26,13 +26,20 @@ export default function ImageInputs({
   handleUploadImages,
   handleUploadMainImage,
   height,
+  handleDeleteImage,
 }) {
   const mainImage = useMemo(() => {
-    if (inputs.mainImage) return URL.createObjectURL(inputs.mainImage.file);
+    if (inputs.mainImage) {
+      if (typeof inputs.mainImage.file === 'string') {
+        return inputs.mainImage.file;
+      } else {
+        return URL.createObjectURL(inputs.mainImage.file);
+      }
+    }
   }, [inputs.mainImage]);
 
   const imagePreviews = useMemo(() => {
-    return inputs.images.map((i) => URL.createObjectURL(i.file));
+    return inputs.images.map((i) => (typeof i.file === 'string' ? i.file : URL.createObjectURL(i.file)));
   }, [inputs.images]);
   return (
     <>
@@ -146,9 +153,7 @@ export default function ImageInputs({
             >
               {imagePreviews[index] && (
                 <CloseOutlinedIcon
-                  onClick={() =>
-                    setInputs({ ...inputs, images: inputs.images.filter((_, i) => i !== index) })
-                  }
+                  onClick={() => handleDeleteImage(index)}
                   sx={{ bgcolor: 'red', position: 'absolute', top: 0, right: 0, color: 'white' }}
                 />
               )}
