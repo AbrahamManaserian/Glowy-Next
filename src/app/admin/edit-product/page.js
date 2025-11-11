@@ -191,7 +191,14 @@ export default function EditProduct() {
   };
 
   const editProduct = async () => {
-    if (!inputs.brand || !inputs.model || !inputs.mainImage || !inputs.category || !inputs.subCategory) {
+    if (
+      !product ||
+      !inputs.brand ||
+      !inputs.model ||
+      !inputs.mainImage ||
+      !inputs.category ||
+      !inputs.subCategory
+    ) {
       setRequiredFields(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -240,7 +247,7 @@ export default function EditProduct() {
               }
               deletedImages.pop();
 
-              const imageStorageRef = ref(storage, `glowy-products/${inputs.id}/images/${imgId}`);
+              const imageStorageRef = ref(storage, `glowy-products/${product}/images/${imgId}`);
 
               await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
                 return getDownloadURL(snapshot.ref).then((url) => {
@@ -260,14 +267,14 @@ export default function EditProduct() {
       await Promise.all(
         deletedImages.map(async (img, index) => {
           try {
-            const desertRef = ref(storage, `glowy-products/${inputs.id}/images/${img}`);
+            const desertRef = ref(storage, `glowy-products/${product}/images/${img}`);
             deleteObject(desertRef);
           } catch (error) {
             console.log(error);
           }
         })
       );
-      const productRef = doc(db, 'glowy-products', inputs.id);
+      const productRef = doc(db, 'glowy-products', product);
       const detailRef = doc(db, 'details', 'project-details');
 
       await setDoc(productRef, {
@@ -278,7 +285,7 @@ export default function EditProduct() {
         images: imageArr,
       });
       await updateDoc(detailRef, {
-        [`allProductsIds.${inputs.id}`]: inputs.brand + ' - ' + inputs.model,
+        [`allProductsIds.${product}`]: inputs.brand + ' - ' + inputs.model,
       });
       setProduct(null);
       setInputs({
