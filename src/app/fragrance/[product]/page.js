@@ -1,9 +1,10 @@
 import { Box, Grid, Rating, Typography } from '@mui/material';
-import { Options } from '../componenets/Options';
+import { Options } from '../components/Options';
 import { ProductImageComp } from './ProductImageComp';
-import FragranceCard from '../componenets/FragranceCard';
+// import FragranceCard from '../componenets/FragranceCard';
 import Image from 'next/image';
 import Link from 'next/link';
+import FragranceCard from '../components/FragranceCard';
 
 const giftImage = [
   '/images/giftCollection/491418281_17894849493207296_8185218575935560017_n.jpg',

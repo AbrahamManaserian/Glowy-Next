@@ -24,7 +24,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body style={{ position: 'relative' }}>
-        <div></div>
         <ThemeRegistry>
           <Suspense fallback={<Loading />}>
             <GlobalProvider>

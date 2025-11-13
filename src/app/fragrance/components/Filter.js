@@ -11,66 +11,17 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import { useState } from 'react';
+import { categoriesObj } from '@/app/admin/add-product/page';
 import styled from '@emotion/styled';
 
-const categoryObj = {
-  fragrance: 'Fragrance',
-  'car-air-fresheners': 'Car-Air-Fresheners',
-  'home-air-fresheners': 'Home Air Fresheners',
-  deodorant: 'Deodorant',
-};
-
-const brandsObj = {
-  'v-canto': 'V CANTO',
-  'TIZIANA-TERENZI': 'TIZIANA TERENZI',
-  CREED: 'CREED',
-  BURBERRY: 'BURBERRY',
-  BIOTHERM: 'BIOTHERM',
-  AZZARO: 'AZZARO',
-  ARCADIA: 'ARCADIA',
-  'ARMAND-BASI': 'ARMAND BASI',
-  ADIDAS: 'ADIDAS',
-  'ELIZABETH-ARDEN': 'ELIZABETH ARDEN',
-  RABANNE: 'RABANNE',
-};
-
-const genderObj = { women: 'Women', men: 'Men', uni: 'Uni' };
-
-const textFieldStyle = {
-  width: '120px',
-  '& .MuiOutlinedInput-root': {
-    height: '40px',
-    fontSize: '14px',
-    backgroundColor: '#d2cccc4d',
-    borderRadius: '8px',
-    padding: '0 20px',
-    '& fieldset': {
-      border: '1px solid #ffffffff',
-    },
-    '&.Mui-focused fieldset': {
-      border: '1px solid #030303dd',
-    },
-    '& input[type=number]': {
-      MozAppearance: 'textfield', // Firefox
-    },
-    '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
-      WebkitAppearance: 'none', // Chrome, Safari, Edge
-      margin: 0,
-    },
-  },
-  '& .MuiOutlinedInput-input': {
-    padding: 0, // remove default padding
-  },
-};
-
-const IOSSwitch = styled(({ makeRout, checked, handleChangeParams, ...props }) => (
+const IOSSwitch = styled(({ noRout, checked, handleChangeParams, ...props }) => (
   <Switch
     onChange={(e) =>
-      makeRout
+      noRout
         ? handleChangeParams('inStock', e.target.checked ? 'check' : 'noCheck', true)
         : handleChangeParams('inStock', e.target.checked ? 'check' : 'noCheck')
     }
@@ -115,6 +66,60 @@ const IOSSwitch = styled(({ makeRout, checked, handleChangeParams, ...props }) =
   },
 }));
 
+const FormItem = ({ prop, checked, value, name, noRout, handleChangeParams }) => {
+  return (
+    <FormControlLabel
+      sx={{
+        '& .MuiFormControlLabel-label': {
+          fontSize: '14px',
+          color: '#263045e9',
+        },
+      }}
+      control={
+        <Checkbox
+          size="small"
+          sx={{
+            borderRadius: '15px',
+            '&.Mui-checked': {
+              color: '#e54e36ff',
+            },
+          }}
+          checked={checked}
+          onChange={() => (noRout ? handleChangeParams(prop, value, true) : handleChangeParams(prop, value))}
+        />
+      }
+      label={name}
+    />
+  );
+};
+
+const textFieldStyle = {
+  width: '120px',
+  '& .MuiOutlinedInput-root': {
+    height: '40px',
+    fontSize: '14px',
+    backgroundColor: '#d2cccc4d',
+    borderRadius: '8px',
+    padding: '0 20px',
+    '& fieldset': {
+      border: '1px solid #ffffffff',
+    },
+    '&.Mui-focused fieldset': {
+      border: '1px solid #030303dd',
+    },
+    '& input[type=number]': {
+      MozAppearance: 'textfield', // Firefox
+    },
+    '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
+      WebkitAppearance: 'none', // Chrome, Safari, Edge
+      margin: 0,
+    },
+  },
+  '& .MuiOutlinedInput-input': {
+    padding: 0, // remove default padding
+  },
+};
+
 const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
   return (
     <Box sx={{ display: 'flex', justifyContent: 'space-between', my: '10px' }}>
@@ -134,38 +139,15 @@ const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
   );
 };
 
-const FormItem = ({ array, prop, value, name, makeRout, handleChangeArrayParams }) => {
-  return (
-    <FormControlLabel
-      sx={{
-        '& .MuiFormControlLabel-label': {
-          fontSize: '14px',
-          color: '#263045e9',
-        },
-      }}
-      control={
-        <Checkbox
-          size="small"
-          sx={{
-            borderRadius: '15px',
-            '&.Mui-checked': {
-              color: '#e54e36ff',
-            },
-          }}
-          checked={array.includes(value)}
-          onChange={() =>
-            makeRout ? handleChangeArrayParams(prop, value, true) : handleChangeArrayParams(prop, value)
-          }
-        />
-      }
-      label={name}
-    />
-  );
-};
-
-export default function Filter({ paramsState, handleChangeParams, makeRout, handleChangeArrayParams }) {
+export default function Filter({
+  paramsState,
+  handleChangeParams,
+  noRout,
+  handleChangeArrayParams,
+  category,
+}) {
   const [collapseItems, setCollapseItems] = useState({
-    gender: true,
+    type: true,
     category: true,
     price: true,
     brands: true,
@@ -186,11 +168,12 @@ export default function Filter({ paramsState, handleChangeParams, makeRout, hand
       <Collapse in={collapseItems.price} timeout="auto" unmountOnExit>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', my: '10px' }}>
           <TextField
+            key={`minPrice${paramsState.minPrice}`}
             type="number"
             placeholder="Min price"
             defaultValue={paramsState.minPrice}
             onBlur={(e) =>
-              makeRout
+              noRout
                 ? handleChangeParams('minPrice', e.target.value, true)
                 : handleChangeParams('minPrice', e.target.value)
             }
@@ -204,6 +187,7 @@ export default function Filter({ paramsState, handleChangeParams, makeRout, hand
             helperText="Min Price AMD"
           />
           <TextField
+            key={`maxPrice${paramsState.maxPrice}`}
             type="number"
             placeholder="Max price"
             variant="outlined"
@@ -214,7 +198,7 @@ export default function Filter({ paramsState, handleChangeParams, makeRout, hand
             }}
             defaultValue={paramsState.maxPrice}
             onBlur={(e) =>
-              makeRout
+              noRout
                 ? handleChangeParams('maxPrice', e.target.value, true)
                 : handleChangeParams('maxPrice', e.target.value)
             }
@@ -223,6 +207,7 @@ export default function Filter({ paramsState, handleChangeParams, makeRout, hand
           />
         </Box>
       </Collapse>
+
       <ColllapseItem
         prop="category"
         name="Category"
@@ -231,54 +216,61 @@ export default function Filter({ paramsState, handleChangeParams, makeRout, hand
       />
       <Collapse in={collapseItems.category} timeout="auto" unmountOnExit>
         <FormGroup sx={{ pl: '8px', mb: '5px' }}>
-          {Object.keys(categoryObj).map((name, index) => {
-            return (
-              <FormItem
-                key={index}
-                handleChangeArrayParams={handleChangeArrayParams}
-                array={paramsState.category}
-                prop="category"
-                name={categoryObj[name]}
-                value={name}
-                makeRout={makeRout}
-              />
-            );
+          {Object.keys(categoriesObj[category]).map((key, index) => {
+            if (key !== 'category') {
+              return (
+                <FormItem
+                  key={index}
+                  handleChangeParams={handleChangeParams}
+                  checked={paramsState.category === key}
+                  name={categoriesObj[category][key].category}
+                  value={key}
+                  noRout={noRout}
+                  prop="category"
+                />
+              );
+            }
           })}
         </FormGroup>
       </Collapse>
+
       <ColllapseItem
-        prop="gender"
-        name="Gender"
-        open={collapseItems.gender}
+        prop="type"
+        name="Type"
+        open={collapseItems.type}
         handleCangeCollapse={handleCangeCollapse}
       />
-      <Collapse in={collapseItems.gender} timeout="auto" unmountOnExit>
-        <FormGroup sx={{ pl: '8px', mb: '5px' }}>
-          {Object.keys(genderObj).map((name, index) => {
-            return (
-              <FormItem
-                key={index}
-                handleChangeArrayParams={handleChangeArrayParams}
-                array={paramsState.gender}
-                prop="gender"
-                name={genderObj[name]}
-                value={name}
-                makeRout={makeRout}
-              />
-            );
-          })}
-        </FormGroup>
+      <Collapse in={collapseItems.type} timeout="auto" unmountOnExit>
+        {paramsState.category && (
+          <FormGroup sx={{ pl: '8px', mb: '5px' }}>
+            {categoriesObj[category][paramsState.category].type.map((name, index) => {
+              return (
+                <FormItem
+                  key={index}
+                  array={paramsState.type}
+                  prop="type"
+                  name={name}
+                  value={name}
+                  handleChangeParams={handleChangeArrayParams}
+                  checked={paramsState.type.includes(name)}
+                  noRout={noRout}
+                />
+              );
+            })}
+          </FormGroup>
+        )}
       </Collapse>
 
       <Box sx={{ display: 'flex', my: '10px' }}>
         <IOSSwitch
           handleChangeParams={handleChangeParams}
           checked={paramsState.inStock === 'check'}
-          makeRout={makeRout}
+          noRout={noRout}
         />
 
         <Typography sx={{ color: '#263045fb', fontWeight: 500, ml: '15px' }}>Only in Stock</Typography>
       </Box>
+
       <ColllapseItem
         prop="brands"
         name="Brands"
@@ -300,7 +292,7 @@ export default function Filter({ paramsState, handleChangeParams, makeRout, hand
           }}
         >
           <Box
-            onClick={() => handleChangeArrayParams('brands', 'clean', makeRout)}
+            onClick={() => handleChangeArrayParams('brands', 'clean', noRout)}
             sx={{
               display: 'flex',
               justifyContent: 'center',
@@ -314,19 +306,22 @@ export default function Filter({ paramsState, handleChangeParams, makeRout, hand
             <DeleteOutlinedIcon sx={{ fontSize: '20px', color: '#474141f6', mr: '5px' }} />
             <Typography>Clear All</Typography>
           </Box>
-          {Object.keys(brandsObj).map((name, index) => {
-            return (
-              <FormItem
-                key={index}
-                handleChangeArrayParams={handleChangeArrayParams}
-                array={paramsState.brands}
-                prop="brands"
-                name={brandsObj[name]}
-                value={name}
-                makeRout={makeRout}
-              />
-            );
-          })}
+          {((paramsState.category && categoriesObj[category][paramsState.category].brands) || []).map(
+            (name, index) => {
+              return (
+                <FormItem
+                  key={index}
+                  handleChangeParams={handleChangeArrayParams}
+                  array={paramsState.brands}
+                  prop="brands"
+                  name={name}
+                  value={name}
+                  noRout={noRout}
+                  checked={paramsState.brands.includes(name)}
+                />
+              );
+            }
+          )}
         </FormGroup>
       </Collapse>
     </Grid>

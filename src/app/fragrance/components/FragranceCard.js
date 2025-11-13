@@ -11,7 +11,7 @@ import { handleAddItemToWishList } from '@/app/functions/hadleAddItemToWishList'
 import { handleAddItemToCart } from '@/app/cart/functions/addDeleteIncDecreaseCart';
 import { useRouter } from 'next/navigation';
 
-export default function FragranceCard({ img, height, id }) {
+export default function FragranceCard({ img, height, id, brand, model, size, price }) {
   const router = useRouter();
 
   const { setCart, setOpenCartAlert, setOpenItemAddedAlert, setWishList, wishList, cart } =
@@ -94,7 +94,7 @@ export default function FragranceCard({ img, height, id }) {
             alignItems: 'center',
             overflow: 'hidden',
             height: height,
-            //   height: '180px',
+            height: '180px',
             bgcolor: '#98a4cb16',
             boxSizing: 'border-box',
             borderRadius: '15px',
@@ -105,20 +105,20 @@ export default function FragranceCard({ img, height, id }) {
           <Image
             width={200}
             height={200}
-            style={{ overflow: 'hidden', width: '100%', height: 'auto' }}
+            style={{ overflow: 'hidden', width: '80%', height: 'auto' }}
             src={img}
             alt="image"
           />
         </Box>
       </Link>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: '15px' }}>
-        <Typography sx={{ color: '#263045fb', fontSize: '14px', fontWeight: 500 }}>Armani</Typography>
-        <Typography sx={{ color: '#3c4354a3', fontSize: 12, lineHeight: '12px' }}> 100ml </Typography>
+        <Typography sx={{ color: '#263045fb', fontSize: '14px', fontWeight: 500 }}>{brand} </Typography>
+        <Typography sx={{ color: '#3c4354a3', fontSize: 12, lineHeight: '12px' }}> {size}ml </Typography>
       </Box>
-      <Typography sx={{ color: '#3c4354fb', fontSize: '14px' }}> Stronger With You Absolutely</Typography>
+      <Typography sx={{ color: '#3c4354fb', fontSize: '14px' }}> {model}</Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: '5px' }}>
         <Typography sx={{ color: '#3c4354fb', fontWeight: 600, fontSize: 16 }}>$89</Typography>
-        <Typography sx={{ textDecoration: 'line-through', color: 'gray', fontSize: 14 }}>$120</Typography>
+        <Typography sx={{ textDecoration: 'line-through', color: 'gray', fontSize: 14 }}>${price}</Typography>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '5px' }}>
         <Rating name="read-only" value={1} readOnly size="small" />

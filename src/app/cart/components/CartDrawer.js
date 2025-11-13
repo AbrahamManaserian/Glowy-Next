@@ -8,9 +8,11 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShoppingBasketIcon } from '@/components/icons';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { images } from '@/app/fragrance/[product]/page';
+// import { images } from '@/app/fragrance1/[product]/page';
 import { useGlobalContext } from '@/app/GlobalContext';
 import CartItem from './CartItem';
+
+const images = [];
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {

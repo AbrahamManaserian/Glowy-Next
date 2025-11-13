@@ -1,44 +1,41 @@
 'use client';
 
-import { Box, Button, Drawer, Grid, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import CloseIcon from '@mui/icons-material/Close';
-import { images } from '@/components/PopularProducts';
+import { Box, Button, CircularProgress, Drawer, Grid, Typography } from '@mui/material';
 import SortView from './SortView';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Filter from './Filter';
 import FragranceCard from './FragranceCard';
 import FragrancePagination from './FragrancePagination';
 
-
-export default function FragrancePageUi() {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
+export default function PageUi({ data }) {
+  const [loading, SetLoading] = useState(false);
+  useEffect(() => {
+    SetLoading(false);
+  }, [data]);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [paramsState, setParamsState] = useState({
     sortBy: '',
     view: '',
     minPrice: '',
     maxPrice: '',
-    gender: [],
-    category: [],
+    type: [],
+    category: '',
     brands: [],
     inStock: 'noCheck',
   });
-  // console.log(searchParams);
-  const toggleDrawer = (newOpen) => {
-    setOpenDrawer(newOpen);
-  };
 
-  const applyFilters = (obj) => {
+  const applyFilters = () => {
     toggleDrawer(false);
     const params = new URLSearchParams(searchParams.toString());
-    Object.keys(obj).forEach((key) => {
-      if (key === 'gender' && key === 'category' && key === 'brands') {
-        params.set(key, obj[key].join(','));
+    Object.keys(paramsState).forEach((key) => {
+      if (key === 'type' || key === 'brands') {
+        params.set(key, paramsState[key].join(','));
       } else {
-        params.set(key, obj[key]);
+        params.set(key, paramsState[key]);
       }
     });
 
@@ -46,19 +43,40 @@ export default function FragrancePageUi() {
     router.push(`?${params.toString()}`);
   };
 
-  const makeRout = (prop, value) => {
+  const toggleDrawer = (newOpen) => {
+    setOpenDrawer(newOpen);
+  };
+
+  const doRout = (prop, value) => {
+    router.refresh();
+    SetLoading(true);
     const params = new URLSearchParams(searchParams.toString());
+    if (prop === 'category') {
+      params.set('type', []);
+      params.set('brands', []);
+    }
     params.set(prop, value);
     router.push(`?${params.toString()}`);
   };
 
-  const makeArrayRoute = (prop, arr) => {
+  const doArrayRoute = (prop, arr) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set(prop, arr.join(','));
     router.push(`?${params.toString()}`);
   };
 
-  const handleChangeArrayParams = (prop, value, rout) => {
+  const handleChangeParams = (prop, value, noRout) => {
+    if (prop === 'category') {
+      setParamsState({ ...paramsState, [prop]: value, type: [], brands: [] });
+    } else {
+      setParamsState({ ...paramsState, [prop]: value });
+    }
+    if (!noRout) {
+      doRout(prop, value);
+    }
+  };
+
+  const handleChangeArrayParams = (prop, value, noRout) => {
     let items = [];
     if (value === 'clean') {
     } else if (paramsState[prop].includes(value)) {
@@ -68,23 +86,19 @@ export default function FragrancePageUi() {
     }
     const newState = { ...paramsState, [prop]: items };
     setParamsState(newState);
-    if (rout) {
-      makeArrayRoute(prop, items);
+    if (!noRout) {
+      doArrayRoute(prop, items);
     }
   };
 
-  const handleChangeParams = (prop, value, rout) => {
-    setParamsState({ ...paramsState, [prop]: value });
-    if (rout) {
-      makeRout(prop, value);
-    }
-  };
+  //   useEffect(() => {
+  //     SetLoading(true);
+  //   }, [paramsState.category]);
 
   useEffect(() => {
-    toggleDrawer(false);
     const newState = {};
     Object.keys(paramsState).forEach((key) => {
-      if (key === 'gender' || key === 'category' || key === 'brands') {
+      if (key === 'type' || key === 'brands') {
         const items = searchParams.get(key);
         const arrItems = items ? items.split(',') : [];
         newState[key] = arrItems;
@@ -93,10 +107,10 @@ export default function FragrancePageUi() {
       }
     });
     setParamsState(newState);
-  }, [pathname, searchParams.toString()]);
+  }, [searchParams]);
 
   return (
-    <Grid data-scroll-restoration-id="container" sx={{ m: { xs: '50px 15px', sm: '90px 35px' } }} size={12}>
+    <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' } }} size={12}>
       <Box
         sx={{
           display: 'flex',
@@ -128,28 +142,40 @@ export default function FragrancePageUi() {
             <Filter
               paramsState={paramsState}
               handleChangeParams={handleChangeParams}
-              makeRout={true}
+              //   noRout={true}
               handleChangeArrayParams={handleChangeArrayParams}
+              category="fragrance"
             />
           </Box>
           <Grid
             alignContent={'flex-start'}
             container
-            sx={{ flexGrow: 1, m: { xs: '25px 0 0 0', sm: '25px 0 0 0', md: '5px 0 0 40px' } }}
+            sx={{
+              flexGrow: 1,
+              m: { xs: '25px 0 0 0', sm: '25px 0 0 0', md: '5px 0 0 40px' },
+              //   position: 'relative',
+            }}
             spacing={'30px'}
           >
-            {images.map((img, index) => {
-              return <FragranceCard key={index} img={img} name={index} id={index} />;
-            })}
-            {images.map((img, index) => {
-              return <FragranceCard key={index} img={img} name={index} id={index} />;
+            {loading && <CircularProgress sx={{ position: 'fixed', top: '50%', right: '50%' }} />}
+            {Object.keys(data).map((key, index) => {
+              return (
+                <FragranceCard
+                  key={key}
+                  img={data[key].mainImage.file}
+                  id={key}
+                  brand={data[key].brand}
+                  model={data[key].model}
+                  size={data[key].size || 100}
+                  price={data[key].price}
+                />
+              );
             })}
             <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '10px' }}>
               <FragrancePagination />
             </div>
           </Grid>
         </Grid>
-
         <Drawer
           sx={{ '& .MuiDrawer-paper': { width: '100%' } }}
           open={openDrawer}
@@ -185,8 +211,9 @@ export default function FragrancePageUi() {
               <Filter
                 paramsState={paramsState}
                 handleChangeParams={handleChangeParams}
-                makeRout={false}
+                noRout={true}
                 handleChangeArrayParams={handleChangeArrayParams}
+                category="fragrance"
               />
             </div>
           </div>
