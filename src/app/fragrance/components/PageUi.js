@@ -102,6 +102,22 @@ export default function PageUi({ data }) {
 
   return (
     <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' } }} size={12}>
+      {loading && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '50%',
+            right: 'calc(50% - 20px)',
+            width: '32px',
+            height: '32px',
+            border: '3px solid rgba(0, 0, 0, 0.1)',
+            borderTop: '3px solid #2196f3',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            zIndex: 1000000,
+          }}
+        ></div>
+      )}
       {Object.keys(data).length}
       <Box
         sx={{
@@ -145,11 +161,37 @@ export default function PageUi({ data }) {
             sx={{
               flexGrow: 1,
               m: { xs: '25px 0 0 0', sm: '25px 0 0 0', md: '5px 0 0 40px' },
-              //   position: 'relative',
+              minHeight: '60vh',
+              position: 'relative',
             }}
             spacing={'30px'}
           >
-            {loading && <CircularProgress sx={{ position: 'fixed', top: '50%', right: '50%' }} />}
+            {loading && (
+              <div
+                style={{
+                  position: 'absolute', // 👈 key difference — relative to the parent
+                  inset: 0,
+                  backdropFilter: 'blur(0.5px)',
+                  background: 'rgba(255, 255, 255, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '12px', // optional, matches parent if rounded
+                  zIndex: 10,
+                }}
+              >
+                <style jsx>{`
+                  @keyframes spin {
+                    0% {
+                      transform: rotate(0deg);
+                    }
+                    100% {
+                      transform: rotate(360deg);
+                    }
+                  }
+                `}</style>
+              </div>
+            )}
             {Object.keys(data).map((key, index) => {
               return (
                 <FragranceCard
@@ -163,9 +205,11 @@ export default function PageUi({ data }) {
                 />
               );
             })}
-            <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '10px' }}>
-              <FragrancePagination />
-            </div>
+            {Object.keys(data).length && (
+              <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '10px' }}>
+                <FragrancePagination />
+              </div>
+            )}
           </Grid>
         </Grid>
         <Drawer
