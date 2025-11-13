@@ -35,11 +35,7 @@ export default function PageUi({ data }) {
     toggleDrawer(false);
     const params = new URLSearchParams(searchParams.toString());
     Object.keys(paramsState).forEach((key) => {
-      if (key === 'type' || key === 'brands') {
-        params.set(key, paramsState[key].join(','));
-      } else {
-        params.set(key, paramsState[key]);
-      }
+      params.set(key, paramsState[key]);
     });
 
     // sessionStorage.setItem('app-scroll:' + params.toString(), String(window.scrollY));
