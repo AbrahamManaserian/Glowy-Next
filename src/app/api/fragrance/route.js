@@ -41,7 +41,6 @@ export const getFragranceProducts = async (searchParams) => {
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  const category = searchParams.get('category');
 
   try {
     const data = await getFragranceProducts(searchParams);

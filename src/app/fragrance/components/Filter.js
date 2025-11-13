@@ -22,8 +22,8 @@ const IOSSwitch = styled(({ noRout, checked, handleChangeParams, ...props }) => 
   <Switch
     onChange={(e) =>
       noRout
-        ? handleChangeParams('inStock', e.target.checked ? 'check' : 'noCheck', true)
-        : handleChangeParams('inStock', e.target.checked ? 'check' : 'noCheck')
+        ? handleChangeParams('inStock', e.target.checked ? 'check' : '', true)
+        : handleChangeParams('inStock', e.target.checked ? 'check' : '')
     }
     checked={checked}
     focusVisibleClassName=".Mui-focusVisible"
@@ -235,9 +235,9 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
         handleCangeCollapse={handleCangeCollapse}
       />
       <Collapse in={collapseItems.type} timeout="auto" unmountOnExit>
-        {paramsState.category && (
+        {paramsState.subCategory && (
           <FormGroup sx={{ pl: '8px', mb: '5px' }}>
-            {categoriesObj[category][paramsState.category].type.map((name, index) => {
+            {categoriesObj[category][paramsState.subCategory].type.map((name, index) => {
               return (
                 <FormItem
                   key={index}
@@ -286,7 +286,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
           }}
         >
           <Box
-            onClick={() => handleChangeParams('brands', '', noRout)}
+            onClick={() => handleChangeParams('brand', '', noRout)}
             sx={{
               display: 'flex',
               justifyContent: 'center',
