@@ -171,9 +171,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
                         sx={{ p: '0 2px 0 20px ' }}
                         onClick={() =>
                           handleCloseDrawer(
-                            `/${data.routTo}?category=${data[item].routTo}&${
-                              data[item].routTo === 'fragrance' ? 'gender' : 'type'
-                            }=${data[item][subItem]}`
+                            `/${data.routTo}?category=${data[item].routTo}&type=${data[item][subItem]}`
                           )
                         }
                       >

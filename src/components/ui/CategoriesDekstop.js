@@ -20,9 +20,9 @@ import Link from 'next/link';
 export const categories = {
   fragrance: {
     Fragrance: {
-      Men: 'men',
-      Women: 'women',
-      Uni: 'uni',
+      Men: 'Men',
+      Women: 'Women',
+      Uni: 'Uni',
       routTo: 'fragrance',
     },
 
