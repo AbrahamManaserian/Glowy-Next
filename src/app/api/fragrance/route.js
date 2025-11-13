@@ -2,15 +2,36 @@
 import { db } from '@/firebase';
 import { collection, doc, getDoc, getDocs, limit, query, where } from 'firebase/firestore';
 
-export const getFragranceProducts = async (category) => {
+export const getFragranceProducts = async (searchParams) => {
+  // console.log(searchParams.get('type'));
+
   let data = {};
   try {
-    const q = query(collection(db, 'glowy-products'), category ? where('subCategory', '==', category) : null);
+    let q = collection(db, 'glowy-products');
+    const params = Object.fromEntries(searchParams.entries());
+    // console.log(params);
+    const conditions = [];
+    for (const [key, value] of Object.entries(params)) {
+      if (value) {
+        if (key === 'minPrice') {
+          conditions.push(where(key, '<=', value));
+        } else if (key === 'maxPrice') {
+          conditions.push(where(key, '>=', value));
+        } else {
+          conditions.push(where(key, '==', value));
+        }
+      }
+    }
+
+    if (conditions.length > 0) {
+      q = query(collection(db, 'glowy-products'), ...conditions);
+    }
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       // doc.data() is never undefined for query doc snapshots
       data[doc.id] = doc.data();
     });
+
     return data;
   } catch (error) {
     console.log(error);
@@ -21,9 +42,9 @@ export const getFragranceProducts = async (category) => {
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
-  console.log(category);
+
   try {
-    const data = await getFragranceProducts(category);
+    const data = await getFragranceProducts(searchParams);
 
     // Ensure it always returns an object or array
     return new Response(JSON.stringify(data || {}), {

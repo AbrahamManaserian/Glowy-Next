@@ -63,7 +63,8 @@ export default function FragranceCard({ img, height, id, brand, model, size, pri
             zIndex: 1,
           }}
         >
-          NEW
+          {/* NEW */}
+          {id}
         </Typography>
       ) : (
         <Typography
@@ -81,7 +82,8 @@ export default function FragranceCard({ img, height, id, brand, model, size, pri
             zIndex: 1,
           }}
         >
-          SALE
+          {/* SALE */}
+          {id}
         </Typography>
       )}
       <Link style={{ WebkitTapHighlightColor: 'transparent' }} href={`/fragrance/${id}`}>

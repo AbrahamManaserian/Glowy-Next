@@ -139,13 +139,7 @@ const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
   );
 };
 
-export default function Filter({
-  paramsState,
-  handleChangeParams,
-  noRout,
-  handleChangeArrayParams,
-  category,
-}) {
+export default function Filter({ paramsState, handleChangeParams, noRout, category }) {
   const [collapseItems, setCollapseItems] = useState({
     type: true,
     category: true,
@@ -222,11 +216,11 @@ export default function Filter({
                 <FormItem
                   key={index}
                   handleChangeParams={handleChangeParams}
-                  checked={paramsState.category === key}
+                  checked={paramsState.subCategory === key}
                   name={categoriesObj[category][key].category}
                   value={key}
                   noRout={noRout}
-                  prop="category"
+                  prop="subCategory"
                 />
               );
             }
@@ -251,8 +245,8 @@ export default function Filter({
                   prop="type"
                   name={name}
                   value={name}
-                  handleChangeParams={handleChangeArrayParams}
-                  checked={paramsState.type.includes(name)}
+                  handleChangeParams={handleChangeParams}
+                  checked={paramsState.type === name}
                   noRout={noRout}
                 />
               );
@@ -292,7 +286,7 @@ export default function Filter({
           }}
         >
           <Box
-            onClick={() => handleChangeArrayParams('brands', 'clean', noRout)}
+            onClick={() => handleChangeParams('brands', '', noRout)}
             sx={{
               display: 'flex',
               justifyContent: 'center',
@@ -304,20 +298,19 @@ export default function Filter({
             }}
           >
             <DeleteOutlinedIcon sx={{ fontSize: '20px', color: '#474141f6', mr: '5px' }} />
-            <Typography>Clear All</Typography>
+            <Typography>Reset</Typography>
           </Box>
-          {((paramsState.category && categoriesObj[category][paramsState.category].brands) || []).map(
+          {((paramsState.subCategory && categoriesObj[category][paramsState.subCategory].brands) || []).map(
             (name, index) => {
               return (
                 <FormItem
                   key={index}
-                  handleChangeParams={handleChangeArrayParams}
-                  array={paramsState.brands}
-                  prop="brands"
+                  handleChangeParams={handleChangeParams}
+                  prop="brand"
                   name={name}
                   value={name}
                   noRout={noRout}
-                  checked={paramsState.brands.includes(name)}
+                  checked={paramsState.brand === name}
                 />
               );
             }

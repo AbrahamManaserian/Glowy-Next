@@ -8,11 +8,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Filter from './Filter';
 import FragranceCard from './FragranceCard';
 import FragrancePagination from './FragrancePagination';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/firebase';
 
 export default function PageUi({ data }) {
-  const [loading, SetLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState({});
   useEffect(() => {
-    SetLoading(false);
+    setLoading(false);
   }, [data]);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -22,9 +25,9 @@ export default function PageUi({ data }) {
     view: '',
     minPrice: '',
     maxPrice: '',
-    type: [],
-    category: '',
-    brands: [],
+    type: '',
+    subCategory: '',
+    brand: '',
     inStock: 'noCheck',
   });
 
@@ -49,7 +52,7 @@ export default function PageUi({ data }) {
 
   const doRout = (prop, value) => {
     router.refresh();
-    SetLoading(true);
+    setLoading(true);
     const params = new URLSearchParams(searchParams.toString());
     if (prop === 'category') {
       params.set('type', []);
@@ -66,8 +69,8 @@ export default function PageUi({ data }) {
   };
 
   const handleChangeParams = (prop, value, noRout) => {
-    if (prop === 'category') {
-      setParamsState({ ...paramsState, [prop]: value, type: [], brands: [] });
+    if (prop === 'subCategory') {
+      setParamsState({ ...paramsState, [prop]: value, type: '', brands: '' });
     } else {
       setParamsState({ ...paramsState, [prop]: value });
     }
@@ -91,26 +94,18 @@ export default function PageUi({ data }) {
     }
   };
 
-  //   useEffect(() => {
-  //     SetLoading(true);
-  //   }, [paramsState.category]);
-
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     const newState = {};
     Object.keys(paramsState).forEach((key) => {
-      if (key === 'type' || key === 'brands') {
-        const items = searchParams.get(key);
-        const arrItems = items ? items.split(',') : [];
-        newState[key] = arrItems;
-      } else {
-        newState[key] = searchParams.get(key) || '';
-      }
+      newState[key] = searchParams.get(key) || '';
     });
     setParamsState(newState);
   }, [searchParams]);
 
   return (
     <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' } }} size={12}>
+      {Object.keys(data).length}
       <Box
         sx={{
           display: 'flex',
@@ -143,7 +138,7 @@ export default function PageUi({ data }) {
               paramsState={paramsState}
               handleChangeParams={handleChangeParams}
               //   noRout={true}
-              handleChangeArrayParams={handleChangeArrayParams}
+              //   handleChangeArrayParams={handleChangeArrayParams}
               category="fragrance"
             />
           </Box>
@@ -212,7 +207,7 @@ export default function PageUi({ data }) {
                 paramsState={paramsState}
                 handleChangeParams={handleChangeParams}
                 noRout={true}
-                handleChangeArrayParams={handleChangeArrayParams}
+                // handleChangeArrayParams={handleChangeArrayParams}
                 category="fragrance"
               />
             </div>
