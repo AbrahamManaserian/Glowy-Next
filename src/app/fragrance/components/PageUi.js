@@ -66,7 +66,7 @@ export default function PageUi({ data }) {
 
   const handleChangeParams = (prop, value, noRout) => {
     if (prop === 'subCategory') {
-      setParamsState({ ...paramsState, [prop]: value, type: '', brands: '' });
+      setParamsState({ ...paramsState, [prop]: value, type: '', brand: '' });
     } else {
       setParamsState({ ...paramsState, [prop]: value });
     }
