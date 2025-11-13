@@ -31,32 +31,33 @@ export default function PageUi({ data }) {
     inStock: 'noCheck',
   });
 
-  const applyFilters = () => {
-    toggleDrawer(false);
-    const params = new URLSearchParams(searchParams.toString());
-    Object.keys(paramsState).forEach((key) => {
-      params.set(key, paramsState[key]);
-    });
+    const applyFilters = () => {
+      setLoading(true);
+      toggleDrawer(false);
+      const params = new URLSearchParams(searchParams.toString());
+      Object.keys(paramsState).forEach((key) => {
+        params.set(key, paramsState[key]);
+      });
 
-    // sessionStorage.setItem('app-scroll:' + params.toString(), String(window.scrollY));
-    router.push(`?${params.toString()}`);
-  };
+      // sessionStorage.setItem('app-scroll:' + params.toString(), String(window.scrollY));
+      router.push(`?${params.toString()}`);
+    };
 
-  const toggleDrawer = (newOpen) => {
-    setOpenDrawer(newOpen);
-  };
+    const toggleDrawer = (newOpen) => {
+      setOpenDrawer(newOpen);
+    };
 
-  const doRout = (prop, value) => {
-    router.refresh();
-    setLoading(true);
-    const params = new URLSearchParams(searchParams.toString());
-    if (prop === 'category') {
-      params.set('type', []);
-      params.set('brands', []);
-    }
-    params.set(prop, value);
-    router.push(`?${params.toString()}`);
-  };
+    const doRout = (prop, value) => {
+      // router.refresh();
+      setLoading(true);
+      const params = new URLSearchParams(searchParams.toString());
+      if (prop === 'category') {
+        params.set('type', []);
+        params.set('brands', []);
+      }
+      params.set(prop, value);
+      router.push(`?${params.toString()}`);
+    };
 
   const doArrayRoute = (prop, arr) => {
     const params = new URLSearchParams(searchParams.toString());
