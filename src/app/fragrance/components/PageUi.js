@@ -30,7 +30,6 @@ export default function PageUi({ data }) {
     brand: '',
     inStock: 'noCheck',
   });
-
   const applyFilters = () => {
     setLoading(true);
     toggleDrawer(false);

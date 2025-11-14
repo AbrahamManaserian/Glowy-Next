@@ -25,8 +25,10 @@ export const images = [
   '/images/12.webp',
 ];
 
-export default async function FragranceProduct({ params }) {
+export default async function FragranceProduct({ params, searchParams }) {
   const { product } = await params;
+  const url = await searchParams;
+  // console.log(url);
   async function getProduct(params) {
     const productRef = doc(db, 'glowy-products', product);
     const docSnap = await getDoc(productRef);
@@ -38,7 +40,30 @@ export default async function FragranceProduct({ params }) {
   }
 
   const productData = await getProduct();
-  console.log(productData);
+
+  const checkPrice = () => {
+    let price;
+    let previousePrice;
+    if (url.option) {
+      if (productData.availableOptions[url.option].optionDisacountedPrice) {
+        price = productData.availableOptions[url.option].optionDisacountedPrice;
+        previousePrice = productData.availableOptions[url.option].optionPrice;
+      } else {
+        price = productData.availableOptions[url.option].optionPrice;
+      }
+    } else if (productData.disacountedPrice) {
+      price = productData.disacountedPrice;
+      previousePrice = productData.price;
+    } else {
+      price = productData.price;
+    }
+    // console.log(price, previousePrice);
+    return { price, previousePrice };
+  };
+
+  const { price, previousePrice } = checkPrice();
+
+  // console.log(productData);
 
   return (
     <Grid sx={{ m: { xs: '0 15px 60px 15px', sm: '0 25px 60px 25px' } }} container size={12}>
@@ -98,20 +123,28 @@ export default async function FragranceProduct({ params }) {
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '5px' }}>
             <Rating name="read-only" value={1} readOnly size="larg" />
-            <Typography sx={{ color: '#3c4354a3', fontSize: '14px', lineHeight: '12px' }}>50 Sold</Typography>
+            {productData.sold ? (
+              <Typography sx={{ color: '#3c4354a3', fontSize: '14px', lineHeight: '12px' }}>
+                {productData.sold} sold
+              </Typography>
+            ) : null}
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: '20px' }}>
-            <Typography sx={{ color: '#3c4354fb', fontWeight: 600, fontSize: '19px' }}>$89</Typography>
-            <Typography sx={{ textDecoration: 'line-through', color: 'gray', fontSize: '16px' }}>
-              $120
-            </Typography>
+            <Typography sx={{ color: '#3c4354fb', fontWeight: 600, fontSize: '19px' }}>${price}</Typography>
+            {previousePrice ? (
+              <Typography sx={{ textDecoration: 'line-through', color: 'gray', fontSize: '16px' }}>
+                ${previousePrice}
+              </Typography>
+            ) : null}
           </Box>
-          <Typography sx={{ color: '#3c4354f2', mt: '15px', fontSize: '15px' }}>
-            Discover Emporio Armani STRONGER WITH YOU INTENSELY, a vibrant and audacious fragrance for men,
-            inspired by the unbreakable strength of togetherness. Engagingly masculine STRONGER WITH YOU
-            INTENSELY reflect the personality of a young man empowered by an
+          <Typography sx={{ color: '#3c4354f2', mt: '15px', fontSize: '14px', whiteSpace: 'pre-line' }}>
+            {productData.descriptionEn}
           </Typography>
-          <Options id={+product} />
+          <Options
+            id={+product}
+            options={productData.availableOptions || []}
+            initialOption={productData.size}
+          />
         </Grid>
       </Box>
 

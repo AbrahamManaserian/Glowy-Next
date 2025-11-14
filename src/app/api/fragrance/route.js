@@ -21,10 +21,12 @@ export const getFragranceProducts = async (searchParams) => {
           conditions.push(where(key, '==', value));
         } else if (key === 'type') {
           conditions.push(where(key, '==', value));
+        } else if (key === 'subCategory') {
+          conditions.push(where(key, '==', value));
         }
       }
     }
-
+    // console.log(conditions);
     if (conditions.length > 0) {
       q = query(collection(db, 'glowy-products'), ...conditions);
     }

@@ -148,7 +148,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
               <ListItem disablePadding>
                 <ListItemButton
                   sx={{ p: '0 2px 5px 20px ' }}
-                  onClick={() => handleCloseDrawer(`/${data.routTo}?category=${data[item].routTo}`)}
+                  onClick={() => handleCloseDrawer(`/${data.routTo}?subCategory=${data[item].routTo}`)}
                 >
                   <ListItemText
                     primary={item}
@@ -171,7 +171,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
                         sx={{ p: '0 2px 0 20px ' }}
                         onClick={() =>
                           handleCloseDrawer(
-                            `/${data.routTo}?category=${data[item].routTo}&type=${data[item][subItem]}`
+                            `/${data.routTo}?subCategory=${data[item].routTo}&type=${data[item][subItem]}`
                           )
                         }
                       >

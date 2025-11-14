@@ -3,21 +3,23 @@
 import { Box, Button, IconButton, Typography } from '@mui/material';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShoppingBasketIcon } from '@/components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { handleAddItemToCart } from '@/app/cart/functions/addDeleteIncDecreaseCart';
 
-export function Options({ id }) {
+export function Options({ id, options, initialOption }) {
   const { cart, setCart, setOpenCartAlert, setOpenItemAddedAlert } = useGlobalContext();
-  const [option, setOption] = useState(100);
+  const [option, setOption] = useState();
+
   const [quantity, setQuantity] = useState(1);
   const router = useRouter();
-
+  const searchParams = useSearchParams();
   const handleClickOption = (opt) => {
-    setOption(opt);
+    // setOption(opt);
+    opt || opt === 0 ? router.push(`?option=${opt}`) : router.push(`?`);
   };
 
   const handelClickBuyNow = (id) => {
@@ -38,20 +40,40 @@ export function Options({ id }) {
     // setOpenCartAlert({ id: id, qount: quantity });
   };
 
+  useEffect(() => {
+    searchParams.get('option') ? setOption(+searchParams.get('option')) : setOption();
+  }, [searchParams]);
   return (
     <Box sx={{ display: 'flex', mt: '25px', flexWrap: 'wrap' }}>
       <Typography sx={{ color: '#212122da', fontSize: '15px', fontWeight: 500, width: '100%', mb: '10px' }}>
         Available Options
       </Typography>
-
-      {[50, 75, 100].map((opt, index) => {
+      <Box
+        onClick={() => handleClickOption()}
+        sx={{
+          border:
+            !option && option !== 0
+              ? 'solid 1.5px rgba(69, 73, 69, 0.53)'
+              : 'solid 1px rgba(44, 43, 43, 0.11)',
+          p: '6px 15px',
+          borderRadius: '8px',
+          mr: '8px',
+          cursor: 'pointer',
+          WebkitTapHighlightColor: 'transparent',
+        }}
+      >
+        <Typography sx={{ color: '#212122da', fontSize: '14px', fontWeight: 500 }}>
+          {initialOption} ml
+        </Typography>
+      </Box>
+      {options.map((item, index) => {
         return (
           <Box
             key={index}
-            onClick={() => handleClickOption(opt)}
+            onClick={() => handleClickOption(index)}
             sx={{
               border:
-                opt === option ? 'solid 1.5px rgba(69, 73, 69, 0.53)' : 'solid 1px rgba(44, 43, 43, 0.11)',
+                index === option ? 'solid 1.5px rgba(69, 73, 69, 0.53)' : 'solid 1px rgba(44, 43, 43, 0.11)',
               p: '6px 15px',
               borderRadius: '8px',
               mr: '8px',
@@ -59,7 +81,9 @@ export function Options({ id }) {
               WebkitTapHighlightColor: 'transparent',
             }}
           >
-            <Typography sx={{ color: '#212122da', fontSize: '14px', fontWeight: 500 }}>{opt} ml</Typography>
+            <Typography sx={{ color: '#212122da', fontSize: '14px', fontWeight: 500 }}>
+              {item.optionValue} ml
+            </Typography>
           </Box>
         );
       })}
