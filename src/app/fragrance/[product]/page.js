@@ -5,6 +5,8 @@ import { ProductImageComp } from './ProductImageComp';
 import Image from 'next/image';
 import Link from 'next/link';
 import FragranceCard from '../components/FragranceCard';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/firebase';
 
 const giftImage = [
   '/images/giftCollection/491418281_17894849493207296_8185218575935560017_n.jpg',
@@ -25,6 +27,18 @@ export const images = [
 
 export default async function FragranceProduct({ params }) {
   const { product } = await params;
+  async function getProduct(params) {
+    const productRef = doc(db, 'glowy-products', product);
+    const docSnap = await getDoc(productRef);
+    if (docSnap.data()) {
+      return docSnap.data();
+    } else {
+      return {};
+    }
+  }
+
+  const productData = await getProduct();
+  console.log(productData);
 
   return (
     <Grid sx={{ m: { xs: '0 15px 60px 15px', sm: '0 25px 60px 25px' } }} container size={12}>
@@ -38,7 +52,8 @@ export default async function FragranceProduct({ params }) {
           alignItems: 'flex-start',
         }}
       >
-        <ProductImageComp images={images} idNum={+product} />
+        <ProductImageComp images={[productData.mainImage, ...productData.images]} idNum={+product} />
+
         <Grid
           sx={{ mt: '50px' }}
           pl={{ xs: 0, sm: 0, md: '60px' }}
@@ -47,18 +62,20 @@ export default async function FragranceProduct({ params }) {
           direction={'column'}
           alignItems={'flex-start'}
         >
-          <Typography
-            sx={{
-              color: '#04903eff',
-              bgcolor: '#c8e6c97e',
-              borderRadius: '7px',
-              p: '3px 7px',
-              fontSize: '13px',
-              fontWeight: 500,
-            }}
-          >
-            In Stock
-          </Typography>
+          {productData.inStock && (
+            <Typography
+              sx={{
+                color: '#04903eff',
+                bgcolor: '#c8e6c97e',
+                borderRadius: '7px',
+                p: '3px 7px',
+                fontSize: '13px',
+                fontWeight: 500,
+              }}
+            >
+              In Stock
+            </Typography>
+          )}
           <Typography
             sx={{
               color: '#263045fb',
@@ -67,7 +84,7 @@ export default async function FragranceProduct({ params }) {
               mt: '25px',
             }}
           >
-            Armani Brand
+            {productData.brand}
           </Typography>
           <Typography
             sx={{
@@ -77,7 +94,7 @@ export default async function FragranceProduct({ params }) {
               mt: '5px',
             }}
           >
-            Stronger With You Absolutely
+            {productData.model}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '5px' }}>
             <Rating name="read-only" value={1} readOnly size="larg" />
@@ -113,10 +130,10 @@ export default async function FragranceProduct({ params }) {
           >
             You May Also Like
           </Typography>
-          {images.map((img, index) => {
+          {/* {images.map((img, index) => {
             if (index > 3) return null;
             return <FragranceCard img={img} id={index} key={index} />;
-          })}
+          })} */}
         </Grid>
         <Typography
           sx={{

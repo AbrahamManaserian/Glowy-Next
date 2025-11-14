@@ -13,7 +13,7 @@ import { db } from '@/firebase';
 
 export default function PageUi({ data }) {
   const [loading, setLoading] = useState(false);
-  const [products, setProducts] = useState({});
+  const [windowHeight, setWindowHeight] = useState(0);
   useEffect(() => {
     setLoading(false);
   }, [data]);
@@ -31,38 +31,38 @@ export default function PageUi({ data }) {
     inStock: 'noCheck',
   });
 
-    const applyFilters = () => {
+  const applyFilters = () => {
+    setLoading(true);
+    toggleDrawer(false);
+    const params = new URLSearchParams(searchParams.toString());
+    Object.keys(paramsState).forEach((key) => {
+      params.set(key, paramsState[key]);
+    });
+
+    router.push(`?${params.toString()}`);
+  };
+
+  const toggleDrawer = (newOpen) => {
+    setOpenDrawer(newOpen);
+  };
+
+  const doRout = (prop, value) => {
+    if (
+      prop === 'type' ||
+      prop === 'minPrice' ||
+      prop === 'maxPrice' ||
+      prop === 'subCategory' ||
+      prop === 'brand'
+    ) {
       setLoading(true);
-      toggleDrawer(false);
       const params = new URLSearchParams(searchParams.toString());
-      Object.keys(paramsState).forEach((key) => {
-        params.set(key, paramsState[key]);
-      });
-
-      // sessionStorage.setItem('app-scroll:' + params.toString(), String(window.scrollY));
-      router.push(`?${params.toString()}`);
-    };
-
-    const toggleDrawer = (newOpen) => {
-      setOpenDrawer(newOpen);
-    };
-
-    const doRout = (prop, value) => {
-      // router.refresh();
-      setLoading(true);
-      const params = new URLSearchParams(searchParams.toString());
-      if (prop === 'category') {
-        params.set('type', []);
-        params.set('brands', []);
+      if (prop === 'subCategory') {
+        params.set('type', '');
+        params.set('brand', '');
       }
       params.set(prop, value);
       router.push(`?${params.toString()}`);
-    };
-
-  const doArrayRoute = (prop, arr) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set(prop, arr.join(','));
-    router.push(`?${params.toString()}`);
+    }
   };
 
   const handleChangeParams = (prop, value, noRout) => {
@@ -76,21 +76,6 @@ export default function PageUi({ data }) {
     }
   };
 
-  const handleChangeArrayParams = (prop, value, noRout) => {
-    let items = [];
-    if (value === 'clean') {
-    } else if (paramsState[prop].includes(value)) {
-      items = paramsState[prop].filter((f) => f !== value);
-    } else {
-      items = [...paramsState[prop], value];
-    }
-    const newState = { ...paramsState, [prop]: items };
-    setParamsState(newState);
-    if (!noRout) {
-      doArrayRoute(prop, items);
-    }
-  };
-
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     const newState = {};
@@ -99,6 +84,14 @@ export default function PageUi({ data }) {
     });
     setParamsState(newState);
   }, [searchParams]);
+
+  useEffect(() => {
+    const handleResize = () => setWindowHeight(window.innerWidth);
+    handleResize(); // set initial height
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' } }} size={12}>
@@ -196,12 +189,15 @@ export default function PageUi({ data }) {
               return (
                 <FragranceCard
                   key={key}
-                  img={data[key].mainImage.file}
+                  image={data[key].mainImage}
                   id={key}
                   brand={data[key].brand}
                   model={data[key].model}
                   size={data[key].size || 100}
                   price={data[key].price}
+                  disacountedPrice={data[key].disacountedPrice}
+                  // newAdded={data[key].createdAt}
+                  height={windowHeight}
                 />
               );
             })}

@@ -8,8 +8,8 @@ import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 
 export const ProductImageComp = ({ images, idNum }) => {
-  const [imgIndex, setImgIndex] = useState(idNum);
-  const [emblaRefBig, emblaApiBig] = useEmblaCarousel({ loop: false, align: 'center', startIndex: idNum });
+  const [imgIndex, setImgIndex] = useState(0);
+  const [emblaRefBig, emblaApiBig] = useEmblaCarousel({ loop: false, align: 'center', startIndex: 0 });
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: 'center', dragFree: true });
 
   const scrollPrev = useCallback(() => {
@@ -62,8 +62,8 @@ export const ProductImageComp = ({ images, idNum }) => {
       justifyContent={'center'}
       alignItems={'center'}
     >
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: '15px' }}>
-        <div style={{ position: 'relative' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: '15px', width: '100%' }}>
+        <div style={{ position: 'relative', width: '100%' }}>
           <ChevronLeftIcon
             onClick={() => handleClickCarouselScroll()}
             sx={{
@@ -117,18 +117,20 @@ export const ProductImageComp = ({ images, idNum }) => {
                     >
                       <Box
                         sx={{
+                          display: 'flex',
                           boxSizing: 'border-box', // ✅ keeps padding inside width
                           cursor: 'pointer',
                           borderRadius: '20px',
                           transition: ' all 0.5s ease',
                           backgroundColor: '#98a4cb16',
+                          overflow: 'hidden',
                         }}
                       >
                         <Image
                           width={200}
                           height={200}
                           style={{ width: '100%', height: 'auto' }}
-                          src={img}
+                          src={img.file}
                           alt="image"
                         />
                       </Box>
@@ -141,7 +143,7 @@ export const ProductImageComp = ({ images, idNum }) => {
         </div>
       </Box>
 
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
         <Box sx={{ width: { xs: '95%', sm: '60%' }, position: 'relative' }}>
           <div
             style={{
@@ -172,25 +174,25 @@ export const ProductImageComp = ({ images, idNum }) => {
                       <Box
                         sx={{
                           WebkitTapHighlightColor: 'transparent',
-                          //   flex: `0 0 ${100 / itemsPerView}%`, // responsive width
-                          //   minWidth: '0',
-                          // padding: '5px',
                           boxSizing: 'border-box', // ✅ keeps padding inside width
+                          display: 'flex',
+                          alignItems: 'center',
                           opacity: imgIndex === index ? 1 : 0.5,
-                          border: 2,
+                          border: 1.5,
                           cursor: 'pointer',
-                          borderRadius: '10px',
+                          borderRadius: '8px',
                           borderColor: imgIndex === index ? '#ff3d00' : 'rgba(216, 66, 21, 0)',
                           transition: ' all 0.5s ease',
-                          // m: '5px',
+                          overflow: 'hidden',
+                          p: '5px',
                         }}
                       >
                         <Image
                           width={200}
                           height={200}
-                          style={{ width: '100%', height: 'auto' }}
+                          style={{ width: '100%', height: 'auto', overflow: 'hidden', objectFit: 'contain' }}
                           //   src={arr[+product].images[0].file}
-                          src={img}
+                          src={img.file}
                           alt="image"
                         />
                       </Box>

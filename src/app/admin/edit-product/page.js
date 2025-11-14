@@ -21,6 +21,7 @@ export default function EditProduct() {
   const [requiredFields, setRequiredFields] = useState(false);
   const [requiredOption, setRequiredOption] = useState(false);
   const [product, setProduct] = useState(null);
+
   const [inputs, setInputs] = useState({
     category: '',
     subCategory: '',
@@ -52,6 +53,7 @@ export default function EditProduct() {
     optionQouantity: '',
     availableOptions: [],
   });
+
   const { data, setLoading } = useAdminData();
   const router = useRouter();
 
@@ -279,6 +281,7 @@ export default function EditProduct() {
 
       await setDoc(productRef, {
         ...inputs,
+        availableOptions: options.availableOptions,
         updatedAt: Date.now(),
         mainImage: mainImage,
         smallImage: smallImage,

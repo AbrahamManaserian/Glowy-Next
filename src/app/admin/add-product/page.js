@@ -236,187 +236,192 @@ export default function AddProductPage() {
     extraInputs: {},
   });
 
-  const addProduct = async () => {
-    if (!inputs.brand || !inputs.model || !inputs.mainImage || !inputs.category || !inputs.subCategory) {
-      setRequiredFields(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
+const addProduct = async () => {
+  console.log(typeof inputs.price);
+  if (!inputs.brand || !inputs.model || !inputs.mainImage || !inputs.category || !inputs.subCategory) {
+    setRequiredFields(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  try {
+    setLoading(true);
+    function getNextProductId(id) {
+      const next = parseInt(id, 10) + 1; // increase by 1
+      return next.toString().padStart(6, '0'); // keep 7 digits
     }
 
-    try {
-      setLoading(true);
-      function getNextProductId(id) {
-        const next = parseInt(id, 10) + 1; // increase by 1
-        return next.toString().padStart(6, '0'); // keep 7 digits
-      }
+    const newId = getNextProductId(data['project-details'].lastProductId);
+    const storage = getStorage();
+    const mainImageStorageRef = ref(storage, `glowy-products/${newId}/main`);
+    const smallImageStorageRef = ref(storage, `glowy-products/${newId}/small`);
+    const productRef = doc(db, 'glowy-products', newId);
+    const detailRef = doc(db, 'details', 'project-details');
+    let smallImage = {};
+    let mainImage = {};
+    const imageArr = [];
 
-      const newId = getNextProductId(data['project-details'].lastProductId);
-      const storage = getStorage();
-      const mainImageStorageRef = ref(storage, `glowy-products/${newId}/main`);
-      const smallImageStorageRef = ref(storage, `glowy-products/${newId}/small`);
-      const productRef = doc(db, 'glowy-products', newId);
-      const detailRef = doc(db, 'details', 'project-details');
-      let smallImage = {};
-      let mainImage = {};
-      const imageArr = [];
-
-      await Promise.all(
-        inputs.images.map(async (img, index) => {
-          try {
-            const imageStorageRef = ref(storage, `glowy-products/${newId}/images/${index}`);
-            await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
-              return getDownloadURL(snapshot.ref).then((url) => {
-                imageArr.push({ ...inputs.images[index], file: url, id: index });
-              });
+    await Promise.all(
+      inputs.images.map(async (img, index) => {
+        try {
+          const imageStorageRef = ref(storage, `glowy-products/${newId}/images/${index}`);
+          await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
+            return getDownloadURL(snapshot.ref).then((url) => {
+              imageArr.push({ ...inputs.images[index], file: url, id: index });
             });
-          } catch (error) {
-            console.log(error);
-          }
-        })
-      );
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      })
+    );
 
-      await uploadBytes(mainImageStorageRef, inputs.mainImage.file).then((snapshot) => {
-        return getDownloadURL(snapshot.ref).then((url) => {
-          mainImage = { ...inputs.mainImage, file: url };
-        });
+    await uploadBytes(mainImageStorageRef, inputs.mainImage.file).then((snapshot) => {
+      return getDownloadURL(snapshot.ref).then((url) => {
+        mainImage = { ...inputs.mainImage, file: url };
       });
+    });
 
-      await uploadBytes(smallImageStorageRef, inputs.smallImage.file).then((snapshot) => {
-        return getDownloadURL(snapshot.ref).then((url) => {
-          smallImage = { ...inputs.smallImage, file: url };
-        });
+    await uploadBytes(smallImageStorageRef, inputs.smallImage.file).then((snapshot) => {
+      return getDownloadURL(snapshot.ref).then((url) => {
+        smallImage = { ...inputs.smallImage, file: url };
       });
+    });
 
-      const productData = {
-        ...inputs,
-        id: newId,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        mainImage: mainImage,
-        smallImage: smallImage,
-        images: imageArr,
-        availableOptions: options.availableOptions,
-      };
+    const productData = {
+      ...inputs,
+      id: newId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      mainImage: mainImage,
+      smallImage: smallImage,
+      images: imageArr,
+      availableOptions: options.availableOptions,
+    };
 
-      await setDoc(productRef, productData);
+    await setDoc(productRef, productData);
 
-      await updateDoc(detailRef, {
-        [`allProductsIds.${newId}`]: inputs.brand + ' - ' + inputs.model,
-        lastProductId: newId,
-      });
+    await updateDoc(detailRef, {
+      [`allProductsIds.${newId}`]: inputs.brand + ' - ' + inputs.model,
+      lastProductId: newId,
+    });
 
-      router.refresh();
-      setLoading(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setInputs({
-        category: '',
-        subCategory: '',
-        brand: '',
-        model: '',
-        size: '',
-        unit: '',
-        type: '',
-        coast: '',
-        price: '',
-        disacountedPrice: '',
-        qouantity: '',
-        supplier: '',
-        images: [],
-        smallImage: '',
-        mainImage: '',
-        descriptionAm: '',
-        descriptionEn: '',
-        descriptionRu: '',
-        extraInputs: {},
-      });
-      setOptions({
-        optionKey: '',
-        optionValue: '',
-        optionPrice: '',
-        optionDisacountedPrice: '',
-        optionCoast: '',
-        optionQouantity: '',
-        availableOptions: [],
-      });
-      setRequiredFields(false);
-      setRequiredOption(false);
-    } catch (e) {
-      setLoading(false);
-      console.log(e);
-    }
-  };
+    router.refresh();
+    setLoading(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setInputs({
+      category: '',
+      subCategory: '',
+      brand: '',
+      model: '',
+      size: '',
+      unit: '',
+      type: '',
+      coast: '',
+      price: '',
+      disacountedPrice: '',
+      qouantity: '',
+      supplier: '',
+      images: [],
+      smallImage: '',
+      mainImage: '',
+      descriptionAm: '',
+      descriptionEn: '',
+      descriptionRu: '',
+      extraInputs: {},
+    });
+    setOptions({
+      optionKey: '',
+      optionValue: '',
+      optionPrice: '',
+      optionDisacountedPrice: '',
+      optionCoast: '',
+      optionQouantity: '',
+      availableOptions: [],
+    });
+    setRequiredFields(false);
+    setRequiredOption(false);
+  } catch (e) {
+    setLoading(false);
+    console.log(e);
+  }
+};
 
-  const handleChangeOptions = (e) => {
-    setOptions({ ...options, [e.target.name]: e.target.value });
-  };
+const handleChangeOptions = (e) => {
+  setOptions({ ...options, [e.target.name]: e.target.value });
+};
 
-  const hadleChangeInputs = (e) => {
-    if (e.target.name === 'category') {
-      setInputs({
-        category: e.target.value,
-        subCategory: '',
-        brand: '',
-        model: '',
-        size: '',
-        unit: '',
-        type: '',
-        coast: '',
-        price: '',
-        disacountedPrice: '',
-        qouantity: '',
-        supplier: '',
-        images: [],
-        smallImage: '',
-        mainImage: '',
-        descriptionAm: '',
-        descriptionEn: '',
-        descriptionRu: '',
-        extraInputs: {},
-      });
-      setOptions({
-        optionKey: '',
-        optionValue: '',
-        optionPrice: '',
-        optionDisacountedPrice: '',
-        optionCoast: '',
-        optionQouantity: '',
-        availableOptions: [],
-      });
-    } else if (e.target.name === 'subCategory') {
-      setInputs({
-        category: inputs.category,
-        subCategory: e.target.value,
-        brand: '',
-        model: '',
-        size: '',
-        unit: '',
-        type: '',
-        coast: '',
-        price: '',
-        disacountedPrice: '',
-        qouantity: '',
-        supplier: '',
-        images: [],
-        smallImage: '',
-        mainImage: '',
-        descriptionAm: '',
-        descriptionEn: '',
-        descriptionRu: '',
-        extraInputs: {},
-      });
-      setOptions({
-        optionKey: '',
-        optionValue: '',
-        optionPrice: '',
-        optionDisacountedPrice: '',
-        optionCoast: '',
-        optionQouantity: '',
-        availableOptions: [],
-      });
+const hadleChangeInputs = (e) => {
+  if (e.target.name === 'category') {
+    setInputs({
+      category: e.target.value,
+      subCategory: '',
+      brand: '',
+      model: '',
+      size: '',
+      unit: '',
+      type: '',
+      coast: '',
+      price: '',
+      disacountedPrice: '',
+      qouantity: '',
+      supplier: '',
+      images: [],
+      smallImage: '',
+      mainImage: '',
+      descriptionAm: '',
+      descriptionEn: '',
+      descriptionRu: '',
+      extraInputs: {},
+    });
+    setOptions({
+      optionKey: '',
+      optionValue: '',
+      optionPrice: '',
+      optionDisacountedPrice: '',
+      optionCoast: '',
+      optionQouantity: '',
+      availableOptions: [],
+    });
+  } else if (e.target.name === 'subCategory') {
+    setInputs({
+      category: inputs.category,
+      subCategory: e.target.value,
+      brand: '',
+      model: '',
+      size: '',
+      unit: '',
+      type: '',
+      coast: '',
+      price: '',
+      disacountedPrice: '',
+      qouantity: '',
+      supplier: '',
+      images: [],
+      smallImage: '',
+      mainImage: '',
+      descriptionAm: '',
+      descriptionEn: '',
+      descriptionRu: '',
+      extraInputs: {},
+    });
+    setOptions({
+      optionKey: '',
+      optionValue: '',
+      optionPrice: '',
+      optionDisacountedPrice: '',
+      optionCoast: '',
+      optionQouantity: '',
+      availableOptions: [],
+    });
+  } else {
+    if (e.target.type === 'number') {
+      setInputs({ ...inputs, [e.target.name]: Number(e.target.value) });
     } else {
       setInputs({ ...inputs, [e.target.name]: e.target.value });
     }
-  };
+  }
+};
 
   const handleUploadMainImage = async (e) => {
     try {

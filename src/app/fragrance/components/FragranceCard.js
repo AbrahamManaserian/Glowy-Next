@@ -11,7 +11,18 @@ import { handleAddItemToWishList } from '@/app/functions/hadleAddItemToWishList'
 import { handleAddItemToCart } from '@/app/cart/functions/addDeleteIncDecreaseCart';
 import { useRouter } from 'next/navigation';
 
-export default function FragranceCard({ img, height, id, brand, model, size, price }) {
+export default function FragranceCard({
+  newAdded,
+  image,
+  height,
+  id,
+  brand,
+  model,
+  size,
+  price,
+  disacountedPrice,
+  soldQount,
+}) {
   const router = useRouter();
 
   const { setCart, setOpenCartAlert, setOpenItemAddedAlert, setWishList, wishList, cart } =
@@ -39,7 +50,7 @@ export default function FragranceCard({ img, height, id, brand, model, size, pri
       sx={{
         // height: { xs: '65vw', sm: '45vw', md: '30vw', lg: '20vw' },
         overflow: 'hidden',
-        // borderBottom: 1,
+        // border: 1,
         flexWrap: 'nowrap',
         position: 'relative',
       }}
@@ -47,7 +58,7 @@ export default function FragranceCard({ img, height, id, brand, model, size, pri
       container
       direction={'column'}
     >
-      {id % 2 === 0 ? (
+      {newAdded && (
         <Typography
           sx={{
             position: 'absolute',
@@ -63,10 +74,11 @@ export default function FragranceCard({ img, height, id, brand, model, size, pri
             zIndex: 1,
           }}
         >
-          {/* NEW */}
-          {id}
+          NEW
         </Typography>
-      ) : (
+      )}
+
+      {disacountedPrice && (
         <Typography
           sx={{
             position: 'absolute',
@@ -82,8 +94,7 @@ export default function FragranceCard({ img, height, id, brand, model, size, pri
             zIndex: 1,
           }}
         >
-          {/* SALE */}
-          {id}
+          SALE
         </Typography>
       )}
       <Link style={{ WebkitTapHighlightColor: 'transparent' }} href={`/fragrance/${id}`}>
@@ -95,20 +106,30 @@ export default function FragranceCard({ img, height, id, brand, model, size, pri
             alignContent: 'center',
             alignItems: 'center',
             overflow: 'hidden',
-            height: height,
-            height: '180px',
-            bgcolor: '#98a4cb16',
+            height: {
+              xs: `${height / 2 - 10}px`,
+              sm: `${height / 3.5 - 10}px`,
+              md: `${height / 5 - 10}px`,
+              lg: `${height / 6 - 10}px`,
+            },
+
+            // bgcolor: '#98a4cb16',
             boxSizing: 'border-box',
             borderRadius: '15px',
             width: '100%',
-            // py: '20px',
+            p: '10px',
+            border: '1px solid rgba(0,0,0,0.04)',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
           }}
         >
           <Image
             width={200}
             height={200}
-            style={{ overflow: 'hidden', width: '80%', height: 'auto' }}
-            src={img}
+            style={{
+              overflow: 'hidden',
+              objectFit: 'contain',
+            }}
+            src={image.file}
             alt="image"
           />
         </Box>
@@ -119,12 +140,18 @@ export default function FragranceCard({ img, height, id, brand, model, size, pri
       </Box>
       <Typography sx={{ color: '#3c4354fb', fontSize: '14px' }}> {model}</Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: '5px' }}>
-        <Typography sx={{ color: '#3c4354fb', fontWeight: 600, fontSize: 16 }}>$89</Typography>
-        <Typography sx={{ textDecoration: 'line-through', color: 'gray', fontSize: 14 }}>${price}</Typography>
+        <Typography sx={{ color: '#3c4354fb', fontWeight: 600, fontSize: 16 }}>
+          ${disacountedPrice ? disacountedPrice : price}
+        </Typography>
+        <Typography sx={{ textDecoration: 'line-through', color: 'gray', fontSize: 14 }}>
+          {disacountedPrice ? `$${price}` : ''}
+        </Typography>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '5px' }}>
-        <Rating name="read-only" value={1} readOnly size="small" />
-        <Typography sx={{ color: '#3c4354a3', fontSize: 12, lineHeight: '12px' }}> 50 Sold </Typography>
+        <Rating name="read-only" value={5} readOnly size="small" />
+        <Typography sx={{ color: '#3c4354a3', fontSize: 12, lineHeight: '12px' }}>
+          {soldQount ? `${soldQount} sold` : ''}
+        </Typography>
       </Box>
       <Box sx={{ display: 'flex', gap: 1, mt: '10px', alignItems: 'flex-end' }}>
         <div

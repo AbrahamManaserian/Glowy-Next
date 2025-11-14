@@ -14,9 +14,25 @@ import {
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { categoriesObj } from '@/app/admin/add-product/page';
 import styled from '@emotion/styled';
+
+function useBlurChange(onChangeDetected) {
+  const initialValue = useRef('');
+
+  const handleFocus = (e) => {
+    initialValue.current = e.target.value;
+  };
+
+  const handleBlur = (e) => {
+    if (e.target.value !== initialValue.current) {
+      onChangeDetected(e.target.value); // run callback if changed
+    }
+  };
+
+  return { handleFocus, handleBlur };
+}
 
 const IOSSwitch = styled(({ noRout, checked, handleChangeParams, ...props }) => (
   <Switch
@@ -85,7 +101,13 @@ const FormItem = ({ prop, checked, value, name, noRout, handleChangeParams }) =>
             },
           }}
           checked={checked}
-          onChange={() => (noRout ? handleChangeParams(prop, value, true) : handleChangeParams(prop, value))}
+          onChange={(e) => {
+            if (!e.target.checked) {
+              noRout ? handleChangeParams(prop, '', true) : handleChangeParams(prop, '');
+            } else {
+              noRout ? handleChangeParams(prop, value, true) : handleChangeParams(prop, value);
+            }
+          }}
         />
       }
       label={name}
@@ -140,6 +162,7 @@ const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
 };
 
 export default function Filter({ paramsState, handleChangeParams, noRout, category }) {
+  const initialValue = useRef('');
   const [collapseItems, setCollapseItems] = useState({
     type: true,
     category: true,
@@ -166,11 +189,14 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
             type="number"
             placeholder="Min price"
             defaultValue={paramsState.minPrice}
-            onBlur={(e) =>
-              noRout
-                ? handleChangeParams('minPrice', e.target.value, true)
-                : handleChangeParams('minPrice', e.target.value)
-            }
+            onFocus={(e) => (initialValue.current = e.target.value)}
+            onBlur={(e) => {
+              if (initialValue.current !== e.target.value) {
+                noRout
+                  ? handleChangeParams('minPrice', e.target.value, true)
+                  : handleChangeParams('minPrice', e.target.value);
+              }
+            }}
             variant="outlined"
             onKeyDown={(e) => {
               if (['e', 'E', '+', '-'].includes(e.key)) {
@@ -191,11 +217,14 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
               }
             }}
             defaultValue={paramsState.maxPrice}
-            onBlur={(e) =>
-              noRout
-                ? handleChangeParams('maxPrice', e.target.value, true)
-                : handleChangeParams('maxPrice', e.target.value)
-            }
+            onFocus={(e) => (initialValue.current = e.target.value)}
+            onBlur={(e) => {
+              if (initialValue.current !== e.target.value) {
+                noRout
+                  ? handleChangeParams('maxPrice', e.target.value, true)
+                  : handleChangeParams('maxPrice', e.target.value);
+              }
+            }}
             sx={textFieldStyle}
             helperText="Max Price AMD"
           />
