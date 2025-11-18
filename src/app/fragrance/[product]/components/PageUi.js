@@ -184,7 +184,7 @@ export default function ProductPageUi({ product }) {
                         : 'solid 1px rgba(44, 43, 43, 0.11)',
                     p: '6px 15px',
                     borderRadius: '8px',
-                    mr: '8px',
+                    m: '8px',
                     cursor: 'pointer',
                     WebkitTapHighlightColor: 'transparent',
                   }}
@@ -206,7 +206,7 @@ export default function ProductPageUi({ product }) {
                             : 'solid 1px rgba(44, 43, 43, 0.11)',
                         p: '6px 15px',
                         borderRadius: '8px',
-                        mr: '8px',
+                        m: '8px',
                         cursor: 'pointer',
                         WebkitTapHighlightColor: 'transparent',
                       }}

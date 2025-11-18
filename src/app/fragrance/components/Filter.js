@@ -175,7 +175,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
   };
 
   return (
-    <Grid container sx={{ width: '250px' }} direction={'column'}>
+    <Grid container sx={{ width: { xs: '100%', sm: '250px' } }} direction={'column'}>
       <ColllapseItem
         prop="price"
         name="Price"

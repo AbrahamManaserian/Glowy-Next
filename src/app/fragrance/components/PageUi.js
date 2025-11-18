@@ -138,7 +138,7 @@ export default function PageUi({ data }) {
           />
         </Box>
         <Grid container sx={{ width: '100%', flexWrap: 'nowrap' }}>
-          <Box sx={{ display: { xs: 'none', sm: 'none', md: 'flex' }, width: '250px', mt: '40px' }}>
+          <Box sx={{ display: { xs: 'none', sm: 'none', md: 'flex' }, mt: '40px' }}>
             <Filter
               paramsState={paramsState}
               handleChangeParams={handleChangeParams}
