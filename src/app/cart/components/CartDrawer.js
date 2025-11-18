@@ -41,6 +41,7 @@ export default function CartDrawer() {
     toggleDrawer(false);
   }, [searchParams, pathname]);
 
+
   return (
     <div>
       <div

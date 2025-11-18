@@ -14,43 +14,6 @@ import CategoriesInputs from '../components/CategoriesInputs';
 import DescriptionInput from '../components/DescriptionInput';
 import ImageInputs from '../components/ImageInputs';
 
-export const initialInputs = {
-  category: '',
-  subCategory: '',
-  brand: '',
-  model: '',
-  size: '',
-  unit: '',
-  type: '',
-  coast: '',
-  price: '',
-  previousPrice: '',
-  qouantity: 1,
-  supplier: '',
-  images: [],
-  smallImage: '',
-  mainImage: '',
-  descriptionAm: '',
-  descriptionEn: '',
-  descriptionRu: '',
-  extraInputs: {},
-  inStock: true,
-};
-
-export const initialOptionInputs = {
-  optionKey: '',
-  optionValue: '',
-  optionPrice: '',
-  optionPreviousPrice: '',
-  optionCoast: '',
-  optionQouantity: 1,
-  availableOptions: [],
-  inStock: true,
-  mainImage: '',
-  smallImage: '',
-  images: [],
-};
-
 const fragranceBrands = [
   'Amouage',
   'Ariana Grande',
@@ -102,6 +65,7 @@ const fragranceBrands = [
   'Yves Saint Laurent',
   'Zara',
 ];
+
 
 export const categoriesObj = {
   fragrance: {
@@ -219,26 +183,63 @@ export const categoriesObj = {
   },
 };
 
+export const resizeFile = (file, quality) =>
+  new Promise((resolve) => {
+    Resizer.imageFileResizer(
+      file,
+      1100,
+      1100,
+      'JPEG',
+      quality,
+      0,
+      (uri) => {
+        resolve(uri);
+      },
+      'file'
+    );
+  });
+
 export default function AddProductPage() {
   const [requiredFields, setRequiredFields] = useState(false);
   const [requiredOption, setRequiredOption] = useState(false);
   const [height, setHeight] = useState(0);
   const { data, setLoading } = useAdminData();
   const router = useRouter();
-  const [options, setOptions] = useState(() => structuredClone(initialOptionInputs));
-  const [inputs, setInputs] = useState(() => structuredClone(initialInputs));
+  const [options, setOptions] = useState({
+    optionKey: '',
+    optionValue: '',
+    optionPrice: '',
+    optionPreviousPrice: '',
+    optionCoast: '',
+    optionQouantity: 1,
+    availableOptions: [],
+    inStock: true,
+  });
+  const [inputs, setInputs] = useState({
+    category: '',
+    subCategory: '',
+    brand: '',
+    model: '',
+    size: '',
+    unit: '',
+    type: '',
+    coast: '',
+    price: '',
+    previousPrice: '',
+    qouantity: 1,
+    supplier: '',
+    images: [],
+    smallImage: '',
+    mainImage: '',
+    descriptionAm: '',
+    descriptionEn: '',
+    descriptionRu: '',
+    extraInputs: {},
+    inStock: true,
+  });
 
   const addProduct = async () => {
-    console.log(inputs);
-    console.log(options);
-    if (
-      !inputs.brand ||
-      !inputs.model ||
-      !inputs.mainImage ||
-      !inputs.category ||
-      !inputs.subCategory ||
-      (Object.keys(inputs.extraInputs)[0] && !inputs[Object.keys(inputs.extraInputs)[0]])
-    ) {
+    if (!inputs.brand || !inputs.model || !inputs.mainImage || !inputs.category || !inputs.subCategory) {
       setRequiredFields(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -250,20 +251,16 @@ export default function AddProductPage() {
         const next = parseInt(id, 10) + 1; // increase by 1
         return next.toString().padStart(6, '0'); // keep 7 digits
       }
-      const allProductids = {};
+
       const newId = getNextProductId(data['project-details'].lastProductId);
-
-      // const newId = getNextProductId('000000');
-
       const storage = getStorage();
       const mainImageStorageRef = ref(storage, `glowy-products/${newId}/main`);
       const smallImageStorageRef = ref(storage, `glowy-products/${newId}/small`);
-
+      const productRef = doc(db, 'glowy-products', newId);
+      const detailRef = doc(db, 'details', 'project-details');
       let smallImage = {};
       let mainImage = {};
       const imageArr = [];
-
-      // console.log(`loading ${newId} images`)
 
       await Promise.all(
         inputs.images.map(async (img, index) => {
@@ -292,153 +289,61 @@ export default function AddProductPage() {
         });
       });
 
-      // let { extraInputs, ...productData } = inputs;
-      let initialProduct = structuredClone(inputs);
-      initialProduct.optionKey = Object.keys(inputs.extraInputs)[0];
-      delete initialProduct.extraInputs;
-
-      initialProduct = {
-        ...initialProduct,
+      const productData = {
+        ...inputs,
         id: newId,
         createdAt: Date.now(),
         updatedAt: Date.now(),
         mainImage: mainImage,
         smallImage: smallImage,
         images: imageArr,
-        availableOptions: [],
+        availableOptions: options.availableOptions,
       };
-      allProductids[newId] = initialProduct.brand + ' - ' + initialProduct.model;
 
-      let startId = newId;
-      let lastProductId;
+      await setDoc(productRef, productData);
 
-      const availableOptionItems = options.availableOptions.map((option, index) => {
-        const id = getNextProductId(startId);
-        allProductids[id] = initialProduct.brand + ' - ' + initialProduct.model;
-        const item = {
-          ...initialProduct,
-          id: id,
-          price: option.optionPrice,
-          coast: option.optionCoast,
-          previousPrice: option.optionPreviousPrice,
-          qouantity: option.optionQouantity,
-          inStock: option.inStock,
-          mainImage: option.mainImage,
-          smallImage: option.smallImage,
-          images: [...option.images],
-          [option.optionKey]: option.optionValue,
-        };
-        startId = id;
-        if (index === options.availableOptions.length - 1) {
-          lastProductId = id;
-        }
-        return item;
+      await updateDoc(detailRef, {
+        [`allProductsIds.${newId}`]: inputs.brand + ' - ' + inputs.model,
+        lastProductId: newId,
       });
 
-      availableOptionItems.forEach((option, index) => {
-        const availabeleIds = availableOptionItems
-          .filter((f, i) => i !== index)
-          .map((item) => ({ id: item.id, [item.optionKey]: item[item.optionKey] }));
-
-        availableOptionItems[index].availableOptions = [
-          ...availabeleIds,
-          { id: newId, [initialProduct.optionKey]: initialProduct[initialProduct.optionKey] },
-        ];
-        initialProduct.availableOptions.push({ id: option.id, [option.optionKey]: option[option.optionKey] });
-      });
-
-      await Promise.all(
-        availableOptionItems.map(async (item, index) => {
-          let smallOptionImage = {};
-          let mainOptionImage = {};
-          const optionImageArr = [];
-
-          try {
-            const mainRef = ref(storage, `glowy-products/${item.id}/main`);
-            const smallRef = ref(storage, `glowy-products/${item.id}/small`);
-
-            console.log(Boolean(item.mainImage));
-            if (item.mainImage.file) {
-              await uploadBytes(mainRef, item.mainImage.file).then((snapshot) => {
-                return getDownloadURL(snapshot.ref).then((url) => {
-                  mainOptionImage = { ...item.mainImage, file: url };
-                });
-              });
-              availableOptionItems[index].mainImage = mainOptionImage;
-            } else {
-              availableOptionItems[index].mainImage = { ...initialProduct.mainImage };
-            }
-
-            if (item.smallImage.file) {
-              await uploadBytes(smallRef, item.smallImage.file).then((snapshot) => {
-                return getDownloadURL(snapshot.ref).then((url) => {
-                  smallOptionImage = { ...item.smallImage, file: url };
-                });
-              });
-              availableOptionItems[index].smallImage = smallOptionImage;
-            } else {
-              availableOptionItems[index].smallImage = { ...initialProduct.smallImage };
-            }
-
-            if (item.images.length > 0) {
-              await Promise.all(
-                item.images.map(async (img, index) => {
-                  try {
-                    const imageStorageRef = ref(storage, `glowy-products/${item.id}/images/${index}`);
-                    await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
-                      return getDownloadURL(snapshot.ref).then((url) => {
-                        optionImageArr.push({ ...inputs.images[index], file: url, id: index });
-                      });
-                    });
-                  } catch (error) {
-                    console.log(error);
-                  }
-                })
-              );
-              availableOptionItems[index].images = [...optionImageArr];
-            } else {
-              availableOptionItems[index].images = [...initialProduct.images];
-            }
-          } catch (error) {
-            console.log(error);
-          }
-        })
-      );
-
-      console.log(availableOptionItems);
-      console.log(initialProduct);
-      console.log(lastProductId);
-      console.log(allProductids);
-
-      const productRef = doc(db, 'glowy-products', newId);
-      const detailRef = doc(db, 'details', 'project-details');
-
-      await setDoc(productRef, initialProduct);
-
-      await Promise.all(
-        availableOptionItems.map(async (item, index) => {
-          const productRef = doc(db, 'glowy-products', item.id);
-          await setDoc(productRef, item);
-        })
-      );
-
-      const updateData = {};
-
-      Object.entries(allProductids).forEach(([key, value]) => {
-        updateData[`allProductsIds.${key}`] = value;
-      });
-      updateData.lastProductId = lastProductId;
-
-      await updateDoc(detailRef, updateData);
-
+      router.refresh();
       setLoading(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      setInputs(() => structuredClone(initialInputs));
-
-      setOptions(() => structuredClone(initialOptionInputs));
+      setInputs({
+        category: '',
+        subCategory: '',
+        brand: '',
+        model: '',
+        size: '',
+        unit: '',
+        type: '',
+        coast: '',
+        price: '',
+        previousPrice: '',
+        qouantity: 1,
+        supplier: '',
+        images: [],
+        smallImage: '',
+        mainImage: '',
+        descriptionAm: '',
+        descriptionEn: '',
+        descriptionRu: '',
+        extraInputs: {},
+        inStock: true,
+      });
+      setOptions({
+        optionKey: '',
+        optionValue: '',
+        optionPrice: '',
+        optionPreviousPrice: '',
+        optionCoast: '',
+        optionQouantity: 1,
+        availableOptions: [],
+        inStock: true,
+      });
       setRequiredFields(false);
       setRequiredOption(false);
-      router.refresh();
     } catch (e) {
       setLoading(false);
       console.log(e);
@@ -456,17 +361,70 @@ export default function AddProductPage() {
   const hadleChangeInputs = (e) => {
     if (e.target.name === 'category') {
       setInputs({
-        ...structuredClone(initialInputs),
         category: e.target.value,
+        subCategory: '',
+        brand: '',
+        model: '',
+        size: '',
+        unit: '',
+        type: '',
+        coast: '',
+        price: '',
+        previousPrice: '',
+        qouantity: 1,
+        supplier: '',
+        images: [],
+        smallImage: '',
+        mainImage: '',
+        descriptionAm: '',
+        descriptionEn: '',
+        descriptionRu: '',
+        extraInputs: {},
+        inStock: true,
       });
-      setOptions(() => structuredClone(initialOptionInputs));
+      setOptions({
+        optionKey: '',
+        optionValue: '',
+        optionPrice: '',
+        optionPreviousPrice: '',
+        optionCoast: '',
+        optionQouantity: 1,
+        availableOptions: [],
+        inStock: true,
+      });
     } else if (e.target.name === 'subCategory') {
       setInputs({
-        ...structuredClone(initialInputs),
         category: inputs.category,
         subCategory: e.target.value,
+        brand: '',
+        model: '',
+        size: '',
+        unit: '',
+        type: '',
+        coast: '',
+        price: '',
+        previousPrice: '',
+        qouantity: 1,
+        supplier: '',
+        images: [],
+        smallImage: '',
+        mainImage: '',
+        descriptionAm: '',
+        descriptionEn: '',
+        descriptionRu: '',
+        extraInputs: {},
+        inStock: true,
       });
-      setOptions(() => structuredClone(initialOptionInputs));
+      setOptions({
+        optionKey: '',
+        optionValue: '',
+        optionPrice: '',
+        optionPreviousPrice: '',
+        optionCoast: '',
+        optionQouantity: 1,
+        availableOptions: [],
+        inStock: true,
+      });
     } else {
       if (e.target.type === 'number') {
         setInputs({ ...inputs, [e.target.name]: Number(e.target.value) });
@@ -474,6 +432,62 @@ export default function AddProductPage() {
         setInputs({ ...inputs, [e.target.name]: e.target.value });
       }
     }
+  };
+
+  const handleUploadMainImage = async (e) => {
+    try {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setLoading(true);
+      const smallImage = await resizeFile(file, 20);
+      const bigImage = await resizeFile(file, 60);
+      setLoading(false);
+      const smallImageLoad = new Image();
+      smallImageLoad.src = URL.createObjectURL(smallImage);
+      smallImageLoad.onload = () => {
+        const imageDetails = {
+          file: smallImage,
+          width: smallImageLoad.width,
+          height: smallImageLoad.height,
+        };
+        setInputs({
+          ...inputs,
+          mainImage: { file: bigImage, width: smallImageLoad.width, height: smallImageLoad.height },
+          smallImage: imageDetails,
+        });
+
+        URL.revokeObjectURL(smallImageLoad.src); // cleanup
+      };
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
+  const handleUploadImages = async (files) => {
+    const items = Array.from(files);
+    const fileArray = items.slice(0, 6 - inputs.images.length);
+    setLoading(true);
+    const loadImage = async (file) =>
+      await new Promise(async (resolve) => {
+        const smallImage = await resizeFile(file, 60);
+
+        const img = new Image();
+        img.src = URL.createObjectURL(smallImage);
+
+        img.onload = () => {
+          resolve({ file: smallImage, width: img.width, height: img.height });
+          URL.revokeObjectURL(img.src); // cleanup
+        };
+      });
+
+    await Promise.all(fileArray.map(loadImage)).then((loadedImages) => {
+      setInputs((prev) => ({
+        ...prev,
+        images: prev.images.concat(loadedImages),
+      }));
+    });
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -512,14 +526,6 @@ export default function AddProductPage() {
       container
       size={12}
     >
-      <Button
-        onClick={() => {
-          console.log(inputs, options);
-          console.log(initialOptionInputs);
-        }}
-      >
-        asd
-      </Button>
       <Typography sx={{ fontSize: '22px', fontWeight: 500, width: '100%' }}>Add new product</Typography>
 
       <Grid
@@ -544,7 +550,7 @@ export default function AddProductPage() {
         <InitialProductInputs
           inputs={inputs}
           hadleChangeInputs={hadleChangeInputs}
-          suppliers={data.suppliers?.suppliers || {}}
+          suppliers={data.suppliers.suppliers || {}}
           brands={categoriesObj?.[inputs.category]?.[inputs.subCategory]?.brands || []}
           requiredFields={requiredFields}
         />
@@ -553,36 +559,35 @@ export default function AddProductPage() {
             <Typography mb="10px">Extra Inputs</Typography>
 
             {Object.keys(inputs.extraInputs).map((key, index) => {
-              if (key !== 'size')
-                return (
-                  <TextField
-                    key={index}
-                    defaultValue={inputs[key]}
-                    name={key}
-                    onBlur={(e) => hadleChangeInputs(e)}
-                    onChange={(e) => {
-                      if (!e.nativeEvent.data && e.nativeEvent.data !== null) {
-                        hadleChangeInputs(e);
-                      }
-                    }}
-                    sx={{
-                      boxSizing: 'border-box',
-                      width: { xs: 'calc(50% - 10px)', sm: 'calc(20% - 10px)' },
-                      mr: { xs: 0, sm: '10px' },
-                      mr: '10px',
+              return (
+                <TextField
+                  key={index}
+                  defaultValue={inputs[key]}
+                  name={key}
+                  onBlur={(e) => hadleChangeInputs(e)}
+                  onChange={(e) => {
+                    if (!e.nativeEvent.data && e.nativeEvent.data !== null) {
+                      hadleChangeInputs(e);
+                    }
+                  }}
+                  sx={{
+                    boxSizing: 'border-box',
+                    width: { xs: 'calc(50% - 10px)', sm: 'calc(20% - 10px)' },
+                    mr: { xs: 0, sm: '10px' },
+                    mr: '10px',
 
-                      '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
-                        {
-                          WebkitAppearance: 'none', // Chrome, Safari, Edge
-                        },
-                    }}
-                    size="small"
-                    label={inputs.extraInputs[key]}
-                    variant="outlined"
-                    error={!inputs[key] && requiredFields ? true : false}
-                    helperText={!inputs[key] && requiredFields ? 'Required' : ' '}
-                  />
-                );
+                    '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
+                      {
+                        WebkitAppearance: 'none', // Chrome, Safari, Edge
+                      },
+                  }}
+                  size="small"
+                  label={inputs.extraInputs[key]}
+                  variant="outlined"
+                  error={!inputs[key] && requiredFields ? true : false}
+                  helperText={!inputs[key] && requiredFields ? 'Required' : ' '}
+                />
+              );
             })}
           </div>
         )}
@@ -594,15 +599,14 @@ export default function AddProductPage() {
           options={options}
           setOptions={setOptions}
           handleChangeOptions={handleChangeOptions}
-          height={height}
-          setLoading={setLoading}
         />
         <ImageInputs
           requiredFields={requiredFields}
           inputs={inputs}
           setInputs={setInputs}
+          handleUploadMainImage={handleUploadMainImage}
+          handleUploadImages={handleUploadImages}
           height={height}
-          setLoading={setLoading}
         />
         <DescriptionInput inputs={inputs} hadleChangeInputs={hadleChangeInputs} />
         <Button

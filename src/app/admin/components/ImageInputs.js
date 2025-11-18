@@ -6,6 +6,7 @@ import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { Box, Button, Grid, Typography } from '@mui/material';
 import { useMemo } from 'react';
 import NextImage from 'next/image';
+import Resizer from 'react-image-file-resizer';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -19,15 +20,86 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-export default function ImageInputs({
-  requiredFields,
-  inputs,
-  setInputs,
-  handleUploadImages,
-  handleUploadMainImage,
-  height,
-  handleDeleteImage,
-}) {
+export const resizeFile = (file, quality) =>
+  new Promise((resolve) => {
+    Resizer.imageFileResizer(
+      file,
+      1100,
+      1100,
+      'JPEG',
+      quality,
+      0,
+      (uri) => {
+        resolve(uri);
+      },
+      'file'
+    );
+  });
+
+export default function ImageInputs({ requiredFields, inputs, setInputs, height, setLoading }) {
+  const handleUploadMainImage = async (e) => {
+    try {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setLoading(true);
+      const smallImage = await resizeFile(file, 20);
+      const bigImage = await resizeFile(file, 60);
+      setLoading(false);
+      const smallImageLoad = new Image();
+      smallImageLoad.src = URL.createObjectURL(smallImage);
+      smallImageLoad.onload = () => {
+        const imageDetails = {
+          file: smallImage,
+          width: smallImageLoad.width,
+          height: smallImageLoad.height,
+        };
+        setInputs({
+          ...inputs,
+          mainImage: { file: bigImage, width: smallImageLoad.width, height: smallImageLoad.height },
+          smallImage: imageDetails,
+        });
+
+        URL.revokeObjectURL(smallImageLoad.src); // cleanup
+      };
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
+  const handleUploadImages = async (files) => {
+    const items = Array.from(files);
+    const fileArray = items.slice(0, 6 - inputs.images.length);
+    setLoading(true);
+    const loadImage = async (file) =>
+      await new Promise(async (resolve) => {
+        const smallImage = await resizeFile(file, 60);
+
+        const img = new Image();
+        img.src = URL.createObjectURL(smallImage);
+
+        img.onload = () => {
+          resolve({ file: smallImage, width: img.width, height: img.height });
+          URL.revokeObjectURL(img.src); // cleanup
+        };
+      });
+
+    await Promise.all(fileArray.map(loadImage)).then((loadedImages) => {
+      setInputs((prev) => ({
+        ...prev,
+        images: prev.images.concat(loadedImages),
+      }));
+    });
+    setLoading(false);
+  };
+
+  const handleDeleteImage = (index) => {
+    if (typeof inputs.images[index].file === 'string') {
+      setDeletedImages([...deletedImages, inputs.images[index].id]);
+    }
+    setInputs({ ...inputs, images: inputs.images.filter((_, i) => i !== index) });
+  };
+
   const mainImage = useMemo(() => {
     if (inputs.mainImage) {
       if (typeof inputs.mainImage.file === 'string') {
@@ -41,6 +113,7 @@ export default function ImageInputs({
   const imagePreviews = useMemo(() => {
     return inputs.images.map((i) => (typeof i.file === 'string' ? i.file : URL.createObjectURL(i.file)));
   }, [inputs.images]);
+
   return (
     <>
       <div style={{ width: '100%' }}>

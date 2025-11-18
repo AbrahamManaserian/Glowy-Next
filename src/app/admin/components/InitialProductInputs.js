@@ -17,7 +17,7 @@ const inputsArray = [
   { key: 'unit', name: 'Unit', type: 'number', marginLeft: '5px' },
   { key: 'coast', name: 'Coast', type: 'number', marginRight: '5px' },
   { key: 'price', name: 'Price', type: 'number', marginLeft: '5px' },
-  { key: 'disacountedPrice', name: 'Disacounted price', type: 'number', marginRight: '5px' },
+  { key: 'previousPrice', name: 'Previous Price', type: 'number', marginRight: '5px' },
   { key: 'qouantity', name: 'Qouantity', type: 'number', marginLeft: '5px' },
   { key: 'supplier', name: 'Supplier' },
 ];

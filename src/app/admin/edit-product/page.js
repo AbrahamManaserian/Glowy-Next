@@ -5,7 +5,7 @@ import { useAdminData } from '../components/AdminContext';
 import { useEffect, useState } from 'react';
 import getProduct from '@/app/lib/firebase/getProduct';
 import CategoriesInputs from '../components/CategoriesInputs';
-import { categoriesObj, resizeFile } from '../add-product/page';
+import { categoriesObj } from '../add-product/page';
 import InitialProductInputs from '../components/InitialProductInputs';
 import ExtraProductOptions from '../components/ExtraProductOptions';
 import ImageInputs from '../components/ImageInputs';
@@ -32,8 +32,8 @@ export default function EditProduct() {
     type: '',
     coast: '',
     price: '',
-    disacountedPrice: '',
-    qouantity: '',
+    previousPrice: '',
+    qouantity: 1,
     supplier: '',
     images: [],
     smallImage: '',
@@ -42,16 +42,18 @@ export default function EditProduct() {
     descriptionEn: '',
     descriptionRu: '',
     extraInputs: {},
+    inStock: true,
   });
 
   const [options, setOptions] = useState({
     optionKey: '',
     optionValue: '',
     optionPrice: '',
-    optionDisacountedPrice: '',
+    optionPreviousPrice: '',
     optionCoast: '',
-    optionQouantity: '',
+    optionQouantity: 1,
     availableOptions: [],
+    inStock: true,
   });
 
   const { data, setLoading } = useAdminData();
@@ -69,8 +71,8 @@ export default function EditProduct() {
         type: '',
         coast: '',
         price: '',
-        disacountedPrice: '',
-        qouantity: '',
+        previousPrice: '',
+        qouantity: 1,
         supplier: '',
         images: [],
         smallImage: '',
@@ -79,15 +81,17 @@ export default function EditProduct() {
         descriptionEn: '',
         descriptionRu: '',
         extraInputs: {},
+        inStock: true,
       });
       setOptions({
         optionKey: '',
         optionValue: '',
         optionPrice: '',
-        optionDisacountedPrice: '',
+        optionPreviousPrice: '',
         optionCoast: '',
-        optionQouantity: '',
+        optionQouantity: 1,
         availableOptions: [],
+        inStock: true,
       });
     } else if (e.target.name === 'subCategory') {
       setInputs({
@@ -100,8 +104,8 @@ export default function EditProduct() {
         type: '',
         coast: '',
         price: '',
-        disacountedPrice: '',
-        qouantity: '',
+        previousPrice: '',
+        qouantity: 1,
         supplier: '',
         images: [],
         smallImage: '',
@@ -110,15 +114,17 @@ export default function EditProduct() {
         descriptionEn: '',
         descriptionRu: '',
         extraInputs: {},
+        inStock: true,
       });
       setOptions({
         optionKey: '',
         optionValue: '',
         optionPrice: '',
-        optionDisacountedPrice: '',
+        optionPreviousPrice: '',
         optionCoast: '',
-        optionQouantity: '',
+        optionQouantity: 1,
         availableOptions: [],
+        inStock: true,
       });
     } else {
       setInputs({ ...inputs, [e.target.name]: e.target.value });
@@ -127,69 +133,6 @@ export default function EditProduct() {
 
   const handleChangeOptions = (e) => {
     setOptions({ ...options, [e.target.name]: e.target.value });
-  };
-
-  const handleUploadMainImage = async (e) => {
-    try {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      setLoading(true);
-      const smallImage = await resizeFile(file, 20);
-      const bigImage = await resizeFile(file, 60);
-      setLoading(false);
-      const smallImageLoad = new Image();
-      smallImageLoad.src = URL.createObjectURL(smallImage);
-      smallImageLoad.onload = () => {
-        const imageDetails = {
-          file: smallImage,
-          width: smallImageLoad.width,
-          height: smallImageLoad.height,
-        };
-        setInputs({
-          ...inputs,
-          mainImage: { file: bigImage, width: smallImageLoad.width, height: smallImageLoad.height },
-          smallImage: imageDetails,
-        });
-
-        URL.revokeObjectURL(smallImageLoad.src); // cleanup
-      };
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
-    }
-  };
-
-  const handleUploadImages = async (files) => {
-    const items = Array.from(files);
-    const fileArray = items.slice(0, 6 - inputs.images.length);
-    setLoading(true);
-    const loadImage = async (file) =>
-      await new Promise(async (resolve) => {
-        const smallImage = await resizeFile(file, 60);
-
-        const img = new Image();
-        img.src = URL.createObjectURL(smallImage);
-
-        img.onload = () => {
-          resolve({ file: smallImage, width: img.width, height: img.height });
-          URL.revokeObjectURL(img.src); // cleanup
-        };
-      });
-
-    await Promise.all(fileArray.map(loadImage)).then((loadedImages) => {
-      setInputs((prev) => ({
-        ...prev,
-        images: prev.images.concat(loadedImages),
-      }));
-    });
-    setLoading(false);
-  };
-
-  const handleDeleteImage = (index) => {
-    if (typeof inputs.images[index].file === 'string') {
-      setDeletedImages([...deletedImages, inputs.images[index].id]);
-    }
-    setInputs({ ...inputs, images: inputs.images.filter((_, i) => i !== index) });
   };
 
   const editProduct = async () => {
@@ -301,8 +244,8 @@ export default function EditProduct() {
         type: '',
         coast: '',
         price: '',
-        disacountedPrice: '',
-        qouantity: '',
+        previousPrice: '',
+        qouantity: 1,
         supplier: '',
         images: [],
         smallImage: '',
@@ -311,15 +254,17 @@ export default function EditProduct() {
         descriptionEn: '',
         descriptionRu: '',
         extraInputs: {},
+        inStock: true,
       });
       setOptions({
         optionKey: '',
         optionValue: '',
         optionPrice: '',
-        optionDisacountedPrice: '',
+        optionPreviousPrice: '',
         optionCoast: '',
-        optionQouantity: '',
+        optionQouantity: 1,
         availableOptions: [],
+        inStock: true,
       });
       setRequiredFields(false);
       setRequiredOption(false);
@@ -352,6 +297,22 @@ export default function EditProduct() {
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (inputs.qouantity > 0 && !inputs.inStock) {
+      setInputs({ ...inputs, inStock: true });
+    } else if (inputs.qouantity <= 0 && inputs.inStock) {
+      setInputs({ ...inputs, inStock: false });
+    }
+  }, [inputs.qouantity]);
+
+  useEffect(() => {
+    if (options.optionQouantity > 0 && !options.inStock) {
+      setOptions({ ...options, inStock: true });
+    } else if (options.optionQouantity <= 0 && options.inStock) {
+      setOptions({ ...options, inStock: false });
+    }
+  }, [options.optionQouantity]);
 
   return (
     <Grid
@@ -454,10 +415,8 @@ export default function EditProduct() {
           requiredFields={requiredFields}
           inputs={inputs}
           setInputs={setInputs}
-          handleUploadMainImage={handleUploadMainImage}
-          handleUploadImages={handleUploadImages}
           height={height}
-          handleDeleteImage={handleDeleteImage}
+          setLoading={setLoading}
         />
         <DescriptionInput inputs={inputs} hadleChangeInputs={hadleChangeInputs} />
         <Button

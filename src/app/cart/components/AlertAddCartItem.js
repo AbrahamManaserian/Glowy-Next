@@ -26,6 +26,7 @@ const images = [
 ];
 
 export default function AlertAddCartItem({ item }) {
+
   const { openCartAlert, setOpenCartAlert, setCart, cart } = useGlobalContext();
   const handleClose = () => {
     setOpenCartAlert(null);

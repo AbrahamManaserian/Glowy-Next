@@ -16,6 +16,8 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import EditIcon from '@mui/icons-material/Edit';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useEffect, useState } from 'react';
+import ImageInputs from './ImageInputs';
+import { initialOptionInputs } from '../add-product/page';
 
 const availableOptionKeys = {
   color: { name: 'Color' },
@@ -32,6 +34,8 @@ export default function ExtraProductOptions({
   setOptions,
   setInputs,
   handleChangeOptions,
+  height,
+  setLoading,
 }) {
   const [open, setOpen] = useState(false);
   const [editState, setEditState] = useState(null);
@@ -41,35 +45,25 @@ export default function ExtraProductOptions({
       setRequiredOption(true);
       return;
     }
-    const item = {
-      optionKey: options.optionKey,
-      optionValue: options.optionValue,
-      optionPrice: options.optionPrice,
-      optionCoast: options.optionCoast,
-      optionQouantity: options.optionQouantity,
-      optionDisacountedPrice: options.optionDisacountedPrice,
-    };
-    const availableOptions = options.availableOptions;
+    const copyOptions = structuredClone(options);
+
+    const { availableOptions, ...item } = copyOptions;
 
     availableOptions.push(item);
-    if (options.optionKey !== 'size' && !(options.optionKey in inputs.extraInputs)) {
-      setInputs({
-        ...inputs,
-        extraInputs: {
-          ...inputs.extraInputs,
-          [options.optionKey]: availableOptionKeys[options.optionKey].name,
-        },
-      });
-    }
+    // if (options.optionKey !== 'size' && !(options.optionKey in inputs.extraInputs)) {
+    setInputs({
+      ...inputs,
+      extraInputs: {
+        ...inputs.extraInputs,
+        [options.optionKey]: availableOptionKeys[options.optionKey].name,
+      },
+    });
+    // }
     setRequiredOption(false);
     setOptions({
-      availableOptions: availableOptions,
-      optionKey: '',
-      optionValue: '',
-      optionPrice: '',
-      optionDisacountedPrice: '',
-      optionCoast: '',
-      optionQouantity: '',
+      ...structuredClone(initialOptionInputs),
+      optionKey: copyOptions.optionKey,
+      availableOptions: [...availableOptions],
     });
   };
 
@@ -78,24 +72,16 @@ export default function ExtraProductOptions({
       setRequiredOption(true);
       return;
     }
-    const item = {
-      optionKey: options.optionKey,
-      optionValue: options.optionValue,
-      optionPrice: options.optionPrice,
-      optionCoast: options.optionCoast,
-      optionQouantity: options.optionQouantity,
-      optionDisacountedPrice: options.optionDisacountedPrice,
-    };
-    const updetedArr = options.availableOptions.map((it, i) => (i === editState ? item : it));
+
+    const copyOptions = structuredClone(options);
+    const { availableOptions, ...item } = copyOptions;
+
+    const updetedArr = availableOptions.map((it, i) => (i === editState ? item : it));
     setRequiredOption(false);
     setOptions({
+      ...structuredClone(initialOptionInputs),
+      optionKey: copyOptions.optionKey,
       availableOptions: updetedArr,
-      optionKey: '',
-      optionValue: '',
-      optionPrice: '',
-      optionDisacountedPrice: '',
-      optionCoast: '',
-      optionQouantity: '',
     });
     setEditState(null);
   };
@@ -109,14 +95,12 @@ export default function ExtraProductOptions({
       return i !== index;
     });
 
-    if (
-      options.availableOptions[index].optionKey in inputs.extraInputs &&
-      checkKey <= 1 &&
-      options.availableOptions[index].optionKey !== 'size'
-    ) {
-      const updatedInputs = inputs;
+    if (options.availableOptions[index].optionKey in inputs.extraInputs && checkKey <= 1) {
+      const updatedInputs = { ...inputs };
       delete updatedInputs.extraInputs[options.availableOptions[index].optionKey];
-      delete updatedInputs[options.availableOptions[index].optionKey];
+      if (options.availableOptions[index].optionKey !== 'size') {
+        delete updatedInputs[options.availableOptions[index].optionKey];
+      }
 
       setInputs(updatedInputs);
     }
@@ -125,7 +109,15 @@ export default function ExtraProductOptions({
 
   return (
     <>
-      <div style={{ width: '100%' }}>
+      <div
+        style={{
+          width: '100%',
+          backgroundColor: '#d4d7d846',
+          padding: '15px',
+          marginBottom: '15px',
+          boxSizing: 'border-box',
+        }}
+      >
         <Button
           sx={{ textTransform: 'capitalize', mb: '10px' }}
           color="secondary"
@@ -135,7 +127,114 @@ export default function ExtraProductOptions({
           More options
         </Button>
         <Collapse in={open} timeout="auto" unmountOnExit>
+          <div style={{ display: 'flex', flexWrap: 'wrap', margin: '0 5px 10px 5px' }}>
+            <Typography sx={{ width: '100%', mb: '10px' }}>Added Available Options</Typography>
+            {options.availableOptions.map((item, index) => {
+              if ((editState || editState === 0) && editState === index) {
+                return (
+                  <div
+                    style={{
+                      border: 'solid 0.5px',
+                      padding: ' 30px 20px',
+                      margin: '0 15px 15px 0',
+                      position: 'relative',
+                      borderRadius: '5px',
+                      overflow: 'hidden',
+                    }}
+                    key={index}
+                  >
+                    <EditIcon
+                      onClick={() => {
+                        setEditState(index);
+                        setOptions({ ...options, ...item });
+                      }}
+                      sx={{ position: 'absolute', top: 0, left: 0, color: 'white', bgcolor: '#03a9f4' }}
+                    />
+                    <ClearIcon
+                      onClick={() => deleteOption(index)}
+                      sx={{ position: 'absolute', top: 0, right: 0, color: 'white', bgcolor: 'red' }}
+                    />
+                    <Typography>
+                      {availableOptionKeys[item.optionKey].name} - {item.optionValue}
+                    </Typography>
+                    <Typography>Price - {item.optionPrice}</Typography>
+                  </div>
+                );
+              } else if (!editState && editState !== 0) {
+                return (
+                  <div
+                    style={{
+                      border: 'solid 0.5px',
+                      padding: '30px 20px',
+                      margin: '0 15px 15px 0',
+                      position: 'relative',
+                      borderRadius: '5px',
+                      overflow: 'hidden',
+                    }}
+                    key={index}
+                  >
+                    <EditIcon
+                      onClick={() => {
+                        setEditState(index);
+                        setOptions({ ...options, ...item });
+                      }}
+                      sx={{ position: 'absolute', top: 0, left: 0, color: 'white', bgcolor: '#03a9f4' }}
+                    />
+                    <ClearIcon
+                      onClick={() => deleteOption(index)}
+                      sx={{ position: 'absolute', top: 0, right: 0, color: 'white', bgcolor: 'red' }}
+                    />
+                    <Typography>
+                      {availableOptionKeys[item.optionKey].name} - {item.optionValue}
+                    </Typography>
+                    <Typography>Price - {item.optionPrice}</Typography>
+                  </div>
+                );
+              }
+            })}
+          </div>
+          <div style={{ marginBottom: '5px' }}>
+            <Button
+              onClick={editState || editState === 0 ? editOption : addOption}
+              variant="contained"
+              color="success"
+              sx={{
+                textTransform: 'capitalize',
+                width: { xs: 'calc(50% - 5px)', sm: 'calc(20% - 10px)' },
+                mr: { xs: '5px', sm: '10px' },
+                mb: '10px',
+              }}
+            >
+              {editState || editState === 0 ? 'Edit option' : 'Add option'}
+            </Button>
+            <>
+              {(editState || editState === 0) && (
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setEditState(null);
+                    setOptions({
+                      ...structuredClone(initialOptionInputs),
+                      optionKey: options.optionKey,
+                      availableOptions: options.availableOptions,
+                    });
+                  }}
+                  sx={{
+                    textTransform: 'capitalize',
+                    width: { xs: 'calc(50% - 5px)', sm: 'calc(20% - 10px)' },
+                    mr: { xs: 0, sm: '10px' },
+                    // mb: '15px',
+                    ml: { xs: '5px', sm: 0 },
+                    mb: '10px',
+                  }}
+                >
+                  Cancel
+                </Button>
+              )}
+            </>
+          </div>
           <FormControl
+            disabled={options.availableOptions.length > 0 ? true : false}
             sx={{
               boxSizing: 'border-box',
               width: { xs: 'calc(50% - 5px)', sm: 'calc(20% - 10px)' },
@@ -290,10 +389,10 @@ export default function ExtraProductOptions({
             helperText={!options.optionPrice && requiredOption ? 'Required' : ' '}
           />
           <TextField
-            key={`optionDisacountedPrice${options.optionDisacountedPrice}`}
-            defaultValue={options.optionDisacountedPrice}
+            key={`optionDisacountedPrice${options.optionPreviousPrice}`}
+            defaultValue={options.optionPreviousPrice}
             type="number"
-            name="optionDisacountedPrice"
+            name="optionPreviousPrice"
             onBlur={(e) => handleChangeOptions(e)}
             onChange={(e) => {
               if (!e.nativeEvent.data && e.nativeEvent.data !== null) {
@@ -318,118 +417,17 @@ export default function ExtraProductOptions({
                 },
             }}
             size="small"
-            label="Disacounted Price"
+            label="Previous Price"
             variant="outlined"
             helperText={' '}
           />
-          <Button
-            onClick={editState || editState === 0 ? editOption : addOption}
-            variant="contained"
-            color="success"
-            sx={{
-              textTransform: 'capitalize',
-              width: { xs: 'calc(50% - 10px)', sm: 'calc(20% - 10px)' },
-              mr: { xs: '5px', sm: '10px' },
-              mb: '10px',
-            }}
-          >
-            {editState || editState === 0 ? 'Edit option' : 'Add option'}
-          </Button>
-          <>
-            {(editState || editState === 0) && (
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setEditState(null);
-                  setOptions({
-                    ...options,
-                    optionKey: '',
-                    optionValue: '',
-                    optionPrice: '',
-                    optionDisacountedPrice: '',
-                    optionCoast: '',
-                    optionQouantity: '',
-                  });
-                }}
-                sx={{
-                  textTransform: 'capitalize',
-                  width: { xs: 'calc(50% - 5px)', sm: 'calc(20% - 10px)' },
-                  mr: { xs: 0, sm: '10px' },
-                  // mb: '15px',
-                  // ml: { xs: '5px', sm: 0 },
-                  mb: '10px',
-                }}
-              >
-                Cancel
-              </Button>
-            )}
-          </>
-          <div style={{ display: 'flex', flexWrap: 'wrap', margin: '0 5px 10px 5px' }}>
-            <Typography sx={{ width: '100%', mb: '10px' }}>Added Available Options</Typography>
-            {options.availableOptions.map((item, index) => {
-              if ((editState || editState === 0) && editState === index) {
-                return (
-                  <div
-                    style={{
-                      border: 'solid 0.5px',
-                      padding: ' 30px 20px',
-                      margin: '0 15px 15px 0',
-                      position: 'relative',
-                      borderRadius: '5px',
-                      overflow: 'hidden',
-                    }}
-                    key={index}
-                  >
-                    <EditIcon
-                      onClick={() => {
-                        setEditState(index);
-                        setOptions({ ...options, ...item });
-                      }}
-                      sx={{ position: 'absolute', top: 0, left: 0, color: 'white', bgcolor: '#03a9f4' }}
-                    />
-                    <ClearIcon
-                      onClick={() => deleteOption(index)}
-                      sx={{ position: 'absolute', top: 0, right: 0, color: 'white', bgcolor: 'red' }}
-                    />
-                    <Typography>
-                      {availableOptionKeys[item.optionKey].name} - {item.optionValue}
-                    </Typography>
-                    <Typography>Price - {item.optionPrice}</Typography>
-                  </div>
-                );
-              } else if (!editState && editState !== 0) {
-                return (
-                  <div
-                    style={{
-                      border: 'solid 0.5px',
-                      padding: '30px 20px',
-                      margin: '0 15px 15px 0',
-                      position: 'relative',
-                      borderRadius: '5px',
-                      overflow: 'hidden',
-                    }}
-                    key={index}
-                  >
-                    <EditIcon
-                      onClick={() => {
-                        setEditState(index);
-                        setOptions({ ...options, ...item });
-                      }}
-                      sx={{ position: 'absolute', top: 0, left: 0, color: 'white', bgcolor: '#03a9f4' }}
-                    />
-                    <ClearIcon
-                      onClick={() => deleteOption(index)}
-                      sx={{ position: 'absolute', top: 0, right: 0, color: 'white', bgcolor: 'red' }}
-                    />
-                    <Typography>
-                      {availableOptionKeys[item.optionKey].name} - {item.optionValue}
-                    </Typography>
-                    <Typography>Price - {item.optionPrice}</Typography>
-                  </div>
-                );
-              }
-            })}
-          </div>
+          <ImageInputs
+            requiredFields={requiredOption}
+            inputs={options}
+            setInputs={setOptions}
+            height={height}
+            setLoading={setLoading}
+          />
         </Collapse>
       </div>
     </>
