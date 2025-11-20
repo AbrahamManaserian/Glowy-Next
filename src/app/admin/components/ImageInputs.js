@@ -36,7 +36,16 @@ export const resizeFile = (file, quality) =>
     );
   });
 
-export default function ImageInputs({ requiredFields, inputs, setInputs, height, setLoading }) {
+export default function ImageInputs({
+  requiredFields,
+  inputs,
+  setInputs,
+  height,
+  setLoading,
+  setDeletedImages,
+  deletedImages,
+}) {
+  // console.log(inputs.images);
   const handleUploadMainImage = async (e) => {
     try {
       const file = e.target.files?.[0];

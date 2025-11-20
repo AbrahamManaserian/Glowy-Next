@@ -35,6 +35,7 @@ export const initialInputs = {
   descriptionRu: '',
   extraInputs: {},
   inStock: true,
+  availableOptions: [],
 };
 
 export const initialOptionInputs = {
@@ -229,8 +230,8 @@ export default function AddProductPage() {
   const [inputs, setInputs] = useState(() => structuredClone(initialInputs));
 
   const addProduct = async () => {
-    console.log(inputs);
-    console.log(options);
+    // console.log(inputs);
+    // console.log(options);
     if (
       !inputs.brand ||
       !inputs.model ||
@@ -253,8 +254,6 @@ export default function AddProductPage() {
       const allProductids = {};
       const newId = getNextProductId(data['project-details'].lastProductId);
 
-      // const newId = getNextProductId('000000');
-
       const storage = getStorage();
       const mainImageStorageRef = ref(storage, `glowy-products/${newId}/main`);
       const smallImageStorageRef = ref(storage, `glowy-products/${newId}/small`);
@@ -263,15 +262,18 @@ export default function AddProductPage() {
       let mainImage = {};
       const imageArr = [];
 
-      // console.log(`loading ${newId} images`)
-
       await Promise.all(
         inputs.images.map(async (img, index) => {
           try {
             const imageStorageRef = ref(storage, `glowy-products/${newId}/images/${index}`);
             await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
               return getDownloadURL(snapshot.ref).then((url) => {
-                imageArr.push({ ...inputs.images[index], file: url, id: index });
+                imageArr.push({
+                  ...inputs.images[index],
+                  file: url,
+                  id: index,
+                  src: `glowy-products/${newId}/images/${index}`,
+                });
               });
             });
           } catch (error) {
@@ -282,19 +284,19 @@ export default function AddProductPage() {
 
       await uploadBytes(mainImageStorageRef, inputs.mainImage.file).then((snapshot) => {
         return getDownloadURL(snapshot.ref).then((url) => {
-          mainImage = { ...inputs.mainImage, file: url };
+          mainImage = { ...inputs.mainImage, file: url, src: `glowy-products/${newId}/main` };
         });
       });
 
       await uploadBytes(smallImageStorageRef, inputs.smallImage.file).then((snapshot) => {
         return getDownloadURL(snapshot.ref).then((url) => {
-          smallImage = { ...inputs.smallImage, file: url };
+          smallImage = { ...inputs.smallImage, file: url, src: `glowy-products/${newId}/small` };
         });
       });
 
       // let { extraInputs, ...productData } = inputs;
       let initialProduct = structuredClone(inputs);
-      initialProduct.optionKey = Object.keys(inputs.extraInputs)[0];
+      initialProduct.optionKey = Object.keys(inputs.extraInputs)[0] || '';
       delete initialProduct.extraInputs;
 
       initialProduct = {
@@ -310,7 +312,7 @@ export default function AddProductPage() {
       allProductids[newId] = initialProduct.brand + ' - ' + initialProduct.model;
 
       let startId = newId;
-      let lastProductId;
+      let lastProductId = newId;
 
       const availableOptionItems = options.availableOptions.map((option, index) => {
         const id = getNextProductId(startId);
@@ -357,11 +359,10 @@ export default function AddProductPage() {
             const mainRef = ref(storage, `glowy-products/${item.id}/main`);
             const smallRef = ref(storage, `glowy-products/${item.id}/small`);
 
-            console.log(Boolean(item.mainImage));
             if (item.mainImage.file) {
               await uploadBytes(mainRef, item.mainImage.file).then((snapshot) => {
                 return getDownloadURL(snapshot.ref).then((url) => {
-                  mainOptionImage = { ...item.mainImage, file: url };
+                  mainOptionImage = { ...item.mainImage, file: url, src: `glowy-products/${item.id}/main` };
                 });
               });
               availableOptionItems[index].mainImage = mainOptionImage;
@@ -372,7 +373,11 @@ export default function AddProductPage() {
             if (item.smallImage.file) {
               await uploadBytes(smallRef, item.smallImage.file).then((snapshot) => {
                 return getDownloadURL(snapshot.ref).then((url) => {
-                  smallOptionImage = { ...item.smallImage, file: url };
+                  smallOptionImage = {
+                    ...item.smallImage,
+                    file: url,
+                    src: `glowy-products/${item.id}/small`,
+                  };
                 });
               });
               availableOptionItems[index].smallImage = smallOptionImage;
@@ -387,7 +392,12 @@ export default function AddProductPage() {
                     const imageStorageRef = ref(storage, `glowy-products/${item.id}/images/${index}`);
                     await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
                       return getDownloadURL(snapshot.ref).then((url) => {
-                        optionImageArr.push({ ...inputs.images[index], file: url, id: index });
+                        optionImageArr.push({
+                          ...inputs.images[index],
+                          file: url,
+                          id: index,
+                          src: `glowy-products/${item.id}/images/${index}`,
+                        });
                       });
                     });
                   } catch (error) {
@@ -405,10 +415,10 @@ export default function AddProductPage() {
         })
       );
 
-      console.log(availableOptionItems);
-      console.log(initialProduct);
-      console.log(lastProductId);
-      console.log(allProductids);
+      // console.log(availableOptionItems);
+      // console.log(initialProduct);
+      // console.log(lastProductId);
+      // console.log(allProductids);
 
       const productRef = doc(db, 'glowy-products', newId);
       const detailRef = doc(db, 'details', 'project-details');
@@ -512,14 +522,14 @@ export default function AddProductPage() {
       container
       size={12}
     >
-      <Button
+      {/* <Button
         onClick={() => {
           console.log(inputs, options);
           console.log(initialOptionInputs);
         }}
       >
         asd
-      </Button>
+      </Button> */}
       <Typography sx={{ fontSize: '22px', fontWeight: 500, width: '100%' }}>Add new product</Typography>
 
       <Grid

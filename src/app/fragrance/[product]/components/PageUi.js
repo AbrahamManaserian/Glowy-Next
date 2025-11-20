@@ -103,13 +103,18 @@ export default function ProductPageUi({ product }) {
           >
             <ProductImageComp images={[item.mainImage, ...item.images]} idNum={item.id} />
             <Grid
-              sx={{ mt: '50px' }}
+              sx={{ mt: '50px', position: 'relative' }}
               pl={{ xs: 0, sm: 0, md: '60px' }}
               size={{ xs: 12, sm: 12, md: 6 }}
               container
               direction={'column'}
               alignItems={'flex-start'}
             >
+              <Typography
+                sx={{ position: 'absolute', top: 0, right: 0, color: '#59625aff', fontSize: '12px' }}
+              >
+                lot - {item.id}
+              </Typography>
               {item.inStock && (
                 <Typography
                   sx={{
@@ -172,36 +177,16 @@ export default function ProductPageUi({ product }) {
               </Typography>
 
               <Box sx={{ display: 'flex', mt: '25px', flexWrap: 'wrap' }}>
-                <Typography sx={{ color: '#212122da', fontWeight: 500, width: '100%', mb: '10px' }}>
-                  Available Options ({item.optionKey})
-                </Typography>
-                <Box
-                  onClick={() => routNew(product.id)}
-                  sx={{
-                    border:
-                      availableOption === product.id
-                        ? 'solid 1.5px rgba(69, 73, 69, 0.53)'
-                        : 'solid 1px rgba(44, 43, 43, 0.11)',
-                    p: '6px 15px',
-                    borderRadius: '8px',
-                    m: '8px',
-                    cursor: 'pointer',
-                    WebkitTapHighlightColor: 'transparent',
-                  }}
-                >
-                  <Typography sx={{ color: '#212122da', fontSize: '14px', fontWeight: 500 }}>
-                    {product[product.optionKey]} {product.optionKey === 'size' ? product.unit : ''}
-                  </Typography>
-                </Box>
-
-                {(product.availableOptions || []).map((option, index) => {
-                  return (
+                {product.availableOptions.length > 0 && (
+                  <>
+                    <Typography sx={{ color: '#212122da', fontWeight: 500, width: '100%', mb: '10px' }}>
+                      Available Options ({item.optionKey})
+                    </Typography>
                     <Box
-                      key={index}
-                      onClick={() => routNew(option.id)}
+                      onClick={() => routNew(product.id)}
                       sx={{
                         border:
-                          option.id === availableOption
+                          availableOption === product.id
                             ? 'solid 1.5px rgba(69, 73, 69, 0.53)'
                             : 'solid 1px rgba(44, 43, 43, 0.11)',
                         p: '6px 15px',
@@ -212,11 +197,35 @@ export default function ProductPageUi({ product }) {
                       }}
                     >
                       <Typography sx={{ color: '#212122da', fontSize: '14px', fontWeight: 500 }}>
-                        {option[item.optionKey]} {item.optionKey === 'size' ? item.unit : ''}
+                        {product[product.optionKey]} {product.optionKey === 'size' ? product.unit : ''}
                       </Typography>
                     </Box>
-                  );
-                })}
+
+                    {product.availableOptions.map((option, index) => {
+                      return (
+                        <Box
+                          key={index}
+                          onClick={() => routNew(option.id)}
+                          sx={{
+                            border:
+                              option.id === availableOption
+                                ? 'solid 1.5px rgba(69, 73, 69, 0.53)'
+                                : 'solid 1px rgba(44, 43, 43, 0.11)',
+                            p: '6px 15px',
+                            borderRadius: '8px',
+                            m: '8px',
+                            cursor: 'pointer',
+                            WebkitTapHighlightColor: 'transparent',
+                          }}
+                        >
+                          <Typography sx={{ color: '#212122da', fontSize: '14px', fontWeight: 500 }}>
+                            {option[item.optionKey]} {item.optionKey === 'size' ? item.unit : ''}
+                          </Typography>
+                        </Box>
+                      );
+                    })}
+                  </>
+                )}
                 <div
                   style={{
                     display: 'flex',
