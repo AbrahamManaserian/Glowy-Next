@@ -11,7 +11,7 @@ export default async function AboutPage() {
   if (docSnap.data()) {
     obj = docSnap.data().items;
   }
-  console.log(obj);
+  // console.log(obj);
   return (
     <Grid container size={12} justifyContent="center" alignItems="center" p={'15px'} spacing={3}>
       {obj.map((item, index) => {

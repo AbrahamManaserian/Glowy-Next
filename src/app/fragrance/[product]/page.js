@@ -8,10 +8,7 @@ import { getProduct } from '@/app/lib/firebase/getFragranceProducts';
 export default async function FragranceProductPage({ params }) {
   const { product } = await params;
 
-  // console.log(url);
-
   const productData = await getProduct(product);
-  console.log(productData);
 
   return (
     <Grid container size={12}>

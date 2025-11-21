@@ -1,5 +1,5 @@
 import { db } from '@/firebase';
-import { collection, doc, getDoc, getDocs, limit, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 import { cache } from 'react';
 
 export const getFragranceProducts = async () => {
