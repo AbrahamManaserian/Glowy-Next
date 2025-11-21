@@ -21,12 +21,18 @@ export function GlobalProvider({ children }) {
       const savedCart = localStorage.getItem('cart');
 
       if (savedCart) {
-        console.log(JSON.parse(savedCart));
+        const data = JSON.parse(savedCart);
+        if (data.items && data.length && Object.keys(data.items).length === data.length) {
+          setCart(data);
+        } else {
+          localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
+          setCart({ length: 0, items: {} });
+        }
 
-        setCart(JSON.parse(savedCart));
+        
       } else {
         localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
-        // setCart({ length: 0, items: {} });
+        setCart({ length: 0, items: {} });
       }
     } catch (error) {
       localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));

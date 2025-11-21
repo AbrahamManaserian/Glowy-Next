@@ -80,7 +80,7 @@ export default function CartItem({ item, cart, setCart, check, padding }) {
               mt: '2px',
             }}
           >
-            $ {item.price.toLocaleString()}
+            $ {item.price?.toLocaleString()}
           </Typography>
         </div>
         <Box
