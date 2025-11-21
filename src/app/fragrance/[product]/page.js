@@ -5,12 +5,13 @@ import { Grid } from '@mui/material';
 import { collection, doc, getDoc, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 import { db } from '@/firebase';
 import ProductPageUi from './components/PageUi';
+import { cache } from 'react';
 
 export default async function FragranceProductPage({ params }) {
   const { product } = await params;
 
   // console.log(url);
-  async function getProduct() {
+  const getProduct = cache(async () => {
     try {
       const productRef = doc(db, 'glowy-products', product);
       const docSnap = await getDoc(productRef);
@@ -53,7 +54,7 @@ export default async function FragranceProductPage({ params }) {
       console.log(e);
       return { relatedItems: [], item: {} };
     }
-  }
+  });
 
   const productData = await getProduct();
 
