@@ -2,7 +2,7 @@ import { db } from '@/firebase';
 import { Box, Grid, Typography } from '@mui/material';
 import { doc, getDoc } from 'firebase/firestore';
 import Image from 'next/image';
-
+import FragranceCard from '../fragrance/components/FragranceCard';
 
 export default async function AboutPage() {
   let obj = [];
@@ -19,38 +19,48 @@ export default async function AboutPage() {
   }
   // console.log(obj);
   return (
-    <Grid container size={12} justifyContent="center" alignItems="center">
+    <Grid container size={12} justifyContent="center" alignItems="center" p={'15px'} spacing={3}>
       {obj.map((item, index) => {
-        // console.log(index);
+        // console.log(item);
         if (index < 80) {
           return (
-            <Box
+            <FragranceCard
               key={index}
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignContent: 'center',
-                alignItems: 'center',
-                width: { xs: 'calc(50% - 30px)', sm: 'calc(25% - 30px)' },
-                padding: '10px',
-                margin: 0,
-                backgroundColor: 'red',
-                margin: '5px',
-                height: { xs: '150px', sm: '250px' },
-                overflow: 'hidden',
+              item={{
+                id: item.code,
+                size: '75',
+                unit: 'ml',
+                price: '10500',
+                smallImage: item.images[0],
               }}
-            >
-              <Image
-                src={item.images[0].file}
-                width={100}
-                height={100}
-                alt=""
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                }}
-              />
-            </Box>
+            />
+            // <Box
+            //   key={index}
+            //   sx={{
+            //     display: 'flex',
+            //     justifyContent: 'center',
+            //     alignContent: 'center',
+            //     alignItems: 'center',
+            //     width: { xs: 'calc(50% - 30px)', sm: 'calc(25% - 30px)' },
+            //     padding: '10px',
+            //     margin: 0,
+            //     backgroundColor: 'red',
+            //     margin: '5px',
+            //     height: { xs: '150px', sm: '250px' },
+            //     overflow: 'hidden',
+            //   }}
+            // >
+            //   <Image
+            //     src={item.images[0].file}
+            //     width={100}
+            //     height={100}
+            //     alt=""
+            //     style={{
+            //       width: '100%',
+            //       height: 'auto',
+            //     }}
+            //   />
+            // </Box>
           );
         }
       })}

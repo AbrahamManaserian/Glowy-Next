@@ -142,7 +142,7 @@ export default function FragranceCard({ item, height }) {
           ${item.price.toLocaleString()}
         </Typography>
         <Typography sx={{ textDecoration: 'line-through', color: 'gray', fontSize: 14 }}>
-          {item.previousPrice.toLocaleString() ? `$${item.previousPrice.toLocaleString()}` : ''}
+          {item.previousPrice ? `$${item.previousPrice.toLocaleString()}` : ''}
         </Typography>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '5px' }}>

@@ -1,3 +1,5 @@
+export const revalidate = 300;
+
 import { Grid } from '@mui/material';
 
 import { collection, doc, getDoc, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
@@ -8,7 +10,7 @@ export default async function FragranceProductPage({ params }) {
   const { product } = await params;
 
   // console.log(url);
-  async function getProduct(params) {
+  async function getProduct() {
     try {
       const productRef = doc(db, 'glowy-products', product);
       const docSnap = await getDoc(productRef);
