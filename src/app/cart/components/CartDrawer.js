@@ -12,7 +12,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useGlobalContext } from '@/app/GlobalContext';
 import CartItem from './CartItem';
 
-const images = [];
+
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -29,7 +29,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 }));
 
 export default function CartDrawer() {
-  const { cart, setCart, handleClickError } = useGlobalContext();
+  const { cart, setCart } = useGlobalContext();
   const [openDrawer, setOpenDrawer] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -40,7 +40,6 @@ export default function CartDrawer() {
   useEffect(() => {
     toggleDrawer(false);
   }, [searchParams, pathname]);
-
 
   return (
     <div>
@@ -84,16 +83,17 @@ export default function CartDrawer() {
                     return (
                       <CartItem
                         padding={{ xs: '0 16px', sm: '0 24px' }}
+                        item={cart.items[key]}
                         id={key}
                         key={index}
-                        image={images[key]}
+                        image={cart.items[key].img}
                         cart={cart}
                         setCart={setCart}
                       />
                     );
                   });
                 } catch (error) {
-                  handleClickError();
+                  // handleClickError();
                   console.log(error);
                 }
               })()}

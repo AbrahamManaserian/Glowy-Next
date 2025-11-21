@@ -11,39 +11,32 @@ import { handleAddItemToWishList } from '@/app/functions/hadleAddItemToWishList'
 import { handleAddItemToCart } from '@/app/cart/functions/addDeleteIncDecreaseCart';
 import { useRouter } from 'next/navigation';
 
-export default function FragranceCard({
-  newAdded,
-  image,
-  height,
-  id,
-  brand,
-  model,
-  size,
-  price,
-  disacountedPrice,
-  soldQount,
-}) {
-  const router = useRouter();
+export default function FragranceCard({ item, height }) {
+  let newAdded;
 
-  const { setCart, setOpenCartAlert, setOpenItemAddedAlert, setWishList, wishList, cart } =
-    useGlobalContext();
+  const { setWishList, wishList, cart, setCart } = useGlobalContext();
 
-  const handleClickAddToCart = (id) => {
-    if (cart.items[id]) {
-      setOpenItemAddedAlert(id);
+  const handleClickAddToCart = (item, quantity, updateCart) => {
+    if (cart.items[item.id]) {
+      // console.log(updatedCart);
     } else {
-      setOpenCartAlert({ id: id, qount: 1 });
+      const newItem = {
+        id: item.id,
+        img: item.smallImage.file,
+        quantity: quantity,
+        price: item.price,
+        name: item.brand + ' - ' + item.model,
+      };
+      const updatedCart = structuredClone(cart);
+
+      updatedCart.items[item.id] = newItem;
+      updatedCart.length = cart.length + 1;
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      updateCart(updatedCart);
     }
   };
 
-  const handelClickBuyNow = (id) => {
-    if (cart.items[id]) {
-      router.push(`/cart?item=${id}`);
-    } else {
-      handleAddItemToCart(id, setCart, setOpenCartAlert, 1, cart);
-      router.push(`/cart?item=${id}`);
-    }
-  };
+  const handelClickBuyNow = (id) => {};
 
   return (
     <Grid
@@ -78,7 +71,7 @@ export default function FragranceCard({
         </Typography>
       )}
 
-      {disacountedPrice && (
+      {item.previousPrice && (
         <Typography
           sx={{
             position: 'absolute',
@@ -97,7 +90,8 @@ export default function FragranceCard({
           SALE
         </Typography>
       )}
-      <Link style={{ WebkitTapHighlightColor: 'transparent' }} href={`/fragrance/${id}`}>
+
+      <Link style={{ WebkitTapHighlightColor: 'transparent' }} href={`/fragrance/${item.id}`}>
         <Box
           sx={{
             flexShrink: 0,
@@ -129,45 +123,49 @@ export default function FragranceCard({
               overflow: 'hidden',
               objectFit: 'contain',
             }}
-            src={image.file}
+            src={item.smallImage.file}
             alt="image"
           />
         </Box>
       </Link>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: '15px' }}>
-        <Typography sx={{ color: '#263045fb', fontSize: '14px', fontWeight: 500 }}>{brand} </Typography>
-        <Typography sx={{ color: '#3c4354a3', fontSize: 12, lineHeight: '12px' }}> {size}ml </Typography>
+
+      <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '10px' }}>
+        <Typography sx={{ color: '#263045fb', fontSize: '15px', fontWeight: 500 }}>{item.brand} </Typography>
+        <Typography sx={{ color: '#3c4354a3', fontSize: 12 }}>
+          {item.size}
+          {item.unit}
+        </Typography>
       </Box>
-      <Typography sx={{ color: '#3c4354fb', fontSize: '14px' }}> {model}</Typography>
+      <Typography sx={{ color: '#3c4354fb', fontSize: '14px' }}> {item.model}</Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: '5px' }}>
         <Typography sx={{ color: '#3c4354fb', fontWeight: 600, fontSize: 16 }}>
-          ${disacountedPrice ? disacountedPrice : price}
+          ${item.price.toLocaleString()}
         </Typography>
         <Typography sx={{ textDecoration: 'line-through', color: 'gray', fontSize: 14 }}>
-          {disacountedPrice ? `$${price}` : ''}
+          {item.previousPrice.toLocaleString() ? `$${item.previousPrice.toLocaleString()}` : ''}
         </Typography>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '5px' }}>
         <Rating name="read-only" value={5} readOnly size="small" />
         <Typography sx={{ color: '#3c4354a3', fontSize: 12, lineHeight: '12px' }}>
-          {soldQount ? `${soldQount} sold` : ''}
+          {item.sold ? `${item.sold} sold` : ''}
         </Typography>
       </Box>
       <Box sx={{ display: 'flex', gap: 1, mt: '10px', alignItems: 'flex-end' }}>
         <div
           style={{ cursor: 'pointer', WebkitTapHighlightColor: 'Background' }}
-          onClick={() => handleClickAddToCart(id)}
+          onClick={() => handleClickAddToCart(item, 1, setCart)}
         >
           <ShoppingBasketIcon size={'25'} />
         </div>
-        {wishList.includes(id) ? (
+        {wishList.includes(item.id) ? (
           <FavoriteIcon
-            onClick={() => handleAddItemToWishList(id, setWishList)}
+            onClick={() => handleAddItemToWishList(item.id, setWishList)}
             sx={{ color: '#ff3d00', ml: '5px', mb: '2px' }}
           />
         ) : (
           <FavoriteBorderIcon
-            onClick={() => handleAddItemToWishList(id, setWishList)}
+            onClick={() => handleAddItemToWishList(item.id, setWishList)}
             sx={{ color: '#ff3d00', ml: '5px', mb: '2px', cursor: 'pointer' }}
           />
         )}
@@ -176,7 +174,7 @@ export default function FragranceCard({
           href={`/cart?item=${id}`}
         > */}
         <Button
-          onClick={() => handelClickBuyNow(id)}
+          onClick={() => handelClickBuyNow(item.id)}
           size="small"
           sx={{
             bgcolor: '#2B3445',

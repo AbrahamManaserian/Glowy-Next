@@ -14,9 +14,9 @@ export const getFragranceProducts = async (searchParams) => {
     for (const [key, value] of Object.entries(params)) {
       if (value) {
         if (key === 'minPrice') {
-          conditions.push(where('price', '>=', value));
+          conditions.push(where('price', '>=', +value));
         } else if (key === 'maxPrice') {
-          conditions.push(where('price', '<=', value));
+          conditions.push(where('price', '<=', +value));
         } else if (key === 'brand') {
           conditions.push(where(key, '==', value));
         } else if (key === 'type') {

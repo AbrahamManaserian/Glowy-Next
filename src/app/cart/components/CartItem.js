@@ -8,7 +8,8 @@ import Image from 'next/image';
 import { decreaseQuantity, deleteItem, increaseQuantity } from '../functions/addDeleteIncDecreaseCart';
 import Link from 'next/link';
 
-export default function CartItem({ id, image, cart, setCart, check, padding }) {
+export default function CartItem({ item, cart, setCart, check, padding }) {
+  // console.log(item);
   return (
     <Box
       sx={{
@@ -24,7 +25,7 @@ export default function CartItem({ id, image, cart, setCart, check, padding }) {
     >
       <div style={{ borderRadius: '10px', overflow: 'hidden' }}>
         <Link
-          href={`/fragrance/${id}`}
+          href={`/fragrance/${item.id}`}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -39,7 +40,7 @@ export default function CartItem({ id, image, cart, setCart, check, padding }) {
             WebkitTapHighlightColor: 'rgba(43, 137, 219, 0.04)',
           }}
         >
-          <Image src={image} alt="" width={200} height={200} style={{ width: '100%', height: 'auto' }} />
+          <Image src={item.img} alt="" width={200} height={200} style={{ width: '100%', height: 'auto' }} />
         </Link>
       </div>
 
@@ -67,7 +68,7 @@ export default function CartItem({ id, image, cart, setCart, check, padding }) {
               fontWeight: 300,
             }}
           >
-            Armani Stronger With yuo Absolutely
+            {item.name}
           </Typography>
           <Typography
             sx={{
@@ -79,7 +80,7 @@ export default function CartItem({ id, image, cart, setCart, check, padding }) {
               mt: '2px',
             }}
           >
-            $ 230.00
+            $ {item.price.toLocaleString()}
           </Typography>
         </div>
         <Box
@@ -101,16 +102,20 @@ export default function CartItem({ id, image, cart, setCart, check, padding }) {
           >
             <IconButton
               size="small"
-              onClick={() => decreaseQuantity(id, cart, setCart)}
+              onClick={() => decreaseQuantity(item.id, cart, setCart)}
               aria-label="delete"
               // sx={{ cursor: quantity < 2 ? 'not-allowed' : 'pointer' }}
             >
               <RemoveIcon />
             </IconButton>
             <Typography sx={{ bgcolor: '#6562620f', p: '6px 15px', fontSize: '14px' }}>
-              {cart.items[id].quantity}
+              {item.quantity}
             </Typography>
-            <IconButton size="small" onClick={() => increaseQuantity(id, cart, setCart)} aria-label="delete">
+            <IconButton
+              size="small"
+              onClick={() => increaseQuantity(item.id, cart, setCart)}
+              aria-label="delete"
+            >
               <AddIcon />
             </IconButton>
           </Box>
@@ -125,7 +130,7 @@ export default function CartItem({ id, image, cart, setCart, check, padding }) {
             />
           )}
           <DeleteOutlinedIcon
-            onClick={() => deleteItem(id, cart, setCart)}
+            onClick={() => deleteItem(item.id, cart, setCart)}
             sx={{ fontSize: '28px', color: '#ca4d4df6', cursor: 'pointer' }}
           />
         </Box>

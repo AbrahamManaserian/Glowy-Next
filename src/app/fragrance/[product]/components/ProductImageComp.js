@@ -56,13 +56,13 @@ export const ProductImageComp = ({ images, idNum }) => {
 
   return (
     <Grid
-      sx={{ borderRadius: '25px', mt: '50px' }}
+      sx={{ borderRadius: '25px', mt: '20px' }}
       size={{ xs: 12, sm: 12, md: 6 }}
       container
       justifyContent={'center'}
       alignItems={'center'}
     >
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: '15px', width: '100%' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: '5px', width: '100%' }}>
         <div style={{ position: 'relative', width: '100%' }}>
           <ChevronLeftIcon
             onClick={() => handleClickCarouselScroll()}

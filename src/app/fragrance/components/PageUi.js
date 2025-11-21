@@ -41,6 +41,44 @@ export default function PageUi({ data }) {
     router.push(`?${params.toString()}`);
   };
 
+  // const testData = async () => {
+  //   try {
+  //     let q = collection(db, 'glowy-products');
+  //     const params = Object.fromEntries(searchParams.entries());
+  //     console.log(params);
+  //     const conditions = [];
+  //     for (const [key, value] of Object.entries(params)) {
+  //       if (value) {
+  //         if (key === 'minPrice') {
+  //           conditions.push(where('price', '>=', +value));
+  //         } else if (key === 'maxPrice') {
+  //           conditions.push(where('price', '<=', +value));
+  //         } else if (key === 'brand') {
+  //           conditions.push(where(key, '==', value));
+  //         } else if (key === 'type') {
+  //           conditions.push(where(key, '==', value));
+  //         } else if (key === 'subCategory') {
+  //           conditions.push(where(key, '==', value));
+  //         }
+  //       }
+  //     }
+  //     // console.log(conditions);
+
+  //     if (conditions.length > 0) {
+  //       q = query(collection(db, 'glowy-products'), ...conditions);
+  //     }
+  //     const querySnapshot = await getDocs(q);
+  //     querySnapshot.forEach((doc) => {
+  //       // doc.data() is never undefined for query doc snapshots
+  //       data[doc.id] = doc.data();
+  //     });
+
+  //     console.log(data);
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
+
   const toggleDrawer = (newOpen) => {
     setOpenDrawer(newOpen);
   };
@@ -110,7 +148,7 @@ export default function PageUi({ data }) {
           }}
         ></div>
       )}
-      {Object.keys(data).length}
+
       <Box
         sx={{
           display: 'flex',
@@ -139,13 +177,7 @@ export default function PageUi({ data }) {
         </Box>
         <Grid container sx={{ width: '100%', flexWrap: 'nowrap' }}>
           <Box sx={{ display: { xs: 'none', sm: 'none', md: 'flex' }, mt: '40px' }}>
-            <Filter
-              paramsState={paramsState}
-              handleChangeParams={handleChangeParams}
-              //   noRout={true}
-              //   handleChangeArrayParams={handleChangeArrayParams}
-              category="fragrance"
-            />
+            <Filter paramsState={paramsState} handleChangeParams={handleChangeParams} category="fragrance" />
           </Box>
           <Grid
             alignContent={'flex-start'}
@@ -185,22 +217,9 @@ export default function PageUi({ data }) {
               </div>
             )}
             {Object.keys(data).map((key, index) => {
-              return (
-                <FragranceCard
-                  key={key}
-                  image={data[key].mainImage}
-                  id={key}
-                  brand={data[key].brand}
-                  model={data[key].model}
-                  size={data[key].size || 100}
-                  price={data[key].price}
-                  disacountedPrice={data[key].disacountedPrice}
-                  // newAdded={data[key].createdAt}
-                  height={windowHeight}
-                />
-              );
+              return <FragranceCard item={data[key]} key={index} height={windowHeight} />;
             })}
-            {Object.keys(data).length && (
+            {Object.keys(data).length > 0 && (
               <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '10px' }}>
                 <FragrancePagination />
               </div>

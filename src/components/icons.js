@@ -276,3 +276,73 @@ export function ListViewIcon() {
     </svg>
   );
 }
+
+export function NoSearchIcon({ width, height, color }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} viewBox="0 0 4.233 4.233">
+      <g transform="translate(73.405 -1.965)">
+        <g>
+          <g transform="translate(.046)">
+            <g transform="translate(0 -.007)">
+              <g>
+                <g transform="translate(-.14)">
+                  <g transform="translate(-92.519 -.321)">
+                    <g transform="translate(-.265)">
+                      <g>
+                        <g>
+                          <g transform="translate(0 -.132)">
+                            <g>
+                              <g>
+                                <g>
+                                  <g transform="translate(.22 -.126)">
+                                    <g>
+                                      <path
+                                        fill="none"
+                                        stroke={color}
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth=".265"
+                                        d="M 23.089324,6.3876225 22.388612,5.6927549"
+                                        paintOrder="markers fill stroke"
+                                      ></path>
+                                      <circle
+                                        cx="21.233"
+                                        cy="4.536"
+                                        r="1.587"
+                                        fill="none"
+                                        stroke={color}
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth=".265"
+                                        paintOrder="markers fill stroke"
+                                      ></circle>
+                                      <g transform="translate(-.136)">
+                                        <path
+                                          fill="none"
+                                          stroke={color}
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth=".265"
+                                          d="M21.369535 5.0593926a.13229156.13229156 0 01.13229.1322926.13229156.13229156 0 01-.13229.1322918.13229156.13229156 0 01-.132292-.1322918.13229156.13229156 0 01.132292-.1322926zM21.369534 3.7482397V4.5494389"
+                                          paintOrder="markers fill stroke"
+                                        ></path>
+                                      </g>
+                                    </g>
+                                  </g>
+                                </g>
+                              </g>
+                            </g>
+                          </g>
+                        </g>
+                      </g>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  );
+}
