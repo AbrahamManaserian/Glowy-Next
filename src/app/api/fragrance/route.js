@@ -23,6 +23,8 @@ export const getFragranceProducts = async (searchParams) => {
           conditions.push(where(key, '==', value));
         } else if (key === 'subCategory') {
           conditions.push(where(key, '==', value));
+        } else if (key === 'size') {
+          conditions.push(where(key, '==', +value));
         }
       }
     }

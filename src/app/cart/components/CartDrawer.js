@@ -14,7 +14,7 @@ import CartItem from './CartItem';
 
 
 
-const StyledBadge = styled(Badge)(({ theme }) => ({
+export const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
     right: -1,
     top: 0,

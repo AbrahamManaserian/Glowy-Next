@@ -10,6 +10,7 @@ import { useGlobalContext } from '@/app/GlobalContext';
 import { handleAddItemToWishList } from '@/app/functions/hadleAddItemToWishList';
 import { handleAddItemToCart } from '@/app/cart/functions/addDeleteIncDecreaseCart';
 import { useRouter } from 'next/navigation';
+import { StyledBadge } from '@/app/cart/components/CartDrawer';
 
 export default function FragranceCard({ item, height }) {
   let newAdded;
@@ -18,6 +19,12 @@ export default function FragranceCard({ item, height }) {
 
   const handleClickAddToCart = (item, quantity, updateCart) => {
     if (cart.items[item.id]) {
+      const updatedCart = structuredClone(cart);
+      ++updatedCart.items[item.id].quantity;
+      ++updatedCart.length;
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      updateCart(updatedCart);
+
       // console.log(updatedCart);
     } else {
       const newItem = {
@@ -131,12 +138,12 @@ export default function FragranceCard({ item, height }) {
 
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '10px' }}>
         <Typography sx={{ color: '#263045fb', fontSize: '15px', fontWeight: 500 }}>{item.brand} </Typography>
-        <Typography sx={{ color: '#3c4354a3', fontSize: 12 }}>
+        <Typography sx={{ color: '#3c4354a3', fontSize: '12px' }}>
           {item.size}
           {item.unit}
         </Typography>
       </Box>
-      <Typography sx={{ color: '#3c4354fb', fontSize: '14px' }}> {item.model}</Typography>
+      <Typography sx={{ color: '#3c4354fb', fontSize: '13px' }}> {item.model}</Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: '5px' }}>
         <Typography sx={{ color: '#3c4354fb', fontWeight: 600, fontSize: 16 }}>
           ${item.price.toLocaleString()}
@@ -153,10 +160,14 @@ export default function FragranceCard({ item, height }) {
       </Box>
       <Box sx={{ display: 'flex', gap: 1, mt: '10px', alignItems: 'flex-end' }}>
         <div
-          style={{ cursor: 'pointer', WebkitTapHighlightColor: 'Background' }}
+          style={{ cursor: 'pointer', WebkitTapHighlightColor: 'Background', marginBottom: '5px' }}
           onClick={() => handleClickAddToCart(item, 1, setCart)}
         >
-          <ShoppingBasketIcon size={'25'} />
+          <StyledBadge badgeContent={cart.items ? cart.items[item.id]?.quantity : 0}>
+            <ShoppingBasketIcon size={'25'} />
+          </StyledBadge>
+
+          {/* <ShoppingBasketIcon size={'25'} /> */}
         </div>
         {wishList.includes(item.id) ? (
           <FavoriteIcon

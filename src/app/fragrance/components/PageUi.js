@@ -8,8 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Filter from './Filter';
 import FragranceCard from './FragranceCard';
 import FragrancePagination from './FragrancePagination';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@/firebase';
+
 
 export default function PageUi({ data }) {
   const [loading, setLoading] = useState(false);
@@ -22,6 +21,7 @@ export default function PageUi({ data }) {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [paramsState, setParamsState] = useState({
     sortBy: '',
+    size: '',
     view: '',
     minPrice: '',
     maxPrice: '',
@@ -30,6 +30,7 @@ export default function PageUi({ data }) {
     brand: '',
     inStock: 'noCheck',
   });
+
   const applyFilters = () => {
     setLoading(true);
     toggleDrawer(false);
@@ -41,44 +42,6 @@ export default function PageUi({ data }) {
     router.push(`?${params.toString()}`);
   };
 
-  // const testData = async () => {
-  //   try {
-  //     let q = collection(db, 'glowy-products');
-  //     const params = Object.fromEntries(searchParams.entries());
-  //     console.log(params);
-  //     const conditions = [];
-  //     for (const [key, value] of Object.entries(params)) {
-  //       if (value) {
-  //         if (key === 'minPrice') {
-  //           conditions.push(where('price', '>=', +value));
-  //         } else if (key === 'maxPrice') {
-  //           conditions.push(where('price', '<=', +value));
-  //         } else if (key === 'brand') {
-  //           conditions.push(where(key, '==', value));
-  //         } else if (key === 'type') {
-  //           conditions.push(where(key, '==', value));
-  //         } else if (key === 'subCategory') {
-  //           conditions.push(where(key, '==', value));
-  //         }
-  //       }
-  //     }
-  //     // console.log(conditions);
-
-  //     if (conditions.length > 0) {
-  //       q = query(collection(db, 'glowy-products'), ...conditions);
-  //     }
-  //     const querySnapshot = await getDocs(q);
-  //     querySnapshot.forEach((doc) => {
-  //       // doc.data() is never undefined for query doc snapshots
-  //       data[doc.id] = doc.data();
-  //     });
-
-  //     console.log(data);
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-
   const toggleDrawer = (newOpen) => {
     setOpenDrawer(newOpen);
   };
@@ -86,9 +49,10 @@ export default function PageUi({ data }) {
   const doRout = (prop, value) => {
     if (
       prop === 'type' ||
-      prop === 'minPrice' ||
-      prop === 'maxPrice' ||
+      // prop === 'minPrice' ||
+      // prop === 'maxPrice' ||
       prop === 'subCategory' ||
+      prop === 'size' ||
       prop === 'brand'
     ) {
       setLoading(true);
@@ -96,6 +60,7 @@ export default function PageUi({ data }) {
       if (prop === 'subCategory') {
         params.set('type', '');
         params.set('brand', '');
+        params.set('size', '');
       }
       params.set(prop, value);
       router.push(`?${params.toString()}`);
@@ -104,7 +69,7 @@ export default function PageUi({ data }) {
 
   const handleChangeParams = (prop, value, noRout) => {
     if (prop === 'subCategory') {
-      setParamsState({ ...paramsState, [prop]: value, type: '', brand: '' });
+      setParamsState({ ...paramsState, [prop]: value, type: '', brand: '', size: '' });
     } else {
       setParamsState({ ...paramsState, [prop]: value });
     }
@@ -114,7 +79,7 @@ export default function PageUi({ data }) {
   };
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // window.scrollTo({ top: 0, behavior: 'smooth' });
     const newState = {};
     Object.keys(paramsState).forEach((key) => {
       newState[key] = searchParams.get(key) || '';
@@ -131,7 +96,7 @@ export default function PageUi({ data }) {
   }, []);
 
   return (
-    <Grid sx={{ m: { xs: '50px 15px', sm: '90px 35px' } }} size={12}>
+    <Grid sx={{ m: { xs: '50px 10px', sm: '90px 35px' } }} size={12}>
       {loading && (
         <div
           style={{
@@ -188,7 +153,7 @@ export default function PageUi({ data }) {
               minHeight: '60vh',
               position: 'relative',
             }}
-            spacing={'30px'}
+            spacing={{ xs: '10px', sm: '20px' }}
           >
             {loading && (
               <div

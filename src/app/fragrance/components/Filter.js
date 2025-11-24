@@ -1,12 +1,17 @@
 'use client';
 
 import {
+  Autocomplete,
   Box,
   Checkbox,
   Collapse,
+  FormControl,
   FormControlLabel,
   FormGroup,
   Grid,
+  InputLabel,
+  MenuItem,
+  Select,
   Switch,
   TextField,
   Typography,
@@ -14,33 +19,13 @@ import {
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { categoriesObj } from '@/app/admin/add-product/page';
 import styled from '@emotion/styled';
 
-function useBlurChange(onChangeDetected) {
-  const initialValue = useRef('');
-
-  const handleFocus = (e) => {
-    initialValue.current = e.target.value;
-  };
-
-  const handleBlur = (e) => {
-    if (e.target.value !== initialValue.current) {
-      onChangeDetected(e.target.value); // run callback if changed
-    }
-  };
-
-  return { handleFocus, handleBlur };
-}
-
 const IOSSwitch = styled(({ noRout, checked, handleChangeParams, ...props }) => (
   <Switch
-    onChange={(e) =>
-      noRout
-        ? handleChangeParams('inStock', e.target.checked ? 'check' : '', true)
-        : handleChangeParams('inStock', e.target.checked ? 'check' : '')
-    }
+    onChange={(e) => handleChangeParams('inStock', e.target.checked ? 'check' : '', noRout)}
     checked={checked}
     focusVisibleClassName=".Mui-focusVisible"
     disableRipple
@@ -103,9 +88,9 @@ const FormItem = ({ prop, checked, value, name, noRout, handleChangeParams }) =>
           checked={checked}
           onChange={(e) => {
             if (!e.target.checked) {
-              noRout ? handleChangeParams(prop, '', true) : handleChangeParams(prop, '');
+              handleChangeParams(prop, '', noRout);
             } else {
-              noRout ? handleChangeParams(prop, value, true) : handleChangeParams(prop, value);
+              handleChangeParams(prop, value, noRout);
             }
           }}
         />
@@ -120,7 +105,7 @@ const textFieldStyle = {
   '& .MuiOutlinedInput-root': {
     height: '40px',
     fontSize: '14px',
-    backgroundColor: '#d2cccc4d',
+    backgroundColor: '#276ddd0e',
     borderRadius: '8px',
     padding: '0 20px',
     '& fieldset': {
@@ -162,7 +147,9 @@ const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
 };
 
 export default function Filter({ paramsState, handleChangeParams, noRout, category }) {
+  const inputRef = useRef(null);
   const initialValue = useRef('');
+
   const [collapseItems, setCollapseItems] = useState({
     type: true,
     category: true,
@@ -192,9 +179,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
             onFocus={(e) => (initialValue.current = e.target.value)}
             onBlur={(e) => {
               if (initialValue.current !== e.target.value) {
-                noRout
-                  ? handleChangeParams('minPrice', e.target.value, true)
-                  : handleChangeParams('minPrice', e.target.value);
+                handleChangeParams('minPrice', e.target.value, noRout);
               }
             }}
             variant="outlined"
@@ -220,9 +205,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
             onFocus={(e) => (initialValue.current = e.target.value)}
             onBlur={(e) => {
               if (initialValue.current !== e.target.value) {
-                noRout
-                  ? handleChangeParams('maxPrice', e.target.value, true)
-                  : handleChangeParams('maxPrice', e.target.value);
+                handleChangeParams('maxPrice', e.target.value, noRout);
               }
             }}
             sx={textFieldStyle}
@@ -284,6 +267,31 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
         )}
       </Collapse>
 
+      <Box sx={{ display: 'flex', my: '15px', flexWrap: 'wrap' }}>
+        <Typography sx={{ color: '#263045fb', fontWeight: 500, mb: '15px' }}> Size </Typography>
+        <TextField
+          key={`size${paramsState.size}`}
+          type="number"
+          placeholder="Size"
+          defaultValue={paramsState.size}
+          onFocus={(e) => (initialValue.current = e.target.value)}
+          onBlur={(e) => {
+            if (initialValue.current !== e.target.value) {
+              handleChangeParams('size', e.target.value, noRout);
+            }
+          }}
+          variant="outlined"
+          onKeyDown={(e) => {
+            if (['e', 'E', '+', '-'].includes(e.key)) {
+              e.preventDefault();
+            }
+          }}
+          sx={{ ...textFieldStyle, width: '100%' }}
+          // helperText="Size"
+          size="small"
+        />
+      </Box>
+
       <Box sx={{ display: 'flex', my: '10px' }}>
         <IOSSwitch
           handleChangeParams={handleChangeParams}
@@ -301,50 +309,33 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
         handleCangeCollapse={handleCangeCollapse}
       />
       <Collapse in={collapseItems.brands} timeout="auto" unmountOnExit>
-        <FormGroup
-          sx={{
-            pl: '8px',
-            mb: '5px',
-            maxHeight: '370px',
-            overflow: 'scroll',
-            flexWrap: 'nowrap',
-            border: 'solid #dbdde1fb 0.5px',
-            borderRadius: '10px',
-            p: '10px',
-            mt: '10px',
+        <Autocomplete
+          disablePortal
+          slotProps={{
+            paper: { sx: { maxHeight: 500 } },
+            listbox: { sx: { maxHeight: 500 } },
           }}
-        >
-          <Box
-            onClick={() => handleChangeParams('brand', '', noRout)}
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignContent: 'center',
-              cursor: 'pointer',
-              bgcolor: '#ede6e65e',
-              borderRadius: '5px',
-              py: '5px',
-            }}
-          >
-            <DeleteOutlinedIcon sx={{ fontSize: '20px', color: '#474141f6', mr: '5px' }} />
-            <Typography>Reset</Typography>
-          </Box>
-          {((paramsState.subCategory && categoriesObj[category][paramsState.subCategory].brands) || []).map(
-            (name, index) => {
-              return (
-                <FormItem
-                  key={index}
-                  handleChangeParams={handleChangeParams}
-                  prop="brand"
-                  name={name}
-                  value={name}
-                  noRout={noRout}
-                  checked={paramsState.brand === name}
-                />
-              );
-            }
+          sx={{ boxSizing: 'border-box', width: '100%', my: '10px' }}
+          size="small"
+          options={(categoriesObj?.[category]?.[paramsState.subCategory]?.brands || []).map(
+            (option) => option
           )}
-        </FormGroup>
+          renderInput={(params) => <TextField inputRef={inputRef} {...params} label="Brands" />}
+          value={paramsState.brand}
+          onChange={(event, value, reason) => {
+            if (reason === 'selectOption') {
+              if (value !== paramsState.brand) {
+                handleChangeParams('brand', value || '', noRout);
+              }
+              inputRef.current?.blur();
+            }
+          }}
+          onBlur={(e) => {
+            if (e.target.value !== paramsState.brand) {
+              handleChangeParams('brand', e.target.value, noRout);
+            }
+          }}
+        />
       </Collapse>
     </Grid>
   );

@@ -12,7 +12,7 @@ export default async function FragrancePage({ searchParams }) {
   const res = await fetch(`${baseUrl}/api/fragrance?${queryString}`, {
     cache: 'no-store', // avoids caching issues
     // cache: 'force-cache', // default
-    // next: { revalidate: 60 },
+    next: { revalidate: 60 },
   });
 
   const data = await res.json();
