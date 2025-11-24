@@ -1,7 +1,7 @@
 'use client';
 
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, Button, CircularProgress, Drawer, Grid, Typography } from '@mui/material';
+import { Box, Button, Drawer, Grid, Typography } from '@mui/material';
 import SortView from './SortView';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -9,8 +9,8 @@ import Filter from './Filter';
 import FragranceCard from './FragranceCard';
 import FragrancePagination from './FragrancePagination';
 
-
 export default function PageUi({ data }) {
+  console.log(data);
   const [loading, setLoading] = useState(false);
   const [windowHeight, setWindowHeight] = useState(0);
   useEffect(() => {
@@ -128,12 +128,13 @@ export default function PageUi({ data }) {
               fontSize: { xs: '18px', sm: '30px' },
               fontWeight: { xs: 500, sm: 600 },
               flexGrow: 1,
-              lineHeight: { xs: '20px', sm: '30px' },
+              lineHeight: { xs: '18px', sm: '30px' },
               mb: '20px',
             }}
           >
             Fragrance
           </Typography>
+
           <SortView
             toggleDrawer={toggleDrawer}
             handleChangeParams={handleChangeParams}
@@ -149,12 +150,25 @@ export default function PageUi({ data }) {
             container
             sx={{
               flexGrow: 1,
-              m: { xs: '25px 0 0 0', sm: '25px 0 0 0', md: '5px 0 0 40px' },
+              m: { xs: '15px 0 0 0', sm: '25px 0 0 0', md: '0 0 0 40px' },
               minHeight: '60vh',
               position: 'relative',
             }}
             spacing={{ xs: '10px', sm: '20px' }}
           >
+            <Typography
+              sx={{
+                width: '100%',
+
+                fontSize: { xs: '10px', sm: '14px' },
+                // lineHeight: '13px',
+                color: '#54565afb',
+                fontWeight: 200,
+              }}
+            >
+              {paramsState.subCategory} / {paramsState.type && `${paramsState.type} / `}
+              {paramsState.brand && `${paramsState.brand} / `} {paramsState.size && `${paramsState.size} / `}
+            </Typography>
             {loading && (
               <div
                 style={{

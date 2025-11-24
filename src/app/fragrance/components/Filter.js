@@ -5,21 +5,16 @@ import {
   Box,
   Checkbox,
   Collapse,
-  FormControl,
   FormControlLabel,
   FormGroup,
   Grid,
-  InputLabel,
-  MenuItem,
-  Select,
   Switch,
   TextField,
   Typography,
 } from '@mui/material';
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { categoriesObj } from '@/app/admin/add-product/page';
 import styled from '@emotion/styled';
 
