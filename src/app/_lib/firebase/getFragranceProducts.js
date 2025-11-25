@@ -20,6 +20,7 @@ export const getProduct = cache(async (id) => {
 
 export const getSameBrandItems = async (id, brand) => {
   try {
+    // await new Promise((resolve) => setTimeout(resolve, 3000));
     const q = query(
       collection(db, 'glowy-products'),
       where('brand', '==', brand),

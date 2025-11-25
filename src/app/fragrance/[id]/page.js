@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import ProductPageUi from './_components/PageUi';
 import { getProduct, getSameBrandItems } from '@/app/_lib/firebase/getFragranceProducts';
 
@@ -22,12 +23,23 @@ export default async function FragranceProductPage({ params }) {
   }
 
   return (
-    <ProductPageUi
-      product={product}
-      // relatedItems={items}
-      // productData={productData}
-      sameBrandItems={sameBrandItems}
-    />
+    <Suspense
+      fallback={
+        <ProductPageUi
+          product={product}
+          // relatedItems={items}
+          // productData={productData}
+          sameBrandItems={null}
+        />
+      }
+    >
+      <ProductPageUi
+        product={product}
+        // relatedItems={items}
+        // productData={productData}
+        sameBrandItems={sameBrandItems}
+      />
+    </Suspense>
     // <div>{id} </div>
   );
 }
