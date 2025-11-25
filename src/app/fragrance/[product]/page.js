@@ -1,3 +1,5 @@
+export const revalidate = 3600; // cached 1 hour
+
 import ProductPageUi from './components/PageUi';
 import { getProduct } from '@/app/lib/firebase/getFragranceProducts';
 

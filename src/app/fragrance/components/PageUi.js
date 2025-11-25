@@ -166,8 +166,9 @@ export default function PageUi({ data }) {
                 fontWeight: 200,
               }}
             >
-              {paramsState.subCategory} / {paramsState.type && `${paramsState.type} / `}
-              {paramsState.brand && `${paramsState.brand} / `} {paramsState.size && `${paramsState.size} / `}
+              {paramsState.subCategory} {paramsState.type && ` > ${paramsState.type} `}
+              {paramsState.brand && ` > ${paramsState.brand}  `}
+              {paramsState.size && ` > Size - ${paramsState.size} `}
             </Typography>
             {loading && (
               <div
