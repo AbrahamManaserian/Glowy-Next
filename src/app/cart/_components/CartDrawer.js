@@ -6,13 +6,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useEffect, useState } from 'react';
 
 import Link from 'next/link';
-import { ShoppingBasketIcon } from '@/components/icons';
+import { ShoppingBasketIcon } from '@/_components/icons';
 import { usePathname, useSearchParams } from 'next/navigation';
 // import { images } from '@/app/fragrance1/[product]/page';
 import { useGlobalContext } from '@/app/GlobalContext';
 import CartItem from './CartItem';
-
-
 
 export const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {

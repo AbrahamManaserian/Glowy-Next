@@ -1,7 +1,7 @@
 import { Box, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TuneIcon from '@mui/icons-material/Tune';
-import { GridViewIcon, ListViewIcon } from '@/components/icons';
+import { GridViewIcon, ListViewIcon } from '@/_components/icons';
 
 export default function SortView({ handleChangeParams, paramsState, toggleDrawer }) {
   return (
@@ -16,17 +16,12 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
       <Box sx={{ display: { xs: 'flex', sm: 'flex', md: 'none' }, flexGrow: 1 }}>
         <Box onClick={() => toggleDrawer(true)} sx={{ display: 'flex' }}>
           <TuneIcon sx={{ color: '#8a8c8dff' }} />
-          <Typography
-            // onClick={() => toggleDrawer(true)}
-            sx={{ color: '#262b2eff', fontSize: '14px', ml: '10px' }}
-          >
-            Filters
-          </Typography>
+          <Typography sx={{ color: '#262b2eff', fontSize: '14px', ml: '10px' }}>Filters</Typography>
         </Box>
       </Box>
 
       <div
-        onClick={() => handleChangeParams('view', 'list', true)}
+        onClick={() => handleChangeParams('view', 'list')}
         style={{
           display: 'flex',
           justifyContent: 'center',
@@ -41,7 +36,7 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
         <ListViewIcon />
       </div>
       <div
-        onClick={() => handleChangeParams('view', 'grid', true)}
+        onClick={() => handleChangeParams('view', 'grid')}
         style={{
           display: 'flex',
           justifyContent: 'center',
@@ -85,7 +80,7 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
           id="demo-simple-select"
           label="Sort by"
           value={paramsState.sortBy}
-          onChange={(event) => handleChangeParams('sortBy', event.target.value, true)}
+          onChange={(event) => handleChangeParams('sortBy', event.target.value)}
           IconComponent={ExpandMoreIcon}
           sx={{
             position: 'relative',

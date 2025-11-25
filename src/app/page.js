@@ -2,13 +2,12 @@
 
 
 
-import CustumSolutions from '@/components/CustumSolutions';
-import FlashDeals from '@/components/FlashDeals';
-import HomeSlide from '@/components/HomeSlide';
-import PopularProducts from '@/components/PopularProducts';
-import SpecialOffer from '@/components/SpecialOffer';
-import { Box, Button } from '@mui/material';
-import Link from 'next/link';
+import CustumSolutions from '@/_components/CustumSolutions';
+import FlashDeals from '@/_components/FlashDeals';
+import HomeSlide from '@/_components/HomeSlide';
+import PopularProducts from '@/_components/PopularProducts';
+import SpecialOffer from '@/_components/SpecialOffer';
+import { Box } from '@mui/material';
 
 export default function Home() {
   return (
@@ -18,19 +17,6 @@ export default function Home() {
       <FlashDeals />
       <SpecialOffer />
       <PopularProducts />
-
     </Box>
   );
 }
-
-// import { NextIntlClientProvider } from 'next-intl';
-// import HomePage from './[locale]/page'; // reuse your [locale] page
-// import hyMessages from '../locales/hy.json';
-
-// export default function ArmenianHome() {
-//   return (
-//     <NextIntlClientProvider messages={hyMessages} locale="hy">
-//       <HomePage />
-//     </NextIntlClientProvider>
-//   );
-// }

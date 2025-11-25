@@ -1,6 +1,6 @@
 'use client';
 
-import { saveScrollPosition } from '@/app/functions/saveScrollPosition';
+import { saveScrollPosition } from '@/app/_functions/saveScrollPosition';
 
 import { useEffect } from 'react';
 

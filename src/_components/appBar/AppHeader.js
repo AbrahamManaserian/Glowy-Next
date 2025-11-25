@@ -7,7 +7,7 @@ import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import ShareSharpIcon from '@mui/icons-material/ShareSharp';
 import { useState } from 'react';
-import useGetWindowDimensions from '@/hooks/useGetWindowSize';
+import useGetWindowDimensions from '@/_hooks/useGetWindowSize';
 import { ViberIcon } from '../icons';
 
 const hotBoxStyle = {

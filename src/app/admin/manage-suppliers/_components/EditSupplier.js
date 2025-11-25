@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { SupplierInputs } from './AddSupplier';
 import { db } from '@/firebase';
-import { useAdminData } from '../../components/AdminContext';
+import { useAdminData } from '../../_components/AdminContext';
 
 export default function EditSSupplier() {
   

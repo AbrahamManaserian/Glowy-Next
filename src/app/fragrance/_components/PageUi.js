@@ -10,7 +10,6 @@ import FragranceCard from './FragranceCard';
 import FragrancePagination from './FragrancePagination';
 
 export default function PageUi({ data }) {
-  console.log(data);
   const [loading, setLoading] = useState(false);
   const [windowHeight, setWindowHeight] = useState(0);
   useEffect(() => {

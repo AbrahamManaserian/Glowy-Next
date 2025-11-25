@@ -1,9 +1,8 @@
 'use client';
 
-
 import { useGlobalContext } from '@/app/GlobalContext';
 import { Box, Button, Checkbox, duration, FormControl, Grid, InputBase, Typography } from '@mui/material';
-import { images } from '@/components/PopularProducts';
+import { images } from '@/_components/PopularProducts';
 import Link from 'next/link';
 import DetailedCartItem from './DetailedCartItem';
 import { useSearchParams } from 'next/navigation';

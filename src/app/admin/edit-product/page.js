@@ -2,15 +2,15 @@
 
 import { Autocomplete, Button, Grid, TextField, Typography } from '@mui/material';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import { useAdminData } from '../components/AdminContext';
+import { useAdminData } from '../_components/AdminContext';
 import { useEffect, useState } from 'react';
-import getProduct from '@/app/lib/firebase/getProduct';
-import CategoriesInputs from '../components/CategoriesInputs';
+import getProduct from '@/app/_lib/firebase/getProduct';
+import CategoriesInputs from '../_components/CategoriesInputs';
 import { categoriesObj } from '../add-product/page';
-import InitialProductInputs from '../components/InitialProductInputs';
-import ExtraProductOptions from '../components/ExtraProductOptions';
-import ImageInputs from '../components/ImageInputs';
-import DescriptionInput from '../components/DescriptionInput';
+import InitialProductInputs from '../_components/InitialProductInputs';
+import ExtraProductOptions from '../_components/ExtraProductOptions';
+import ImageInputs from '../_components/ImageInputs';
+import DescriptionInput from '../_components/DescriptionInput';
 import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytes } from 'firebase/storage';
 import { db } from '@/firebase';
 import { arrayRemove, deleteDoc, deleteField, doc, setDoc, updateDoc } from 'firebase/firestore';

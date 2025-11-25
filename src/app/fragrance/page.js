@@ -1,4 +1,4 @@
-import PageUi from './components/PageUi';
+import PageUi from './_components/PageUi';
 
 export default async function FragrancePage({ searchParams }) {
   const url = await searchParams;

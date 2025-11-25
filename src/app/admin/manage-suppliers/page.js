@@ -1,8 +1,8 @@
 'use client';
 
 import { Grid } from '@mui/material';
-import AddSupplier from './components/AddSupplier';
-import EditSSupplier from './components/EditSupplier';
+import AddSupplier from './_components/AddSupplier';
+import EditSSupplier from './_components/EditSupplier';
 
 export default function ManageSuppliersPage() {
   return (

@@ -5,7 +5,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ShoppingBasketIcon } from '@/components/icons';
+import { ShoppingBasketIcon } from '@/_components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { handleAddItemToCart } from '@/app/cart/functions/addDeleteIncDecreaseCart';

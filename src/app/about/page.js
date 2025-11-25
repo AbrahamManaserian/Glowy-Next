@@ -2,7 +2,7 @@ import { db } from '@/firebase';
 import { Box, Grid, Typography } from '@mui/material';
 import { doc, getDoc } from 'firebase/firestore';
 import Image from 'next/image';
-import FragranceCard from '../fragrance/components/FragranceCard';
+import FragranceCard from '../fragrance/_components/FragranceCard';
 
 export default async function AboutPage() {
   let obj = [];

@@ -24,7 +24,7 @@ import { FavoriteIcon, UserAvatar } from '../icons';
 
 import { categories } from '../ui/CategoriesDekstop';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import CartDrawer from '@/app/cart/components/CartDrawer';
+import CartDrawer from '@/app/cart/_components/CartDrawer';
 import { useGlobalContext } from '@/app/GlobalContext';
 
 const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({

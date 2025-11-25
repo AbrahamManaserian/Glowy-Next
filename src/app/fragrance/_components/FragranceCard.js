@@ -5,12 +5,12 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingBasketIcon } from '@/components/icons';
+import { ShoppingBasketIcon } from '@/_components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
-import { handleAddItemToWishList } from '@/app/functions/hadleAddItemToWishList';
+import { handleAddItemToWishList } from '@/app/_functions/hadleAddItemToWishList';
 import { handleAddItemToCart } from '@/app/cart/functions/addDeleteIncDecreaseCart';
 import { useRouter } from 'next/navigation';
-import { StyledBadge } from '@/app/cart/components/CartDrawer';
+import { StyledBadge } from '@/app/cart/_components/CartDrawer';
 
 export default function FragranceCard({ item, height }) {
   let newAdded;

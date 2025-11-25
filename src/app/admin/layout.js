@@ -3,8 +3,8 @@ export const dynamic = 'force-dynamic';
 import { Grid } from '@mui/material';
 import Link from 'next/link';
 
-import { AdminProvider } from './components/AdminContext';
-import AdminNavBar from './components/AdminNavBar';
+import { AdminProvider } from './_components/AdminContext';
+import AdminNavBar from './_components/AdminNavBar';
 
 export default async function AddminLayout({ children }) {
   const baseUrl =

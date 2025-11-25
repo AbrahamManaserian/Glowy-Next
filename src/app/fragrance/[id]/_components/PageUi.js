@@ -2,16 +2,16 @@
 
 import { Box, Button, Grid, IconButton, Rating, Typography } from '@mui/material';
 import { ProductImageComp } from './ProductImageComp';
-import { useState } from 'react';
+import { use, useState } from 'react';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
-import { NoSearchIcon, ShoppingBasketIcon } from '@/components/icons';
+import { NoSearchIcon, ShoppingBasketIcon } from '@/_components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase';
-import FragranceCard from '../../components/FragranceCard';
-import useGetWindowDimensions from '@/hooks/useGetWindowSize';
+import FragranceCard from '../../_components/FragranceCard';
+import useGetWindowDimensions from '@/_hooks/useGetWindowSize';
 // import { ShoppingBasketIcon } from '@/components/icons';
 
 const PageLoading = ({ loading }) => {
@@ -102,7 +102,8 @@ const NoProduct = () => {
   );
 };
 
-export default function ProductPageUi({ relatedItems, product }) {
+export default function ProductPageUi({ sameBrandItems, product, similarItems }) {
+  const relatedItems = sameBrandItems ? use(sameBrandItems) : [];
   const windowDimensions = useGetWindowDimensions();
   const [item, setItem] = useState(product);
   const [loading, setLoading] = useState(false);
@@ -133,7 +134,6 @@ export default function ProductPageUi({ relatedItems, product }) {
 
   return (
     <Grid sx={{ m: { xs: '0 15px 60px 15px', sm: '0 25px 60px 25px' } }} container size={12}>
-      <PageLoading loading={loading} />
       {item.id ? (
         <>
           <Box
@@ -329,6 +329,7 @@ export default function ProductPageUi({ relatedItems, product }) {
       ) : (
         <NoProduct />
       )}
+      <PageLoading loading={loading} />
       <Grid
         alignContent={'flex-start'}
         container

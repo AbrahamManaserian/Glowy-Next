@@ -1,5 +1,5 @@
 import { Grid } from '@mui/material';
-import CartPageUi from './components/CartPageUi';
+import CartPageUi from './_components/CartPageUi';
 
 export default async function CartPage({ searchParams }) {
   const { item } = await searchParams;
