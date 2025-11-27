@@ -2,7 +2,7 @@
 
 import { Box, Button, Grid, IconButton, Rating, Typography } from '@mui/material';
 import { ProductImageComp } from './ProductImageComp';
-import { use, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import { NoSearchIcon, ShoppingBasketIcon } from '@/_components/icons';
@@ -102,8 +102,14 @@ const NoProduct = () => {
   );
 };
 
-export default function ProductPageUi({ sameBrandItems, product, similarItems }) {
-  const relatedItems = sameBrandItems ? use(sameBrandItems) : [];
+export default function ProductPageUi({ sameBrandItems, product, data }) {
+  // console.log(similarItems);
+
+  // console.log(similarItems ? use(similarItems) : 'asd');
+  const { relatedItems, sameBrandItemsMen, sameBrandItemsWomen } = data ? use(data) : [];
+  // console.log(relatedItems);
+  // console.log(asd);
+  const relatedItemsik = sameBrandItems ? use(sameBrandItems) : [];
   const windowDimensions = useGetWindowDimensions();
   const [item, setItem] = useState(product);
   const [loading, setLoading] = useState(false);
@@ -345,9 +351,36 @@ export default function ProductPageUi({ sameBrandItems, product, similarItems })
           >
             You May Also Like
           </Typography>
-          {relatedItems.map((item, index) => {
-            return <FragranceCard height={windowDimensions.width} key={index} item={item} />;
-          })}
+          {relatedItems &&
+            relatedItems.map((item, index) => {
+              return <FragranceCard height={windowDimensions.width} key={index} item={item} />;
+            })}
+        </Grid>
+        <Grid size={12} sx={{ maxWidth: '1100px' }} spacing={'30px'} container>
+          <Typography
+            sx={{ fontSize: { xs: '18px', sm: '22px' }, width: '100%' }}
+            fontWeight={700}
+            color="#2B3445"
+          >
+            You May Also Like
+          </Typography>
+          {sameBrandItemsMen &&
+            sameBrandItemsMen.map((item, index) => {
+              return <FragranceCard height={windowDimensions.width} key={index} item={item} />;
+            })}
+        </Grid>
+        <Grid size={12} sx={{ maxWidth: '1100px' }} spacing={'30px'} container>
+          <Typography
+            sx={{ fontSize: { xs: '18px', sm: '22px' }, width: '100%' }}
+            fontWeight={700}
+            color="#2B3445"
+          >
+            You May Also Like
+          </Typography>
+          {sameBrandItemsWomen &&
+            sameBrandItemsWomen.map((item, index) => {
+              return <FragranceCard height={windowDimensions.width} key={index} item={item} />;
+            })}
         </Grid>
       </Grid>
     </Grid>

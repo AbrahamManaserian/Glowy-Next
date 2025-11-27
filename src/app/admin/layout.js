@@ -12,6 +12,8 @@ export default async function AddminLayout({ children }) {
 
   const res = await fetch(`${baseUrl}/api/admin`, {
     cache: 'no-store', // avoids caching issues
+    // cache: 'force-cache', // default
+    // next: { revalidate: 360 },
   });
 
   const data = await res.json();

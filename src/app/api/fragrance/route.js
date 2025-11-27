@@ -1,13 +1,13 @@
 // import { getFragranceProducts } from '@/app/lib/firebase/getFragranceProducts';
 import { db } from '@/firebase';
-import { collection, doc, getDoc, getDocs, limit, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 
 export const getFragranceProducts = async (searchParams) => {
   // console.log(searchParams.get('type'));
 
   let data = {};
   try {
-    let q = collection(db, 'glowy-products');
+    let q = query(collection(db, 'glowy-products'), orderBy('highlighted', 'desc'), limit(50));
     const params = Object.fromEntries(searchParams.entries());
     // console.log(params);
     const conditions = [];
@@ -30,7 +30,7 @@ export const getFragranceProducts = async (searchParams) => {
     }
     // console.log(conditions);
     if (conditions.length > 0) {
-      q = query(collection(db, 'glowy-products'), ...conditions);
+      q = query(collection(db, 'glowy-products'), ...conditions, orderBy('highlighted', 'desc'), limit(50));
     }
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {

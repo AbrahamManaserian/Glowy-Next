@@ -1,12 +1,14 @@
 import { db } from '@/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { cache } from 'react';
 
-export default async function getProduct(id) {
+export const getProduct = cache(async (id) => {
   try {
     const productRef = doc(db, 'glowy-products', id);
-    const productData = await getDoc(productRef);
-    if (productData.exists()) {
-      return productData.data();
+    const docSnap = await getDoc(productRef);
+
+    if (docSnap.exists()) {
+      return docSnap.data();
     } else {
       return {};
     }
@@ -14,4 +16,4 @@ export default async function getProduct(id) {
     console.log(e);
     return {};
   }
-}
+});

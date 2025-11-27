@@ -1,6 +1,15 @@
 'use client';
 
-import { Button, Grid, TextField, Typography } from '@mui/material';
+import {
+  Button,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from '@mui/material';
 import ExtraProductOptions from '../_components/ExtraProductOptions';
 import { useEffect, useState } from 'react';
 import { useAdminData } from '../_components/AdminContext';
@@ -36,6 +45,8 @@ export const initialInputs = {
   extraInputs: {},
   inStock: true,
   availableOptions: [],
+  highlighted: 1,
+  original: true,
 };
 
 export const initialOptionInputs = {
@@ -224,7 +235,9 @@ export default function AddProductPage() {
   const [requiredFields, setRequiredFields] = useState(false);
   const [requiredOption, setRequiredOption] = useState(false);
   const [height, setHeight] = useState(0);
-  const { data, setLoading } = useAdminData();
+  const adminDetials = useAdminData();
+  // console.log(adminDetials.data['project-details'].perfumeNotes);
+
   const router = useRouter();
   const [options, setOptions] = useState(() => structuredClone(initialOptionInputs));
   const [inputs, setInputs] = useState(() => structuredClone(initialInputs));
@@ -246,13 +259,13 @@ export default function AddProductPage() {
     }
 
     try {
-      setLoading(true);
+      adminDetials.setLoading(true);
       function getNextProductId(id) {
         const next = parseInt(id, 10) + 1; // increase by 1
         return next.toString().padStart(6, '0'); // keep 7 digits
       }
       const allProductids = {};
-      const newId = getNextProductId(data['project-details'].lastProductId);
+      const newId = getNextProductId(adminDetials.data['project-details'].lastProductId);
 
       const storage = getStorage();
       const mainImageStorageRef = ref(storage, `glowy-products/${newId}/main`);
@@ -309,6 +322,14 @@ export default function AddProductPage() {
         images: imageArr,
         availableOptions: [],
       };
+      if (initialProduct.notes) {
+        initialProduct.allNotes = [
+          ...initialProduct.notes.top,
+          ...initialProduct.notes.base,
+          ...initialProduct.notes.middle,
+        ];
+      }
+
       allProductids[newId] = initialProduct.brand + ' - ' + initialProduct.model;
 
       let startId = newId;
@@ -441,7 +462,7 @@ export default function AddProductPage() {
 
       await updateDoc(detailRef, updateData);
 
-      setLoading(false);
+      adminDetials.setLoading(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       setInputs(() => structuredClone(initialInputs));
 
@@ -450,7 +471,7 @@ export default function AddProductPage() {
       setRequiredOption(false);
       router.refresh();
     } catch (e) {
-      setLoading(false);
+      adminDetials.setLoading(false);
       console.log(e);
     }
   };
@@ -463,6 +484,19 @@ export default function AddProductPage() {
     }
   };
 
+  const handleChangeNotes = (event, key) => {
+    const {
+      target: { value },
+    } = event;
+    setInputs({
+      ...inputs,
+      notes: {
+        ...inputs.notes,
+        [key]: typeof value === 'string' ? value.split(',') : value,
+      },
+    });
+  };
+
   const hadleChangeInputs = (e) => {
     if (e.target.name === 'category') {
       setInputs({
@@ -471,11 +505,20 @@ export default function AddProductPage() {
       });
       setOptions(() => structuredClone(initialOptionInputs));
     } else if (e.target.name === 'subCategory') {
-      setInputs({
-        ...structuredClone(initialInputs),
-        category: inputs.category,
-        subCategory: e.target.value,
-      });
+      if (e.target.value === 'fragrance') {
+        setInputs({
+          ...structuredClone(initialInputs),
+          category: inputs.category,
+          subCategory: e.target.value,
+          notes: { base: [], middle: [], top: [] },
+        });
+      } else {
+        setInputs({
+          ...structuredClone(initialInputs),
+          category: inputs.category,
+          subCategory: e.target.value,
+        });
+      }
       setOptions(() => structuredClone(initialOptionInputs));
     } else {
       if (e.target.type === 'number') {
@@ -522,14 +565,14 @@ export default function AddProductPage() {
       container
       size={12}
     >
-      {/* <Button
+      <Button
         onClick={() => {
-          console.log(inputs, options);
-          console.log(initialOptionInputs);
+          console.log(inputs);
+          // console.log(initialOptionInputs);
         }}
       >
         asd
-      </Button> */}
+      </Button>
       <Typography sx={{ fontSize: '22px', fontWeight: 500, width: '100%' }}>Add new product</Typography>
 
       <Grid
@@ -551,13 +594,17 @@ export default function AddProductPage() {
           hadleChangeInputs={hadleChangeInputs}
           categoriesObj={categoriesObj}
         />
+
         <InitialProductInputs
+          handleChangeNotes={handleChangeNotes}
+          notes={adminDetials.data['project-details'].perfumeNotes}
           inputs={inputs}
           hadleChangeInputs={hadleChangeInputs}
-          suppliers={data.suppliers?.suppliers || {}}
+          suppliers={adminDetials?.data?.suppliers?.suppliers || {}}
           brands={categoriesObj?.[inputs.category]?.[inputs.subCategory]?.brands || []}
           requiredFields={requiredFields}
         />
+
         {Object.keys(inputs.extraInputs).length !== 0 && (
           <div style={{ width: '100%' }}>
             <Typography mb="10px">Extra Inputs</Typography>
@@ -605,14 +652,14 @@ export default function AddProductPage() {
           setOptions={setOptions}
           handleChangeOptions={handleChangeOptions}
           height={height}
-          setLoading={setLoading}
+          setLoading={adminDetials.setLoading}
         />
         <ImageInputs
           requiredFields={requiredFields}
           inputs={inputs}
           setInputs={setInputs}
           height={height}
-          setLoading={setLoading}
+          setLoading={adminDetials.setLoading}
         />
         <DescriptionInput inputs={inputs} hadleChangeInputs={hadleChangeInputs} />
         <Button

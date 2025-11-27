@@ -4,7 +4,7 @@ import { Autocomplete, Button, Grid, TextField, Typography } from '@mui/material
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { useAdminData } from '../_components/AdminContext';
 import { useEffect, useState } from 'react';
-import getProduct from '@/app/_lib/firebase/getProduct';
+// import getProduct from '@/app/_lib/firebase/getProduct';
 import CategoriesInputs from '../_components/CategoriesInputs';
 import { categoriesObj } from '../add-product/page';
 import InitialProductInputs from '../_components/InitialProductInputs';
@@ -17,6 +17,7 @@ import { arrayRemove, deleteDoc, deleteField, doc, setDoc, updateDoc } from 'fir
 import { useRouter } from 'next/navigation';
 import { initialInputs } from '../add-product/page';
 import { initialOptionInputs } from '../add-product/page';
+import { getProduct } from '@/app/_lib/firebase/getProduct';
 
 export default function EditProduct() {
   const [initialAvailableOptions, setInitialAvailableOptions] = useState([]);
@@ -31,6 +32,20 @@ export default function EditProduct() {
   const [product, setProduct] = useState(null);
   const { data, setLoading } = useAdminData();
   const router = useRouter();
+  // console.log(data);
+
+  const handleChangeNotes = (event, key) => {
+    const {
+      target: { value },
+    } = event;
+    setInputs({
+      ...inputs,
+      notes: {
+        ...inputs.notes,
+        [key]: typeof value === 'string' ? value.split(',') : value,
+      },
+    });
+  };
 
   const handleDeleteItem = async () => {
     const storage = getStorage();
@@ -124,11 +139,21 @@ export default function EditProduct() {
         type: '',
       });
     } else if (e.target.name === 'subCategory') {
-      setInputs({
-        ...inputs,
-        subCategory: e.target.value,
-        type: '',
-      });
+      if (e.target.value === 'fragrance') {
+        setInputs({
+          ...inputs,
+          subCategory: e.target.value,
+          type: '',
+          notes: { base: [], middle: [], top: [] },
+          allNotes: [],
+        });
+      } else {
+        setInputs({
+          ...inputs,
+          subCategory: e.target.value,
+          type: '',
+        });
+      }
     } else {
       if (e.target.type === 'number') {
         setInputs({ ...inputs, [e.target.name]: Number(e.target.value) });
@@ -258,6 +283,13 @@ export default function EditProduct() {
         smallImage: smallImage,
         images: imageArr,
       };
+      if (initialProduct.notes) {
+        initialProduct.allNotes = [
+          ...initialProduct.notes.top,
+          ...initialProduct.notes.base,
+          ...initialProduct.notes.middle,
+        ];
+      }
 
       allProductids[product] = initialProduct.brand + ' - ' + initialProduct.model;
 
@@ -585,10 +617,11 @@ export default function EditProduct() {
           categoriesObj={categoriesObj}
         />
         <InitialProductInputs
+          handleChangeNotes={handleChangeNotes}
+          notes={data['project-details'].perfumeNotes}
           inputs={inputs}
           hadleChangeInputs={hadleChangeInputs}
           suppliers={data.suppliers?.suppliers || {}}
-          // suppliers={{}}
           brands={categoriesObj?.[inputs.category]?.[inputs.subCategory]?.brands || []}
           requiredFields={requiredFields}
         />

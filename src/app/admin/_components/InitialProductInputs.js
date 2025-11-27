@@ -1,6 +1,14 @@
 'use client';
 
-import { Autocomplete, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import {
+  Autocomplete,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from '@mui/material';
 
 const unitOptions = [
   { label: 'Milliliters (ml)', value: 'ml' },
@@ -15,6 +23,8 @@ const inputsArray = [
   { key: 'name', name: 'Name' },
   { key: 'size', name: 'Size', type: 'number', marginRight: '5px' },
   { key: 'unit', name: 'Unit', type: 'number', marginLeft: '5px' },
+  { key: 'highlighted', name: 'Highlighted', type: 'number', marginRight: '5px' },
+  { key: 'original', name: 'Original' },
   { key: 'coast', name: 'Coast', type: 'number', marginRight: '5px' },
   { key: 'price', name: 'Price', type: 'number', marginLeft: '5px' },
   { key: 'previousPrice', name: 'Previous Price', type: 'number', marginRight: '5px' },
@@ -23,11 +33,13 @@ const inputsArray = [
 ];
 
 export default function InitialProductInputs({
+  handleChangeNotes,
   inputs,
   hadleChangeInputs,
   suppliers,
   brands,
   requiredFields,
+  notes,
 }) {
   return (
     <>
@@ -139,6 +151,26 @@ export default function InitialProductInputs({
               </Select>
             </FormControl>
           );
+        } else if (item.key === 'original') {
+          return (
+            <FormControl
+              sx={{
+                boxSizing: 'border-box',
+                width: { xs: 'calc(50% - 5px)', sm: 'calc(12.5% - 10px)' },
+                mr: { xs: 0, sm: '10px' },
+                ml: { xs: '5px', sm: 0 },
+                mb: '15px',
+              }}
+              size="small"
+              key={`${index}-${item.key}-${inputs[item.key] ?? ''}`}
+            >
+              <InputLabel>Original</InputLabel>
+              <Select name="original" value={inputs.original} label="Original" onChange={hadleChangeInputs}>
+                <MenuItem value={true}>Original</MenuItem>
+                <MenuItem value={false}>Not Original</MenuItem>
+              </Select>
+            </FormControl>
+          );
         } else {
           return (
             <TextField
@@ -182,6 +214,60 @@ export default function InitialProductInputs({
           );
         }
       })}
+      <>
+        {inputs.notes && (
+          <div style={{ width: '100%' }}>
+            {['top', 'base', 'middle'].map((key, index) => {
+              return (
+                <div
+                  key={key}
+                  style={{ width: '100%', display: 'flex', flexWrap: 'wrap', marginBottom: '15px' }}
+                >
+                  <FormControl
+                    sx={{
+                      boxSizing: 'border-box',
+                      width: { xs: '100%', sm: 'calc(25% - 10px)' },
+                      // mt: '15px',
+                      mr: { xs: 0, sm: '10px' },
+                    }}
+                    size="small"
+                  >
+                    <InputLabel>{key.toUpperCase()} </InputLabel>
+                    <Select
+                      multiple
+                      value={inputs.notes[key]}
+                      label={key.toUpperCase()}
+                      onChange={(e) => handleChangeNotes(e, key)}
+                    >
+                      {notes.map((item, index) => {
+                        return (
+                          <MenuItem
+                            sx={{
+                              textTransform: 'capitalize',
+                              fontSize: '12px',
+                              p: '4px 8px',
+                              borderBottom: 'solid 0.5px #999a9e95',
+                            }}
+                            key={index}
+                            value={item}
+                          >
+                            {item}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                  {inputs.notes[key].map((item, index) => (
+                    <Typography sx={{ fontSize: '13px', color: '#d50000', mr: '8px' }} key={index}>
+                      ' {item} '
+                    </Typography>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </>
     </>
   );
 }
