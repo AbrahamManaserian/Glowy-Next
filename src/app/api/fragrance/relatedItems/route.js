@@ -41,6 +41,7 @@ export async function GET(request) {
     const relatedItems = await getItemsByQuery([
       where('allNotes', 'array-contains-any', params.notes.split(',') || []),
       where('brand', '!=', params.brand),
+      where('type', '==', params.type),
     ]);
 
     // const item = await getProduct(params.id);

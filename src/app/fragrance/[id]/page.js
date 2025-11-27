@@ -22,7 +22,7 @@ export default async function FragranceProductPage({ params }) {
         product.allNotes || []
       }&type=${product.type}&size=${product.size}`,
       {
-        cache: 'no-store', // avoids caching issues
+        // cache: 'no-store', // avoids caching issues
         // cache: 'force-cache', // default
         next: { revalidate: 360 },
       }

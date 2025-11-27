@@ -321,6 +321,7 @@ export default function AddProductPage() {
         smallImage: smallImage,
         images: imageArr,
         availableOptions: [],
+        highlighted: options.availableOptions.length || 1,
       };
       if (initialProduct.notes) {
         initialProduct.allNotes = [
@@ -350,6 +351,7 @@ export default function AddProductPage() {
           smallImage: option.smallImage,
           images: [...option.images],
           [option.optionKey]: option.optionValue,
+          highlighted: index,
         };
         startId = id;
         if (index === options.availableOptions.length - 1) {
@@ -567,7 +569,7 @@ export default function AddProductPage() {
     >
       <Button
         onClick={() => {
-          console.log(inputs);
+          console.log(options);
           // console.log(initialOptionInputs);
         }}
       >
