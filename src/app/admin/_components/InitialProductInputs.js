@@ -259,7 +259,7 @@ export default function InitialProductInputs({
                   </FormControl>
                   {inputs.notes[key].map((item, index) => (
                     <Typography sx={{ fontSize: '13px', color: '#d50000', mr: '8px' }} key={index}>
-                      ' {item} '
+                      {item}
                     </Typography>
                   ))}
                 </div>

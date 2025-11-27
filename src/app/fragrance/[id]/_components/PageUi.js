@@ -2,7 +2,7 @@
 
 import { Box, Button, Grid, IconButton, Rating, Typography } from '@mui/material';
 import { ProductImageComp } from './ProductImageComp';
-import { use, useEffect, useState } from 'react';
+import { use, useState } from 'react';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import { NoSearchIcon, ShoppingBasketIcon } from '@/_components/icons';
