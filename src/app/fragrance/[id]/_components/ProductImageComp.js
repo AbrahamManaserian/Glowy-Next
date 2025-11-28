@@ -113,23 +113,27 @@ export const ProductImageComp = ({ images, idNum }) => {
                         flex: `0 0 ${100}%`,
                         boxSizing: 'border-box',
                         padding: '5px',
+                        borderRadius: '15px',
                       }}
                     >
                       <Box
                         sx={{
                           display: 'flex',
-                          boxSizing: 'border-box', // ✅ keeps padding inside width
                           cursor: 'pointer',
-                          borderRadius: '20px',
-                          transition: ' all 0.5s ease',
-                          backgroundColor: '#98a4cb16',
                           overflow: 'hidden',
+                          height: { xs: '50vh', sm: '60vh' },
                         }}
                       >
                         <Image
-                          width={200}
-                          height={200}
-                          style={{ width: '100%', height: 'auto' }}
+                          width={500}
+                          height={500}
+                          style={{
+                            // overflow: 'hidden',
+
+                            objectFit: 'contain',
+                            width: '100%',
+                            height: 'auto',
+                          }}
                           src={img.file}
                           alt="image"
                         />

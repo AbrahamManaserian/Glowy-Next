@@ -12,7 +12,10 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase';
 import FragranceCard from '../../_components/FragranceCard';
 import useGetWindowDimensions from '@/_hooks/useGetWindowSize';
+import Link from 'next/link';
 // import { ShoppingBasketIcon } from '@/components/icons';
+import MovingIcon from '@mui/icons-material/Moving';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 
 const PageLoading = ({ loading }) => {
   return (
@@ -112,6 +115,10 @@ export default function ProductPageUi({ sameBrandItems, product, data }) {
   const [quantity, setQuantity] = useState(1);
   const { cart, setCart } = useGlobalContext();
   const router = useRouter();
+  console.log(product);
+  const salePercent = item.previousPrice
+    ? Math.round(((item.previousPrice - item.price) / item.previousPrice) * 100)
+    : null;
 
   const changeOption = async (id) => {
     setLoading(true);
@@ -184,46 +191,104 @@ export default function ProductPageUi({ sameBrandItems, product, data }) {
                     mt: '10px',
                   }}
                 >
-                  {item.brand}
-                </Typography>
-                <Typography mb="5px" ml="10px" fontSize="14px">
-                  {item.size + item.unit}
+                  {item.brand} - {item.model}
                 </Typography>
               </div>
               <Typography
                 sx={{
                   color: '#263045fb',
-                  fontSize: '18px',
+                  fontSize: '16px',
                 }}
               >
-                {item.model}
+                Size - {item.size + item.unit}
               </Typography>
+
               <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '5px' }}>
-                <Rating name="read-only" value={4.5} precision={0.5} readOnly size="larg" />
-                {item.sold ? (
-                  <Typography sx={{ color: '#3c4354a3', fontSize: '14px', lineHeight: '12px' }}>
-                    {item.sold} sold
-                  </Typography>
-                ) : null}
+                <Rating name="read-only" value={4.5} precision={0.5} readOnly size="small" />
+
+                <Typography sx={{ color: '#3c4354a3', fontSize: '14px', lineHeight: '14px' }}>
+                  Sold - {item.sold || 2}
+                </Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: '20px' }}>
-                <Typography sx={{ color: '#3c4354fb', fontWeight: 600, fontSize: '19px' }}>
+              <Link
+                style={{ textDecoration: 'none', marginTop: '5px' }}
+                href={`/fragrance?&subCategory=fragrance&brand=${item.brand}`}
+              >
+                <Typography
+                  sx={{
+                    color: '#2196f3',
+                    fontSize: '14px',
+                    textDecoration: 'none',
+                  }}
+                >
+                  Brand: {item.brand}
+                </Typography>
+              </Link>
+              <Box sx={{ display: 'flex', alignItems: 'center', mt: '20px' }}>
+                {salePercent && (
+                  <>
+                    {salePercent < 0 ? (
+                      <MovingIcon sx={{ fontSize: '20px', color: '#068a3dff', mr: '4px' }} />
+                    ) : (
+                      <TrendingDownIcon sx={{ fontSize: '20px', color: 'red', mr: '4px' }} />
+                    )}
+                    <Typography
+                      sx={{
+                        color: salePercent < 0 ? '#068a3dff' : 'red',
+                        fontSize: '20px',
+                        fontWeight: 100,
+                        lineHeight: '20px',
+                        mr: '10px',
+                      }}
+                    >
+                      {salePercent * -1}%
+                    </Typography>
+                  </>
+                )}
+                <Typography sx={{ color: '#3c4354fb', fontWeight: 500, fontSize: '22px' }}>
                   ${item.price.toLocaleString()}
                 </Typography>
-                {item.previousePrice ? (
-                  <Typography sx={{ textDecoration: 'line-through', color: 'gray', fontSize: '16px' }}>
-                    ${item.previousePrice.toLocaleString()}
-                  </Typography>
-                ) : null}
               </Box>
-              <Typography sx={{ color: '#3c4354f2', mt: '15px', fontSize: '14px', whiteSpace: 'pre-line' }}>
+              {salePercent && (
+                <Typography
+                  sx={{
+                    color: '#646a6dff',
+                    fontSize: '14px',
+                  }}
+                >
+                  Last price: {item.previousPrice.toLocaleString()}
+                </Typography>
+              )}
+              <Typography
+                sx={{ mt: '15px', mb: '10px', fontSize: '15px', whiteSpace: 'pre-line', color: '#263045fb' }}
+              >
                 {item.descriptionEn}
               </Typography>
+
+              {Object.keys(item.notes).map((key, index) => {
+                return (
+                  <div key={index} style={{ display: 'flex', marginTop: '10px' }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 500,
+                        color: '#39445bfb',
+                        textTransform: 'capitalize',
+                        textWrap: 'nowrap',
+                      }}
+                    >
+                      {key} notes:
+                    </Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#ff3d00', ml: '10px' }}>
+                      {item.notes[key].join(', ')}
+                    </Typography>
+                  </div>
+                );
+              })}
 
               <Box sx={{ display: 'flex', mt: '25px', flexWrap: 'wrap' }}>
                 {product.availableOptions.length > 0 && (
                   <>
-                    <Typography sx={{ color: '#212122da', fontWeight: 500, width: '100%', mb: '10px' }}>
+                    <Typography sx={{ fontWeight: 500, width: '100%', mb: '10px' }}>
                       Available Options ({product.optionKey})
                     </Typography>
                     <Box
