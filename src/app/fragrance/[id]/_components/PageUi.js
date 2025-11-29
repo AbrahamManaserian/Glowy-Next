@@ -182,22 +182,31 @@ export default function ProductPageUi({ sameBrandItems, product, data }) {
                   In Stock
                 </Typography>
               )}
-              <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                <Typography
-                  sx={{
-                    color: '#263045fb',
-                    fontSize: '26px',
-                    fontWeight: 600,
-                    mt: '10px',
-                  }}
-                >
-                  {item.brand} - {item.model}
-                </Typography>
-              </div>
               <Typography
                 sx={{
                   color: '#263045fb',
-                  fontSize: '16px',
+                  fontSize: { xs: '24px', sm: '28px' },
+                  fontWeight: 600,
+                  mt: '10px',
+                }}
+              >
+                {item.brand}
+              </Typography>
+              <Typography
+                sx={{
+                  color: '#263045fb',
+                  fontSize: { xs: '18px', sm: '20px' },
+                  // fontWeight: 500,
+                  mb: '15px',
+                  lineHeight: '20px',
+                }}
+              >
+                {item.model} for {item.type}
+              </Typography>
+
+              <Typography
+                sx={{
+                  color: '#263045fb',
                 }}
               >
                 Size - {item.size + item.unit}
@@ -249,6 +258,7 @@ export default function ProductPageUi({ sameBrandItems, product, data }) {
                   ${item.price.toLocaleString()}
                 </Typography>
               </Box>
+
               {salePercent && (
                 <Typography
                   sx={{
@@ -259,6 +269,7 @@ export default function ProductPageUi({ sameBrandItems, product, data }) {
                   Last price: {item.previousPrice.toLocaleString()}
                 </Typography>
               )}
+
               <Typography
                 sx={{ mt: '15px', mb: '10px', fontSize: '15px', whiteSpace: 'pre-line', color: '#263045fb' }}
               >

@@ -8,6 +8,8 @@ import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 
 export const ProductImageComp = ({ images, idNum }) => {
+  const [state, setState] = useState(false);
+
   const [imgIndex, setImgIndex] = useState(0);
   const [emblaRefBig, emblaApiBig] = useEmblaCarousel({ loop: false, align: 'center', startIndex: 0 });
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: 'center', dragFree: true });
@@ -112,27 +114,34 @@ export const ProductImageComp = ({ images, idNum }) => {
                       style={{
                         flex: `0 0 ${100}%`,
                         boxSizing: 'border-box',
-                        padding: '5px',
-                        borderRadius: '15px',
+                        // padding: '10px',
+                        // borderRadius: '15px',
+                        overflow: 'hidden',
                       }}
                     >
                       <Box
                         sx={{
                           display: 'flex',
+                          // width: '100%',
                           cursor: 'pointer',
                           overflow: 'hidden',
                           height: { xs: '50vh', sm: '60vh' },
+                          justifyContent: 'center',
+                          alignContent: 'center',
+                          alignItems: 'center',
+                          borderRadius: '15px',
                         }}
                       >
                         <Image
                           width={500}
                           height={500}
                           style={{
-                            // overflow: 'hidden',
-
-                            objectFit: 'contain',
                             width: '100%',
-                            height: 'auto',
+                            height: '100%',
+                            // width: img.width > img.height ? 'auto' : '100%',
+                            // height: img.width >= img.height ? '100%' : 'auto',
+
+                            objectFit: 'cover',
                           }}
                           src={img.file}
                           alt="image"
