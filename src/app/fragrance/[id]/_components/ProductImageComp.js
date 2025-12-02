@@ -122,26 +122,19 @@ export const ProductImageComp = ({ images, idNum }) => {
                       <Box
                         sx={{
                           display: 'flex',
-                          // width: '100%',
-                          cursor: 'pointer',
-                          overflow: 'hidden',
                           height: { xs: '50vh', sm: '60vh' },
                           justifyContent: 'center',
-                          alignContent: 'center',
-                          alignItems: 'center',
-                          borderRadius: '15px',
                         }}
                       >
                         <Image
                           width={500}
                           height={500}
                           style={{
-                            width: '100%',
+                            width: 'auto',
                             height: '100%',
-                            // width: img.width > img.height ? 'auto' : '100%',
-                            // height: img.width >= img.height ? '100%' : 'auto',
-
                             objectFit: 'cover',
+                            overflow: 'hidden',
+                            borderRadius: '10px',
                           }}
                           src={img.file}
                           alt="image"

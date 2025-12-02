@@ -22,6 +22,8 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const params = Object.fromEntries(searchParams);
 
+    const buyTogetherItems = [];
+
     const sameBrandItemsWomen = await getItemsByQuery([
       where('brand', '==', params.brand),
       // where('id', '!=', params.id),
@@ -44,20 +46,31 @@ export async function GET(request) {
       where('type', '==', params.type),
     ]);
 
+    if (!buyTogetherItems[0]) {
+      if (relatedItems[0]) {
+        buyTogetherItems.push(relatedItems[0]);
+      } else if (sameBrandItemsMen[0]) {
+        buyTogetherItems.push(sameBrandItemsMen[0]);
+      }
+    }
+
     // const item = await getProduct(params.id);
 
     // Ensure it always returns an object or array
-    return new Response(JSON.stringify({ relatedItems, sameBrandItemsMen, sameBrandItemsWomen }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Cache-Control': 'no-store', // always fetch fresh data
-      },
-    });
+    return new Response(
+      JSON.stringify({ relatedItems, sameBrandItemsMen, sameBrandItemsWomen, buyTogetherItems }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Cache-Control': 'no-store', // always fetch fresh data
+        },
+      }
+    );
   } catch (error) {
     console.error('🔥 API fetch error:', error);
 
     // Return JSON with error message
-    return { relatedItems, sameBrandItemsMen, sameBrandItemsWomen };
+    return { relatedItems, sameBrandItemsMen, sameBrandItemsWomen, buyTogetherItems };
   }
 }
