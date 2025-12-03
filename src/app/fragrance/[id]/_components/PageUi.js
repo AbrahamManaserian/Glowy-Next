@@ -425,7 +425,7 @@ export default function ProductPageUi({ product, data }) {
                 fontSize: { xs: '18px', sm: '22px' },
                 width: '100%',
                 maxWidth: '1100px',
-                borderBottom: 'solid #c0c3c7ff 0.5px',
+
                 pb: '5px',
                 mb: '25px',
               }}
@@ -436,7 +436,7 @@ export default function ProductPageUi({ product, data }) {
             </Typography>
             <Grid
               justifyContent={'center'}
-              border={0.1}
+              border={'solid #c0c3c7ff 0.5px'}
               p={{ xs: '10px', sm: '40px' }}
               size={12}
               sx={{ maxWidth: '1100px' }}
@@ -486,6 +486,8 @@ export default function ProductPageUi({ product, data }) {
                     fontSize: '15px',
                     fontWeight: 500,
                     display: { xs: 'none', sm: 'block' },
+                    marginTop: 'auto',
+                    mt: '10px',
                   }}
                 >
                   {item.brand}
@@ -510,7 +512,7 @@ export default function ProductPageUi({ product, data }) {
                     justifyContent: 'center',
                     alignContent: 'center',
                     alignItems: 'center',
-                    flexGrow: 1,
+                    // flexGrow: 1,
                   }}
                 >
                   <Image
@@ -535,10 +537,12 @@ export default function ProductPageUi({ product, data }) {
                 </div>
                 <Typography
                   sx={{
+                    marginTop: 'auto',
                     color: '#263045fb',
                     fontSize: '15px',
                     fontWeight: 500,
                     display: { xs: 'none', sm: 'block' },
+                    mt: '10px',
                   }}
                 >
                   {relatedItems[0].brand}
@@ -555,6 +559,7 @@ export default function ProductPageUi({ product, data }) {
                 sx={{ width: { xs: 'calc(33% - 20px)', sm: 'calc(25% - 20px)' } }}
                 container
                 direction={'column'}
+                // justifyContent={'flex-start'}
               >
                 <div
                   style={{
@@ -564,7 +569,6 @@ export default function ProductPageUi({ product, data }) {
                     justifyContent: 'center',
                     alignContent: 'center',
                     alignItems: 'center',
-                    flexGrow: 1,
                   }}
                 >
                   <Image
@@ -578,7 +582,7 @@ export default function ProductPageUi({ product, data }) {
                       borderRadius: '9px',
                       boxSizing: 'border-box',
                     }}
-                    src={relatedItems[0].smallImage.file}
+                    src={relatedItems[1].smallImage.file}
                     alt="image"
                   />
                 </div>
@@ -588,21 +592,23 @@ export default function ProductPageUi({ product, data }) {
                     fontSize: '15px',
                     fontWeight: 500,
                     display: { xs: 'none', sm: 'block' },
+                    marginTop: 'auto',
+                    mt: '10px',
                   }}
                 >
-                  {relatedItems[0].brand}
+                  {relatedItems[1].brand}
                   <span style={{ color: '#3c4354a3', fontSize: '12px', fontWeight: 400, marginLeft: '5px' }}>
-                    {relatedItems[0].size}
-                    {relatedItems[0].unit}
+                    {relatedItems[1].size}
+                    {relatedItems[1].unit}
                   </span>
                   <span style={{ display: 'block', fontSize: '13px', fontWeight: 400 }}>
-                    {relatedItems[0].model}
+                    {relatedItems[1].model}
                   </span>
                 </Typography>
               </Grid>
 
               <Grid
-                sx={{ width: { xs: '100%', sm: '25%' }, mt: { xs: '10px', sm: 0 }, p: '10px' }}
+                sx={{ width: { xs: '100%', sm: '25%' }, mt: { xs: '10px', sm: 0 }, p: '15px' }}
                 container
                 direction={'column'}
                 alignContent={'center'}

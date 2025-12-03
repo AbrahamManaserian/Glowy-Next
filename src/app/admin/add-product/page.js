@@ -322,6 +322,7 @@ export default function AddProductPage() {
         images: imageArr,
         availableOptions: [],
         highlighted: options.availableOptions.length || 1,
+        name: `${initialProduct.brand} - ${initialProduct.model}`,
       };
       if (initialProduct.notes) {
         initialProduct.allNotes = [
@@ -569,7 +570,7 @@ export default function AddProductPage() {
     >
       <Button
         onClick={() => {
-          console.log(options);
+          console.log(inputs);
           // console.log(initialOptionInputs);
         }}
       >

@@ -164,6 +164,7 @@ export default function EditProduct() {
   };
 
   const handleChangeOptions = (e) => {
+    console.log(e.target.type);
     if (e.target.type === 'number') {
       setOptions({ ...options, [e.target.name]: Number(e.target.value) });
     } else {
@@ -282,6 +283,7 @@ export default function EditProduct() {
         mainImage: mainImage,
         smallImage: smallImage,
         images: imageArr,
+        name: `${initialProduct.brand} - ${initialProduct.model}`,
       };
       if (initialProduct.notes) {
         initialProduct.allNotes = [

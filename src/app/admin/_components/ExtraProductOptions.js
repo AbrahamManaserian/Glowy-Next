@@ -264,6 +264,7 @@ export default function ExtraProductOptions({
         </FormControl>
 
         <TextField
+          type={options.optionKey === 'size' || options.optionKey === 'number' ? 'number' : ''}
           key={`optionValue ${options.optionValue}`}
           defaultValue={options.optionValue}
           name="optionValue"

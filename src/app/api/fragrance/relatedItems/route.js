@@ -26,7 +26,7 @@ export async function GET(request) {
 
     const sameBrandItemsWomen = await getItemsByQuery([
       where('brand', '==', params.brand),
-      // where('id', '!=', params.id),
+      where('name', '!=', params.name),
       where('type', '==', 'Women'),
       where('subCategory', '==', 'fragrance'),
     ]);
@@ -35,14 +35,14 @@ export async function GET(request) {
 
     const sameBrandItemsMen = await getItemsByQuery([
       where('brand', '==', params.brand),
-      // where('id', '!=', params.id),
+      where('name', '!=', params.name),
       where('type', '==', 'Men'),
       where('subCategory', '==', 'fragrance'),
     ]);
 
     const relatedItems = await getItemsByQuery([
       where('allNotes', 'array-contains-any', params.notes.split(',') || []),
-      where('brand', '!=', params.brand),
+      where('name', '!=', params.name),
       where('type', '==', params.type),
     ]);
 
