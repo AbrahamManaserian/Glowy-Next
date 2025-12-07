@@ -7,7 +7,11 @@ export const getFragranceProducts = async (searchParams) => {
 
   let data = {};
   try {
-    let q = query(collection(db, 'glowy-products'), orderBy('highlighted', 'desc'), limit(50));
+    let q = query(
+      collection(db, 'glowyProducts', 'fragrance', 'items'),
+      orderBy('highlighted', 'desc'),
+      limit(50)
+    );
     const params = Object.fromEntries(searchParams.entries());
     // console.log(params);
     const conditions = [];
@@ -30,7 +34,12 @@ export const getFragranceProducts = async (searchParams) => {
     }
     // console.log(conditions);
     if (conditions.length > 0) {
-      q = query(collection(db, 'glowy-products'), ...conditions, orderBy('highlighted', 'desc'), limit(50));
+      q = query(
+        collection(db, 'glowyProducts', 'fragrance', 'items'),
+        ...conditions,
+        orderBy('highlighted', 'desc'),
+        limit(50)
+      );
     }
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {

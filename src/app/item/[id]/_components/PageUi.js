@@ -1,7 +1,6 @@
 'use client';
 
 import { Box, Button, Grid, IconButton, Rating, Typography } from '@mui/material';
-import { ProductImageComp } from './ProductImageComp';
 import React, { use, useState } from 'react';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
@@ -10,15 +9,14 @@ import { useGlobalContext } from '@/app/GlobalContext';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase';
-import FragranceCard from '../../_components/FragranceCard';
 import useGetWindowDimensions from '@/_hooks/useGetWindowSize';
 import Link from 'next/link';
 // import { ShoppingBasketIcon } from '@/components/icons';
 import MovingIcon from '@mui/icons-material/Moving';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import Image from 'next/image';
-
-import { Card, CardContent, CardActions, CardMedia } from '@mui/material';
+import { ProductImageComp } from './ProductImageComp';
+import FragranceCart from '@/_components/carts/FragranceCart';
 
 const PageLoading = ({ loading }) => {
   return (
@@ -110,9 +108,9 @@ const NoProduct = () => {
 
 export default function ProductPageUi({ product, data }) {
   const { relatedItems, sameBrandItemsMen, sameBrandItemsWomen, buyTogetherItems } = data ? use(data) : [];
-
   const windowDimensions = useGetWindowDimensions();
   const [item, setItem] = useState(product);
+
   const [loading, setLoading] = useState(false);
   const [availableOption, setAvailableOption] = useState(product.id);
   const [quantity, setQuantity] = useState(1);
@@ -127,7 +125,7 @@ export default function ProductPageUi({ product, data }) {
     setLoading(true);
     setAvailableOption(id);
     try {
-      const productRef = doc(db, 'glowy-products', id);
+      const productRef = doc(db, 'allProducts', id);
       const docSnap = await getDoc(productRef);
       if (docSnap.data()) {
         setItem(docSnap.data());
@@ -279,26 +277,27 @@ export default function ProductPageUi({ product, data }) {
                 {item.descriptionEn}
               </Typography>
 
-              {Object.keys(item.notes).map((key, index) => {
-                return (
-                  <div key={index} style={{ display: 'flex', marginTop: '10px' }}>
-                    <Typography
-                      sx={{
-                        fontWeight: 500,
-                        color: '#39445bfb',
-                        textTransform: 'capitalize',
-                        textWrap: 'nowrap',
-                        minWidth: '100px',
-                      }}
-                    >
-                      {key} notes:
-                    </Typography>
-                    <Typography sx={{ fontSize: '14px', color: '#ff3d00', ml: '10px', textWrap: 'wrap' }}>
-                      {item.notes[key].join(', ')}
-                    </Typography>
-                  </div>
-                );
-              })}
+              {item.notes &&
+                Object.keys(item.notes).map((key, index) => {
+                  return (
+                    <div key={index} style={{ display: 'flex', marginTop: '10px' }}>
+                      <Typography
+                        sx={{
+                          fontWeight: 500,
+                          color: '#39445bfb',
+                          textTransform: 'capitalize',
+                          textWrap: 'nowrap',
+                          minWidth: '100px',
+                        }}
+                      >
+                        {key} notes:
+                      </Typography>
+                      <Typography sx={{ fontSize: '14px', color: '#ff3d00', ml: '10px', textWrap: 'wrap' }}>
+                        {item.notes[key].join(', ')}
+                      </Typography>
+                    </div>
+                  );
+                })}
 
               <Box sx={{ display: 'flex', mt: '25px', flexWrap: 'wrap' }}>
                 {product.availableOptions.length > 0 && (
@@ -628,51 +627,53 @@ export default function ProductPageUi({ product, data }) {
             </Grid>
           </>
         )}
-        <Grid
-          mt={{ xs: '70px', sm: '120px' }}
-          size={12}
-          sx={{ maxWidth: '1100px' }}
-          spacing={{ xs: '10px', sm: '20px' }}
-          container
-        >
-          <Typography
-            sx={{
-              fontSize: { xs: '18px', sm: '22px' },
-              width: '100%',
-              borderBottom: 'solid #c0c3c7ff 0.5px',
-              pb: '5px',
-              mb: '5px',
-            }}
-            fontWeight={700}
-            color="#2B3445"
+        {relatedItems && relatedItems[0] && (
+          <Grid
+            mt={{ xs: '70px', sm: '120px' }}
+            size={12}
+            sx={{ maxWidth: '1100px' }}
+            spacing={{ xs: '10px', sm: '20px' }}
+            container
           >
-            Similar Products From Other Brands
-          </Typography>
-          {relatedItems &&
-            relatedItems.map((item, index) => {
-              return <FragranceCard height={windowDimensions.width} key={index} item={item} />;
+            <Typography
+              sx={{
+                fontSize: { xs: '18px', sm: '22px' },
+                width: '100%',
+                borderBottom: 'solid #c0c3c7ff 0.5px',
+                pb: '5px',
+                mb: '5px',
+              }}
+              fontWeight={700}
+              color="#2B3445"
+            >
+              Similar Products From Other Brands
+            </Typography>
+            {relatedItems.map((item, index) => {
+              return <ItemCard height={windowDimensions.width} key={index} item={item} />;
             })}
-        </Grid>
+          </Grid>
+        )}
 
-        <Grid
-          mt={{ xs: '70px', sm: '120px' }}
-          size={12}
-          sx={{ maxWidth: '1100px' }}
-          spacing={{ xs: '10px', sm: '20px' }}
-          container
-        >
-          <Typography
-            sx={{ fontSize: { xs: '18px', sm: '22px' }, width: '100%' }}
-            fontWeight={700}
-            color="#2B3445"
+        {sameBrandItemsMen && sameBrandItemsMen[0] && (
+          <Grid
+            mt={{ xs: '70px', sm: '120px' }}
+            size={12}
+            sx={{ maxWidth: '1100px' }}
+            spacing={{ xs: '10px', sm: '20px' }}
+            container
           >
-            {product.brand} - For Men
-          </Typography>
-          {sameBrandItemsMen &&
-            sameBrandItemsMen.map((item, index) => {
-              return <FragranceCard height={windowDimensions.width} key={index} item={item} />;
+            <Typography
+              sx={{ fontSize: { xs: '18px', sm: '22px' }, width: '100%' }}
+              fontWeight={700}
+              color="#2B3445"
+            >
+              {product.brand} - For Men
+            </Typography>
+            {sameBrandItemsMen.map((item, index) => {
+              return <FragranceCart height={windowDimensions.width} key={index} item={item} />;
             })}
-        </Grid>
+          </Grid>
+        )}
         <Grid
           mt={{ xs: '70px', sm: '120px' }}
           size={12}
@@ -689,7 +690,7 @@ export default function ProductPageUi({ product, data }) {
           </Typography>
           {sameBrandItemsWomen &&
             sameBrandItemsWomen.map((item, index) => {
-              return <FragranceCard height={windowDimensions.width} key={index} item={item} />;
+              return <FragranceCart height={windowDimensions.width} key={index} item={item} />;
             })}
         </Grid>
       </Grid>

@@ -7,7 +7,7 @@ export default async function FragranceProductPage({ params }) {
   const baseUrl =
     process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://glowy-store-next.netlify.app';
 
-  const res = await fetch(`${baseUrl}/api/fragrance/product?id=${id}`, {
+  const res = await fetch(`${baseUrl}/api/item/?id=${id}`, {
     cache: 'no-store', // avoids caching issues
     // cache: 'force-cache', // default
     // next: { revalidate: 360 },
@@ -18,9 +18,11 @@ export default async function FragranceProductPage({ params }) {
   // console.log(product);
   if (product.id) {
     data = fetch(
-      `${baseUrl}/api/fragrance/relatedItems?id=${product.id}&brand=${product.brand}&notes=${
+      `${baseUrl}/api/item/relatedItems?id=${product.id}&brand=${encodeURIComponent(product.brand)}&notes=${
         product.allNotes || []
-      }&type=${product.type}&size=${product.size}&name=${product.name} `,
+      }&type=${encodeURIComponent(product.type)}&size=${product.size}&name=${encodeURIComponent(
+        product.name
+      )} `,
       {
         cache: 'no-store', // avoids caching issues
         // cache: 'force-cache', // default

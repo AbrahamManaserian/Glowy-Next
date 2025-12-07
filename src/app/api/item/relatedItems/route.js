@@ -1,7 +1,3 @@
-// import { getFragranceProducts } from '@/app/lib/firebase/getFragranceProducts';
-// import { getProduct } from '@/app/_lib/firebase/getFragranceProducts';
-
-import { getProduct } from '@/app/_lib/firebase/getProduct';
 import { db } from '@/firebase';
 import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 

@@ -3,119 +3,96 @@
 import { categories } from '@/_components/ui/CategoriesDekstop';
 import { db } from '@/firebase';
 import { Button, Grid, Typography } from '@mui/material';
-import { arrayUnion, doc, getDoc, increment, setDoc, updateDoc } from 'firebase/firestore';
-// const perfumeNotes100 = [
-//   'Agarwood (Oud)',
-//   'Aldehydes',
-//   'Almond',
-//   'Amber',
-//   'Ambergris',
-//   'Ambrette',
-//   'Apricot',
-//   'Apple',
-//   'Basil',
-//   'Bergamot',
-//   'Black Cherry',
-//   'Black Currant',
-//   'Black Pepper',
-//   'Blood Orange',
-//   'Blueberry',
-//   'Cardamom',
-//   'Caramel',
-//   'Cashmeran',
-//   'Cedarwood',
-//   'Cinnamon',
-//   'Citrus',
-//   'Coconut',
-//   'Coffee',
-//   'Coriander',
-//   'Cotton Flower',
-//   'Cranberry',
-//   'Cucumber',
-//   'Cyclamen',
-//   'Dark Chocolate',
-//   'Davana',
-//   'Fig',
-//   'Fir Balsam',
-//   'Freesia',
-//   'Gardenia',
-//   'Ginger',
-//   'Grapefruit',
-//   'Green Notes',
-//   'Guaiac Wood',
-//   'Hazelnut',
-//   'Heliotrope',
-//   'Honey',
-//   'Incense',
-//   'Iris',
-//   'Jasmine',
-//   'Juniper',
-//   'Kiwi',
-//   'Labdanum',
-//   'Lavender',
-//   'Lemon',
-//   'Lily',
-//   'Lily of the Valley',
-//   'Lime',
-//   'Leather',
-//   'Magnolia',
-//   'Mandarin',
-//   'Mango',
-//   'Marine Notes',
-//   'Mint',
-//   'Musk',
-//   'Myrrh',
-//   'Neroli',
-//   'Nutmeg',
-//   'Oakmoss',
-//   'Orange Blossom',
-//   'Oregano',
-//   'Orris',
-//   'Papaya',
-//   'Patchouli',
-//   'Peach',
-//   'Pear',
-//   'Pepper',
-//   'Pine',
-//   'Pineapple',
-//   'Pink Pepper',
-//   'Plum',
-//   'Pomegranate',
-//   'Raspberry',
-//   'Red Berries',
-//   'Rose',
-//   'Rosemary',
-//   'Saffron',
-//   'Sage',
-//   'Sandalwood',
-//   'Sea Salt',
-//   'Strawberry',
-//   'Tangerine',
-//   'Tea',
-//   'Tobacco',
-//   'Tonka Bean',
-//   'Tuberose',
-//   'Vanilla',
-//   'Vetiver',
-//   'Violet',
-//   'Warm Spices',
-//   'White Musk',
-//   'White Pepper',
-//   'White Tea',
-//   'Woody Notes',
-//   'Ylang-Ylang',
-// ];
+import {
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  increment,
+  limit,
+  query,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore';
+
+const fragranceBrands = [
+  'Amouage',
+  'Ariana Grande',
+  'Armaf',
+  'Azzaro',
+  'Bvlgari',
+  'Burberry',
+  'Byredo',
+  'Calvin Klein',
+  'Carolina Herrera',
+  'Chanel',
+  'Christian Dior',
+  'Clive Christian',
+  'Creed',
+  'Diptyque',
+  'Dolce & Gabbana',
+  'Ermenegildo Zegna',
+  'Givenchy',
+  'Giorgio Armani',
+  'Gucci',
+  'Guerlain',
+  'Hermès',
+  'Hugo Boss',
+  'Initio Parfums Privés',
+  'Issey Miyake',
+  'Jean Paul Gaultier',
+  'Jo Malone London',
+  'Kilian Paris',
+  'Lancôme',
+  'Le Labo',
+  'Maison Francis Kurkdjian',
+  'Maison Margiela',
+  'Mancera',
+  'Mugler',
+  'Montale',
+  'Montblanc',
+  'Narciso Rodriguez',
+  'Paco Rabanne',
+  'Parfums de Marly',
+  'Penhaligon’s',
+  'Prada',
+  'Roja Parfums',
+  'Salvatore Ferragamo',
+  'Tiziana Terenzi',
+  'Tom Ford',
+  'Valentino',
+  'Versace',
+  'Xerjoff',
+  'Yves Saint Laurent',
+  'Zara',
+];
 
 export default function Home() {
   const handleClick = async () => {
-    const detailRef = doc(db, 'details', 'project-details');
+    // const detailRef = doc(db, 'details', 'project-details');
+    // // const data = await getDoc(detailRef);
+    // const idsRef = doc(db, 'details', 'projectDetails');
+    // await updateDoc(idsRef, { fragranceBrands: fragranceBrands });
+    // const querySnapshot = await getDocs(query(collection(db, 'glowy-products')));
+    // await Promise.all(
+    //   querySnapshot.docs.map(async (item) => {
+    //     const category = item.data().category;
+    //     const subCategory = item.data().subCategory;
+    //     const productRef = doc(db, 'glowyProducts', category, subCategory, item.id);
+    //     const allProductsRef = doc(db, 'allProducts', item.id);
+    //     await setDoc(allProductsRef, item.data());
+    //     await setDoc(productRef, item.data());
+    //     // doc.data() is never undefined for query doc snapshots
+    //     // console.log(doc.id, ' => ', doc.data());
+    //   })
+    // );
     // setDoc(detailRef, perfumeNotes);
     // const data = await getDoc(detailRef);
     // updateDoc(detailRef, {
     //   perfumeNotes: perfumeNotes100,
     // });
     // console.log(data.data());
-
     // await updateDoc(detailRef, categories);
   };
 

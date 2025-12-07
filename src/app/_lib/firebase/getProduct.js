@@ -4,7 +4,7 @@ import { cache } from 'react';
 
 export const getProduct = cache(async (id) => {
   try {
-    const productRef = doc(db, 'glowy-products', id);
+    const productRef = doc(db, 'allProducts', id);
     const docSnap = await getDoc(productRef);
 
     if (docSnap.exists()) {

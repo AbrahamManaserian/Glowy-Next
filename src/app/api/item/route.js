@@ -3,7 +3,6 @@
 
 import { getProduct } from '@/app/_lib/firebase/getProduct';
 
-
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);

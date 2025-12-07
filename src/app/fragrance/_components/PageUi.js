@@ -6,8 +6,8 @@ import SortView from './SortView';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Filter from './Filter';
-import FragranceCard from './FragranceCard';
 import FragrancePagination from './FragrancePagination';
+import FragranceCart from '@/_components/carts/FragranceCart';
 
 export default function PageUi({ data }) {
   const [loading, setLoading] = useState(false);
@@ -196,7 +196,7 @@ export default function PageUi({ data }) {
               </div>
             )}
             {Object.keys(data).map((key, index) => {
-              return <FragranceCard item={data[key]} key={index} height={windowHeight} />;
+              return <FragranceCart item={data[key]} key={index} height={windowHeight} />;
             })}
             {Object.keys(data).length > 0 && (
               <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '10px' }}>

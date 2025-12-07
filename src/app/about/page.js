@@ -1,8 +1,8 @@
+import FragranceCart from '@/_components/carts/FragranceCart';
 import { db } from '@/firebase';
 import { Box, Grid, Typography } from '@mui/material';
 import { doc, getDoc } from 'firebase/firestore';
 import Image from 'next/image';
-import FragranceCard from '../fragrance/_components/FragranceCard';
 
 export default async function AboutPage() {
   let obj = [];
@@ -18,7 +18,7 @@ export default async function AboutPage() {
         // console.log(item);
         if (index < 80) {
           return (
-            <FragranceCard
+            <FragranceCart
               key={index}
               item={{
                 id: item.code,

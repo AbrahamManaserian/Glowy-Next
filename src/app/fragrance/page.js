@@ -16,7 +16,8 @@ export default async function FragrancePage({ searchParams }) {
   });
 
   const data = await res.json();
+
   //   const data = {};
-  //   console.log(data);
+  // console.log(data);
   return <PageUi data={data} />;
 }

@@ -7,12 +7,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingBasketIcon } from '@/_components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
-import { handleAddItemToWishList } from '@/app/_functions/hadleAddItemToWishList';
-import { handleAddItemToCart } from '@/app/cart/functions/addDeleteIncDecreaseCart';
-import { useRouter } from 'next/navigation';
 import { StyledBadge } from '@/app/cart/_components/CartDrawer';
+import { handleAddItemToWishList } from '@/app/_functions/hadleAddItemToWishList';
 
-export default function FragranceCard({ item, height }) {
+export default function FragranceCart({ item, height }) {
   let newAdded;
 
   const { setWishList, wishList, cart, setCart } = useGlobalContext();
@@ -77,7 +75,6 @@ export default function FragranceCard({ item, height }) {
           NEW
         </Typography>
       )}
-
       {item.previousPrice && (
         <Typography
           sx={{
@@ -98,7 +95,7 @@ export default function FragranceCard({ item, height }) {
         </Typography>
       )}
 
-      <Link style={{ WebkitTapHighlightColor: 'transparent' }} href={`/fragrance/${item.id}`}>
+      <Link style={{ WebkitTapHighlightColor: 'transparent' }} href={`/item/${item.id}`}>
         <Box
           sx={{
             flexShrink: 0,
@@ -114,11 +111,10 @@ export default function FragranceCard({ item, height }) {
               lg: `${height / 6 - 10}px`,
             },
 
-            // bgcolor: '#98a4cb16',
             boxSizing: 'border-box',
             borderRadius: '15px',
             width: '100%',
-            p: '10px',
+            // p: '10px',
             border: '1px solid rgba(0,0,0,0.04)',
             boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
           }}
@@ -127,15 +123,16 @@ export default function FragranceCard({ item, height }) {
             width={200}
             height={200}
             style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
               overflow: 'hidden',
-              objectFit: 'contain',
             }}
             src={item.smallImage.file}
             alt="image"
           />
         </Box>
       </Link>
-
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '10px' }}>
         <Typography sx={{ color: '#263045fb', fontSize: '15px', fontWeight: 500 }}>{item.brand} </Typography>
         <Typography sx={{ color: '#3c4354a3', fontSize: '12px' }}>
@@ -166,8 +163,6 @@ export default function FragranceCard({ item, height }) {
           <StyledBadge badgeContent={cart.items ? cart.items[item.id]?.quantity : 0}>
             <ShoppingBasketIcon size={'25'} />
           </StyledBadge>
-
-          {/* <ShoppingBasketIcon size={'25'} /> */}
         </div>
         {wishList.includes(item.id) ? (
           <FavoriteIcon

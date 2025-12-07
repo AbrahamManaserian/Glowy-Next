@@ -13,13 +13,14 @@ import ImageInputs from '../_components/ImageInputs';
 import DescriptionInput from '../_components/DescriptionInput';
 import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytes } from 'firebase/storage';
 import { db } from '@/firebase';
-import { arrayRemove, deleteDoc, deleteField, doc, setDoc, updateDoc } from 'firebase/firestore';
+import { arrayRemove, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { initialInputs } from '../add-product/page';
 import { initialOptionInputs } from '../add-product/page';
 import { getProduct } from '@/app/_lib/firebase/getProduct';
 
 export default function EditProduct() {
+  const [editedProduct, setEditedProduct] = useState({});
   const [initialAvailableOptions, setInitialAvailableOptions] = useState([]);
   const [removedOption, setRemovedOption] = useState([]);
   const [optionKeyValue, setOptionKeyValue] = useState('');
@@ -48,6 +49,7 @@ export default function EditProduct() {
   };
 
   const handleDeleteItem = async () => {
+    // console.log(editedProduct);
     const storage = getStorage();
     const deleteFolder = async (folderPath) => {
       const folderRef = ref(storage, folderPath);
@@ -73,29 +75,36 @@ export default function EditProduct() {
 
     try {
       setLoading(true);
-      // try {
+
       await Promise.all(
         initialAvailableOptions.map(async (item) => {
-          const productRef = doc(db, 'glowy-products', item.id);
+          const productRef = doc(db, 'glowyProducts', editedProduct.category, 'items', item.id);
+          const allProductsRef = doc(db, 'allProducts', item.id);
+
+          // const asd = await getDoc(allProductsRef);
+
           await updateDoc(productRef, {
+            availableOptions: arrayRemove({ id: product, [inputs.optionKey]: inputs[inputs.optionKey] }),
+          }).catch((e) => console.log(e));
+
+          await updateDoc(allProductsRef, {
             availableOptions: arrayRemove({ id: product, [inputs.optionKey]: inputs[inputs.optionKey] }),
           }).catch((e) => console.log(e));
         })
       );
 
-      // } catch (e) {
-      //   console.log(e);
-      // }
+      const deletedItemref = doc(db, 'glowyProducts', editedProduct.category, 'items', product);
+      const deletedItemAllref = doc(db, 'allProducts', product);
 
-      const deletedItemref = doc(db, 'glowy-products', product);
       await deleteDoc(deletedItemref).catch((e) => console.log(e));
+      await deleteDoc(deletedItemAllref).catch((e) => console.log(e));
 
-      const projectDetailsRef = doc(db, 'details', 'project-details');
+      const projectDetailsRef = doc(db, 'details', 'projectDetails');
       await updateDoc(projectDetailsRef, {
         [`allProductsIds.${product}`]: deleteField(),
       }).catch((e) => console.log(e));
 
-      const folderRef = ref(storage, `glowy-products/${product}`);
+      const folderRef = ref(storage, `glowyProducts/${product}`);
       await deleteFolder(folderRef);
 
       setInputs(() => structuredClone(initialInputs));
@@ -104,6 +113,7 @@ export default function EditProduct() {
       setRequiredOption(false);
       setDeletedImages([]);
       setProduct(null);
+      setEditedProduct({});
       setOptionKeyValue('');
       setRemovedOption([]);
       router.refresh();
@@ -164,7 +174,6 @@ export default function EditProduct() {
   };
 
   const handleChangeOptions = (e) => {
-    console.log(e.target.type);
     if (e.target.type === 'number') {
       setOptions({ ...options, [e.target.name]: Number(e.target.value) });
     } else {
@@ -202,20 +211,20 @@ export default function EditProduct() {
 
     try {
       if (typeof inputs.mainImage.file !== 'string') {
-        const mainImageStorageRef = ref(storage, `glowy-products/${product}/main`);
-        const smallImageStorageRef = ref(storage, `glowy-products/${product}/small`);
+        const mainImageStorageRef = ref(storage, `glowyProducts/${product}/main`);
+        const smallImageStorageRef = ref(storage, `glowyProducts/${product}/small`);
 
         await uploadBytes(mainImageStorageRef, inputs.mainImage.file).then((snapshot) => {
           return getDownloadURL(snapshot.ref).then((url) => {
             mainImage.file = url;
-            mainImage.src = `glowy-products/${product}/main`;
+            mainImage.src = `glowyProducts/${product}/main`;
           });
         });
 
         await uploadBytes(smallImageStorageRef, inputs.smallImage.file).then((snapshot) => {
           return getDownloadURL(snapshot.ref).then((url) => {
             smallImage.file = url;
-            smallImage.src = `glowy-products/${product}/small`;
+            smallImage.src = `glowyProducts/${product}/small`;
           });
         });
       }
@@ -241,7 +250,7 @@ export default function EditProduct() {
               }
               deletedImages.pop();
 
-              const imageStorageRef = ref(storage, `glowy-products/${product}/images/${imgId}`);
+              const imageStorageRef = ref(storage, `glowyProducts/${product}/images/${imgId}`);
 
               await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
                 return getDownloadURL(snapshot.ref).then((url) => {
@@ -249,7 +258,7 @@ export default function EditProduct() {
                     ...img,
                     file: url,
                     id: imgId,
-                    src: `glowy-products/${product}/images/${imgId}`,
+                    src: `glowyProducts/${product}/images/${imgId}`,
                   });
                 });
               });
@@ -265,7 +274,7 @@ export default function EditProduct() {
       await Promise.all(
         deletedImages.map(async (img, index) => {
           try {
-            const desertRef = ref(storage, `glowy-products/${product}/images/${img}`);
+            const desertRef = ref(storage, `glowyProducts/${product}/images/${img}`);
             deleteObject(desertRef).catch((e) => console.log(e));
           } catch (error) {
             console.log(error);
@@ -295,8 +304,8 @@ export default function EditProduct() {
 
       allProductids[product] = initialProduct.brand + ' - ' + initialProduct.model;
 
-      let startId = data['project-details'].lastProductId;
-      let lastProductId = data['project-details'].lastProductId;
+      let startId = data.projectDetails.lastProductId;
+      let lastProductId = data.projectDetails.lastProductId;
 
       const availableOptionItems = options.availableOptions.map((option, index) => {
         const id = getNextProductId(startId);
@@ -343,13 +352,13 @@ export default function EditProduct() {
           const optionImageArr = [];
 
           try {
-            const mainRef = ref(storage, `glowy-products/${item.id}/main`);
-            const smallRef = ref(storage, `glowy-products/${item.id}/small`);
+            const mainRef = ref(storage, `glowyProducts/${item.id}/main`);
+            const smallRef = ref(storage, `glowyProducts/${item.id}/small`);
 
             if (item.mainImage.file) {
               await uploadBytes(mainRef, item.mainImage.file).then((snapshot) => {
                 return getDownloadURL(snapshot.ref).then((url) => {
-                  mainOptionImage = { ...item.mainImage, file: url, src: `glowy-products/${item.id}/main` };
+                  mainOptionImage = { ...item.mainImage, file: url, src: `glowyProducts/${item.id}/main` };
                 });
               });
               availableOptionItems[index].mainImage = mainOptionImage;
@@ -363,7 +372,7 @@ export default function EditProduct() {
                   smallOptionImage = {
                     ...item.smallImage,
                     file: url,
-                    src: `glowy-products/${item.id}/small`,
+                    src: `glowyProducts/${item.id}/small`,
                   };
                 });
               });
@@ -376,14 +385,14 @@ export default function EditProduct() {
               await Promise.all(
                 item.images.map(async (img, index) => {
                   try {
-                    const imageStorageRef = ref(storage, `glowy-products/${item.id}/images/${index}`);
+                    const imageStorageRef = ref(storage, `glowyProducts/${item.id}/images/${index}`);
                     await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
                       return getDownloadURL(snapshot.ref).then((url) => {
                         optionImageArr.push({
                           ...item.images[index],
                           file: url,
                           id: index,
-                          src: `glowy-products/${item.id}/images/${index}`,
+                          src: `glowyProducts/${item.id}/images/${index}`,
                         });
                       });
                     });
@@ -417,8 +426,12 @@ export default function EditProduct() {
               },
               ...idOptionArr
             );
-            const productRef = doc(db, 'glowy-products', item.id);
+            const allProductsRef = doc(db, 'allProducts', item.id);
+            const productRef = doc(db, 'glowyProducts', editedProduct.category, 'items', item.id);
             await updateDoc(productRef, {
+              availableOptions: options,
+            });
+            await updateDoc(allProductsRef, {
               availableOptions: options,
             });
           })
@@ -426,8 +439,16 @@ export default function EditProduct() {
 
         await Promise.all(
           availableOptionItems.map(async (item, index) => {
-            const productRef = doc(db, 'glowy-products', item.id);
-            await setDoc(productRef, item);
+            const allProductsRef = doc(db, 'allProducts', item.id);
+            const productRef = doc(db, 'glowyProducts', item.category, 'items', item.id);
+            await setDoc(productRef, {
+              ...item,
+              highlighted: (initialProduct.availableOptions.length + index) * -1,
+            });
+            await setDoc(allProductsRef, {
+              ...item,
+              highlighted: (initialProduct.availableOptions.length + index) * -1,
+            });
           })
         );
 
@@ -436,17 +457,24 @@ export default function EditProduct() {
 
       await Promise.all(
         removedOption.map(async (item, index) => {
-          const productRef = doc(db, 'glowy-products', item);
+          const productRef = doc(db, 'glowyProducts', initialProduct.category, 'items', item);
+          const allProductsRef = doc(db, 'allProducts', item);
           await updateDoc(productRef, {
+            availableOptions: [],
+          });
+          await updateDoc(allProductsRef, {
             availableOptions: [],
           });
         })
       );
 
-      const InitialProductRef = doc(db, 'glowy-products', product);
-      const detailRef = doc(db, 'details', 'project-details');
+      const allProductsRef = doc(db, 'allProducts', product);
+
+      const InitialProductRef = doc(db, 'glowyProducts', initialProduct.category, 'items', product);
+      const detailRef = doc(db, 'details', 'projectDetails');
 
       await setDoc(InitialProductRef, initialProduct);
+      await setDoc(allProductsRef, initialProduct);
       const updateData = {};
 
       Object.entries(allProductids).forEach(([key, value]) => {
@@ -454,15 +482,8 @@ export default function EditProduct() {
       });
 
       updateData.lastProductId = lastProductId;
-
+      // window.scrollTo({ top: 0, behavior: 'smooth' });
       await updateDoc(detailRef, updateData);
-
-      // console.log(initialProduct);
-      // console.log(idOptionArr);
-      // console.log(allProductids);
-      // console.log(availableOptionItems);
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
 
       setInputs(() => structuredClone(initialInputs));
       setOptions(() => structuredClone(initialOptionInputs));
@@ -470,10 +491,11 @@ export default function EditProduct() {
       setRequiredOption(false);
       setDeletedImages([]);
       setProduct(null);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       setOptionKeyValue('');
       setRemovedOption([]);
-      router.refresh();
       setLoading(false);
+      router.refresh();
     } catch (e) {
       console.log(e);
       setLoading(false);
@@ -487,6 +509,7 @@ export default function EditProduct() {
       setLoading(true);
       getProduct(product).then((data) => {
         if (data.brand) {
+          setEditedProduct(data);
           setInitialAvailableOptions(data.availableOptions || []);
           if (data.availableOptions.length > 0) {
             setInputs({ ...data, extraInputs: { [data.optionKey]: data.optionKey } });
@@ -536,7 +559,6 @@ export default function EditProduct() {
       setOptions({ ...options, inStock: false });
     }
   }, [options.optionQouantity]);
-
   return (
     <Grid
       sx={{
@@ -561,7 +583,7 @@ export default function EditProduct() {
           console.log('optionKeyValue', optionKeyValue);
           console.log('removedOption', removedOption);
           console.log('initialAvailableOptions', initialAvailableOptions);
-          console.log('initialAvailableOptions', requiredFields);
+          // console.log('initialAvailableOptions', requiredFields);
         }}
       >
         asd
@@ -573,9 +595,9 @@ export default function EditProduct() {
 
       <Autocomplete
         size="small"
-        options={Object.keys(data['project-details'].allProductsIds).sort() || []}
+        options={Object.keys(data.projectDetails.allProductsIds).sort() || []}
         // options={[]}
-        getOptionLabel={(option) => `${option} - ${data['project-details'].allProductsIds[option]}`}
+        getOptionLabel={(option) => `${option} - ${data.projectDetails.allProductsIds[option]}`}
         value={product}
         onChange={(event, newValue) => setProduct(newValue)}
         renderInput={(params) => (
@@ -592,6 +614,7 @@ export default function EditProduct() {
         }}
       />
       <Button
+        disabled={!product}
         onClick={() => handleDeleteItem()}
         sx={{ textTransform: 'capitalize', mt: { xs: '15px', sm: 0 } }}
         variant="contained"
@@ -620,7 +643,7 @@ export default function EditProduct() {
         />
         <InitialProductInputs
           handleChangeNotes={handleChangeNotes}
-          notes={data['project-details'].perfumeNotes}
+          notes={data.projectDetails.perfumeNotes}
           inputs={inputs}
           hadleChangeInputs={hadleChangeInputs}
           suppliers={data.suppliers?.suppliers || {}}
@@ -734,6 +757,7 @@ export default function EditProduct() {
         />
         <DescriptionInput inputs={inputs} hadleChangeInputs={hadleChangeInputs} />
         <Button
+          disabled={!product}
           onClick={editProduct}
           color="success"
           sx={{ textTransform: 'capitalize', mt: '20px' }}

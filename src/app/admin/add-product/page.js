@@ -236,7 +236,6 @@ export default function AddProductPage() {
   const [requiredOption, setRequiredOption] = useState(false);
   const [height, setHeight] = useState(0);
   const adminDetials = useAdminData();
-  // console.log(adminDetials.data['project-details'].perfumeNotes);
 
   const router = useRouter();
   const [options, setOptions] = useState(() => structuredClone(initialOptionInputs));
@@ -265,11 +264,11 @@ export default function AddProductPage() {
         return next.toString().padStart(6, '0'); // keep 7 digits
       }
       const allProductids = {};
-      const newId = getNextProductId(adminDetials.data['project-details'].lastProductId);
+      const newId = getNextProductId(adminDetials.data.projectDetails.lastProductId);
 
       const storage = getStorage();
-      const mainImageStorageRef = ref(storage, `glowy-products/${newId}/main`);
-      const smallImageStorageRef = ref(storage, `glowy-products/${newId}/small`);
+      const mainImageStorageRef = ref(storage, `glowyProducts/${newId}/main`);
+      const smallImageStorageRef = ref(storage, `glowyProducts/${newId}/small`);
 
       let smallImage = {};
       let mainImage = {};
@@ -278,14 +277,14 @@ export default function AddProductPage() {
       await Promise.all(
         inputs.images.map(async (img, index) => {
           try {
-            const imageStorageRef = ref(storage, `glowy-products/${newId}/images/${index}`);
+            const imageStorageRef = ref(storage, `glowyProducts/${newId}/images/${index}`);
             await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
               return getDownloadURL(snapshot.ref).then((url) => {
                 imageArr.push({
                   ...inputs.images[index],
                   file: url,
                   id: index,
-                  src: `glowy-products/${newId}/images/${index}`,
+                  src: `glowyProducts/${newId}/images/${index}`,
                 });
               });
             });
@@ -297,17 +296,16 @@ export default function AddProductPage() {
 
       await uploadBytes(mainImageStorageRef, inputs.mainImage.file).then((snapshot) => {
         return getDownloadURL(snapshot.ref).then((url) => {
-          mainImage = { ...inputs.mainImage, file: url, src: `glowy-products/${newId}/main` };
+          mainImage = { ...inputs.mainImage, file: url, src: `glowyProducts/${newId}/main` };
         });
       });
 
       await uploadBytes(smallImageStorageRef, inputs.smallImage.file).then((snapshot) => {
         return getDownloadURL(snapshot.ref).then((url) => {
-          smallImage = { ...inputs.smallImage, file: url, src: `glowy-products/${newId}/small` };
+          smallImage = { ...inputs.smallImage, file: url, src: `glowyProducts/${newId}/small` };
         });
       });
 
-      // let { extraInputs, ...productData } = inputs;
       let initialProduct = structuredClone(inputs);
       initialProduct.optionKey = Object.keys(inputs.extraInputs)[0] || '';
       delete initialProduct.extraInputs;
@@ -321,7 +319,7 @@ export default function AddProductPage() {
         smallImage: smallImage,
         images: imageArr,
         availableOptions: [],
-        highlighted: options.availableOptions.length || 1,
+        // highlighted: options.availableOptions.length || 1,
         name: `${initialProduct.brand} - ${initialProduct.model}`,
       };
       if (initialProduct.notes) {
@@ -352,7 +350,7 @@ export default function AddProductPage() {
           smallImage: option.smallImage,
           images: [...option.images],
           [option.optionKey]: option.optionValue,
-          highlighted: index,
+          highlighted: -index,
         };
         startId = id;
         if (index === options.availableOptions.length - 1) {
@@ -380,13 +378,13 @@ export default function AddProductPage() {
           const optionImageArr = [];
 
           try {
-            const mainRef = ref(storage, `glowy-products/${item.id}/main`);
-            const smallRef = ref(storage, `glowy-products/${item.id}/small`);
+            const mainRef = ref(storage, `glowyProducts/${item.id}/main`);
+            const smallRef = ref(storage, `glowyProducts/${item.id}/small`);
 
             if (item.mainImage.file) {
               await uploadBytes(mainRef, item.mainImage.file).then((snapshot) => {
                 return getDownloadURL(snapshot.ref).then((url) => {
-                  mainOptionImage = { ...item.mainImage, file: url, src: `glowy-products/${item.id}/main` };
+                  mainOptionImage = { ...item.mainImage, file: url, src: `glowyProducts/${item.id}/main` };
                 });
               });
               availableOptionItems[index].mainImage = mainOptionImage;
@@ -400,7 +398,7 @@ export default function AddProductPage() {
                   smallOptionImage = {
                     ...item.smallImage,
                     file: url,
-                    src: `glowy-products/${item.id}/small`,
+                    src: `glowyProducts/${item.id}/small`,
                   };
                 });
               });
@@ -413,14 +411,14 @@ export default function AddProductPage() {
               await Promise.all(
                 item.images.map(async (img, index) => {
                   try {
-                    const imageStorageRef = ref(storage, `glowy-products/${item.id}/images/${index}`);
+                    const imageStorageRef = ref(storage, `glowyProducts/${item.id}/images/${index}`);
                     await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
                       return getDownloadURL(snapshot.ref).then((url) => {
                         optionImageArr.push({
                           ...inputs.images[index],
                           file: url,
                           id: index,
-                          src: `glowy-products/${item.id}/images/${index}`,
+                          src: `glowyProducts/${item.id}/images/${index}`,
                         });
                       });
                     });
@@ -439,20 +437,19 @@ export default function AddProductPage() {
         })
       );
 
-      // console.log(availableOptionItems);
-      // console.log(initialProduct);
-      // console.log(lastProductId);
-      // console.log(allProductids);
-
-      const productRef = doc(db, 'glowy-products', newId);
-      const detailRef = doc(db, 'details', 'project-details');
+      const productRef = doc(db, 'glowyProducts', initialProduct.category, 'items', newId);
+      const allProductsRef = doc(db, 'allProducts', newId);
+      const detailRef = doc(db, 'details', 'projectDetails');
 
       await setDoc(productRef, initialProduct);
+      await setDoc(allProductsRef, initialProduct);
 
       await Promise.all(
         availableOptionItems.map(async (item, index) => {
-          const productRef = doc(db, 'glowy-products', item.id);
+          const productRef = doc(db, 'glowyProducts', item.category, 'items', item.id);
+          const allProductsRef = doc(db, 'allProducts', item.id);
           await setDoc(productRef, item);
+          await setDoc(allProductsRef, item);
         })
       );
 
@@ -600,7 +597,7 @@ export default function AddProductPage() {
 
         <InitialProductInputs
           handleChangeNotes={handleChangeNotes}
-          notes={adminDetials.data['project-details'].perfumeNotes}
+          notes={adminDetials.data.projectDetails.perfumeNotes}
           inputs={inputs}
           hadleChangeInputs={hadleChangeInputs}
           suppliers={adminDetials?.data?.suppliers?.suppliers || {}}
