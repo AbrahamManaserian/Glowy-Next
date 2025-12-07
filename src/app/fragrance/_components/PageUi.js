@@ -11,7 +11,6 @@ import FragranceCart from '@/_components/carts/FragranceCart';
 
 export default function PageUi({ data }) {
   const [loading, setLoading] = useState(false);
-  const [windowHeight, setWindowHeight] = useState(0);
   useEffect(() => {
     setLoading(false);
   }, [data]);
@@ -86,13 +85,7 @@ export default function PageUi({ data }) {
     setParamsState(newState);
   }, [searchParams]);
 
-  useEffect(() => {
-    const handleResize = () => setWindowHeight(window.innerWidth);
-    handleResize(); // set initial height
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  
 
   return (
     <Grid sx={{ m: { xs: '50px 10px', sm: '90px 35px' } }} size={12}>
@@ -196,7 +189,11 @@ export default function PageUi({ data }) {
               </div>
             )}
             {Object.keys(data).map((key, index) => {
-              return <FragranceCart item={data[key]} key={index} height={windowHeight} />;
+              return (
+                <Grid key={index} size={{ xs: 6, sm: 4, md: 4, lg: 3 }}>
+                  <FragranceCart item={data[key]} />
+                </Grid>
+              );
             })}
             {Object.keys(data).length > 0 && (
               <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '10px' }}>

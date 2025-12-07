@@ -18,17 +18,19 @@ export default async function AboutPage() {
         // console.log(item);
         if (index < 80) {
           return (
-            <FragranceCart
-              key={index}
-              item={{
-                id: item.code,
-                size: '75',
-                unit: 'ml',
-                price: '10500',
-                smallImage: item.images[0],
-                brand: item.name,
-              }}
-            />
+            <Grid key={index} size={{ xs: 6, sm: 4, md: 3 }}>
+              <FragranceCart
+                item={{
+                  id: item.code,
+                  size: '75',
+                  unit: 'ml',
+                  price: '10500',
+                  smallImage: item.images[0],
+                  brand: item.name,
+                }}
+              />
+            </Grid>
+
             // <Box
             //   key={index}
             //   sx={{

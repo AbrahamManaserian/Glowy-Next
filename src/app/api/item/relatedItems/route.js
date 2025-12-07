@@ -36,13 +36,14 @@ export async function GET(request) {
       );
     } else {
       similarProducts = await getItemsByQuery(
-        [where('subCategory', '==', params.subCategory), where('name', '!=', params.name)],
+        [where('subCategory', '==', params.subCategory), where('fullName', '!=', params.name)],
         params.category
       );
     }
 
     const sameBrandItems = await getItemsByQuery(
-      [where('brand', '==', params.brand), where('name', '!=', params.name)],
+      // [where('brand', '==', params.brand), where('name', '!=', params.name)],
+      [where('model', '!=', params.model), where('brand', '==', params.brand)],
       params.category
     );
 

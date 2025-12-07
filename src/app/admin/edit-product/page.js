@@ -292,7 +292,7 @@ export default function EditProduct() {
         mainImage: mainImage,
         smallImage: smallImage,
         images: imageArr,
-        name: `${initialProduct.brand} - ${initialProduct.model}`,
+        fullName: `${initialProduct.brand} - ${initialProduct.model}`,
       };
       if (initialProduct.notes) {
         initialProduct.allNotes = [

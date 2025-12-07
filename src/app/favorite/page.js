@@ -6,6 +6,7 @@ import { Button, Grid, Typography } from '@mui/material';
 import {
   arrayUnion,
   collection,
+  deleteField,
   doc,
   getDoc,
   getDocs,
@@ -74,17 +75,14 @@ export default function Home() {
     // // const data = await getDoc(detailRef);
     // const idsRef = doc(db, 'details', 'projectDetails');
     // await updateDoc(idsRef, { fragranceBrands: fragranceBrands });
-    // const querySnapshot = await getDocs(query(collection(db, 'glowy-products')));
+    // const querySnapshot = await getDocs(query(collection(db, 'allProducts')));
     // await Promise.all(
     //   querySnapshot.docs.map(async (item) => {
-    //     const category = item.data().category;
-    //     const subCategory = item.data().subCategory;
-    //     const productRef = doc(db, 'glowyProducts', category, subCategory, item.id);
-    //     const allProductsRef = doc(db, 'allProducts', item.id);
-    //     await setDoc(allProductsRef, item.data());
-    //     await setDoc(productRef, item.data());
-    //     // doc.data() is never undefined for query doc snapshots
-    //     // console.log(doc.id, ' => ', doc.data());
+    //     const itemRef = doc(db, 'allProducts', item.id);
+    //     await updateDoc(itemRef, {
+    //       fullName: item.data().name,
+    //       name: deleteField(),
+    //     });
     //   })
     // );
     // setDoc(detailRef, perfumeNotes);

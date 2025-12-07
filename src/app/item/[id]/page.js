@@ -21,10 +21,10 @@ export default async function FragranceProductPage({ params }) {
       `${baseUrl}/api/item/relatedItems?id=${product.id}&brand=${encodeURIComponent(product.brand)}&notes=${
         product.allNotes || []
       }&type=${encodeURIComponent(product.type)}&size=${product.size}&name=${encodeURIComponent(
-        product.name
+        product.fullName
       )} &category=${encodeURIComponent(product.category)}&subCategory=${encodeURIComponent(
         product.subCategory
-      )}`,
+      )}&model=${encodeURIComponent(product.model)}`,
       {
         // cache: 'no-store', // avoids caching issues
         // cache: 'force-cache', // default

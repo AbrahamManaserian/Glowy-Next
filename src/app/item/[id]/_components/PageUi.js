@@ -9,7 +9,6 @@ import { useGlobalContext } from '@/app/GlobalContext';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase';
-import useGetWindowDimensions from '@/_hooks/useGetWindowSize';
 import Link from 'next/link';
 // import { ShoppingBasketIcon } from '@/components/icons';
 import MovingIcon from '@mui/icons-material/Moving';
@@ -109,16 +108,7 @@ const NoProduct = () => {
 export default function ProductPageUi({ product, data }) {
   const { sameBrandItems, similarProducts } = data ? use(data) : [];
 
-  const windowDimensions = useGetWindowDimensions();
   const [item, setItem] = useState(product);
-
-  useEffect(() => {
-    if (sameBrandItems) {
-      sameBrandItems.forEach((element) => {
-        console.log(element.name === item.name);
-      });
-    }
-  }, [sameBrandItems]);
 
   const [loading, setLoading] = useState(false);
   const [availableOption, setAvailableOption] = useState(product.id);
@@ -231,7 +221,9 @@ export default function ProductPageUi({ product, data }) {
               </Box>
               <Link
                 style={{ textDecoration: 'none', marginTop: '5px' }}
-                href={`/fragrance?&subCategory=fragrance&brand=${item.brand}`}
+                href={`/${item.category}?&subCategory=${encodeURIComponent(
+                  item.subCategory
+                )}&brand=${encodeURIComponent(item.brand)}`}
               >
                 <Typography
                   sx={{
@@ -423,285 +415,174 @@ export default function ProductPageUi({ product, data }) {
         alignContent={'flex-start'}
         container
         size={12}
-        mt={{ xs: '70px', sm: '120px' }}
+        // mt={{ xs: '70px', sm: '120px' }}
         justifyContent={'center'}
       >
-        {/* {relatedItems && relatedItems[0] && relatedItems[1] && (
-          <>
-            <Typography
-              sx={{
-                fontSize: { xs: '18px', sm: '22px' },
-                width: '100%',
-                maxWidth: '1100px',
+        <>
+          {similarProducts && similarProducts[0] && (
+            <>
+              <Grid
+                mt={{ xs: '70px', sm: '120px' }}
+                size={12}
+                sx={{ maxWidth: '1100px', boxSizing: 'border-box' }}
+                container
+                border={'solid #c0c3c7ff 0.5px'}
+                borderRadius={'10px'}
+                // spacing={{ xs: '10px', sm: '30px' }}
+                p={'10px'}
+              >
+                <Typography
+                  sx={{
+                    fontSize: { xs: '18px', sm: '22px' },
+                    width: '100%',
+                    m: '20px',
+                    // borderBottom: 'solid #c0c3c7ff 0.5px',
+                    pb: '5px',
+                    mb: '5px',
+                  }}
+                  fontWeight={700}
+                  color="#2B3445"
+                >
+                  Frequently bought together
+                </Typography>
 
-                pb: '5px',
-                mb: '25px',
-              }}
-              fontWeight={700}
-              color="#2B3445"
-            >
-              Frequently Bought Together
-            </Typography>
+                {[item, ...similarProducts.slice(0, 2)].map((item, index, arr) => {
+                  const mr = index !== arr.length - 1 ? { xs: '20px', sm: '30px' } : 0;
+
+                  return (
+                    <Box
+                      key={index}
+                      sx={{
+                        WebkitTapHighlightColor: 'transparent',
+                        position: 'relative',
+                        width: { xs: 'calc(33.3% - 13.5px)', sm: 'calc(25% - 22.5px)' },
+                        marginRight: mr,
+                      }}
+                    >
+                      {index !== arr.length - 1 && (
+                        <Typography
+                          sx={{
+                            position: 'absolute',
+                            top: '40%',
+                            right: { xs: '-18px', sm: '-21px' },
+                            fontSize: '25px',
+                            fontWeight: 500,
+                            color: '#6d7581ff',
+                          }}
+                        >
+                          +
+                        </Typography>
+                      )}
+                      <Link
+                        href={`/item/${item.id}`}
+                        style={{
+                          // position: 'relative',
+                          flexShrink: 0,
+                          display: 'flex',
+                          width: '100%',
+                          overflow: 'hidden',
+                          aspectRatio: '1 / 1',
+                          boxSizing: 'border-box',
+                          borderRadius: '15px',
+
+                          // p: '10px',
+                          border: '1px solid rgba(0,0,0,0.04)',
+                          boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+                        }}
+                      >
+                        <Image
+                          width={200}
+                          height={200}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            overflow: 'hidden',
+                          }}
+                          src={item.smallImage.file}
+                          alt="image"
+                        />
+                      </Link>
+                      <Typography
+                        sx={{
+                          color: '#263045fb',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          display: { xs: 'none', sm: 'block' },
+                          mt: '10px',
+                        }}
+                      >
+                        {item.fullName} <br />${item.price.toLocaleString()}
+                      </Typography>
+                    </Box>
+                  );
+                })}
+              </Grid>
+
+              <Grid
+                mt={{ xs: '70px', sm: '120px' }}
+                size={12}
+                sx={{ maxWidth: '1100px' }}
+                spacing={{ xs: '10px', sm: '20px' }}
+                container
+              >
+                <Typography
+                  sx={{
+                    fontSize: { xs: '18px', sm: '22px' },
+                    width: '100%',
+                    borderBottom: 'solid #c0c3c7ff 0.5px',
+                    pb: '5px',
+                    mb: '5px',
+                  }}
+                  fontWeight={700}
+                  color="#2B3445"
+                >
+                  Similar Products From Other Brands
+                </Typography>
+                {similarProducts.map((item, index) => {
+                  return (
+                    <Grid key={index} size={{ xs: 6, sm: 3 }}>
+                      <FragranceCart item={item} />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </>
+          )}
+        </>
+
+        <>
+          {sameBrandItems && sameBrandItems[0] && (
             <Grid
-              justifyContent={'center'}
-              border={'solid #c0c3c7ff 0.5px'}
-              p={{ xs: '10px', sm: '40px' }}
+              mt={{ xs: '70px', sm: '120px' }}
               size={12}
               sx={{ maxWidth: '1100px' }}
-              alignItems={'stretch'}
+              spacing={{ xs: '10px', sm: '20px' }}
               container
-              borderRadius={'8px'}
             >
-              <Grid
-                sx={{ width: { xs: 'calc(33% + 10px)', sm: 'calc(25% + 10px)' } }}
-                container
-                direction={'column'}
+              <Typography
+                sx={{
+                  fontSize: { xs: '18px', sm: '22px' },
+                  width: '100%',
+                  borderBottom: 'solid #c0c3c7ff 0.5px',
+                  pb: '5px',
+                  mb: '5px',
+                }}
+                fontWeight={700}
+                color="#2B3445"
               >
-                <div
-                  style={{
-                    display: 'flex',
-                    cursor: 'pointer',
-                    overflow: 'hidden',
-                    justifyContent: 'center',
-                    alignContent: 'center',
-                    alignItems: 'center',
-                    flexGrow: 1,
-                  }}
-                >
-                  <Image
-                    width={500}
-                    height={500}
-                    style={{
-                      width: 'calc(100% - 30px)',
-                      height: 'auto',
-                      border: '1px solid rgba(0,0,0,0.04)',
-                      boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-                      borderRadius: '9px',
-                      boxSizing: 'border-box',
-                    }}
-                    src={item.smallImage.file}
-                    alt="image"
-                  />
-                  <Typography
-                    sx={{ width: '30px', textAlign: 'center', fontSize: '25px', color: '#353e4eff' }}
-                  >
-                    +
-                  </Typography>
-                </div>
-                <Typography
-                  sx={{
-                    color: '#263045fb',
-                    fontSize: '15px',
-                    fontWeight: 500,
-                    display: { xs: 'none', sm: 'block' },
-                    marginTop: 'auto',
-                    mt: '10px',
-                  }}
-                >
-                  {item.brand}
-                  <span style={{ color: '#3c4354a3', fontSize: '12px', fontWeight: 400, marginLeft: '5px' }}>
-                    {item.size}
-                    {item.unit}
-                  </span>
-                  <span style={{ display: 'block', fontSize: '13px', fontWeight: 400 }}>{item.model}</span>
-                </Typography>
-              </Grid>
-
-              <Grid
-                sx={{ width: { xs: 'calc(33% + 10px)', sm: 'calc(25% + 10px)' } }}
-                container
-                direction={'column'}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    cursor: 'pointer',
-                    overflow: 'hidden',
-                    justifyContent: 'center',
-                    alignContent: 'center',
-                    alignItems: 'center',
-                    // flexGrow: 1,
-                  }}
-                >
-                  <Image
-                    width={500}
-                    height={500}
-                    style={{
-                      width: 'calc(100% - 30px)',
-                      height: 'auto',
-                      border: '1px solid rgba(0,0,0,0.04)',
-                      boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-                      borderRadius: '9px',
-                      boxSizing: 'border-box',
-                    }}
-                    src={relatedItems[0].smallImage.file}
-                    alt="image"
-                  />
-                  <Typography
-                    sx={{ width: '30px', textAlign: 'center', fontSize: '25px', color: '#353e4eff' }}
-                  >
-                    +
-                  </Typography>
-                </div>
-                <Typography
-                  sx={{
-                    marginTop: 'auto',
-                    color: '#263045fb',
-                    fontSize: '15px',
-                    fontWeight: 500,
-                    display: { xs: 'none', sm: 'block' },
-                    mt: '10px',
-                  }}
-                >
-                  {relatedItems[0].brand}
-                  <span style={{ color: '#3c4354a3', fontSize: '12px', fontWeight: 400, marginLeft: '5px' }}>
-                    {relatedItems[0].size}
-                    {relatedItems[0].unit}
-                  </span>
-                  <span style={{ display: 'block', fontSize: '13px', fontWeight: 400 }}>
-                    {relatedItems[0].model}
-                  </span>
-                </Typography>
-              </Grid>
-              <Grid
-                sx={{ width: { xs: 'calc(33% - 20px)', sm: 'calc(25% - 20px)' } }}
-                container
-                direction={'column'}
-                // justifyContent={'flex-start'}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    cursor: 'pointer',
-                    overflow: 'hidden',
-                    justifyContent: 'center',
-                    alignContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Image
-                    width={500}
-                    height={500}
-                    style={{
-                      width: 'calc(100%)',
-                      height: 'auto',
-                      border: '1px solid rgba(0,0,0,0.04)',
-                      boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-                      borderRadius: '9px',
-                      boxSizing: 'border-box',
-                    }}
-                    src={relatedItems[1].smallImage.file}
-                    alt="image"
-                  />
-                </div>
-                <Typography
-                  sx={{
-                    color: '#263045fb',
-                    fontSize: '15px',
-                    fontWeight: 500,
-                    display: { xs: 'none', sm: 'block' },
-                    marginTop: 'auto',
-                    mt: '10px',
-                  }}
-                >
-                  {relatedItems[1].brand}
-                  <span style={{ color: '#3c4354a3', fontSize: '12px', fontWeight: 400, marginLeft: '5px' }}>
-                    {relatedItems[1].size}
-                    {relatedItems[1].unit}
-                  </span>
-                  <span style={{ display: 'block', fontSize: '13px', fontWeight: 400 }}>
-                    {relatedItems[1].model}
-                  </span>
-                </Typography>
-              </Grid>
-
-              <Grid
-                sx={{ width: { xs: '100%', sm: '25%' }, mt: { xs: '10px', sm: 0 }, p: '15px' }}
-                container
-                direction={'column'}
-                alignContent={'center'}
-                justifyContent={'center'}
-              >
-                <Typography sx={{ fontSize: '14px', textAlign: 'center' }}>
-                  Total Price: <span style={{ fontSize: '16px', fontWeight: 500 }}>$250,00</span>
-                </Typography>
-                <Button
-                  fullWidth
-                  sx={{ mt: '5px', textTransform: 'none', bgcolor: '#f44336', borderRadius: '10px' }}
-                  variant="contained"
-                >
-                  Add all to cart
-                </Button>
-              </Grid>
+                Discover more from {product.brand}
+              </Typography>
+              {sameBrandItems.map((item, index) => {
+                return (
+                  <Grid key={index} size={{ xs: 6, sm: 3 }}>
+                    <FragranceCart item={item} />
+                  </Grid>
+                );
+              })}
             </Grid>
-          </>
-        )} */}
-        {similarProducts && similarProducts[0] && (
-          <Grid
-            mt={{ xs: '70px', sm: '120px' }}
-            size={12}
-            sx={{ maxWidth: '1100px' }}
-            spacing={{ xs: '10px', sm: '20px' }}
-            container
-          >
-            <Typography
-              sx={{
-                fontSize: { xs: '18px', sm: '22px' },
-                width: '100%',
-                borderBottom: 'solid #c0c3c7ff 0.5px',
-                pb: '5px',
-                mb: '5px',
-              }}
-              fontWeight={700}
-              color="#2B3445"
-            >
-              Similar Products From Other Brands
-            </Typography>
-            {similarProducts.map((item, index) => {
-              return <FragranceCart height={windowDimensions.width} key={index} item={item} />;
-            })}
-          </Grid>
-        )}
-
-        {sameBrandItems && sameBrandItems[0] && (
-          <Grid
-            mt={{ xs: '70px', sm: '120px' }}
-            size={12}
-            sx={{ maxWidth: '1100px' }}
-            spacing={{ xs: '10px', sm: '20px' }}
-            container
-          >
-            <Typography
-              sx={{ fontSize: { xs: '18px', sm: '22px' }, width: '100%' }}
-              fontWeight={700}
-              color="#2B3445"
-            >
-              {product.brand} - For Men
-            </Typography>
-            {sameBrandItems.map((item, index) => {
-              return <FragranceCart height={windowDimensions.width} key={index} item={item} />;
-            })}
-          </Grid>
-        )}
-        {/* <Grid
-          mt={{ xs: '70px', sm: '120px' }}
-          size={12}
-          sx={{ maxWidth: '1100px' }}
-          spacing={{ xs: '10px', sm: '20px' }}
-          container
-        >
-          <Typography
-            sx={{ fontSize: { xs: '18px', sm: '22px' }, width: '100%' }}
-            fontWeight={700}
-            color="#2B3445"
-          >
-            {product.brand} - For Women
-          </Typography>
-          {sameBrandItemsWomen &&
-            sameBrandItemsWomen.map((item, index) => {
-              return <FragranceCart height={windowDimensions.width} key={index} item={item} />;
-            })}
-        </Grid> */}
+          )}
+        </>
       </Grid>
     </Grid>
   );

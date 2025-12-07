@@ -10,7 +10,7 @@ import { useGlobalContext } from '@/app/GlobalContext';
 import { StyledBadge } from '@/app/cart/_components/CartDrawer';
 import { handleAddItemToWishList } from '@/app/_functions/hadleAddItemToWishList';
 
-export default function FragranceCart({ item, height }) {
+export default function FragranceCart({ item }) {
   let newAdded;
 
   const { setWishList, wishList, cart, setCart } = useGlobalContext();
@@ -52,7 +52,7 @@ export default function FragranceCart({ item, height }) {
         flexWrap: 'nowrap',
         position: 'relative',
       }}
-      size={{ xs: 6, sm: 4, md: 4, lg: 3 }}
+      size={12}
       container
       direction={'column'}
     >
@@ -100,20 +100,16 @@ export default function FragranceCart({ item, height }) {
           sx={{
             flexShrink: 0,
             display: 'flex',
+            width: '100%',
             justifyContent: 'center',
             alignContent: 'center',
             alignItems: 'center',
             overflow: 'hidden',
-            height: {
-              xs: `${height / 2 - 10}px`,
-              sm: `${height / 3.5 - 10}px`,
-              md: `${height / 5 - 10}px`,
-              lg: `${height / 6 - 10}px`,
-            },
-
+            // bgcolor: 'red',
+            aspectRatio: '1 / 1',
             boxSizing: 'border-box',
             borderRadius: '15px',
-            width: '100%',
+
             // p: '10px',
             border: '1px solid rgba(0,0,0,0.04)',
             boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
