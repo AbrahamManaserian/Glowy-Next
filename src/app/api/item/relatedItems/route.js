@@ -1,9 +1,14 @@
 import { db } from '@/firebase';
 import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 
-const getItemsByQuery = async (condition = []) => {
+const getItemsByQuery = async (condition = [], category) => {
   try {
-    const q = query(collection(db, 'glowy-products'), ...condition, orderBy('highlighted', 'desc'), limit(4));
+    const q = query(
+      collection(db, 'glowyProducts', category, 'items'),
+      ...condition,
+      orderBy('highlighted', 'desc'),
+      limit(4)
+    );
     const querySnapshot = await getDocs(q);
     const items = querySnapshot.docs.map((doc) => doc.data());
     return items;
@@ -17,44 +22,38 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const params = Object.fromEntries(searchParams);
+    let similarProducts = [];
+
+    if (params.subCategory === 'fragrance') {
+      similarProducts = await getItemsByQuery(
+        [
+          where('subCategory', '==', params.subCategory),
+          where('brand', '!=', params.brand),
+          where('type', '==', params.type),
+          where('allNotes', 'array-contains-any', params.notes.split(',') || []),
+        ],
+        params.category
+      );
+    } else {
+      similarProducts = await getItemsByQuery(
+        [where('subCategory', '==', params.subCategory), where('name', '!=', params.name)],
+        params.category
+      );
+    }
+
+    const sameBrandItems = await getItemsByQuery(
+      [where('brand', '==', params.brand), where('name', '!=', params.name)],
+      params.category
+    );
 
     const buyTogetherItems = [];
 
-    const sameBrandItemsWomen = await getItemsByQuery([
-      where('brand', '==', params.brand),
-      where('name', '!=', params.name),
-      where('type', '==', 'Women'),
-      where('subCategory', '==', 'fragrance'),
-    ]);
-
-    // console.log(params.notes);
-
-    const sameBrandItemsMen = await getItemsByQuery([
-      where('brand', '==', params.brand),
-      where('name', '!=', params.name),
-      where('type', '==', 'Men'),
-      where('subCategory', '==', 'fragrance'),
-    ]);
-
-    const relatedItems = await getItemsByQuery([
-      where('allNotes', 'array-contains-any', params.notes.split(',') || []),
-      where('name', '!=', params.name),
-      where('type', '==', params.type),
-    ]);
-
-    if (!buyTogetherItems[0]) {
-      if (relatedItems[0]) {
-        buyTogetherItems.push(relatedItems[0]);
-      } else if (sameBrandItemsMen[0]) {
-        buyTogetherItems.push(sameBrandItemsMen[0]);
-      }
-    }
-
-    // const item = await getProduct(params.id);
-
-    // Ensure it always returns an object or array
     return new Response(
-      JSON.stringify({ relatedItems, sameBrandItemsMen, sameBrandItemsWomen, buyTogetherItems }),
+      JSON.stringify({
+        sameBrandItems,
+        similarProducts,
+        buyTogetherItems,
+      }),
       {
         status: 200,
         headers: {
@@ -67,6 +66,10 @@ export async function GET(request) {
     console.error('🔥 API fetch error:', error);
 
     // Return JSON with error message
-    return { relatedItems, sameBrandItemsMen, sameBrandItemsWomen, buyTogetherItems };
+    return {
+      sameBrandItems,
+      similarProducts,
+      buyTogetherItems,
+    };
   }
 }

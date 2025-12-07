@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Button, Grid, IconButton, Rating, Typography } from '@mui/material';
-import React, { use, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import { NoSearchIcon, ShoppingBasketIcon } from '@/_components/icons';
@@ -107,9 +107,18 @@ const NoProduct = () => {
 };
 
 export default function ProductPageUi({ product, data }) {
-  const { relatedItems, sameBrandItemsMen, sameBrandItemsWomen, buyTogetherItems } = data ? use(data) : [];
+  const { sameBrandItems, similarProducts } = data ? use(data) : [];
+
   const windowDimensions = useGetWindowDimensions();
   const [item, setItem] = useState(product);
+
+  useEffect(() => {
+    if (sameBrandItems) {
+      sameBrandItems.forEach((element) => {
+        console.log(element.name === item.name);
+      });
+    }
+  }, [sameBrandItems]);
 
   const [loading, setLoading] = useState(false);
   const [availableOption, setAvailableOption] = useState(product.id);
@@ -417,7 +426,7 @@ export default function ProductPageUi({ product, data }) {
         mt={{ xs: '70px', sm: '120px' }}
         justifyContent={'center'}
       >
-        {relatedItems && relatedItems[0] && relatedItems[1] && (
+        {/* {relatedItems && relatedItems[0] && relatedItems[1] && (
           <>
             <Typography
               sx={{
@@ -626,8 +635,8 @@ export default function ProductPageUi({ product, data }) {
               </Grid>
             </Grid>
           </>
-        )}
-        {relatedItems && relatedItems[0] && (
+        )} */}
+        {similarProducts && similarProducts[0] && (
           <Grid
             mt={{ xs: '70px', sm: '120px' }}
             size={12}
@@ -648,13 +657,13 @@ export default function ProductPageUi({ product, data }) {
             >
               Similar Products From Other Brands
             </Typography>
-            {relatedItems.map((item, index) => {
+            {similarProducts.map((item, index) => {
               return <FragranceCart height={windowDimensions.width} key={index} item={item} />;
             })}
           </Grid>
         )}
 
-        {sameBrandItemsMen && sameBrandItemsMen[0] && (
+        {sameBrandItems && sameBrandItems[0] && (
           <Grid
             mt={{ xs: '70px', sm: '120px' }}
             size={12}
@@ -669,12 +678,12 @@ export default function ProductPageUi({ product, data }) {
             >
               {product.brand} - For Men
             </Typography>
-            {sameBrandItemsMen.map((item, index) => {
+            {sameBrandItems.map((item, index) => {
               return <FragranceCart height={windowDimensions.width} key={index} item={item} />;
             })}
           </Grid>
         )}
-        <Grid
+        {/* <Grid
           mt={{ xs: '70px', sm: '120px' }}
           size={12}
           sx={{ maxWidth: '1100px' }}
@@ -692,7 +701,7 @@ export default function ProductPageUi({ product, data }) {
             sameBrandItemsWomen.map((item, index) => {
               return <FragranceCart height={windowDimensions.width} key={index} item={item} />;
             })}
-        </Grid>
+        </Grid> */}
       </Grid>
     </Grid>
   );

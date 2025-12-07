@@ -22,7 +22,9 @@ export default async function FragranceProductPage({ params }) {
         product.allNotes || []
       }&type=${encodeURIComponent(product.type)}&size=${product.size}&name=${encodeURIComponent(
         product.name
-      )} `,
+      )} &category=${encodeURIComponent(product.category)}&subCategory=${encodeURIComponent(
+        product.subCategory
+      )}`,
       {
         cache: 'no-store', // avoids caching issues
         // cache: 'force-cache', // default
