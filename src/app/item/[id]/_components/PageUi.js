@@ -649,7 +649,7 @@ export default function ProductPageUi({ product, data }) {
               Similar Products From Other Brands
             </Typography>
             {relatedItems.map((item, index) => {
-              return <ItemCard height={windowDimensions.width} key={index} item={item} />;
+              return <FragranceCart height={windowDimensions.width} key={index} item={item} />;
             })}
           </Grid>
         )}
