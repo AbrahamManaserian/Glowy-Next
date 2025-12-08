@@ -18,13 +18,15 @@ export default async function FragranceProductPage({ params }) {
   // console.log(product);
   if (product.id) {
     data = fetch(
-      `${baseUrl}/api/item/relatedItems?id=${product.id}&brand=${encodeURIComponent(product.brand)}&notes=${
-        product.allNotes || []
-      }&type=${encodeURIComponent(product.type)}&size=${product.size}&name=${encodeURIComponent(
-        product.fullName
-      )} &category=${encodeURIComponent(product.category)}&subCategory=${encodeURIComponent(
-        product.subCategory
-      )}&model=${encodeURIComponent(product.model)}`,
+      `${baseUrl}/api/item/relatedItems?id=${encodeURIComponent(product.id)}&brand=${encodeURIComponent(
+        product.brand
+      )}&notes=${product.allNotes || []}&type=${encodeURIComponent(product.type)}&size=${
+        product.size
+      }&name=${encodeURIComponent(product.fullName)} &category=${encodeURIComponent(
+        product.category
+      )}&subCategory=${encodeURIComponent(product.subCategory)}&model=${encodeURIComponent(
+        product.model
+      )}&price=${encodeURIComponent(product.price)}`,
       {
         // cache: 'no-store', // avoids caching issues
         // cache: 'force-cache', // default

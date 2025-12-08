@@ -106,7 +106,7 @@ const NoProduct = () => {
 };
 
 export default function ProductPageUi({ product, data }) {
-  const { sameBrandItems, similarProducts } = data ? use(data) : [];
+  const { buyTogetherItems, sameBrandItems, similarProducts } = data ? use(data) : [];
 
   const [item, setItem] = useState(product);
 
@@ -115,6 +115,7 @@ export default function ProductPageUi({ product, data }) {
   const [quantity, setQuantity] = useState(1);
   const { cart, setCart } = useGlobalContext();
   const router = useRouter();
+  // console.log(buyTogetherItems);
   // console.log(item?.smallImage.width, item?.smallImage.height);
   const salePercent = item.previousPrice
     ? Math.round(((item.previousPrice - item.price) / item.previousPrice) * 100)
@@ -446,7 +447,7 @@ export default function ProductPageUi({ product, data }) {
                   Frequently bought together
                 </Typography>
 
-                {[item, ...similarProducts.slice(0, 2)].map((item, index, arr) => {
+                {[item, ...buyTogetherItems.slice(0, 2)].map((item, index, arr) => {
                   const mr = index !== arr.length - 1 ? { xs: '20px', sm: '30px' } : 0;
 
                   return (
