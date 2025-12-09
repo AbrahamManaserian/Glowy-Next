@@ -209,7 +209,8 @@ export default function ProductPageUi({ product, data }) {
                   lineHeight: '24px',
                 }}
               >
-                {item.model} {item.subCategory === 'fragrance' ? 'for' : ', '} {item.type},
+                {item.model}
+                {item.subCategory === 'fragrance' ? ' for ' : ','} {item.type && `${item.type}, `}
                 {` ${item[item.optionKey]}`}
                 {item.optionKey === 'size' && 'ml'}
               </Typography>
@@ -437,17 +438,17 @@ export default function ProductPageUi({ product, data }) {
                 >
                   <Typography
                     sx={{
-                      fontSize: { xs: '18px', sm: '22px' },
+                      fontSize: { xs: '16px', sm: '18px' },
                       width: '100%',
-                      m: '20px',
+                      m: { xs: '0 0 10px 0', sm: '10px 0 20px 0' },
                       // borderBottom: 'solid #c0c3c7ff 0.5px',
-                      pb: '5px',
-                      mb: '5px',
+                      // pb: '5px',
+                      // mb: '5px',
                     }}
-                    fontWeight={700}
+                    fontWeight={600}
                     color="#2B3445"
                   >
-                    Frequently bought together
+                    Buy together — get <span style={{ color: '#d50000' }}>20%</span> off
                   </Typography>
                   <Box
                     sx={{
@@ -459,6 +460,8 @@ export default function ProductPageUi({ product, data }) {
                         md: 'calc(24% - 20px)',
                       },
                       marginRight: { xs: '20px', sm: '20px', md: '40px' },
+                      display: 'flex',
+                      flexDirection: 'column',
                     }}
                   >
                     <Typography
@@ -503,14 +506,56 @@ export default function ProductPageUi({ product, data }) {
                     <Typography
                       sx={{
                         color: '#263045fb',
-                        fontSize: '14px',
-                        // fontWeight: 500,
-                        display: { xs: 'none', sm: 'block' },
-                        mt: '10px',
+                        fontSize: { xs: '11px', sm: '14px' },
+                        fontWeight: 500,
+
+                        mt: '5px',
+                        display: '-webkit-box',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        WebkitBoxOrient: 'vertical',
+                        WebkitLineClamp: 3, // number of lines
                       }}
                     >
-                      <strong> This Item: </strong> {item.fullName} <br />
-                      <strong>${item.price.toLocaleString()}</strong>
+                      <strong> This Item: </strong> {item.fullName}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: '#d50000',
+                        fontSize: { xs: '11px', sm: '14px' },
+                        // lineHeight: '19px',
+                        fontWeight: 500,
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        alignItems: 'flex-end',
+                        justifyContent: 'space-between',
+                        mt: 'auto',
+                      }}
+                    >
+                      ${Math.round(item.price * 0.8).toLocaleString()}
+                      <span
+                        style={{
+                          marginLeft: '5px',
+                          marginRight: 'auto',
+                          color: '#263045fb',
+                          textDecoration: 'line-through',
+                          fontSize: '11px',
+                          paddingRight: '5px',
+                        }}
+                      >
+                        ${item.price.toLocaleString()}
+                      </span>
+                      <span
+                        style={{
+                          border: 'solid 0.1px #d50000',
+                          borderRadius: '5px',
+                          // marginLeft: 'auto',
+                          marginRight: '5px',
+                          padding: '0 4px',
+                        }}
+                      >
+                        Save ${Math.round(item.price * 0.2).toLocaleString()}
+                      </span>
                     </Typography>
                   </Box>
 
@@ -529,6 +574,8 @@ export default function ProductPageUi({ product, data }) {
                             md: 'calc(24% - 20px)',
                           },
                           marginRight: mr,
+                          display: 'flex',
+                          flexDirection: 'column',
                         }}
                       >
                         {index !== arr.length - 1 && (
@@ -572,15 +619,60 @@ export default function ProductPageUi({ product, data }) {
                             alt="image"
                           />
                         </Link>
+
                         <Typography
                           sx={{
                             color: '#263045fb',
-                            fontSize: '14px',
-                            display: { xs: 'none', sm: 'block' },
-                            mt: '10px',
+                            fontSize: { xs: '11px', sm: '14px' },
+                            fontWeight: 500,
+
+                            mt: '5px',
+                            display: '-webkit-box',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            WebkitBoxOrient: 'vertical',
+                            WebkitLineClamp: 3, // number of lines
                           }}
                         >
-                          {item.fullName} <br /> <strong>${item.price.toLocaleString()}</strong>
+                          {item.fullName}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            color: '#d50000',
+                            fontSize: { xs: '11px', sm: '14px' },
+                            // lineHeight: '19px',
+                            fontWeight: 500,
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            alignItems: 'flex-end',
+                            justifyContent: 'space-between',
+                            mt: 'auto',
+                          }}
+                        >
+                          ${Math.round(item.price * 0.8).toLocaleString()}
+                          <span
+                            style={{
+                              marginLeft: '5px',
+                              marginRight: 'auto',
+                              color: '#263045fb',
+                              textDecoration: 'line-through',
+                              fontSize: '11px',
+                              paddingRight: '5px',
+                            }}
+                          >
+                            ${item.price.toLocaleString()}
+                          </span>
+                          <span
+                            style={{
+                              border: 'solid 0.1px #d50000',
+                              borderRadius: '5px',
+                              // marginLeft: 'auto',
+                              // marginLeft: '5px',
+                              padding: '0 4px',
+                            }}
+                          >
+                            Save ${Math.round(item.price * 0.2).toLocaleString()}
+                          </span>
                         </Typography>
                       </Box>
                     );

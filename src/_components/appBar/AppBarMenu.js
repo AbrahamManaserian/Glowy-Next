@@ -80,7 +80,6 @@ export function LogoHome() {
   );
 }
 function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer }) {
-  console.log(category);
   const router = useRouter();
   const handleClick = () => {
     if (open === category) {
