@@ -131,8 +131,8 @@ export default function ProductPageUi({ product, data }) {
       const docSnap = await getDoc(productRef);
       if (docSnap.data()) {
         if (item.price !== docSnap.data().price) {
-          console.log('asd');
-          const buyTogetherItems = await getBuyTogetherItems(20000 - docSnap.data().price);
+        
+          const buyTogetherItems = await getBuyTogetherItems(20000 - docSnap.data().price, docSnap.data().id);
           setTogetherItems(buyTogetherItems);
         }
         setItem(docSnap.data());

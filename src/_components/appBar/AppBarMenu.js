@@ -2,7 +2,6 @@
 
 import {
   Badge,
-  Box,
   Collapse,
   Divider,
   Drawer,
@@ -18,14 +17,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { useEffect, useRef, useState } from 'react';
-// import { categories } from './CategorySearch';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { FavoriteIcon, UserAvatar } from '../icons';
 
-import { categories } from '../ui/CategoriesDekstop';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import CartDrawer from '@/app/cart/_components/CartDrawer';
 import { useGlobalContext } from '@/app/GlobalContext';
+import { categoriesObj } from '@/app/admin/add-product/page';
 
 const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -82,6 +80,7 @@ export function LogoHome() {
   );
 }
 function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer }) {
+  console.log(category);
   const router = useRouter();
   const handleClick = () => {
     if (open === category) {
@@ -101,7 +100,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
       <ListItem {...rootProps} disablePadding>
         <ListItemButton sx={{ p: '2px' }} onClick={handleClick}>
           <ListItemText
-            primary={category}
+            primary={data.category}
             primaryTypographyProps={{
               fontSize: '17px',
               fontWeight: 400,
@@ -124,10 +123,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
       <Collapse in={open === category} timeout="auto" unmountOnExit>
         <List sx={{ p: 0 }}>
           <ListItem disablePadding>
-            <ListItemButton
-              sx={{ p: '0 2px 5px 20px ' }}
-              onClick={() => handleCloseDrawer(`/${data.routTo}`)}
-            >
+            <ListItemButton sx={{ p: '0 2px 5px 20px ' }} onClick={() => handleCloseDrawer(`/${category}`)}>
               <ListItemText
                 primary="All Items "
                 primaryTypographyProps={{
@@ -140,18 +136,18 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
             </ListItemButton>
           </ListItem>
         </List>
-        {Object.keys(data).map((item, index) => {
-          if (item === 'routTo') return null;
+        {Object.keys(data).map((key, index) => {
+          if (key === 'category') return null;
           // console.log(data[item]);
           return (
             <List key={index} sx={{ p: 0 }}>
               <ListItem disablePadding>
                 <ListItemButton
                   sx={{ p: '0 2px 5px 20px ' }}
-                  onClick={() => handleCloseDrawer(`/${data.routTo}?subCategory=${data[item].routTo}`)}
+                  onClick={() => handleCloseDrawer(`/${category}?subCategory=${key}`)}
                 >
                   <ListItemText
-                    primary={item}
+                    primary={key}
                     primaryTypographyProps={{
                       fontSize: '15px',
                       fontWeight: 700,
@@ -162,18 +158,14 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
                 </ListItemButton>
               </ListItem>
               <List sx={{ ml: '20px', p: 0, borderLeft: 'solid 1px #cdd1d4ff' }}>
-                {Object.keys(data[item]).map((subItem, subIndex) => {
+                {data[key].type.map((subItem, subIndex) => {
                   // console.log(data[item][subItem]);
-                  if (subItem === 'routTo') return null;
+
                   return (
                     <ListItem key={subIndex} disablePadding>
                       <ListItemButton
                         sx={{ p: '0 2px 0 20px ' }}
-                        onClick={() =>
-                          handleCloseDrawer(
-                            `/${data.routTo}?subCategory=${data[item].routTo}&type=${data[item][subItem]}`
-                          )
-                        }
+                        onClick={() => handleCloseDrawer(`/${category}?subCategory=${key}&type=${subItem}`)}
                       >
                         <ListItemText
                           primary={subItem}
@@ -266,10 +258,10 @@ function DrawerMenu() {
             All Categories
           </Typography>
           <List ref={drawerRef} sx={{ pl: '10px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
-            {Object.keys(categories).map((key) => {
+            {Object.keys(categoriesObj).map((key) => {
               return (
                 <SingleCategory
-                  data={categories[key]}
+                  data={categoriesObj[key]}
                   category={key}
                   key={key}
                   open={openNested}

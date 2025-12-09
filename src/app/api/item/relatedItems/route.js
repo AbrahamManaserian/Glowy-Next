@@ -1,12 +1,14 @@
 import { db } from '@/firebase';
 import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 
-export const getBuyTogetherItems = async (itemsCoast, minItemsCoast) => {
+export const getBuyTogetherItems = async (itemsCoast, id) => {
   // console.log(itemsCoast);
   try {
     const q1 = query(
       collection(db, 'allProducts'),
       where('price', '<=', itemsCoast * 0.8),
+      where('id', '!=', id),
+      orderBy('id'),
       orderBy('price', 'desc'),
       limit(1)
     );
@@ -18,6 +20,8 @@ export const getBuyTogetherItems = async (itemsCoast, minItemsCoast) => {
       collection(db, 'allProducts'),
       where('price', '<=', (itemsCoast - firstItem[0].price) * 1.5),
       where('price', '>=', itemsCoast - firstItem[0].price),
+      where('id', 'not-in', [id, firstItem[0].id]),
+      orderBy('id'),
       orderBy('price'),
       limit(1)
     );
@@ -35,12 +39,7 @@ export const getBuyTogetherItems = async (itemsCoast, minItemsCoast) => {
 
 const getItemsByQuery = async (condition = [], category) => {
   try {
-    const q = query(
-      collection(db, 'glowyProducts', category, 'items'),
-      ...condition,
-      orderBy('highlighted', 'desc'),
-      limit(4)
-    );
+    const q = query(collection(db, 'glowyProducts', category, 'items'), ...condition);
     const querySnapshot = await getDocs(q);
     const items = querySnapshot.docs.map((doc) => doc.data());
     return items;
@@ -63,19 +62,34 @@ export async function GET(request) {
           where('brand', '!=', params.brand),
           where('type', '==', params.type),
           where('allNotes', 'array-contains-any', params.notes.split(',') || []),
+          // orderBy('brand'),
+          orderBy('highlighted', 'desc'),
+          limit(4),
         ],
         params.category
       );
     } else {
       similarProducts = await getItemsByQuery(
-        [where('subCategory', '==', params.subCategory), where('brand', '!=', params.brand)],
+        [
+          where('subCategory', '==', params.subCategory),
+          where('brand', '!=', params.brand),
+          // orderBy('brand'),
+          orderBy('highlighted', 'desc'),
+          limit(4),
+        ],
         params.category
       );
     }
 
     const sameBrandItems = await getItemsByQuery(
       // [where('brand', '==', params.brand), where('name', '!=', params.name)],
-      [where('model', '!=', params.model), where('brand', '==', params.brand)],
+      [
+        where('model', '!=', params.model),
+        where('brand', '==', params.brand),
+        // orderBy('model'),
+        orderBy('highlighted', 'desc'),
+        limit(4),
+      ],
       params.category
     );
 
@@ -117,7 +131,7 @@ export async function GET(request) {
     //   }
     // };
 
-    const buyTogetherItems = await getBuyTogetherItems(20000 - params.price);
+    const buyTogetherItems = await getBuyTogetherItems(20000 - params.price, params.id);
 
     return new Response(
       JSON.stringify({

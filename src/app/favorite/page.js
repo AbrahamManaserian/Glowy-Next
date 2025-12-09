@@ -1,6 +1,5 @@
 'use client';
 
-import { categories } from '@/_components/ui/CategoriesDekstop';
 import { db } from '@/firebase';
 import { Button, Grid, Typography } from '@mui/material';
 import {

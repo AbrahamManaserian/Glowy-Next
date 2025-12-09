@@ -1,20 +1,10 @@
 'use client';
 
-import {
-  Button,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Button, Grid, TextField, Typography } from '@mui/material';
 import ExtraProductOptions from '../_components/ExtraProductOptions';
 import { useEffect, useState } from 'react';
 import { useAdminData } from '../_components/AdminContext';
-import Resizer from 'react-image-file-resizer';
-import { arrayUnion, doc, getDoc, increment, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { db } from '@/firebase';
 import { useRouter } from 'next/navigation';
