@@ -9,39 +9,44 @@ import { ShoppingBasketIcon } from '@/_components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { StyledBadge } from '@/app/cart/_components/CartDrawer';
 import { handleAddItemToWishList } from '@/app/_functions/hadleAddItemToWishList';
+import { useRouter } from 'next/navigation';
+
+export const handleClickAddToCart = (item, quantity, setCart, cart) => {
+  if (cart.items[item.id]) {
+    const updatedCart = structuredClone(cart);
+    updatedCart.items[item.id].quantity = updatedCart.items[item.id].quantity + quantity;
+    updatedCart.length = updatedCart.length + quantity;
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    setCart(updatedCart);
+
+    // console.log(updatedCart);
+  } else {
+    const newItem = {
+      id: item.id,
+      img: item.smallImage.file,
+      quantity: quantity,
+      price: item.price,
+      name: item.brand + ' - ' + item.model,
+    };
+    const updatedCart = structuredClone(cart);
+
+    updatedCart.items[item.id] = newItem;
+    updatedCart.length = cart.length + quantity;
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    setCart(updatedCart);
+  }
+};
 
 export default function FragranceCart({ item }) {
+  const router = useRouter();
   let newAdded;
 
   const { setWishList, wishList, cart, setCart } = useGlobalContext();
 
-  const handleClickAddToCart = (item, quantity, updateCart) => {
-    if (cart.items[item.id]) {
-      const updatedCart = structuredClone(cart);
-      ++updatedCart.items[item.id].quantity;
-      ++updatedCart.length;
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      updateCart(updatedCart);
-
-      // console.log(updatedCart);
-    } else {
-      const newItem = {
-        id: item.id,
-        img: item.smallImage.file,
-        quantity: quantity,
-        price: item.price,
-        name: item.brand + ' - ' + item.model,
-      };
-      const updatedCart = structuredClone(cart);
-
-      updatedCart.items[item.id] = newItem;
-      updatedCart.length = cart.length + 1;
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      updateCart(updatedCart);
-    }
+  const handelClickBuyNow = (item) => {
+    handleClickAddToCart(item, 1, setCart, cart);
+    router.push('/cart');
   };
-
-  const handelClickBuyNow = (id) => {};
 
   return (
     <Grid
@@ -154,7 +159,7 @@ export default function FragranceCart({ item }) {
       <Box sx={{ display: 'flex', gap: 1, mt: '10px', alignItems: 'flex-end' }}>
         <div
           style={{ cursor: 'pointer', WebkitTapHighlightColor: 'Background', marginBottom: '5px' }}
-          onClick={() => handleClickAddToCart(item, 1, setCart)}
+          onClick={() => handleClickAddToCart(item, 1, setCart, cart)}
         >
           <StyledBadge badgeContent={cart.items ? cart.items[item.id]?.quantity : 0}>
             <ShoppingBasketIcon size={'25'} />
@@ -176,7 +181,7 @@ export default function FragranceCart({ item }) {
           href={`/cart?item=${id}`}
         > */}
         <Button
-          onClick={() => handelClickBuyNow(item.id)}
+          onClick={() => handelClickBuyNow(item)}
           size="small"
           sx={{
             bgcolor: '#2B3445',

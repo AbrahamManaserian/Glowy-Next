@@ -15,7 +15,7 @@ import MovingIcon from '@mui/icons-material/Moving';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import Image from 'next/image';
 import { ProductImageComp } from './ProductImageComp';
-import FragranceCart from '@/_components/carts/FragranceCart';
+import FragranceCart, { handleClickAddToCart } from '@/_components/carts/FragranceCart';
 import { getBuyTogetherItems } from '@/app/api/item/relatedItems/route';
 
 const PageLoading = ({ loading }) => {
@@ -124,6 +124,7 @@ export default function ProductPageUi({ product, data }) {
     : null;
 
   const changeOption = async (id) => {
+    if (id === availableOption) return;
     setLoading(true);
     setAvailableOption(id);
     try {
@@ -131,7 +132,6 @@ export default function ProductPageUi({ product, data }) {
       const docSnap = await getDoc(productRef);
       if (docSnap.data()) {
         if (item.price !== docSnap.data().price) {
-        
           const buyTogetherItems = await getBuyTogetherItems(20000 - docSnap.data().price, docSnap.data().id);
           setTogetherItems(buyTogetherItems);
         }
@@ -144,8 +144,9 @@ export default function ProductPageUi({ product, data }) {
     }
   };
 
-  const handleClickAddToCart = (id) => {
-    // setOpenCartAlert({ id: id, qount: quantity });
+  const handelClickBuyNow = () => {
+    handleClickAddToCart(item, quantity, setCart, cart);
+    router.push('/cart');
   };
 
   return (
@@ -327,7 +328,7 @@ export default function ProductPageUi({ product, data }) {
                         p: '6px 15px',
                         borderRadius: '8px',
                         m: '5px 10px 5px 0',
-                        cursor: 'pointer',
+                        cursor: product.id === availableOption ? '' : 'pointer',
                         WebkitTapHighlightColor: 'transparent',
                       }}
                     >
@@ -350,7 +351,7 @@ export default function ProductPageUi({ product, data }) {
                               p: '6px 15px',
                               borderRadius: '8px',
                               m: '5px 10px 5px 0',
-                              cursor: 'pointer',
+                              cursor: option.id === availableOption ? '' : 'pointer',
                               WebkitTapHighlightColor: 'transparent',
                             }}
                           >
@@ -398,7 +399,7 @@ export default function ProductPageUi({ product, data }) {
                   </Box>
                   <Box sx={{ display: 'flex', mt: '15px' }}>
                     <Button
-                      onClick={() => handleClickAddToCart(item.id)}
+                      onClick={() => handleClickAddToCart(item, quantity, setCart, cart)}
                       sx={{ bgcolor: '#2B3445', borderRadius: '10px' }}
                       variant="contained"
                       endIcon={<ShoppingBasketIcon color={'white'} />}
@@ -406,7 +407,7 @@ export default function ProductPageUi({ product, data }) {
                       Add to cart
                     </Button>
                     <Button
-                      //   onClick={() => handelClickBuyNow(id)}
+                      onClick={() => handelClickBuyNow()}
                       sx={{ ml: '10px', bgcolor: '#f44336', borderRadius: '10px' }}
                       variant="contained"
                     >
@@ -441,9 +442,6 @@ export default function ProductPageUi({ product, data }) {
                       fontSize: { xs: '16px', sm: '18px' },
                       width: '100%',
                       m: { xs: '0 0 10px 0', sm: '10px 0 20px 0' },
-                      // borderBottom: 'solid #c0c3c7ff 0.5px',
-                      // pb: '5px',
-                      // mb: '5px',
                     }}
                     fontWeight={600}
                     color="#2B3445"
@@ -508,7 +506,6 @@ export default function ProductPageUi({ product, data }) {
                         color: '#263045fb',
                         fontSize: { xs: '11px', sm: '14px' },
                         fontWeight: 500,
-
                         mt: '5px',
                         display: '-webkit-box',
                         overflow: 'hidden',
@@ -521,13 +518,12 @@ export default function ProductPageUi({ product, data }) {
                     </Typography>
                     <Typography
                       sx={{
-                        color: '#d50000',
+                        color: '#e52b2bff',
                         fontSize: { xs: '11px', sm: '14px' },
-                        // lineHeight: '19px',
                         fontWeight: 500,
                         display: 'flex',
                         flexWrap: 'wrap',
-                        alignItems: 'flex-end',
+                        alignItems: 'center',
                         justifyContent: 'space-between',
                         mt: 'auto',
                       }}
@@ -540,16 +536,16 @@ export default function ProductPageUi({ product, data }) {
                           color: '#263045fb',
                           textDecoration: 'line-through',
                           fontSize: '11px',
-                          paddingRight: '5px',
+
+                          // paddingRight: '5px',
                         }}
                       >
                         ${item.price.toLocaleString()}
                       </span>
                       <span
                         style={{
-                          border: 'solid 0.1px #d50000',
+                          border: 'solid 0.1px #e52b2bff',
                           borderRadius: '5px',
-                          // marginLeft: 'auto',
                           marginRight: '5px',
                           padding: '0 4px',
                         }}
@@ -625,7 +621,6 @@ export default function ProductPageUi({ product, data }) {
                             color: '#263045fb',
                             fontSize: { xs: '11px', sm: '14px' },
                             fontWeight: 500,
-
                             mt: '5px',
                             display: '-webkit-box',
                             overflow: 'hidden',
@@ -638,13 +633,12 @@ export default function ProductPageUi({ product, data }) {
                         </Typography>
                         <Typography
                           sx={{
-                            color: '#d50000',
+                            color: '#e52b2bff',
                             fontSize: { xs: '11px', sm: '14px' },
-                            // lineHeight: '19px',
                             fontWeight: 500,
                             display: 'flex',
                             flexWrap: 'wrap',
-                            alignItems: 'flex-end',
+                            alignItems: 'center',
                             justifyContent: 'space-between',
                             mt: 'auto',
                           }}
@@ -657,14 +651,13 @@ export default function ProductPageUi({ product, data }) {
                               color: '#263045fb',
                               textDecoration: 'line-through',
                               fontSize: '11px',
-                              paddingRight: '5px',
                             }}
                           >
                             ${item.price.toLocaleString()}
                           </span>
                           <span
                             style={{
-                              border: 'solid 0.1px #d50000',
+                              border: 'solid 0.1px #e52b2bff',
                               borderRadius: '5px',
                               // marginLeft: 'auto',
                               // marginLeft: '5px',
@@ -683,24 +676,93 @@ export default function ProductPageUi({ product, data }) {
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'center',
+                      borderTop: { xs: 'solid 0.1px #6e6969ff', sm: 'solid 0.1px #6e6969ff', md: 0 },
                       alignItems: 'center',
                       width: { xs: '100%', sm: '100%', md: 'calc(28% - 20px)' },
-                      p: '10px',
+                      p: { xs: 0, sm: 0, md: '15px' },
+                      mt: { xs: '12px', sm: '12px', md: 0 },
                       boxSizing: 'border-box',
                     }}
                   >
-                    <Typography sx={{ fontSize: '14px', my: '5px' }}>
-                      Total Price:{' '}
+                    <Typography
+                      sx={{
+                        fontSize: '14px',
+                        my: '3px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        width: '100%',
+                        maxWidth: '400px',
+                      }}
+                    >
+                      Item(s) total:
                       <strong>
                         $
-                        {(
+                        {Math.round(
                           item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)
                         ).toLocaleString()}
                       </strong>
                     </Typography>
+                    <Typography
+                      sx={{
+                        my: '3px',
+                        fontSize: '14px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        width: '100%',
+                        maxWidth: '400px',
+                      }}
+                    >
+                      Discounts:
+                      <strong style={{ color: '#e52b2bff' }}>
+                        -$
+                        {Math.round(
+                          (item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)) * 0.2
+                        ).toLocaleString()}
+                      </strong>
+                    </Typography>
+                    <Typography
+                      sx={{
+                        my: '3px',
+                        fontSize: '14px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        width: '100%',
+                        maxWidth: '400px',
+                      }}
+                    >
+                      Shipping:
+                      <strong style={{ color: '#07870cff' }}>FREE</strong>
+                    </Typography>
+                    <Typography
+                      sx={{
+                        mt: '10px',
+                        fontSize: '15px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        width: '100%',
+                        fontWeight: 500,
+                        maxWidth: '400px',
+                      }}
+                    >
+                      Order Total:
+                      <strong style={{}}>
+                        $
+                        {Math.round(
+                          (item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)) * 0.8
+                        ).toLocaleString()}
+                      </strong>
+                    </Typography>
+
                     <Button
                       // onClick={() => handleClickAddToCart(item.id)}
-                      sx={{ bgcolor: '#2B3445', borderRadius: '10px', textTransform: 'initial' }}
+                      sx={{
+                        bgcolor: '#2B3445',
+                        borderRadius: '10px',
+                        textTransform: 'initial',
+                        mt: '10px',
+                        width: '100%',
+                        maxWidth: '200px',
+                      }}
                       variant="contained"
                       endIcon={<ShoppingBasketIcon color={'white'} />}
                     >
