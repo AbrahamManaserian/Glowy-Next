@@ -100,40 +100,52 @@ export default function FragranceCart({ item }) {
         </Typography>
       )}
 
-      <Link style={{ WebkitTapHighlightColor: 'transparent' }} href={`/item/${item.id}`}>
-        <Box
-          sx={{
-            flexShrink: 0,
-            display: 'flex',
-            width: '100%',
-            justifyContent: 'center',
-            alignContent: 'center',
-            alignItems: 'center',
-            overflow: 'hidden',
-            // bgcolor: 'red',
-            aspectRatio: '1 / 1',
-            boxSizing: 'border-box',
-            borderRadius: '15px',
-
-            // p: '10px',
-            border: '1px solid rgba(0,0,0,0.04)',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+      <div
+        style={{
+          borderRadius: '15px',
+          overflow: 'hidden',
+        }}
+      >
+        <Link
+          style={{
+            WebkitTapHighlightColor: 'rgba(182, 212, 238, 0.11)',
           }}
+          href={`/item/${item.id}`}
         >
-          <Image
-            width={200}
-            height={200}
-            style={{
+          <Box
+            sx={{
+              flexShrink: 0,
+              display: 'flex',
               width: '100%',
-              height: '100%',
-              objectFit: 'cover',
+              justifyContent: 'center',
+              alignContent: 'center',
+              alignItems: 'center',
               overflow: 'hidden',
+              // bgcolor: 'red',
+              aspectRatio: '1 / 1',
+              boxSizing: 'border-box',
+              borderRadius: '15px',
+
+              // p: '10px',
+              border: '1px solid rgba(0,0,0,0.04)',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
             }}
-            src={item.smallImage.file}
-            alt="image"
-          />
-        </Box>
-      </Link>
+          >
+            <Image
+              width={200}
+              height={200}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                overflow: 'hidden',
+              }}
+              src={item.smallImage.file}
+              alt="image"
+            />
+          </Box>
+        </Link>
+      </div>
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '10px' }}>
         <Typography sx={{ color: '#263045fb', fontSize: '15px', fontWeight: 500 }}>{item.brand} </Typography>
         <Typography sx={{ color: '#3c4354a3', fontSize: '12px' }}>
@@ -176,10 +188,7 @@ export default function FragranceCart({ item }) {
             sx={{ color: '#ff3d00', ml: '5px', mb: '2px', cursor: 'pointer' }}
           />
         )}
-        {/* <Link
-          style={{ WebkitTapHighlightColor: 'transparent', marginLeft: 'auto' }}
-          href={`/cart?item=${id}`}
-        > */}
+
         <Button
           onClick={() => handelClickBuyNow(item)}
           size="small"

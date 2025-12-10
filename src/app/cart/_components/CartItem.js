@@ -37,7 +37,7 @@ export default function CartItem({ item, cart, setCart, check, padding }) {
             width: '100px',
             height: '100px',
             overflow: 'hidden',
-            WebkitTapHighlightColor: 'rgba(43, 137, 219, 0.04)',
+            WebkitTapHighlightColor: 'rgba(219, 122, 43, 0.04)',
           }}
         >
           <Image src={item.img} alt="" width={200} height={200} style={{ width: '100%', height: 'auto' }} />

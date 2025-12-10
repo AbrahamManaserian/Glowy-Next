@@ -3,20 +3,27 @@
 import {
   Autocomplete,
   Box,
+  Button,
   Checkbox,
   Collapse,
   FormControlLabel,
   FormGroup,
   Grid,
+  Popper,
   Switch,
   TextField,
   Typography,
 } from '@mui/material';
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { categoriesObj } from '@/app/admin/add-product/page';
 import styled from '@emotion/styled';
+import { useMediaQuery } from '@mui/material';
+
+function BottomPopper(props) {
+  return <Popper {...props} placement="bottom-start" />;
+}
 
 const IOSSwitch = styled(({ noRout, checked, handleChangeParams, ...props }) => (
   <Switch
@@ -142,7 +149,10 @@ const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
 };
 
 export default function Filter({ paramsState, handleChangeParams, noRout, category }) {
+  const isMobile = useMediaQuery('(max-width:600px)');
+  // const containerRef = useRef(null);
   const inputRef = useRef(null);
+  const [brand, setBrand] = useState(paramsState.brand);
   const initialValue = useRef('');
 
   const [collapseItems, setCollapseItems] = useState({
@@ -303,12 +313,15 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
         open={collapseItems.brands}
         handleCangeCollapse={handleCangeCollapse}
       />
-      <Collapse in={collapseItems.brands} timeout="auto" unmountOnExit>
+      <Collapse sx={{ mb: '100px' }} in={collapseItems.brands} timeout="auto" unmountOnExit>
         <Autocomplete
           disablePortal
+          blurOnSelect
+          freeSolo
+          slots={{ popper: BottomPopper }}
           slotProps={{
-            paper: { sx: { maxHeight: 500 } },
-            listbox: { sx: { maxHeight: 500 } },
+            paper: { sx: { maxHeight: 900 } },
+            listbox: { sx: { maxHeight: 900 } },
           }}
           sx={{ boxSizing: 'border-box', width: '100%', my: '10px' }}
           size="small"
@@ -316,18 +329,15 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
             (option) => option
           )}
           renderInput={(params) => <TextField inputRef={inputRef} {...params} label="Brands" />}
-          value={paramsState.brand}
+          value={brand}
           onChange={(event, value, reason) => {
-            if (reason === 'selectOption') {
-              if (value !== paramsState.brand) {
-                handleChangeParams('brand', value || '', noRout);
-              }
-              inputRef.current?.blur();
+            if (reason !== 'clear') {
+              handleChangeParams('brand', value ?? '', noRout);
             }
           }}
           onBlur={(e) => {
-            if (e.target.value !== paramsState.brand) {
-              handleChangeParams('brand', e.target.value, noRout);
+            if (!e.target.value && paramsState.brand) {
+              handleChangeParams('brand', '', noRout);
             }
           }}
         />

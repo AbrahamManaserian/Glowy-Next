@@ -56,7 +56,7 @@ const navObjCusCare = {
 
 export function LogoHome() {
   return (
-    <Link href="/" style={{ textDecoration: 'none', WebkitTapHighlightColor: 'transparent' }}>
+    <Link href="/" style={{ textDecoration: 'none', WebkitTapHighlightColor: 'Background' }}>
       <Typography
         sx={{
           // height: '24px',
@@ -400,7 +400,7 @@ export default function AppBarMenu() {
         <Link
           scroll={true}
           href="/favorite"
-          style={{ margin: '0 25px 0 10px', WebkitTapHighlightColor: 'transparent' }}
+          style={{ margin: '0 25px 0 10px', WebkitTapHighlightColor: 'Background' }}
         >
           <StyledBadgeFavorite badgeContent={wishList.length}>
             <FavoriteIcon size={21} />
@@ -411,7 +411,7 @@ export default function AppBarMenu() {
         <Link
           scroll={true}
           href="/user"
-          style={{ margin: '0 15px 0 25px', WebkitTapHighlightColor: 'transparent' }}
+          style={{ margin: '0 15px 0 25px', WebkitTapHighlightColor: 'Background' }}
         >
           <UserAvatar />
         </Link>

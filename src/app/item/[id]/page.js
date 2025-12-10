@@ -15,6 +15,7 @@ export default async function FragranceProductPage({ params }) {
 
   const product = await res.json();
   let data = null;
+
   // console.log(product);
   if (product.id) {
     data = fetch(
