@@ -52,7 +52,7 @@ import { getBuyTogetherItems } from '@/app/api/item/relatedItems/route';
        </Typography>
 
        <Typography sx={{ mt: 1, color: 'text.secondary', maxWidth: 300 }}>
-         We couldn't find the item you're looking for. It may have been removed or is unavailable.
+         {`We couldn't find the item you're looking for. It may have been removed or is unavailable.`}
        </Typography>
 
        <Button
