@@ -5,7 +5,7 @@ import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 import { useState } from 'react';
 
-export default function FragrancePagination() {
+export default function PagePagination() {
   const [page, setPage] = useState(1);
   const handlePageChange = (event, value) => {
     setPage(value);

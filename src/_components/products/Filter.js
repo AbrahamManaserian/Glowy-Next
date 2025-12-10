@@ -3,7 +3,6 @@
 import {
   Autocomplete,
   Box,
-  Button,
   Checkbox,
   Collapse,
   FormControlLabel,
@@ -19,7 +18,6 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import React, { useRef, useState } from 'react';
 import { categoriesObj } from '@/app/admin/add-product/page';
 import styled from '@emotion/styled';
-import { useMediaQuery } from '@mui/material';
 
 function BottomPopper(props) {
   return <Popper {...props} placement="bottom-start" />;
@@ -149,8 +147,6 @@ const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
 };
 
 export default function Filter({ paramsState, handleChangeParams, noRout, category }) {
-  const isMobile = useMediaQuery('(max-width:600px)');
-  // const containerRef = useRef(null);
   const inputRef = useRef(null);
   const [brand, setBrand] = useState(paramsState.brand);
   const initialValue = useRef('');

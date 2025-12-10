@@ -1,4 +1,4 @@
-import PageUi from './_components/PageUi';
+import PageUi from '@/_components/products/PageUi';
 
 export default async function FragrancePage({ searchParams }) {
   const url = await searchParams;
@@ -19,5 +19,12 @@ export default async function FragrancePage({ searchParams }) {
 
   //   const data = {};
   // console.log(data);
-  return <PageUi data={data} />;
+  return (
+    <PageUi
+      data={data}
+      category="fragrance"
+      // data={{}}
+      categoryText="Fragrance"
+    />
+  );
 }

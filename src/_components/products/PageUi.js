@@ -2,14 +2,14 @@
 
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, Drawer, Grid, Typography } from '@mui/material';
-import SortView from './SortView';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import SortView from './SortView';
 import Filter from './Filter';
-import FragrancePagination from './FragrancePagination';
+import PagePagination from './PagePagination';
 import FragranceCart from '@/_components/carts/FragranceCart';
 
-export default function PageUi({ data }) {
+export default function PageUi({ data, categoryText, category }) {
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     setLoading(false);
@@ -45,14 +45,7 @@ export default function PageUi({ data }) {
   };
 
   const doRout = (prop, value) => {
-    if (
-      prop === 'type' ||
-      // prop === 'minPrice' ||
-      // prop === 'maxPrice' ||
-      prop === 'subCategory' ||
-      prop === 'size' ||
-      prop === 'brand'
-    ) {
+    if (prop === 'type' || prop === 'subCategory' || prop === 'size' || prop === 'brand') {
       setLoading(true);
       const params = new URLSearchParams(searchParams.toString());
       if (prop === 'subCategory') {
@@ -84,8 +77,6 @@ export default function PageUi({ data }) {
     });
     setParamsState(newState);
   }, [searchParams]);
-
-  
 
   return (
     <Grid sx={{ m: { xs: '50px 10px', sm: '90px 35px' } }} size={12}>
@@ -124,7 +115,7 @@ export default function PageUi({ data }) {
               mb: '20px',
             }}
           >
-            Fragrance
+            {categoryText}
           </Typography>
 
           <SortView
@@ -135,7 +126,7 @@ export default function PageUi({ data }) {
         </Box>
         <Grid container sx={{ width: '100%', flexWrap: 'nowrap' }}>
           <Box sx={{ display: { xs: 'none', sm: 'none', md: 'flex' }, mt: '40px' }}>
-            <Filter paramsState={paramsState} handleChangeParams={handleChangeParams} category="fragrance" />
+            <Filter paramsState={paramsState} handleChangeParams={handleChangeParams} category={category} />
           </Box>
           <Grid
             alignContent={'flex-start'}
@@ -197,7 +188,7 @@ export default function PageUi({ data }) {
             })}
             {Object.keys(data).length > 0 && (
               <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '10px' }}>
-                <FragrancePagination />
+                <PagePagination />
               </div>
             )}
           </Grid>
@@ -238,8 +229,7 @@ export default function PageUi({ data }) {
                 paramsState={paramsState}
                 handleChangeParams={handleChangeParams}
                 noRout={true}
-                // handleChangeArrayParams={handleChangeArrayParams}
-                category="fragrance"
+                category={category}
               />
             </div>
           </div>
