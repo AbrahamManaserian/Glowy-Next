@@ -50,7 +50,7 @@ export const getProducts = async (searchParams) => {
       collection(db, 'glowyProducts', params.category, 'items'),
       ...conditions,
       orderBy('highlighted', 'desc'),
-      limit(5)
+      limit(50)
     );
 
     const querySnapshot = await getDocs(q);
