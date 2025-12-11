@@ -1,18 +1,31 @@
 // import { getFragranceProducts } from '@/app/lib/firebase/getFragranceProducts';
 import { db } from '@/firebase';
-import { collection, doc, getDoc, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getCountFromServer,
+  getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+  where,
+} from 'firebase/firestore';
 
 export const getProducts = async (searchParams) => {
   // console.log(searchParams.get('type'));
 
   let data = {};
+  let totalDocs;
+
   try {
     const params = Object.fromEntries(searchParams.entries());
-    console.log(params);
+
     const conditions = [];
     for (const [key, value] of Object.entries(params)) {
       // console.log(key);
-      if (value && key !== 'category') {
+      if (value && key !== 'category' && key !== 'page') {
         if (key === 'minPrice') {
           conditions.push(where('price', '>=', +value));
         } else if (key === 'maxPrice') {
@@ -22,32 +35,32 @@ export const getProducts = async (searchParams) => {
         }
       }
     }
-    // console.log(conditions);
-    let q;
-    if (conditions.length > 0) {
-      q = query(
+    // Count docs count
+    const countSnap = await getCountFromServer(
+      query(
         collection(db, 'glowyProducts', params.category, 'items'),
         ...conditions,
-        orderBy('highlighted', 'desc'),
-        limit(50)
-      );
-    } else {
-      q = query(
-        collection(db, 'glowyProducts', params.category, 'items'),
-        orderBy('highlighted', 'desc'),
-        limit(50)
-      );
-    }
+        orderBy('highlighted', 'desc')
+      )
+    );
+    totalDocs = countSnap.data().count;
+
+    const q = query(
+      collection(db, 'glowyProducts', params.category, 'items'),
+      ...conditions,
+      orderBy('highlighted', 'desc'),
+      limit(50)
+    );
+
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       // doc.data() is never undefined for query doc snapshots
       data[doc.id] = doc.data();
     });
-
-    return data;
+    return { data, totalDocs };
   } catch (error) {
     console.log(error);
-    return {};
+    return { data, totalDocs };
   }
 };
 

@@ -1,19 +1,21 @@
 'use client';
 
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, Button, Drawer, Grid, Typography } from '@mui/material';
+import { Box, Button, Drawer, Grid, Pagination, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import SortView from './SortView';
 import Filter from './Filter';
-import PagePagination from './PagePagination';
 import FragranceCart from '@/_components/carts/FragranceCart';
+import { categoriesObj } from '@/app/admin/add-product/page';
+import SearchOffIcon from '@mui/icons-material/SearchOff';
 
-export default function PageUi({ data, categoryText, category }) {
+export default function PageUi({ data, categoryText, category, totalDocs }) {
   const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    setLoading(false);
-  }, [data]);
+  const [cursor, setCursor] = useState();
+
+  console.log(totalDocs);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -28,6 +30,11 @@ export default function PageUi({ data, categoryText, category }) {
     brand: '',
     inStock: 'noCheck',
   });
+
+  const resetFilters = () => {
+    setLoading(true);
+    router.push(window.location.pathname);
+  };
 
   const applyFilters = () => {
     setLoading(true);
@@ -45,13 +52,14 @@ export default function PageUi({ data, categoryText, category }) {
   };
 
   const doRout = (prop, value) => {
-    if (prop === 'type' || prop === 'subCategory' || prop === 'size' || prop === 'brand') {
+    if (prop === 'type' || prop === 'subCategory' || prop === 'size' || prop === 'brand' || prop === 'page') {
       setLoading(true);
       const params = new URLSearchParams(searchParams.toString());
       if (prop === 'subCategory') {
         params.set('type', '');
         params.set('brand', '');
         params.set('size', '');
+        params.delete('page');
       }
       params.set(prop, value);
       router.push(`?${params.toString()}`);
@@ -59,8 +67,19 @@ export default function PageUi({ data, categoryText, category }) {
   };
 
   const handleChangeParams = (prop, value, noRout) => {
+    // console.log('asd');
     if (prop === 'subCategory') {
-      setParamsState({ ...paramsState, [prop]: value, type: '', brand: '', size: '' });
+      setParamsState({
+        sortBy: '',
+        size: '',
+        view: '',
+        minPrice: '',
+        maxPrice: '',
+        type: '',
+        subCategory: value,
+        brand: '',
+        inStock: 'noCheck',
+      });
     } else {
       setParamsState({ ...paramsState, [prop]: value });
     }
@@ -69,14 +88,34 @@ export default function PageUi({ data, categoryText, category }) {
     }
   };
 
+  const handlePageChange = (e, value) => {
+    setLoading(true);
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === 1) {
+      params.delete('page');
+    } else {
+      params.set('page', value);
+    }
+
+    setParamsState({ ...paramsState, page: value });
+    router.push(`?${params.toString()}`);
+  };
+
   useEffect(() => {
     // window.scrollTo({ top: 0, behavior: 'smooth' });
     const newState = {};
     Object.keys(paramsState).forEach((key) => {
       newState[key] = searchParams.get(key) || '';
     });
+    if (searchParams.get('page')) {
+      newState.page = searchParams.get('page');
+    }
     setParamsState(newState);
   }, [searchParams]);
+
+  useEffect(() => {
+    setLoading(false);
+  }, [data]);
 
   return (
     <Grid sx={{ m: { xs: '50px 10px', sm: '90px 35px' } }} size={12}>
@@ -149,7 +188,8 @@ export default function PageUi({ data, categoryText, category }) {
                 fontWeight: 200,
               }}
             >
-              {paramsState.subCategory} {paramsState.type && ` > ${paramsState.type} `}
+              {paramsState.subCategory && categoriesObj[category][paramsState.subCategory].category}{' '}
+              {paramsState.type && ` > ${paramsState.type} `}
               {paramsState.brand && ` > ${paramsState.brand}  `}
               {paramsState.size && ` > Size - ${paramsState.size} `}
             </Typography>
@@ -179,6 +219,7 @@ export default function PageUi({ data, categoryText, category }) {
                 `}</style>
               </div>
             )}
+
             {Object.keys(data).map((key, index) => {
               return (
                 <Grid key={index} size={{ xs: 6, sm: 4, md: 4, lg: 3 }}>
@@ -186,10 +227,45 @@ export default function PageUi({ data, categoryText, category }) {
                 </Grid>
               );
             })}
-            {Object.keys(data).length > 0 && (
+            {Object.keys(data).length > 0 ? (
               <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '10px' }}>
-                <PagePagination />
+                <Pagination
+                  boundaryCount={1}
+                  siblingCount={1}
+                  color="primary"
+                  count={Math.ceil(totalDocs / 5)}
+                  page={+paramsState.page || 1}
+                  onChange={handlePageChange}
+                />
               </div>
+            ) : (
+              <Box
+                sx={{
+                  width: '100%',
+                  textAlign: 'center',
+                  py: 6,
+                  px: 2,
+                  color: 'text.secondary',
+                }}
+              >
+                <SearchOffIcon sx={{ fontSize: 60, mb: 2, opacity: 0.7 }} />
+
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                  No products found
+                </Typography>
+
+                <Typography variant="body2" sx={{ mb: 3, maxWidth: 300, mx: 'auto' }}>
+                  Try adjusting your filters or explore other categories.
+                </Typography>
+
+                <Button
+                  onClick={resetFilters}
+                  sx={{ ml: '10px', bgcolor: '#f44336', borderRadius: '10px', textTransform: 'initial' }}
+                  variant="contained"
+                >
+                  Reset Filters
+                </Button>
+              </Box>
             )}
           </Grid>
         </Grid>
