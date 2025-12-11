@@ -25,7 +25,7 @@ export const getProducts = async (searchParams) => {
     const conditions = [];
     for (const [key, value] of Object.entries(params)) {
       // console.log(key);
-      if (value && key !== 'category' && key !== 'page') {
+      if (value && key !== 'category' && key !== 'page' && key !== 'cursor') {
         if (key === 'minPrice') {
           conditions.push(where('price', '>=', +value));
         } else if (key === 'maxPrice') {
@@ -35,6 +35,7 @@ export const getProducts = async (searchParams) => {
         }
       }
     }
+
     // Count docs count
     const countSnap = await getCountFromServer(
       query(
@@ -49,15 +50,16 @@ export const getProducts = async (searchParams) => {
       collection(db, 'glowyProducts', params.category, 'items'),
       ...conditions,
       orderBy('highlighted', 'desc'),
-      limit(50)
+      limit(5)
     );
 
     const querySnapshot = await getDocs(q);
+    const nextCursor = querySnapshot.docs[querySnapshot.docs.length - 1]?.id;
     querySnapshot.forEach((doc) => {
       // doc.data() is never undefined for query doc snapshots
       data[doc.id] = doc.data();
     });
-    return { data, totalDocs };
+    return { data, totalDocs, nextCursor };
   } catch (error) {
     console.log(error);
     return { data, totalDocs };

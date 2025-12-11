@@ -1,7 +1,7 @@
 'use client';
 
 import { db } from '@/firebase';
-import { Button, Grid, Typography } from '@mui/material';
+import { Button, Grid, Pagination, Typography } from '@mui/material';
 import {
   arrayUnion,
   collection,
@@ -15,6 +15,7 @@ import {
   setDoc,
   updateDoc,
 } from 'firebase/firestore';
+import { useState } from 'react';
 
 const fragranceBrands = [
   'Amouage',
@@ -69,6 +70,12 @@ const fragranceBrands = [
 ];
 
 export default function Home() {
+  const [page, setPagse] = useState(1);
+
+  const handlePageChange = (e, value) => {
+    setPagse(value);
+  };
+
   const handleClick = async () => {
     // const detailRef = doc(db, 'details', 'project-details');
     // // const data = await getDoc(detailRef);
@@ -94,9 +101,19 @@ export default function Home() {
   };
 
   return (
-    <Grid container xs={12} direction="column" minHeight="320vh">
-      <Typography>Favorite Page</Typography>
-      <Button onClick={() => handleClick()}>click</Button>
+    <Grid container size={12} justifyContent={'center'} mt="50px" minHeight="100vh" alignItems={'flex-start'}>
+      <Typography width={'100%'}>Favorite Page</Typography>
+
+      <Pagination
+        boundaryCount={1}
+        siblingCount={1}
+        color="primary"
+        count={7}
+        page={page}
+        onChange={handlePageChange}
+      />
+
+      {/* <Button onClick={() => handleClick()}>click</Button> */}
     </Grid>
   );
 }

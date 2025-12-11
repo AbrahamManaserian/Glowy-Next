@@ -10,11 +10,11 @@ import FragranceCart from '@/_components/carts/FragranceCart';
 import { categoriesObj } from '@/app/admin/add-product/page';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
-export default function PageUi({ data, categoryText, category, totalDocs }) {
+export default function PageUi({ data, categoryText, category, totalDocs, nextCursor }) {
   const [loading, setLoading] = useState(false);
   const [cursor, setCursor] = useState();
 
-  console.log(totalDocs);
+  console.log(nextCursor);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -93,8 +93,10 @@ export default function PageUi({ data, categoryText, category, totalDocs }) {
     const params = new URLSearchParams(searchParams.toString());
     if (value === 1) {
       params.delete('page');
+      params.delete('cursor');
     } else {
       params.set('page', value);
+      params.set('cursor', nextCursor);
     }
 
     setParamsState({ ...paramsState, page: value });
