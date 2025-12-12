@@ -3,10 +3,12 @@ import { db } from '@/firebase';
 import {
   collection,
   doc,
+  endBefore,
   getCountFromServer,
   getDoc,
   getDocs,
   limit,
+  limitToLast,
   orderBy,
   query,
   startAfter,
@@ -18,6 +20,8 @@ export const getProducts = async (searchParams) => {
 
   let data = {};
   let totalDocs;
+  let lastId;
+  let startId;
 
   try {
     const params = Object.fromEntries(searchParams.entries());
@@ -25,7 +29,14 @@ export const getProducts = async (searchParams) => {
     const conditions = [];
     for (const [key, value] of Object.entries(params)) {
       // console.log(key);
-      if (value && key !== 'category' && key !== 'page' && key !== 'cursor') {
+      if (
+        value &&
+        key !== 'category' &&
+        key !== 'page' &&
+        key !== 'startId' &&
+        key !== 'lastId' &&
+        key !== 'nav'
+      ) {
         if (key === 'minPrice') {
           conditions.push(where('price', '>=', +value));
         } else if (key === 'maxPrice') {
@@ -46,20 +57,88 @@ export const getProducts = async (searchParams) => {
     );
     totalDocs = countSnap.data().count;
 
-    const q = query(
-      collection(db, 'glowyProducts', params.category, 'items'),
-      ...conditions,
-      orderBy('highlighted', 'desc'),
-      limit(50)
-    );
+    if (params.page) {
+      if (params.nav === 'last') {
+        const item = await getDoc(doc(db, 'glowyProducts', 'fragrance', 'items', params.lastId)).catch((e) =>
+          console.log(e)
+        );
 
-    const querySnapshot = await getDocs(q);
-    const nextCursor = querySnapshot.docs[querySnapshot.docs.length - 1]?.id;
-    querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      data[doc.id] = doc.data();
-    });
-    return { data, totalDocs, nextCursor };
+        const q = query(
+          collection(db, 'glowyProducts', params.category, 'items'),
+          ...conditions,
+          orderBy('highlighted', 'desc'),
+          startAfter(item),
+          limitToLast(4)
+        );
+
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          data[doc.id] = doc.data();
+        });
+
+        lastId = querySnapshot.docs[querySnapshot.docs.length - 1]?.id;
+        startId = querySnapshot.docs[0]?.id;
+      } else if (params.nav === 'next') {
+        const item = await getDoc(doc(db, 'glowyProducts', 'fragrance', 'items', params.lastId)).catch((e) =>
+          console.log(e)
+        );
+
+        const q = query(
+          collection(db, 'glowyProducts', params.category, 'items'),
+          ...conditions,
+          orderBy('highlighted', 'desc'),
+          startAfter(item),
+          limit(4)
+        );
+
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          // doc.data() is never undefined for query doc snapshots
+          data[doc.id] = doc.data();
+        });
+
+        lastId = querySnapshot.docs[querySnapshot.docs.length - 1]?.id;
+        startId = querySnapshot.docs[0]?.id;
+      } else {
+        const item = await getDoc(doc(db, 'glowyProducts', 'fragrance', 'items', params.startId)).catch((e) =>
+          console.log(e)
+        );
+
+        const q = query(
+          collection(db, 'glowyProducts', params.category, 'items'),
+          ...conditions,
+          orderBy('highlighted', 'desc'),
+          endBefore(item),
+          limitToLast(4)
+        );
+
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          // doc.data() is never undefined for query doc snapshots
+          data[doc.id] = doc.data();
+        });
+
+        lastId = querySnapshot.docs[querySnapshot.docs.length - 1]?.id;
+        startId = querySnapshot.docs[0]?.id;
+      }
+    } else {
+      const q = query(
+        collection(db, 'glowyProducts', params.category, 'items'),
+        ...conditions,
+        orderBy('highlighted', 'desc'),
+        limit(4)
+      );
+
+      const querySnapshot = await getDocs(q);
+      lastId = querySnapshot.docs[querySnapshot.docs.length - 1]?.id;
+      startId = querySnapshot.docs[0]?.id;
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        data[doc.id] = doc.data();
+      });
+    }
+
+    return { data, totalDocs, lastId, startId };
   } catch (error) {
     console.log(error);
     return { data, totalDocs };

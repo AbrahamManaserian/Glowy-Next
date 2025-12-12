@@ -10,12 +10,9 @@ import FragranceCart from '@/_components/carts/FragranceCart';
 import { categoriesObj } from '@/app/admin/add-product/page';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
-export default function PageUi({ data, categoryText, category, totalDocs, nextCursor }) {
+export default function PageUi({ data, categoryText, category, totalDocs, lastId, startId }) {
   const [loading, setLoading] = useState(false);
-  const [cursor, setCursor] = useState();
-
-  console.log(nextCursor);
-
+  // console.log(lastId, startId);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -59,8 +56,14 @@ export default function PageUi({ data, categoryText, category, totalDocs, nextCu
         params.set('type', '');
         params.set('brand', '');
         params.set('size', '');
-        params.delete('page');
       }
+      if (prop !== 'page' || prop !== 'startId' || prop !== 'lastId') {
+        params.delete('page');
+        params.delete('startId');
+        params.delete('lastId');
+        params.delete('nav');
+      }
+
       params.set(prop, value);
       router.push(`?${params.toString()}`);
     }
@@ -89,14 +92,28 @@ export default function PageUi({ data, categoryText, category, totalDocs, nextCu
   };
 
   const handlePageChange = (e, value) => {
+    if (value === +paramsState.page) return;
     setLoading(true);
     const params = new URLSearchParams(searchParams.toString());
     if (value === 1) {
       params.delete('page');
-      params.delete('cursor');
+      params.delete('startId');
+      params.delete('lastId');
+      params.delete('nav');
+    } else if (value === Math.ceil(totalDocs / 4)) {
+      params.set('page', value);
+      params.set('startId', startId);
+      params.set('lastId', lastId);
+      params.set('nav', 'last');
     } else {
       params.set('page', value);
-      params.set('cursor', nextCursor);
+      params.set('startId', startId);
+      params.set('lastId', lastId);
+      if (value > paramsState.page || !paramsState.page) {
+        params.set('nav', 'next');
+      } else {
+        params.set('nav', 'prev');
+      }
     }
 
     setParamsState({ ...paramsState, page: value });
@@ -121,6 +138,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, nextCu
 
   return (
     <Grid sx={{ m: { xs: '50px 10px', sm: '90px 35px' } }} size={12}>
+      {totalDocs}
       {loading && (
         <div
           style={{
@@ -235,7 +253,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, nextCu
                   boundaryCount={1}
                   siblingCount={1}
                   color="primary"
-                  count={Math.ceil(totalDocs / 5)}
+                  count={Math.ceil(totalDocs / 4)}
                   page={+paramsState.page || 1}
                   onChange={handlePageChange}
                 />

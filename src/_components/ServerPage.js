@@ -5,7 +5,7 @@ import PageUi from './products/PageUi';
 
 export default async function ServerPage({ searchParams, categoryText, category }) {
   // const allowedKeys = ['page', 'size', 'subCategory', 'type', 'minPrice', 'maxPrice', 'brand'];
-  const allowedKeys = ['page', 'size', 'subCategory', 'type', 'brand', 'cursor'];
+  const allowedKeys = ['page', 'size', 'subCategory', 'type', 'brand', 'startId', 'lastId', 'nav'];
   const url = searchParams;
   const safeParams = Object.fromEntries(Object.entries(url || {}).map(([k, v]) => [String(k), String(v)]));
   const filteredParams = Object.fromEntries(
@@ -23,13 +23,14 @@ export default async function ServerPage({ searchParams, categoryText, category 
     next: { revalidate: 360 },
   });
 
-  const { data, totalDocs, nextCursor } = await res.json();
+  const { data, totalDocs, lastId, startId } = await res.json();
 
   //   const data = {};
   // console.log(data);
   return (
     <PageUi
-      nextCursor={nextCursor}
+      lastId={lastId}
+      startId={startId}
       totalDocs={totalDocs}
       data={data}
       categoryText={categoryText}

@@ -116,7 +116,7 @@ export async function GET(request) {
     return {
       sameBrandItems,
       similarProducts,
-      buyTogetherItems,
+      // buyTogetherItems,
     };
   }
 }
