@@ -59,8 +59,8 @@ export const getProducts = async (searchParams) => {
 
     if (params.page) {
       if (params.nav === 'last') {
-        const item = await getDoc(doc(db, 'glowyProducts', 'fragrance', 'items', params.lastId)).catch((e) =>
-          console.log(e)
+        const item = await getDoc(doc(db, 'glowyProducts', params.category, 'items', params.lastId)).catch(
+          (e) => console.log(e)
         );
 
         const q = query(
@@ -79,8 +79,8 @@ export const getProducts = async (searchParams) => {
         lastId = querySnapshot.docs[querySnapshot.docs.length - 1]?.id;
         startId = querySnapshot.docs[0]?.id;
       } else if (params.nav === 'next') {
-        const item = await getDoc(doc(db, 'glowyProducts', 'fragrance', 'items', params.lastId)).catch((e) =>
-          console.log(e)
+        const item = await getDoc(doc(db, 'glowyProducts', params.category, 'items', params.lastId)).catch(
+          (e) => console.log(e)
         );
 
         const q = query(
@@ -100,8 +100,8 @@ export const getProducts = async (searchParams) => {
         lastId = querySnapshot.docs[querySnapshot.docs.length - 1]?.id;
         startId = querySnapshot.docs[0]?.id;
       } else {
-        const item = await getDoc(doc(db, 'glowyProducts', 'fragrance', 'items', params.startId)).catch((e) =>
-          console.log(e)
+        const item = await getDoc(doc(db, 'glowyProducts', params.category, 'items', params.startId)).catch(
+          (e) => console.log(e)
         );
 
         const q = query(
