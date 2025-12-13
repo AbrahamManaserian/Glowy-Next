@@ -61,7 +61,7 @@ export default function FragranceCart({ item }) {
       container
       direction={'column'}
     >
-      {!newAdded && (
+      {newAdded && (
         <Typography
           sx={{
             position: 'absolute',
@@ -78,7 +78,6 @@ export default function FragranceCart({ item }) {
           }}
         >
           NEW
-          {item.id}
         </Typography>
       )}
       {item.previousPrice && (

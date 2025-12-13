@@ -68,7 +68,7 @@ export const getProducts = async (searchParams) => {
           ...conditions,
           orderBy('highlighted', 'desc'),
           startAfter(item),
-          limitToLast(4)
+          limitToLast(10)
         );
 
         const querySnapshot = await getDocs(q);
@@ -88,7 +88,7 @@ export const getProducts = async (searchParams) => {
           ...conditions,
           orderBy('highlighted', 'desc'),
           startAfter(item),
-          limit(4)
+          limit(10)
         );
 
         const querySnapshot = await getDocs(q);
@@ -109,7 +109,7 @@ export const getProducts = async (searchParams) => {
           ...conditions,
           orderBy('highlighted', 'desc'),
           endBefore(item),
-          limitToLast(4)
+          limitToLast(10)
         );
 
         const querySnapshot = await getDocs(q);
@@ -126,7 +126,7 @@ export const getProducts = async (searchParams) => {
         collection(db, 'glowyProducts', params.category, 'items'),
         ...conditions,
         orderBy('highlighted', 'desc'),
-        limit(4)
+        limit(10)
       );
 
       const querySnapshot = await getDocs(q);

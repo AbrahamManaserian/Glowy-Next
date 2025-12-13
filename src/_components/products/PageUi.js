@@ -1,7 +1,7 @@
 'use client';
 
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, Button, Drawer, Grid, Pagination, Typography } from '@mui/material';
+import { Box, Button, Drawer, Grid, Pagination, PaginationItem, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import SortView from './SortView';
@@ -9,6 +9,86 @@ import Filter from './Filter';
 import FragranceCart from '@/_components/carts/FragranceCart';
 import { categoriesObj } from '@/app/admin/add-product/page';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
+
+const CustomPagination = ({ curentPage, currentPage, totalPages, handlePageChange }) => {
+  // accept both `curentPage` (existing prop in codebase) and `currentPage`
+  const current = typeof currentPage === 'number' ? currentPage : curentPage;
+
+  const buildCompactPagination = (cur, total) => {
+    if (!total || total <= 1) return [1];
+
+    // Build a set of page numbers to show: 1, total, current, current-1, current+1 (when valid)
+    const pagesSet = new Set([1, total, cur]);
+    if (cur - 1 >= 2) pagesSet.add(cur - 1);
+    if (cur + 1 <= total - 1) pagesSet.add(cur + 1);
+
+    const nums = Array.from(pagesSet)
+      .filter((n) => typeof n === 'number' && Number.isFinite(n))
+      .sort((a, b) => a - b);
+
+    // Insert '...' where there are numeric gaps
+    const result = [];
+    for (let i = 0; i < nums.length; i++) {
+      const n = nums[i];
+      if (i === 0) {
+        result.push(n);
+        continue;
+      }
+      const prev = nums[i - 1];
+      if (n === prev + 1) {
+        result.push(n);
+      } else {
+        result.push('...');
+        result.push(n);
+      }
+    }
+
+    return result;
+  };
+
+  const items = buildCompactPagination(current, totalPages);
+
+  return (
+    <nav aria-label="Pagination" style={{ display: 'flex', gap: 8, width: '100%', justifyContent: 'center' }}>
+      {items.map((p, i) => {
+        if (p === '...') {
+          return (
+            <span key={`dots-${i}`} style={{ padding: '6px 10px', color: '#666' }} aria-hidden>
+              …
+            </span>
+          );
+        }
+
+        const isActive = p === current;
+
+        return (
+          <button
+            key={`page-${p}-${i}`}
+            type="button"
+            onClick={(e) => handlePageChange(e, p)}
+            aria-current={isActive ? 'page' : undefined}
+            aria-label={isActive ? `Page ${p}, current` : `Go to page ${p}`}
+            style={{
+              WebkitTapHighlightColor: 'rgba(182, 212, 238, 0.69)',
+              display: 'inline-flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: 30,
+              height: 30,
+              borderRadius: '50%',
+              border: isActive ? '1px solid #1976d2' : '1px solid #ddd',
+              background: isActive ? '#1976d2' : 'white',
+              color: isActive ? 'white' : '#1976d2',
+              cursor: 'pointer',
+            }}
+          >
+            {p}
+          </button>
+        );
+      })}
+    </nav>
+  );
+};
 
 export default function PageUi({ data, categoryText, category, totalDocs, lastId, startId }) {
   const [loading, setLoading] = useState(false);
@@ -40,6 +120,10 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
     Object.keys(paramsState).forEach((key) => {
       params.set(key, paramsState[key]);
     });
+    params.delete('page');
+    params.delete('startId');
+    params.delete('lastId');
+    params.delete('nav');
 
     router.push(`?${params.toString()}`);
   };
@@ -92,7 +176,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
   };
 
   const handlePageChange = (e, value) => {
-    if (value === +paramsState.page) return;
+    if (value === +paramsState.page || (value === 1 && !paramsState.page)) return;
     setLoading(true);
     const params = new URLSearchParams(searchParams.toString());
     if (value === 1) {
@@ -100,7 +184,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
       params.delete('startId');
       params.delete('lastId');
       params.delete('nav');
-    } else if (value === Math.ceil(totalDocs / 4)) {
+    } else if (value === Math.ceil(totalDocs / 10)) {
       params.set('page', value);
       params.set('startId', startId);
       params.set('lastId', lastId);
@@ -138,7 +222,6 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
 
   return (
     <Grid sx={{ m: { xs: '50px 10px', sm: '90px 35px' } }} size={12}>
-      {totalDocs}
       {loading && (
         <div
           style={{
@@ -212,6 +295,8 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
               {paramsState.type && ` > ${paramsState.type} `}
               {paramsState.brand && ` > ${paramsState.brand}  `}
               {paramsState.size && ` > Size - ${paramsState.size} `}
+              <br />
+              Totoal items - {totalDocs}
             </Typography>
             {loading && (
               <div
@@ -248,17 +333,14 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
               );
             })}
             {Object.keys(data).length > 0 ? (
-              <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '10px' }}>
-                <Pagination
-                  boundaryCount={1}
-                  siblingCount={1}
-                  color="primary"
-                  count={Math.ceil(totalDocs / 4)}
-                  page={+paramsState.page || 1}
-                  onChange={handlePageChange}
-                />
-              </div>
+              // <div style={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
+              <CustomPagination
+                curentPage={+paramsState.page || 1}
+                totalPages={Math.ceil(totalDocs / 10)}
+                handlePageChange={handlePageChange}
+              />
             ) : (
+              // </div>
               <Box
                 sx={{
                   width: '100%',
