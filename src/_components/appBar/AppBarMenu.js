@@ -21,9 +21,9 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { FavoriteIcon, UserAvatar } from '../icons';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import CartDrawer from '@/app/cart/_components/CartDrawer';
+import CartDrawer from '@/app/(pages)/cart/_components/CartDrawer';
 import { useGlobalContext } from '@/app/GlobalContext';
-import { categoriesObj } from '@/app/admin/add-product/page';
+import { categoriesObj } from '@/app/(pages)/admin/add-product/page';
 
 const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {

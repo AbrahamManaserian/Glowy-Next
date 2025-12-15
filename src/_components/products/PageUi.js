@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import SortView from './SortView';
 import Filter from './Filter';
 import FragranceCart from '@/_components/carts/FragranceCart';
-import { categoriesObj } from '@/app/admin/add-product/page';
+import { categoriesObj } from '@/app/(pages)/admin/add-product/page';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
 const CustomPagination = ({ curentPage, currentPage, totalPages, handlePageChange }) => {

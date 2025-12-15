@@ -7,7 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingBasketIcon } from '@/_components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
-import { StyledBadge } from '@/app/cart/_components/CartDrawer';
+import { StyledBadge } from '@/app/(pages)/cart/_components/CartDrawer';
 import { handleAddItemToWishList } from '@/app/_functions/hadleAddItemToWishList';
 import { useRouter } from 'next/navigation';
 

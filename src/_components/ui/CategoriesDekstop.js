@@ -16,7 +16,8 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { categoriesObj } from '@/app/admin/add-product/page';
+// import { categoriesObj } from '@/app/admin/add-product/page';
+import { categoriesObj } from '@/app/(pages)/admin/add-product/page';
 
 export default function CategoriesDekstop() {
   const [data, setData] = useState({});
