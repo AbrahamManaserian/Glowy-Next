@@ -28,20 +28,3 @@ export default function useGetWindowDimensions() {
   return windowDimensions;
 }
 
-
-
-export function useGetWindowWidth() {
-  const [width, setWidth] = useState(0); // no window on server
-
-  useEffect(() => {
-    const handleResize = () => setWidth(window.innerWidth);
-
-    // set initial width
-    handleResize();
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  return width;
-}

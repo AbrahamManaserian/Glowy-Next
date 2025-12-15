@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { ShoppingBasketIcon } from '@/_components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { StyledBadge } from '@/app/(pages)/cart/_components/CartDrawer';
-import { handleAddItemToWishList } from '@/app/_functions/hadleAddItemToWishList';
+import { handleAddItemToWishList } from '@/_functions/hadleAddItemToWishList';
 import { useRouter } from 'next/navigation';
 
 export const handleClickAddToCart = (item, quantity, setCart, cart) => {
@@ -37,7 +37,7 @@ export const handleClickAddToCart = (item, quantity, setCart, cart) => {
   }
 };
 
-export default function FragranceCart({ item }) {
+export default function ItemCart({ item }) {
   const router = useRouter();
   let newAdded;
 

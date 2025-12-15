@@ -1,4 +1,4 @@
-import FragranceCart from '@/_components/carts/FragranceCart';
+import ItemCart from '@/_components/carts/ItemCart';
 import { db } from '@/firebase';
 import { Box, Grid, Typography } from '@mui/material';
 import { doc, getDoc } from 'firebase/firestore';
@@ -19,7 +19,7 @@ export default async function AboutPage() {
         if (index < 80) {
           return (
             <Grid key={index} size={{ xs: 6, sm: 4, md: 3 }}>
-              <FragranceCart
+              <ItemCart
                 item={{
                   id: item.code,
                   size: '75',

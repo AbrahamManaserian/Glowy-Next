@@ -17,7 +17,7 @@ import { arrayRemove, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc } f
 import { useRouter } from 'next/navigation';
 import { initialInputs } from '../add-product/page';
 import { initialOptionInputs } from '../add-product/page';
-import { getProduct } from '@/app/_lib/firebase/getProduct';
+import { getProduct } from '@/_lib/firebase/getProduct';
 
 export default function EditProduct() {
   const [editedProduct, setEditedProduct] = useState({});

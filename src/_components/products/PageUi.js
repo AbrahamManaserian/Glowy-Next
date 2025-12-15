@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import SortView from './SortView';
 import Filter from './Filter';
-import FragranceCart from '@/_components/carts/FragranceCart';
+import ItemCart from '@/_components/carts/ItemCart';
 import { categoriesObj } from '@/app/(pages)/admin/add-product/page';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
@@ -328,7 +328,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
             {Object.keys(data).map((key, index) => {
               return (
                 <Grid key={index} size={{ xs: 6, sm: 4, md: 4, lg: 3 }}>
-                  <FragranceCart item={data[key]} />
+                  <ItemCart item={data[key]} />
                 </Grid>
               );
             })}

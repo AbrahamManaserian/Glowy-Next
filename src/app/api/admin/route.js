@@ -1,4 +1,4 @@
-import { getAdminData } from '@/app/_lib/firebase/getAdminData';
+import { getAdminData } from '../../../_lib/firebase/getAdminData';
 
 export async function GET(req) {
   try {
