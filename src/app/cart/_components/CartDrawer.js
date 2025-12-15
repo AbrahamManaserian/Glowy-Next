@@ -10,7 +10,7 @@ import { ShoppingBasketIcon } from '@/_components/icons';
 import { usePathname, useSearchParams } from 'next/navigation';
 // import { images } from '@/app/fragrance1/[product]/page';
 import { useGlobalContext } from '@/app/GlobalContext';
-import CartItem from './CartItem';
+import CartList from './CartList';
 
 export const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -38,6 +38,16 @@ export default function CartDrawer() {
   useEffect(() => {
     toggleDrawer(false);
   }, [searchParams, pathname]);
+
+  const createNewCart = () => {
+    try {
+      const newCart = { length: 0, items: {} };
+      localStorage.setItem('cart', JSON.stringify(newCart));
+      setCart(newCart);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div>
@@ -74,28 +84,39 @@ export default function CartDrawer() {
             <CloseIcon sx={{ color: '#8a8c8dff', cursor: 'pointer' }} onClick={() => toggleDrawer(false)} />
           </Box>
           <div>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              {(() => {
-                try {
-                  return Object.keys(cart.items).map((key, index) => {
-                    return (
-                      <CartItem
-                        padding={{ xs: '0 16px', sm: '0 24px' }}
-                        item={cart.items[key]}
-                        id={key}
-                        key={index}
-                        image={cart.items[key].img}
-                        cart={cart}
-                        setCart={setCart}
-                      />
-                    );
-                  });
-                } catch (error) {
-                  // handleClickError();
-                  console.log(error);
-                }
-              })()}
-            </Box>
+            {/* Render cart items via CartList; empty state handled below */}
+            <CartList cart={cart} setCart={setCart} padding={{ xs: '0 16px', sm: '0 24px' }} />
+
+            {!cart || cart.length === 0 || Object.keys(cart.items).length === 0 ? (
+              <Box sx={{ textAlign: 'center', p: '40px 24px' }}>
+                <ShoppingBasketIcon sx={{ fontSize: 60, color: '#d1d1d1', mb: 2 }} />
+                <Typography sx={{ fontSize: '16px', mb: 1 }}>Your cart is empty</Typography>
+                <Typography sx={{ color: '#7b7b7b', fontSize: '14px', mb: 2 }}>
+                  Add items to your cart to start shopping.
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      createNewCart();
+                      toggleDrawer(false);
+                    }}
+                    sx={{ textTransform: 'capitalize' }}
+                  >
+                    Create New Cart
+                  </Button>
+                  <Link href="/" scroll={true}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => toggleDrawer(false)}
+                      sx={{ textTransform: 'capitalize' }}
+                    >
+                      Continue Shopping
+                    </Button>
+                  </Link>
+                </Box>
+              </Box>
+            ) : null}
 
             <Box
               sx={{

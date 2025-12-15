@@ -96,6 +96,7 @@ export default function CartPageUi() {
     note: '',
   });
   const { cart, setCart } = useGlobalContext();
+  console.log(cart);
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
 
