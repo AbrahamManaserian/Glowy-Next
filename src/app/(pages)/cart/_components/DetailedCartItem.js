@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { decreaseQuantity, deleteItem, increaseQuantity } from '../functions/addDeleteIncDecreaseCart';
 import Link from 'next/link';
 
-export default function DetailedCartItem({ id, image, cart, setCart, check, padding }) {
+export default function DetailedCartItem({ item, cart, setCart }) {
   return (
     <Box
       sx={{
@@ -16,14 +16,13 @@ export default function DetailedCartItem({ id, image, cart, setCart, check, padd
         alignItems: 'center',
         borderBottom: '1px dashed #dde2e5ff',
         overflow: 'hidden',
-        p: padding,
         boxSizing: 'border-box',
         maxWidth: '700px',
         py: '20px',
       }}
     >
       <Link
-        href={`/fragrance/${id}`}
+        href={`/item/${item.id}`}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -38,7 +37,7 @@ export default function DetailedCartItem({ id, image, cart, setCart, check, padd
           WebkitTapHighlightColor: 'rgba(43, 137, 219, 0.04)',
         }}
       >
-        <Image src={image} alt="" width={200} height={200} style={{ width: '100%', height: 'auto' }} />
+        <Image src={item.img} alt="" width={200} height={200} style={{ width: '100%', height: 'auto' }} />
       </Link>
 
       <Box
@@ -47,7 +46,6 @@ export default function DetailedCartItem({ id, image, cart, setCart, check, padd
           flexGrow: 1,
           flexDirection: 'column',
           boxSizing: 'border-box',
-          //   height: '100px',
           justifyContent: 'space-between',
           overflow: 'hidden',
           ml: '15px',
@@ -57,36 +55,24 @@ export default function DetailedCartItem({ id, image, cart, setCart, check, padd
           <Typography
             sx={{
               fontSize: '14px',
-              whiteSpace: 'nowrap',
               overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              //   maxWidth: '240px',
               color: '#191818f6',
-              fontWeight: 300,
+              fontWeight: 500,
             }}
           >
-            Armani Stronger With yuo Absolutely
+            {item.name}
           </Typography>
           <Typography
             sx={{
-              fontSize: '15px',
+              // fontSize: '15px',
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               mt: '2px',
+              mb: '8px',
             }}
           >
-            $ 230.00
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: '14px',
-              color: '#191818f6',
-              fontWeight: 300,
-              my: '3px',
-            }}
-          >
-            100ml
+            ${item.price.toLocaleString()}
           </Typography>
         </div>
         <Box
@@ -108,22 +94,26 @@ export default function DetailedCartItem({ id, image, cart, setCart, check, padd
           >
             <IconButton
               size="small"
-              onClick={() => decreaseQuantity(id, cart, setCart)}
+              onClick={() => decreaseQuantity(item.id, cart, setCart)}
               aria-label="delete"
               // sx={{ cursor: quantity < 2 ? 'not-allowed' : 'pointer' }}
             >
               <RemoveIcon />
             </IconButton>
             <Typography sx={{ bgcolor: '#6562620f', p: '6px 15px', fontSize: '14px' }}>
-              {cart.items[id].quantity}
+              {item.quantity}
             </Typography>
-            <IconButton size="small" onClick={() => increaseQuantity(id, cart, setCart)} aria-label="delete">
+            <IconButton
+              size="small"
+              onClick={() => increaseQuantity(item.id, cart, setCart)}
+              aria-label="delete"
+            >
               <AddIcon />
             </IconButton>
           </Box>
 
           <DeleteOutlinedIcon
-            onClick={() => deleteItem(id, cart, setCart)}
+            onClick={() => deleteItem(item.id, cart, setCart)}
             sx={{ fontSize: '28px', color: '#ca4d4df6', cursor: 'pointer' }}
           />
         </Box>

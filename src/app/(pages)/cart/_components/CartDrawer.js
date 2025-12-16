@@ -128,28 +128,30 @@ export default function CartDrawer() {
                 bgcolor: 'white',
               }}
             >
-              <Link scroll={true} href="/cart?checkout">
-                <Button
-                  onClick={() => toggleDrawer(false)}
-                  variant="contained"
-                  sx={{
-                    textTransform: 'capitalize',
-                    width: '100%',
-                    p: '10px 35px',
-                    bgcolor: '#2B3445',
-                    borderRadius: '8px',
-                    fontWeight: 400,
-                    textWrap: 'nowrap',
-                    boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
-                    ':hover': {
+              {cart.length > 0 && (
+                <Link scroll={true} href="/cart?checkout">
+                  <Button
+                    onClick={() => toggleDrawer(false)}
+                    variant="contained"
+                    sx={{
+                      textTransform: 'capitalize',
+                      width: '100%',
+                      p: '10px 35px',
+                      bgcolor: '#2B3445',
+                      borderRadius: '8px',
+                      fontWeight: 400,
+                      textWrap: 'nowrap',
                       boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
-                    },
-                    mb: '10px',
-                  }}
-                >
-                  Procced To Checkout
-                </Button>
-              </Link>
+                      ':hover': {
+                        boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
+                      },
+                      mb: '10px',
+                    }}
+                  >
+                    Procced To Checkout
+                  </Button>
+                </Link>
+              )}
               <Link scroll={true} href="/cart">
                 <Button
                   onClick={() => toggleDrawer(false)}

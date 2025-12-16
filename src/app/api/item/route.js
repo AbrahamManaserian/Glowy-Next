@@ -1,7 +1,8 @@
 // import { getFragranceProducts } from '@/app/lib/firebase/getFragranceProducts';
 // import { getProduct } from '@/app/_lib/firebase/getFragranceProducts';
 
-import { getProduct } from '@/app/_lib/firebase/getProduct';
+import { getProduct } from '@/_lib/firebase/getProduct';
+
 
 export async function GET(request) {
   try {

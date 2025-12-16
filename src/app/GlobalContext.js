@@ -7,6 +7,8 @@ const GlobalContext = createContext({
   setIsSticky: () => {},
   cart: { length: 0, items: {} },
   setCart: () => {},
+  cartDetails: [],
+  setCartDetails: () => {},
   wishList: [],
   setWishList: () => {},
 });
@@ -14,6 +16,7 @@ const GlobalContext = createContext({
 export function GlobalProvider({ children }) {
   const [isSticky, setIsSticky] = useState(false);
   const [cart, setCart] = useState({ length: 0, items: {} });
+  const [cartDetails, setCartDetails] = useState([]);
   const [wishList, setWishList] = useState([]);
 
   useEffect(() => {
@@ -22,14 +25,12 @@ export function GlobalProvider({ children }) {
 
       if (savedCart) {
         const data = JSON.parse(savedCart);
-        if (data.items && data.length && Object.keys(data.items).length === data.length) {
+        if (data.items) {
           setCart(data);
         } else {
           localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
           setCart({ length: 0, items: {} });
         }
-
-        
       } else {
         localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
         setCart({ length: 0, items: {} });
@@ -54,6 +55,36 @@ export function GlobalProvider({ children }) {
     }
   }, []);
 
+  useEffect(() => {
+    const fetchCartDetails = async () => {
+      if (cart && cart.items) {
+        const ids = Object.keys(cart.items);
+        if (ids.length > 0) {
+          try {
+            const response = await fetch('/api/cart', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ ids }),
+            });
+            if (response.ok) {
+              const data = await response.json();
+              console.log(data);
+              setCartDetails(data);
+            }
+          } catch (error) {
+            console.error('Failed to fetch cart details:', error);
+          }
+        } else {
+          setCartDetails([]);
+        }
+      }
+    };
+
+    fetchCartDetails();
+  }, [cart]);
+
   return (
     <GlobalContext.Provider
       value={{
@@ -61,6 +92,8 @@ export function GlobalProvider({ children }) {
         setIsSticky,
         cart,
         setCart,
+        cartDetails,
+        setCartDetails,
         wishList,
         setWishList,
       }}

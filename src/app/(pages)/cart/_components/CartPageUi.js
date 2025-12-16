@@ -1,7 +1,7 @@
 'use client';
 
 import { useGlobalContext } from '@/app/GlobalContext';
-import { Box, Button, Checkbox, duration, FormControl, Grid, InputBase, Typography } from '@mui/material';
+import { Box, Button, Grid, InputBase, Typography } from '@mui/material';
 import { images } from '@/_components/PopularProducts';
 import Link from 'next/link';
 import DetailedCartItem from './DetailedCartItem';
@@ -95,8 +95,8 @@ export default function CartPageUi() {
     email: '',
     note: '',
   });
-  const { cart, setCart } = useGlobalContext();
-  console.log(cart);
+  const { cart, setCart, cartDetails } = useGlobalContext();
+  console.log(cartDetails);
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
 
@@ -141,16 +141,7 @@ export default function CartPageUi() {
           direction={'column'}
         >
           {Object.keys(cart.items).map((id, index) => {
-            return (
-              <DetailedCartItem
-                check={false}
-                key={index}
-                id={id}
-                image={images[id]}
-                cart={cart}
-                setCart={setCart}
-              />
-            );
+            return <DetailedCartItem key={index} item={cart.items[id]} cart={cart} setCart={setCart} />;
           })}
         </Grid>
       ) : (
