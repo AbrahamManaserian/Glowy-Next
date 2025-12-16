@@ -25,9 +25,10 @@ export async function GET(request) {
 
     return NextResponse.json(products, {
       headers: {
-        'Cache-Control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=600',
-        'Netlify-CDN-Cache-Control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=600',
-        'CDN-Cache-Control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=600',
+        'Cache-Control': 'public, max-age=0, must-revalidate',
+        'Netlify-CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600, vary=query',
+        'CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600, vary=query',
+        Vary: 'Accept-Encoding',
       },
     });
   } catch (error) {
