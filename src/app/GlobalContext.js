@@ -59,15 +59,19 @@ export function GlobalProvider({ children }) {
     const fetchCartDetails = async () => {
       if (cart && cart.items) {
         const ids = Object.keys(cart.items);
+        console.log('Cart IDs to fetch:', ids);
         if (ids.length > 0) {
           try {
             const params = new URLSearchParams();
             ids.forEach((id) => params.append('ids', id));
 
-            const response = await fetch(`/api/cart?${params.toString()}`);
+            const url = `/api/cart?${params.toString()}`;
+            console.log('Fetching URL:', url);
+
+            const response = await fetch(url);
             if (response.ok) {
               const data = await response.json();
-              console.log(data);
+              console.log('Fetched Cart Data:', data);
               setCartDetails(data);
             }
           } catch (error) {
