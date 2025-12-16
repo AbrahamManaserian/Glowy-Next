@@ -61,6 +61,7 @@ export function GlobalProvider({ children }) {
         const ids = Object.keys(cart.items);
         if (ids.length > 0) {
           try {
+            console.log('Fetching cart details for IDs:', ids);
             const response = await fetch(`/api/cart?ids=${ids.join(',')}`);
             if (response.ok) {
               const data = await response.json();
