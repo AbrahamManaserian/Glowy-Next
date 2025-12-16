@@ -25,10 +25,11 @@ export async function GET(request) {
 
     return NextResponse.json(products, {
       headers: {
+        // Browser: Don't cache (always ask server)
         'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600, vary=query',
-        'CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600, vary=query',
-        Vary: 'Accept-Encoding',
+        // CDN (Netlify): Cache this specific URL for 1 hour
+        'Netlify-CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
+        'CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
       },
     });
   } catch (error) {

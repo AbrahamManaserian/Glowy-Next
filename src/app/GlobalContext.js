@@ -62,10 +62,11 @@ export function GlobalProvider({ children }) {
         console.log('Cart IDs to fetch:', ids);
         if (ids.length > 0) {
           try {
-            const params = new URLSearchParams();
-            ids.forEach((id) => params.append('ids', id));
+            // Create a unique URL based on the specific combination of IDs
+            // Sort them so ?ids=A,B is the same as ?ids=B,A (better caching)
+            const sortedIds = ids.sort().join(',');
+            const url = `/api/cart?ids=${sortedIds}`;
 
-            const url = `/api/cart?${params.toString()}`;
             console.log('Fetching URL:', url);
 
             const response = await fetch(url);
