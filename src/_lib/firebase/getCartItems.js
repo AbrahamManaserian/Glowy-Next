@@ -1,5 +1,5 @@
 import { db } from '@/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDocFromServer } from 'firebase/firestore';
 
 export const getCartItems = async (ids) => {
   try {
@@ -7,7 +7,7 @@ export const getCartItems = async (ids) => {
 
     const productPromises = ids.map((id) => {
       const productRef = doc(db, 'allProducts', id);
-      return getDoc(productRef);
+      return getDocFromServer(productRef);
     });
 
     const docSnaps = await Promise.all(productPromises);
