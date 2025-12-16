@@ -1,16 +1,25 @@
 import { NextResponse } from 'next/server';
 import { getCartItems } from '@/_lib/firebase/getCartItems';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const idsParam = searchParams.get('ids');
+    let ids = [];
 
-    if (!idsParam) {
-      return NextResponse.json({ error: 'Invalid IDs' }, { status: 400 });
+    // Handle ?ids=1,2,3
+    const idsParam = searchParams.get('ids');
+    if (idsParam && idsParam.includes(',')) {
+      ids = idsParam.split(',');
+    } else {
+      // Handle ?ids=1&ids=2
+      ids = searchParams.getAll('ids');
     }
 
-    const ids = idsParam.split(',');
+    if (!ids || ids.length === 0) {
+      return NextResponse.json({ error: 'Invalid IDs' }, { status: 400 });
+    }
 
     const products = await getCartItems(ids);
 

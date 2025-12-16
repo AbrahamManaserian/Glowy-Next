@@ -61,8 +61,10 @@ export function GlobalProvider({ children }) {
         const ids = Object.keys(cart.items);
         if (ids.length > 0) {
           try {
-            console.log(`/api/cart?ids=${ids.join(',')}`);
-            const response = await fetch(`/api/cart?ids=${ids.join(',')}`);
+            const params = new URLSearchParams();
+            ids.forEach((id) => params.append('ids', id));
+
+            const response = await fetch(`/api/cart?${params.toString()}`);
             if (response.ok) {
               const data = await response.json();
               console.log(data);
