@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getCartItems } from '@/_lib/firebase/getCartItems';
+import { getCachedCartItems } from '@/_lib/firebase/getCachedCartItems';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,18 +23,21 @@ export async function GET(request) {
 
     console.log('API Received IDs:', ids);
 
-    const products = await getCartItems(ids);
+    // Use the cached version. The cache key is automatically generated based on the arguments (ids).
+    // Since 'ids' is an array, we need to make sure the cache key is stable.
+    // unstable_cache handles arguments, but sorting them before passing ensures A,B and B,A hit the same cache.
+    ids.sort(); 
+    const products = await getCachedCartItems(ids);
 
     return NextResponse.json(products, {
       headers: {
-        // Browser: ABSOLUTELY NO CACHING
+        // Browser: ABSOLUTELY NO CACHING (Always ask server)
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        Pragma: 'no-cache',
-        Expires: '0',
-
-        // CDN (Netlify): Cache this specific URL for 1 hour
-        'Netlify-CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
-        'CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        
+        // We remove the CDN headers because Next.js is now handling the caching internally.
+        // The server will respond quickly because it's reading from its own cache.
       },
     });
   } catch (error) {
