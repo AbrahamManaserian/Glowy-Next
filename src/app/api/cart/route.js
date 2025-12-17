@@ -35,9 +35,6 @@ export async function GET(request) {
         // CDN (Netlify): Cache this specific URL for 1 hour
         'Netlify-CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
         'CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
-
-        // Critical: Tell CDN that the response varies based on the query string
-        Vary: 'Query',
       },
     });
   } catch (error) {
