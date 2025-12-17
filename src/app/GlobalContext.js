@@ -7,7 +7,7 @@ const GlobalContext = createContext({
   setIsSticky: () => {},
   cart: { length: 0, items: {} },
   setCart: () => {},
-  cartDetails: [],
+  cartDetails: {},
   setCartDetails: () => {},
   wishList: [],
   setWishList: () => {},
@@ -16,7 +16,7 @@ const GlobalContext = createContext({
 export function GlobalProvider({ children }) {
   const [isSticky, setIsSticky] = useState(false);
   const [cart, setCart] = useState({ length: 0, items: {} });
-  const [cartDetails, setCartDetails] = useState([]);
+  const [cartDetails, setCartDetails] = useState({});
   const [wishList, setWishList] = useState([]);
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export function GlobalProvider({ children }) {
     const fetchCartDetails = async () => {
       if (cart && cart.items) {
         const ids = Object.keys(cart.items);
-        console.log('Cart IDs to fetch:', ids);
+        // console.log('Cart IDs to fetch:', ids);
         if (ids.length > 0) {
           try {
             // Create a unique URL based on the specific combination of IDs
@@ -67,19 +67,19 @@ export function GlobalProvider({ children }) {
             const sortedIds = ids.sort().join(',');
             const url = `/api/cart?ids=${sortedIds}`;
 
-            console.log('Fetching URL:', url);
+            // console.log('Fetching URL:', url);
 
             const response = await fetch(url);
             if (response.ok) {
               const data = await response.json();
-              console.log('Fetched Cart Data:', data);
+              // console.log('Fetched Cart Data:', data);
               setCartDetails(data);
             }
           } catch (error) {
             console.error('Failed to fetch cart details:', error);
           }
         } else {
-          setCartDetails([]);
+          setCartDetails({});
         }
       }
     };

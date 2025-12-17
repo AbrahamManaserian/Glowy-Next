@@ -8,12 +8,18 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { decreaseQuantity, deleteItem, increaseQuantity } from '../functions/addDeleteIncDecreaseCart';
 
-export default function CartItemView({ id, item, cart, setCart, check = false }) {
+export default function CartItemView({ id, item, productDetails, cart, setCart, check = false }) {
   if (!item) return null;
 
-  const name = item.name ?? item.title ?? 'Product';
-  const img = item.img ?? item.image ?? '/images/placeholder.png';
-  const price = typeof item.price !== 'undefined' ? item.price : item?.amount ?? 0;
+  // Use fresh data from server if available, otherwise fallback to local cart data
+  const data = productDetails || item;
+
+  const name = data.fullName ?? data.name ?? data.title ?? 'Product';
+  const img =
+    data.smallImage?.file ?? data.images?.[0] ?? data.img ?? data.image ?? '/images/placeholder.png';
+  const price = data.price ?? data.amount ?? 0;
+
+  // Quantity always comes from the local cart state
   const quantity = item.quantity ?? 1;
 
   return (

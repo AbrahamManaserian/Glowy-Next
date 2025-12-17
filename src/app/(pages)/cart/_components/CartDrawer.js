@@ -27,7 +27,7 @@ export const StyledBadge = styled(Badge)(({ theme }) => ({
 }));
 
 export default function CartDrawer() {
-  const { cart, setCart } = useGlobalContext();
+  const { cart, setCart, cartDetails } = useGlobalContext();
   const [openDrawer, setOpenDrawer] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -85,7 +85,12 @@ export default function CartDrawer() {
           </Box>
           <div>
             {/* Render cart items via CartList; empty state handled below */}
-            <CartList cart={cart} setCart={setCart} padding={{ xs: '0 16px', sm: '0 24px' }} />
+            <CartList
+              cartDetails={cartDetails}
+              cart={cart}
+              setCart={setCart}
+              padding={{ xs: '0 16px', sm: '0 24px' }}
+            />
 
             {!cart || cart.length === 0 || Object.keys(cart.items).length === 0 ? (
               <Box sx={{ textAlign: 'center', p: '40px 24px' }}>

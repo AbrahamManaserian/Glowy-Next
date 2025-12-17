@@ -8,7 +8,19 @@ import Image from 'next/image';
 import { decreaseQuantity, deleteItem, increaseQuantity } from '../functions/addDeleteIncDecreaseCart';
 import Link from 'next/link';
 
-export default function DetailedCartItem({ item, cart, setCart }) {
+export default function DetailedCartItem({ item, productDetails, cart, setCart, discountRate = 0 }) {
+  // Use fresh data from server if available, otherwise fallback to local cart data
+  const data = productDetails || item;
+  // console.log(data);
+
+  const name = data.fullName ?? data.name ?? data.title ?? 'Product';
+  const img =
+    data.smallImage?.file ?? data.images?.[0]?.file ?? data.img ?? data.image ?? '/images/placeholder.png';
+  const price = data.price ?? data.amount ?? 0;
+  const previousPrice = data.previousPrice ?? 0;
+  const quantity = item.quantity ?? 1;
+  const savedAmount = ((previousPrice > price ? previousPrice - price : 0) + price * discountRate) * quantity;
+
   return (
     <Box
       sx={{
@@ -22,7 +34,7 @@ export default function DetailedCartItem({ item, cart, setCart }) {
       }}
     >
       <Link
-        href={`/item/${item.id}`}
+        href={`/item/${data.id}`}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -37,7 +49,7 @@ export default function DetailedCartItem({ item, cart, setCart }) {
           WebkitTapHighlightColor: 'rgba(43, 137, 219, 0.04)',
         }}
       >
-        <Image src={item.img} alt="" width={200} height={200} style={{ width: '100%', height: 'auto' }} />
+        <Image src={img} alt="" width={200} height={200} style={{ width: '100%', height: 'auto' }} />
       </Link>
 
       <Box
@@ -60,20 +72,40 @@ export default function DetailedCartItem({ item, cart, setCart }) {
               fontWeight: 500,
             }}
           >
-            {item.name}
+            {name}
           </Typography>
-          <Typography
-            sx={{
-              // fontSize: '15px',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              mt: '2px',
-              mb: '8px',
-            }}
-          >
-            ${item.price.toLocaleString()}
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Typography
+              sx={{
+                // fontSize: '15px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                mt: '2px',
+                mb: '8px',
+              }}
+            >
+              ${price.toLocaleString()}
+            </Typography>
+            {data.previousPrice > price && (
+              <Typography
+                sx={{
+                  fontSize: '13px',
+                  textDecoration: 'line-through',
+                  color: '#999',
+                  mt: '2px',
+                  mb: '8px',
+                }}
+              >
+                ${data.previousPrice.toLocaleString()}
+              </Typography>
+            )}
+          </Box>
+          {savedAmount > 0 && (
+            <Typography sx={{ fontSize: '12px', color: '#e65100', fontWeight: 500, mb: '5px' }}>
+              You save: ${savedAmount.toLocaleString()}
+            </Typography>
+          )}
         </div>
         <Box
           sx={{

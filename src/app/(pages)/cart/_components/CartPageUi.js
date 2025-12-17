@@ -2,7 +2,6 @@
 
 import { useGlobalContext } from '@/app/GlobalContext';
 import { Box, Button, Grid, InputBase, Typography } from '@mui/material';
-import { images } from '@/_components/PopularProducts';
 import Link from 'next/link';
 import DetailedCartItem from './DetailedCartItem';
 import { useSearchParams } from 'next/navigation';
@@ -12,7 +11,7 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LocalAtmRoundedIcon from '@mui/icons-material/LocalAtmRounded';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import RocketLaunchOutlinedIcon from '@mui/icons-material/RocketLaunchOutlined';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const inputTextGroupObj = {
   fullName: 'Full name',
@@ -114,6 +113,47 @@ export default function CartPageUi() {
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, [searchParams]);
 
+  // Calculate totals
+  const subtotal = Object.keys(cart.items).reduce((acc, id) => {
+    const item = cart.items[id];
+    const details = cartDetails ? cartDetails[id] : null;
+    const price = details?.price ?? details?.amount ?? item.price ?? 0;
+    const quantity = item.quantity ?? 1;
+    return acc + price * quantity;
+  }, 0);
+
+  const savedFromOriginalPrice = Object.keys(cart.items).reduce((acc, id) => {
+    const item = cart.items[id];
+    const details = cartDetails ? cartDetails[id] : null;
+    const price = details?.price ?? details?.amount ?? item.price ?? 0;
+    const previousPrice = details?.previousPrice ?? 0;
+    const quantity = item.quantity ?? 1;
+
+    if (previousPrice > price) {
+      return acc + (previousPrice - price) * quantity;
+    }
+    return acc;
+  }, 0);
+
+  const shippingCost = subtotal > 5000 ? 0 : 1000;
+  const shippingSavings = subtotal > 5000 ? 1000 : 0;
+  const discount = subtotal > 20000 ? subtotal * 0.2 : 0;
+  const total = subtotal + shippingCost - discount;
+  const totalSaved = savedFromOriginalPrice + discount + shippingSavings;
+
+  if (!cart || cart.length === 0 || Object.keys(cart.items).length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: '100px' }}>
+        <Typography variant="h5">Your cart is empty</Typography>
+        <Link href="/">
+          <Button variant="contained" sx={{ mt: 2, bgcolor: '#2B3445' }}>
+            Go Shopping
+          </Button>
+        </Link>
+      </Box>
+    );
+  }
+
   return (
     <Grid
       sx={{
@@ -141,7 +181,16 @@ export default function CartPageUi() {
           direction={'column'}
         >
           {Object.keys(cart.items).map((id, index) => {
-            return <DetailedCartItem key={index} item={cart.items[id]} cart={cart} setCart={setCart} />;
+            return (
+              <DetailedCartItem
+                key={index}
+                item={cart.items[id]}
+                productDetails={cartDetails ? cartDetails[id] : null}
+                cart={cart}
+                setCart={setCart}
+                discountRate={subtotal > 20000 ? 0.2 : 0}
+              />
+            );
           })}
         </Grid>
       ) : (
@@ -435,7 +484,7 @@ export default function CartPageUi() {
               fontWeight: 500,
             }}
           >
-            $89.90
+            ${subtotal.toLocaleString()}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
@@ -455,25 +504,98 @@ export default function CartPageUi() {
               fontWeight: 500,
             }}
           >
-            $0.00
+            {shippingCost === 0 ? 'Free' : `$${shippingCost.toLocaleString()}`}
           </Typography>
         </Box>
+        {discount > 0 && (
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
+            <Typography
+              sx={{
+                color: '#e65100',
+                fontSize: '15px',
+                fontWeight: 300,
+              }}
+            >
+              Discount (20%)
+            </Typography>
+            <Typography
+              sx={{
+                color: '#e65100',
+                fontSize: '15px',
+                fontWeight: 500,
+              }}
+            >
+              -${discount.toLocaleString()}
+            </Typography>
+          </Box>
+        )}
+        {totalSaved > 0 && (
+          <Box
+            sx={{
+              mb: '15px',
+              p: '12px',
+              bgcolor: '#fff7ed',
+              borderRadius: '8px',
+              border: '1px dashed #e65100',
+            }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '5px' }}>
+              <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 600 }}>
+                Total Savings
+              </Typography>
+              <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 700 }}>
+                ${totalSaved.toLocaleString()}
+              </Typography>
+            </Box>
+            {savedFromOriginalPrice > 0 && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                  • Product markdowns
+                </Typography>
+                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                  ${savedFromOriginalPrice.toLocaleString()}
+                </Typography>
+              </Box>
+            )}
+            {discount > 0 && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                  • Extra 20% discount
+                </Typography>
+                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                  ${discount.toLocaleString()}
+                </Typography>
+              </Box>
+            )}
+            {shippingSavings > 0 && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                  • Free shipping
+                </Typography>
+                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                  ${shippingSavings.toLocaleString()}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        )}
         <Box
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
-            pb: '20px',
-            borderBottom: '1px dashed #dde2e5ff',
+            mb: '25px',
+            borderTop: 'solid 1px #c5c7cc8a',
+            pt: '15px',
           }}
         >
           <Typography
             sx={{
               color: '#263045fb',
               fontSize: '15px',
-              fontWeight: 300,
+              fontWeight: 500,
             }}
           >
-            Discount (15%)
+            Order total
           </Typography>
           <Typography
             sx={{
@@ -482,27 +604,7 @@ export default function CartPageUi() {
               fontWeight: 500,
             }}
           >
-            $12.60
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', my: '15px' }}>
-          <Typography
-            sx={{
-              color: '#263045fb',
-              fontSize: '18px',
-              fontWeight: 500,
-            }}
-          >
-            Total
-          </Typography>
-          <Typography
-            sx={{
-              color: '#263045fb',
-              fontSize: '15px',
-              fontWeight: 500,
-            }}
-          >
-            $212.00
+            ${total.toLocaleString()}
           </Typography>
         </Box>
         {!params.has('checkout') ? (
