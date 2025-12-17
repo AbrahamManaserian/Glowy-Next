@@ -27,12 +27,17 @@ export async function GET(request) {
 
     return NextResponse.json(products, {
       headers: {
-        // TEMPORARY: Disable ALL caching to verify data correctness
+        // Browser: ABSOLUTELY NO CACHING
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         Pragma: 'no-cache',
         Expires: '0',
-        'Netlify-CDN-Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'CDN-Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+
+        // CDN (Netlify): Cache this specific URL for 1 hour
+        'Netlify-CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
+        'CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
+
+        // Critical: Tell CDN that the response varies based on the query string
+        Vary: 'Query',
       },
     });
   } catch (error) {
