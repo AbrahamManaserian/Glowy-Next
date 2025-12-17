@@ -21,18 +21,18 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Invalid IDs' }, { status: 400 });
     }
 
+    console.log('API Received IDs:', ids);
+
     const products = await getCartItems(ids);
 
     return NextResponse.json(products, {
       headers: {
-        // Browser: ABSOLUTELY NO CACHING
+        // TEMPORARY: Disable ALL caching to verify data correctness
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         Pragma: 'no-cache',
         Expires: '0',
-
-        // CDN (Netlify): Cache this specific URL for 1 hour
-        'Netlify-CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
-        'CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
+        'Netlify-CDN-Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'CDN-Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
       },
     });
   } catch (error) {
