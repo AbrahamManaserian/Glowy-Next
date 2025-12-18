@@ -297,11 +297,11 @@ export default function ProductPageUi({ product, data }) {
                 </Typography>
               )}
 
-              <Typography
+              {/* <Typography
                 sx={{ mt: '15px', mb: '10px', fontSize: '15px', whiteSpace: 'pre-line', color: '#263045fb' }}
               >
                 {item.descriptionEn}
-              </Typography>
+              </Typography> */}
 
               {item.notes &&
                 Object.keys(item.notes).map((key, index) => {
@@ -430,6 +430,46 @@ export default function ProductPageUi({ product, data }) {
                 </div>
               </Box>
             </Grid>
+            <Box sx={{ width: '100%', mt: '40px' }}>
+              <Typography
+                variant="h3"
+                sx={{
+                  fontSize: '20px',
+                  fontWeight: 700,
+                  color: '#2B3445',
+                  mb: '15px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                }}
+              >
+                <span
+                  style={{
+                    width: '4px',
+                    height: '24px',
+                    backgroundColor: '#2196f3',
+                    borderRadius: '2px',
+                    display: 'inline-block',
+                  }}
+                ></span>
+                Description
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: '15px',
+                  whiteSpace: 'pre-line',
+                  color: '#4B566B',
+                  textAlign: 'justify',
+                  lineHeight: '1.8',
+                  bgcolor: '#f6f9fc',
+                  p: '25px',
+                  borderRadius: '12px',
+                  border: '1px solid #e3e9ef',
+                }}
+              >
+                {item.descriptionEn}
+              </Typography>
+            </Box>
           </Box>
           <Grid
             alignContent={'flex-start'}
