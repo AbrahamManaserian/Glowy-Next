@@ -39,8 +39,22 @@ const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
   },
 }));
 
-const navObj = { makeup: 'Makeup', fragrance: 'Fragrance', sale: 'Sale', gifts: 'Gifts', about: 'About' };
-const navObjGeneral = { home: 'Home', sale: 'Sale', gifts: 'Gifts', about: 'About', blog: 'Blog' };
+const navObj = {
+  shop: 'Shop',
+  makeup: 'Makeup',
+  fragrance: 'Fragrance',
+  sale: 'Sale',
+  gifts: 'Gifts',
+  about: 'About',
+};
+const navObjGeneral = {
+  shop: 'Shop',
+  home: 'Home',
+  sale: 'Sale',
+  gifts: 'Gifts',
+  about: 'About',
+  blog: 'Blog',
+};
 const navObjAbout = {
   about: 'Story',
   'about#2': 'Our Goals',

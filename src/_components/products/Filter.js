@@ -146,6 +146,8 @@ const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
   );
 };
 
+import Link from 'next/link';
+
 export default function Filter({ paramsState, handleChangeParams, noRout, category }) {
   const inputRef = useRef(null);
   const [brand, setBrand] = useState(paramsState.brand);
@@ -161,6 +163,26 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
   const handleCangeCollapse = (key, value) => {
     setCollapseItems({ ...collapseItems, [key]: value });
   };
+
+  if (category === 'shop' || category === 'sale') {
+    return (
+      <Grid container sx={{ width: { xs: '100%', sm: '250px' } }} direction={'column'}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+          Categories
+        </Typography>
+        {Object.entries(categoriesObj).map(([key, value]) => (
+          <Link
+            key={key}
+            href={`/${key}${category === 'sale' ? '?sale=true' : ''}`}
+            className="bar-link"
+            style={{ display: 'block', marginBottom: '4px' }}
+          >
+            {value.category}
+          </Link>
+        ))}
+      </Grid>
+    );
+  }
 
   return (
     <Grid container sx={{ width: { xs: '100%', sm: '250px' } }} direction={'column'}>

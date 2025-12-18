@@ -29,6 +29,7 @@ export const getProducts = async (searchParams) => {
     const conditions = [];
     for (const [key, value] of Object.entries(params)) {
       // console.log(key);
+
       if (
         value &&
         key !== 'category' &&
@@ -41,30 +42,37 @@ export const getProducts = async (searchParams) => {
           conditions.push(where('price', '>=', +value));
         } else if (key === 'maxPrice') {
           conditions.push(where('price', '<=', +value));
+        } else if (key === 'sale') {
+          conditions.push(where('previousPrice', '>', 0));
         } else {
           conditions.push(where(key, '==', value));
         }
       }
     }
+    if (params.category === 'sale') {
+      conditions.push(where('previousPrice', '>', 0));
+    }
+
+    
 
     // Count docs count
+
+    const productsRef =
+      !params.category || params.category === 'shop' || params.category === 'sale'
+        ? collection(db, 'allProducts')
+        : collection(db, 'glowyProducts', params.category, 'items');
+
     const countSnap = await getCountFromServer(
-      query(
-        collection(db, 'glowyProducts', params.category, 'items'),
-        ...conditions,
-        orderBy('highlighted', 'desc')
-      )
+      query(productsRef, ...conditions, orderBy('highlighted', 'desc'))
     );
     totalDocs = countSnap.data().count;
 
     if (params.page) {
       if (params.nav === 'last') {
-        const item = await getDoc(doc(db, 'glowyProducts', params.category, 'items', params.lastId)).catch(
-          (e) => console.log(e)
-        );
+        const item = await getDoc(doc(productsRef, params.lastId)).catch((e) => console.log(e));
 
         const q = query(
-          collection(db, 'glowyProducts', params.category, 'items'),
+          productsRef,
           ...conditions,
           orderBy('highlighted', 'desc'),
           startAfter(item),
@@ -79,12 +87,10 @@ export const getProducts = async (searchParams) => {
         lastId = querySnapshot.docs[querySnapshot.docs.length - 1]?.id;
         startId = querySnapshot.docs[0]?.id;
       } else if (params.nav === 'next') {
-        const item = await getDoc(doc(db, 'glowyProducts', params.category, 'items', params.lastId)).catch(
-          (e) => console.log(e)
-        );
+        const item = await getDoc(doc(productsRef, params.lastId)).catch((e) => console.log(e));
 
         const q = query(
-          collection(db, 'glowyProducts', params.category, 'items'),
+          productsRef,
           ...conditions,
           orderBy('highlighted', 'desc'),
           startAfter(item),
@@ -100,12 +106,10 @@ export const getProducts = async (searchParams) => {
         lastId = querySnapshot.docs[querySnapshot.docs.length - 1]?.id;
         startId = querySnapshot.docs[0]?.id;
       } else {
-        const item = await getDoc(doc(db, 'glowyProducts', params.category, 'items', params.startId)).catch(
-          (e) => console.log(e)
-        );
+        const item = await getDoc(doc(productsRef, params.startId)).catch((e) => console.log(e));
 
         const q = query(
-          collection(db, 'glowyProducts', params.category, 'items'),
+          productsRef,
           ...conditions,
           orderBy('highlighted', 'desc'),
           endBefore(item),
@@ -122,12 +126,7 @@ export const getProducts = async (searchParams) => {
         startId = querySnapshot.docs[0]?.id;
       }
     } else {
-      const q = query(
-        collection(db, 'glowyProducts', params.category, 'items'),
-        ...conditions,
-        orderBy('highlighted', 'desc'),
-        limit(10)
-      );
+      const q = query(productsRef, ...conditions, orderBy('highlighted', 'desc'), limit(10));
 
       const querySnapshot = await getDocs(q);
       lastId = querySnapshot.docs[querySnapshot.docs.length - 1]?.id;

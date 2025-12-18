@@ -99,27 +99,12 @@ export default function CartDrawer() {
                 <Typography sx={{ color: '#7b7b7b', fontSize: '14px', mb: 2 }}>
                   Add items to your cart to start shopping.
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                  <Button
-                    variant="contained"
-                    onClick={() => {
-                      createNewCart();
-                      toggleDrawer(false);
-                    }}
-                    sx={{ textTransform: 'capitalize' }}
-                  >
-                    Create New Cart
+
+                <Link href="/shop">
+                  <Button variant="contained" sx={{ mt: 2, bgcolor: '#2B3445' }}>
+                    Go Shopping
                   </Button>
-                  <Link href="/" scroll={true}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => toggleDrawer(false)}
-                      sx={{ textTransform: 'capitalize' }}
-                    >
-                      Continue Shopping
-                    </Button>
-                  </Link>
-                </Box>
+                </Link>
               </Box>
             ) : null}
 

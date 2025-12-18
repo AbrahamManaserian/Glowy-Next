@@ -172,7 +172,7 @@ export default function CartPageUi() {
     return (
       <Box sx={{ textAlign: 'center', mt: '100px' }}>
         <Typography variant="h5">Your cart is empty</Typography>
-        <Link href="/">
+        <Link href="/shop">
           <Button variant="contained" sx={{ mt: 2, bgcolor: '#2B3445' }}>
             Go Shopping
           </Button>
