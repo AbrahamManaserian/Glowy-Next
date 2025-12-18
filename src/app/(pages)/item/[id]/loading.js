@@ -1,8 +1,13 @@
 'use client';
 
 import { Box, Grid, Skeleton } from '@mui/material';
+import { useEffect } from 'react';
 
 export default function Loading() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <Grid
       sx={{
