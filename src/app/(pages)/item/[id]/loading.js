@@ -4,7 +4,13 @@ import { Box, Grid, Skeleton } from '@mui/material';
 
 export default function Loading() {
   return (
-    <Grid sx={{ m: { xs: '0 15px 60px 15px', sm: '0 25px 60px 25px' } }} container>
+    <Grid
+      sx={{
+        m: { xs: '0 15px 60px 15px', sm: '0 25px 60px 25px' },
+        minHeight: '100vh', // Ensure it takes full height
+      }}
+      container
+    >
       <Box
         sx={{
           display: 'flex',

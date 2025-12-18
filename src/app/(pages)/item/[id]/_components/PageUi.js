@@ -121,6 +121,10 @@ export default function ProductPageUi({ product, data }) {
 
   const [item, setItem] = useState(product);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const [loading, setLoading] = useState(false);
   const [availableOption, setAvailableOption] = useState(product.id);
   const [quantity, setQuantity] = useState(1);
