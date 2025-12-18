@@ -8,7 +8,15 @@ import Image from 'next/image';
 import { decreaseQuantity, deleteItem, increaseQuantity } from '../functions/addDeleteIncDecreaseCart';
 import Link from 'next/link';
 
-export default function DetailedCartItem({ item, productDetails, cart, setCart, discountRate = 0 }) {
+export default function DetailedCartItem({
+  item,
+  productDetails,
+  cart,
+  setCart,
+  discountRate = 0,
+  isSelected,
+  toggleSelection,
+}) {
   // Use fresh data from server if available, otherwise fallback to local cart data
   const data = productDetails || item;
   // console.log(data);
@@ -19,38 +27,104 @@ export default function DetailedCartItem({ item, productDetails, cart, setCart, 
   const price = data.price ?? data.amount ?? 0;
   const previousPrice = data.previousPrice ?? 0;
   const quantity = item.quantity ?? 1;
-  const savedAmount = ((previousPrice > price ? previousPrice - price : 0) + price * discountRate) * quantity;
+
+  const savedFromOriginal = (previousPrice > price ? previousPrice - price : 0) * quantity;
+  const savedFromDiscount = price * discountRate * quantity;
 
   return (
     <Box
       sx={{
         display: 'flex',
-        alignItems: 'center',
+        alignItems: { xs: 'flex-start', sm: 'center' },
         borderBottom: '1px dashed #dde2e5ff',
         overflow: 'hidden',
         boxSizing: 'border-box',
         maxWidth: '700px',
         py: '20px',
+        position: 'relative',
       }}
     >
-      <Link
-        href={`/item/${data.id}`}
-        style={{
+      <Checkbox
+        checked={isSelected}
+        onChange={toggleSelection}
+        sx={{
+          color: '#c5c7cc',
+          '&.Mui-checked': {
+            color: '#e65100',
+          },
+          position: 'absolute',
+          top: '10px',
+          right: '0px',
+          zIndex: 1,
+        }}
+      />
+      <Box
+        sx={{
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          alignContent: 'center',
-          boxSizing: 'border-box',
-          backgroundColor: '#d2cccc30',
-          borderRadius: '10px',
-          maxWidth: '100px',
-          height: '100px',
-          overflow: 'hidden',
-          WebkitTapHighlightColor: 'rgba(43, 137, 219, 0.04)',
+          flexDirection: 'column',
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          mr: '15px',
         }}
       >
-        <Image src={img} alt="" width={200} height={200} style={{ width: '100%', height: 'auto' }} />
-      </Link>
+        <Link
+          href={`/item/${data.id}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            alignContent: 'center',
+            boxSizing: 'border-box',
+            backgroundColor: '#d2cccc30',
+            borderRadius: '10px',
+            maxWidth: '100px',
+            height: '100px',
+            overflow: 'hidden',
+            WebkitTapHighlightColor: 'rgba(43, 137, 219, 0.04)',
+          }}
+        >
+          <Image src={img} alt="" width={200} height={200} style={{ width: '100%', height: 'auto' }} />
+        </Link>
+        <Box
+          sx={{
+            display: { xs: 'flex', sm: 'none' },
+            mt: '10px',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'inline-flex',
+              border: 'solid 0.5px #65626263',
+              borderRadius: '10px',
+              justifyContent: 'center',
+              alignContent: 'center',
+            }}
+          >
+            <IconButton
+              size="small"
+              onClick={() => decreaseQuantity(item.id, cart, setCart)}
+              aria-label="delete"
+            >
+              <RemoveIcon fontSize="small" />
+            </IconButton>
+            <Typography sx={{ bgcolor: '#6562620f', p: '4px 10px', fontSize: '13px' }}>
+              {item.quantity}
+            </Typography>
+            <IconButton
+              size="small"
+              onClick={() => increaseQuantity(item.id, cart, setCart)}
+              aria-label="add"
+            >
+              <AddIcon fontSize="small" />
+            </IconButton>
+          </Box>
+          <IconButton onClick={() => deleteItem(item.id, cart, setCart)} aria-label="delete" size="small">
+            <DeleteOutlinedIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      </Box>
 
       <Box
         sx={{
@@ -60,10 +134,10 @@ export default function DetailedCartItem({ item, productDetails, cart, setCart, 
           boxSizing: 'border-box',
           justifyContent: 'space-between',
           overflow: 'hidden',
-          ml: '15px',
+          minHeight: { sm: '100px' },
         }}
       >
-        <div>
+        <Box sx={{ pr: '40px' }}>
           <Typography
             sx={{
               fontSize: '14px',
@@ -85,7 +159,7 @@ export default function DetailedCartItem({ item, productDetails, cart, setCart, 
                 mb: '8px',
               }}
             >
-              ${price.toLocaleString()}
+              ֏{price.toLocaleString()}
             </Typography>
             {data.previousPrice > price && (
               <Typography
@@ -97,20 +171,25 @@ export default function DetailedCartItem({ item, productDetails, cart, setCart, 
                   mb: '8px',
                 }}
               >
-                ${data.previousPrice.toLocaleString()}
+                ֏{data.previousPrice.toLocaleString()}
               </Typography>
             )}
           </Box>
-          {savedAmount > 0 && (
-            <Typography sx={{ fontSize: '12px', color: '#e65100', fontWeight: 500, mb: '5px' }}>
-              You save: ${savedAmount.toLocaleString()}
+          {savedFromOriginal > 0 && (
+            <Typography sx={{ fontSize: '12px', color: '#e65100', fontWeight: 500, mb: '2px' }}>
+              Markdown: ֏{savedFromOriginal.toLocaleString()}
             </Typography>
           )}
-        </div>
+          {savedFromDiscount > 0 && (
+            <Typography sx={{ fontSize: '12px', color: '#e65100', fontWeight: 500, mb: '5px' }}>
+              Extra 20%: ֏{savedFromDiscount.toLocaleString()}
+            </Typography>
+          )}
+        </Box>
         <Box
           sx={{
             mt: '2px',
-            display: 'flex',
+            display: { xs: 'none', sm: 'flex' },
             justifyContent: 'space-between',
             alignItems: 'flex-end',
           }}
@@ -143,11 +222,9 @@ export default function DetailedCartItem({ item, productDetails, cart, setCart, 
               <AddIcon />
             </IconButton>
           </Box>
-
-          <DeleteOutlinedIcon
-            onClick={() => deleteItem(item.id, cart, setCart)}
-            sx={{ fontSize: '28px', color: '#ca4d4df6', cursor: 'pointer' }}
-          />
+          <IconButton onClick={() => deleteItem(item.id, cart, setCart)} aria-label="delete">
+            <DeleteOutlinedIcon />
+          </IconButton>
         </Box>
       </Box>
     </Box>

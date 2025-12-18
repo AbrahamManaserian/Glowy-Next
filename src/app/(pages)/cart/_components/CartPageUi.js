@@ -11,7 +11,7 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LocalAtmRoundedIcon from '@mui/icons-material/LocalAtmRounded';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import RocketLaunchOutlinedIcon from '@mui/icons-material/RocketLaunchOutlined';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 const inputTextGroupObj = {
   fullName: 'Full name',
@@ -26,19 +26,19 @@ const shippingMethodObj = {
     type: 'Free',
     deliveryDuration: '5-7 days delivery',
     icon: <DirectionsBikeIcon sx={{ fontSize: '20px', mr: '8px' }} />,
-    price: '$0',
+    price: '֏0',
   },
   standart: {
     type: 'Standart',
     deliveryDuration: '3-5 days delivery',
     icon: <LocalShippingOutlinedIcon sx={{ fontSize: '20px', mr: '8px' }} />,
-    price: '$10',
+    price: '֏10',
   },
   express: {
     type: 'Express',
     deliveryDuration: '1 day delivery',
     icon: <RocketLaunchOutlinedIcon sx={{ fontSize: '20px', mr: '8px' }} />,
-    price: '$15',
+    price: '֏15',
   },
 };
 
@@ -95,9 +95,28 @@ export default function CartPageUi() {
     note: '',
   });
   const { cart, setCart, cartDetails } = useGlobalContext();
-  console.log(cartDetails);
+  // console.log(cartDetails);
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const isInitialized = useRef(false);
+
+  useEffect(() => {
+    if (cart?.items && !isInitialized.current) {
+      setSelectedItems(Object.keys(cart.items));
+      if (Object.keys(cart.items).length > 0) {
+        isInitialized.current = true;
+      }
+    }
+  }, [cart]);
+
+  const toggleItemSelection = (id) => {
+    if (selectedItems.includes(id)) {
+      setSelectedItems(selectedItems.filter((itemId) => itemId !== id));
+    } else {
+      setSelectedItems([...selectedItems, id]);
+    }
+  };
 
   const handleInputChange = (event) => {
     if (!event.nativeEvent.data && event.nativeEvent.data !== null) {
@@ -114,7 +133,14 @@ export default function CartPageUi() {
   }, [searchParams]);
 
   // Calculate totals
+  const totalSelectedQuantity = Object.keys(cart.items).reduce((acc, id) => {
+    if (!selectedItems.includes(id)) return acc;
+    const item = cart.items[id];
+    return acc + (item.quantity ?? 1);
+  }, 0);
+
   const subtotal = Object.keys(cart.items).reduce((acc, id) => {
+    if (!selectedItems.includes(id)) return acc;
     const item = cart.items[id];
     const details = cartDetails ? cartDetails[id] : null;
     const price = details?.price ?? details?.amount ?? item.price ?? 0;
@@ -123,6 +149,7 @@ export default function CartPageUi() {
   }, 0);
 
   const savedFromOriginalPrice = Object.keys(cart.items).reduce((acc, id) => {
+    if (!selectedItems.includes(id)) return acc;
     const item = cart.items[id];
     const details = cartDetails ? cartDetails[id] : null;
     const price = details?.price ?? details?.amount ?? item.price ?? 0;
@@ -135,9 +162,9 @@ export default function CartPageUi() {
     return acc;
   }, 0);
 
-  const shippingCost = subtotal > 5000 ? 0 : 1000;
-  const shippingSavings = subtotal > 5000 ? 1000 : 0;
-  const discount = subtotal > 20000 ? subtotal * 0.2 : 0;
+  const shippingCost = subtotal >= 5000 ? 0 : 1000;
+  const shippingSavings = subtotal >= 5000 ? 1000 : 0;
+  const discount = subtotal >= 20000 ? subtotal * 0.2 : 0;
   const total = subtotal + shippingCost - discount;
   const totalSaved = savedFromOriginalPrice + discount + shippingSavings;
 
@@ -188,7 +215,9 @@ export default function CartPageUi() {
                 productDetails={cartDetails ? cartDetails[id] : null}
                 cart={cart}
                 setCart={setCart}
-                discountRate={subtotal > 20000 ? 0.2 : 0}
+                discountRate={subtotal >= 20000 ? 0.2 : 0}
+                isSelected={selectedItems.includes(id)}
+                toggleSelection={() => toggleItemSelection(id)}
               />
             );
           })}
@@ -465,7 +494,7 @@ export default function CartPageUi() {
             mb: '20px',
           }}
         >
-          Summary - ({cart.length}) items
+          Summary - ({totalSelectedQuantity}) items
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
           <Typography
@@ -484,7 +513,7 @@ export default function CartPageUi() {
               fontWeight: 500,
             }}
           >
-            ${subtotal.toLocaleString()}
+            ֏{subtotal.toLocaleString()}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
@@ -504,10 +533,17 @@ export default function CartPageUi() {
               fontWeight: 500,
             }}
           >
-            {shippingCost === 0 ? 'Free' : `$${shippingCost.toLocaleString()}`}
+            {shippingCost === 0 ? 'Free' : `֏${shippingCost.toLocaleString()}`}
           </Typography>
         </Box>
-        {discount > 0 && (
+        {shippingCost > 0 && (
+          <Box sx={{ mb: '15px' }}>
+            <Typography sx={{ fontSize: '13px', color: '#e65100', fontWeight: 500 }}>
+              Add items worth ֏{(5000 - subtotal).toLocaleString()} to get free shipping
+            </Typography>
+          </Box>
+        )}
+        {discount > 0 ? (
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
             <Typography
               sx={{
@@ -525,7 +561,13 @@ export default function CartPageUi() {
                 fontWeight: 500,
               }}
             >
-              -${discount.toLocaleString()}
+              -֏{discount.toLocaleString()}
+            </Typography>
+          </Box>
+        ) : (
+          <Box sx={{ mb: '15px' }}>
+            <Typography sx={{ fontSize: '13px', color: '#e65100', fontWeight: 500 }}>
+              Add items worth ֏{(20000 - subtotal).toLocaleString()} to get 20% discount
             </Typography>
           </Box>
         )}
@@ -544,7 +586,7 @@ export default function CartPageUi() {
                 Total Savings
               </Typography>
               <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 700 }}>
-                ${totalSaved.toLocaleString()}
+                ֏{totalSaved.toLocaleString()}
               </Typography>
             </Box>
             {savedFromOriginalPrice > 0 && (
@@ -553,7 +595,7 @@ export default function CartPageUi() {
                   • Product markdowns
                 </Typography>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
-                  ${savedFromOriginalPrice.toLocaleString()}
+                  ֏{savedFromOriginalPrice.toLocaleString()}
                 </Typography>
               </Box>
             )}
@@ -563,7 +605,7 @@ export default function CartPageUi() {
                   • Extra 20% discount
                 </Typography>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
-                  ${discount.toLocaleString()}
+                  ֏{discount.toLocaleString()}
                 </Typography>
               </Box>
             )}
@@ -573,7 +615,7 @@ export default function CartPageUi() {
                   • Free shipping
                 </Typography>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
-                  ${shippingSavings.toLocaleString()}
+                  ֏{shippingSavings.toLocaleString()}
                 </Typography>
               </Box>
             )}
@@ -604,7 +646,7 @@ export default function CartPageUi() {
               fontWeight: 500,
             }}
           >
-            ${total.toLocaleString()}
+            ֏{total.toLocaleString()}
           </Typography>
         </Box>
         {!params.has('checkout') ? (
