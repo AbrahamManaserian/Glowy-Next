@@ -3,12 +3,48 @@
 import { Box, Button, Grid, Typography } from '@mui/material';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function SpecialOffer() {
-  const [option, setOption] = useState(100);
-  const handleClickOption = (opt) => {
-    setOption(opt);
+export default function SpecialOffer({ specialOffer: initialOffer }) {
+  const [specialOffer, setSpecialOffer] = useState(initialOffer);
+  const [option, setOption] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (initialOffer) {
+      const key = initialOffer.optionKey;
+      if (key && initialOffer[key]) {
+        setOption(initialOffer[key]);
+      } else if (
+        initialOffer.availableOptions &&
+        Array.isArray(initialOffer.availableOptions) &&
+        initialOffer.availableOptions.length > 0
+      ) {
+        setOption(initialOffer.availableOptions[0][key]);
+      }
+    }
+    setSpecialOffer(initialOffer);
+  }, [initialOffer]);
+
+  const handleClickOption = async (opt) => {
+    const key = specialOffer.optionKey;
+    setOption(opt[key]);
+
+    if (opt.id) {
+      try {
+        const res = await fetch(`/api/item?id=${opt.id}`);
+        const newData = await res.json();
+        if (newData && !newData.error) {
+          setSpecialOffer(newData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch option data', error);
+      }
+    }
   };
+
+  if (!specialOffer) return null;
+
   return (
     <Grid sx={{ m: { xs: '80px 15px', sm: '90px 25px' } }} size={12} container justifyContent="center">
       <Typography
@@ -32,7 +68,9 @@ export default function SpecialOffer() {
           direction="column"
           alignItems="center"
         >
-          <Typography sx={{ color: '#f44336', fontSize: '14px' }}>Fragrance</Typography>
+          <Typography sx={{ color: '#f44336', fontSize: '14px' }}>
+            {specialOffer.category || 'Special Deal'}
+          </Typography>
           <Typography
             sx={{
               color: '#2B3445',
@@ -43,9 +81,10 @@ export default function SpecialOffer() {
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
+              textAlign: 'center',
             }}
           >
-            Versace Bright Cristal
+            {specialOffer.fullName || specialOffer.title}
           </Typography>
 
           <Typography
@@ -59,7 +98,7 @@ export default function SpecialOffer() {
             fontWeight={500}
             color="#46484bff"
           >
-            $7,500
+            ֏{specialOffer.price?.toLocaleString()}
           </Typography>
 
           <Typography
@@ -85,13 +124,14 @@ export default function SpecialOffer() {
           size={{ xs: 12, sm: 6, md: 4, lg: 4 }}
           sx={{ bgcolor: '#4c5e790e', p: '15px', borderRadius: '10px', overflow: 'hidden' }}
         >
-          <Image
-            src="/images/12.webp"
-            alt="Versace Bright Cristal"
-            width={200}
-            height={200}
-            style={{ width: 'auto', height: '75%' }}
-          />
+          <Box sx={{ position: 'relative', width: '100%', height: '300px' }}>
+            <Image
+              src={specialOffer.mainImage?.url || specialOffer.mainImage?.file || '/images/placeholder.jpg'}
+              alt={specialOffer.fullName || specialOffer.title}
+              fill
+              style={{ objectFit: 'contain' }}
+            />
+          </Box>
         </Grid>
         <Grid
           container
@@ -107,22 +147,55 @@ export default function SpecialOffer() {
               fontWeight: 600,
             }}
           >
-            Versace Bright Cristal
+            {specialOffer.fullName || specialOffer.title}
           </Typography>
           <Typography sx={{ color: '#21212295', fontSize: '14px', mt: '10px' }}>
-            While most people enjoy casino gambling, sports betting, lottery and bingo playing for the fun.
+            {specialOffer.description || 'Get the best deal on this amazing product. Limited time offer!'}
           </Typography>
-          <Typography sx={{ color: '#212122da', fontSize: '14px', mt: '25px', fontWeight: 500 }}>
-            Options
-          </Typography>
-          <Box sx={{ display: 'flex', mt: '12px' }}>
-            {[50, 75, 100].map((opt, index) => {
-              return (
-                <Options key={index} handleClickOption={handleClickOption} option={opt} state={option} />
-              );
-            })}
-          </Box>
+
+          {(() => {
+            const key = specialOffer.optionKey;
+            let opts = specialOffer.availableOptions ? [...specialOffer.availableOptions] : [];
+
+            if (key && specialOffer[key] && !opts.find((o) => o.id === specialOffer.id)) {
+              opts.push({ id: specialOffer.id, [key]: specialOffer[key] });
+            }
+
+            opts.sort((a, b) => {
+              const valA = parseFloat(a[key]);
+              const valB = parseFloat(b[key]);
+              if (!isNaN(valA) && !isNaN(valB)) {
+                return valA - valB;
+              }
+              return 0;
+            });
+
+            if (opts.length === 0) return null;
+
+            return (
+              <>
+                <Typography sx={{ color: '#212122da', fontSize: '14px', mt: '25px', fontWeight: 500 }}>
+                  Options
+                </Typography>
+                <Box sx={{ display: 'flex', mt: '12px' }}>
+                  {opts.map((opt, index) => {
+                    const value = opt[key];
+                    return (
+                      <Options
+                        key={index}
+                        handleClickOption={() => handleClickOption(opt)}
+                        option={value}
+                        state={option}
+                      />
+                    );
+                  })}
+                </Box>
+              </>
+            );
+          })()}
+
           <Button
+            onClick={() => router.push(`/item/${specialOffer.id}`)}
             variant="contained"
             sx={{
               textTransform: 'capitalize',
@@ -133,7 +206,7 @@ export default function SpecialOffer() {
               width: '150px',
             }}
           >
-            Buy Now
+            More
           </Button>
         </Grid>
       </Grid>
@@ -153,7 +226,7 @@ function Options({ handleClickOption, option, state }) {
         cursor: 'pointer',
       }}
     >
-      <Typography sx={{ color: '#212122da', fontSize: '14px', fontWeight: 500 }}>{option} ml</Typography>
+      <Typography sx={{ color: '#212122da', fontSize: '14px', fontWeight: 500 }}>{option}</Typography>
     </Box>
   );
 }
@@ -162,25 +235,45 @@ function DealCountdown() {
   const [timeLeft, setTimeLeft] = useState(null);
 
   useEffect(() => {
-    // Example: deal ends in 3 days from now
-    const dealEndTime = new Date('2025-09-10T23:59:59').getTime();
+    const calculateTargetTime = () => {
+      let target = new Date('2025-09-10T23:59:59').getTime();
+      const now = Date.now();
+      const oneDay = 24 * 60 * 60 * 1000;
 
-    const updateTime = () => {
-      setTimeLeft(dealEndTime - new Date().getTime());
+      if (target < now) {
+        const diff = now - target;
+        const daysToAdd = Math.ceil(diff / oneDay);
+        target += daysToAdd * oneDay;
+
+        if (target <= now) {
+          target += oneDay;
+        }
+      }
+      return target;
     };
 
-    updateTime(); // run once immediately
+    let dealEndTime = calculateTargetTime();
+
+    const updateTime = () => {
+      const now = Date.now();
+      let diff = dealEndTime - now;
+
+      if (diff <= 0) {
+        dealEndTime += 24 * 60 * 60 * 1000;
+        diff = dealEndTime - now;
+      }
+
+      setTimeLeft(diff);
+    };
+
+    updateTime();
     const interval = setInterval(updateTime, 1000);
 
     return () => clearInterval(interval);
   }, []);
 
   if (timeLeft === null) {
-    return <div style={{ visibility: 'hidden' }}>Loading…</div>; // prevent SSR mismatch
-  }
-
-  if (timeLeft <= 0) {
-    return <div style={{ fontSize: '20px', fontWeight: 'bold', color: 'red' }}>Deal ended</div>;
+    return <div style={{ visibility: 'hidden' }}>Loading…</div>;
   }
 
   const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));

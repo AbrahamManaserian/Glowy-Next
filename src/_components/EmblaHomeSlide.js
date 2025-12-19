@@ -157,7 +157,7 @@ export default function EmblaHomeSlide({ initialSlides = [] }) {
                       },
                     }}
                   >
-                    View Deal
+                    More
                   </Button>
                 </Grid>
                 <Grid

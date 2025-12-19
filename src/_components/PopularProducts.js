@@ -3,22 +3,17 @@
 import { Box, Grid, Rating, Typography } from '@mui/material';
 import { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
-
-export const images = [
-  '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',
-  '/images/ov4x8tqv11m5xi1kcm868rz43f7isui0.webp',
-  '/images/12.webp',
-  '/images/w33w5wkxtoc8ine2mnc4pbfwqt40rfsh.webp',
-  '/images/ov4x8tqv11m5xi1kcm868rz43f7isui0.webp',
-  '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',
-  '/images/w33w5wkxtoc8ine2mnc4pbfwqt40rfsh.webp',
-  '/images/12.webp',
-];
-
-export default function PopularProducts() {
+export default function PopularProducts({ popularProducts }) {
   const [tabIndex, setTabIndex] = useState(0);
+  const router = useRouter();
   const handleClick = (i) => setTabIndex(i);
+
+  const categories = ['fragrance', 'makeup', 'hair'];
+  const currentCategory = categories[tabIndex];
+  const products = popularProducts?.[currentCategory] || [];
+
   return (
     <Grid sx={{ m: { xs: '80px 15px', sm: '90px 25px' } }} size={12} container alignContent={'flex-start'}>
       <Typography
@@ -29,7 +24,7 @@ export default function PopularProducts() {
         Popular Products
       </Typography>
       <Grid size={12} container>
-        {['Fragrance', 'Makeup', 'Brands'].map((item, index) => {
+        {['Fragrance', 'Makeup', 'Hair'].map((item, index) => {
           return (
             <Typography
               key={index}
@@ -59,16 +54,18 @@ export default function PopularProducts() {
         }}
       ></Box>
       <Grid mt="25px" size={12} container spacing={2}>
-        {images.map((item, index) => {
+        {products.map((item, index) => {
           return (
             <Grid
               size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-              key={index}
+              key={item.id || index}
+              onClick={() => router.push(`/item/${item.id}`)}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 height: '110px',
                 overflow: 'hidden',
+                cursor: 'pointer',
               }}
             >
               <Box
@@ -77,16 +74,23 @@ export default function PopularProducts() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   alignContent: 'center',
-                  padding: '5px',
+                  padding: '0px',
                   boxSizing: 'border-box',
                   bgcolor: '#d2cccc30',
                   borderRadius: '10px',
                   width: '90px',
                   height: '90px',
                   overflow: 'hidden',
+                  flexShrink: 0,
                 }}
               >
-                <Image src={item} alt="" width={200} height={200} style={{ width: '100%', height: 'auto' }} />
+                <Image
+                  src={item.mainImage?.url || item.mainImage?.file || '/images/placeholder.jpg'}
+                  alt={item.title || 'Product'}
+                  width={200}
+                  height={200}
+                  style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
+                />
               </Box>
               <Box
                 sx={{
@@ -111,11 +115,11 @@ export default function PopularProducts() {
                       color: '#191818f6',
                     }}
                   >
-                    Armani Stronger With yuo Absolutely
+                    {item.fullName || item.title}
                   </Typography>
                 </div>
-                <Rating name="read-only" value={5} readOnly size="small" />
-                <Typography sx={{ fontSize: '12px', color: '#19181886' }}>50 Sold</Typography>
+                <Rating name="read-only" value={item.rating || 5} readOnly size="small" />
+                {/* <Typography sx={{ fontSize: '12px', color: '#19181886' }}>{item.sold || 0} Sold</Typography> */}
                 <Typography
                   sx={{
                     fontSize: '14px',
@@ -126,7 +130,7 @@ export default function PopularProducts() {
                     fontWeight: 500,
                   }}
                 >
-                  $ 230.00
+                  ֏{item.price?.toLocaleString()}
                 </Typography>
               </Box>
             </Grid>
