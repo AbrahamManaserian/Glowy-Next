@@ -3,6 +3,7 @@
 import { Box, Grid, Typography } from '@mui/material';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 const images = [
   '/images/giftCollection/491418281_17894849493207296_8185218575935560017_n.jpg',
@@ -12,7 +13,19 @@ const images = [
   '/images/giftCollection/491415702_17894775201207296_2836718220170321531_n.jpg',
 ];
 
+const arr = [
+  { path: '/fragrance?subCategory=fragrance', name: 'Fragrance', image: images[0] },
+  { path: '/makeup', name: 'Makeup', image: images[1] },
+  { path: '/skincare', name: 'Skincare', image: images[2] },
+  { path: '/hair', name: 'Haircare', image: images[3] },
+  { path: '/bathBody', name: 'Bath & Body', image: images[4] },
+];
+
 export default function CustumSolutions() {
+  const router = useRouter();
+  const mainItem = arr[1]; // Makeup
+  const subItems = [arr[0], arr[2], arr[3], arr[4]]; // Fragrance, Skincare, Haircare, Bath & Body
+
   return (
     <Grid
       size={12}
@@ -28,6 +41,8 @@ export default function CustumSolutions() {
       >
         Custom solutions for your needs
       </Typography>
+
+      {/* Main Item (Left/Top Large Item) */}
       <Grid
         alignContent="flex-start"
         size={{ xs: 12, sm: 12, md: 4 }}
@@ -38,24 +53,25 @@ export default function CustumSolutions() {
           '&:hover p': {
             textDecoration: 'underline',
           },
+          cursor: 'pointer',
         }}
+        onClick={() => router.push(mainItem.path)}
       >
         <Box
           sx={{
             position: 'relative',
             width: { xs: '100%', sm: '100%', md: '100%' },
-            height: { xs: 205, sm: 275, md: '810px' }, // same fixed heights you had
+            height: { xs: 205, sm: 275, md: '810px' },
             borderRadius: '15px',
             overflow: 'hidden',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            cursor: 'pointer',
           }}
         >
           <Image
-            src={images[1]}
-            alt="Makeup Remover"
+            src={mainItem.image}
+            alt={mainItem.name}
             fill
             sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
             style={{
@@ -65,19 +81,28 @@ export default function CustumSolutions() {
             className="hover-scale"
           />
         </Box>
-        <Typography
-          style={{
+        <Box
+          sx={{
             position: 'absolute',
             bottom: '40px',
             left: '40px',
-            fontSize: { xs: '14px', sm: '20px' },
-            fontWeight: 600,
-            color: '#2B3445',
+            bgcolor: 'rgba(255, 255, 255, 0.6)',
+            backdropFilter: 'blur(4px)',
+            borderRadius: '8px',
+            padding: '6px 14px',
             pointerEvents: 'none',
           }}
         >
-          Makeup Remover
-        </Typography>
+          <Typography
+            sx={{
+              fontSize: { xs: '14px', sm: '20px' },
+              fontWeight: 700,
+              color: '#2B3445',
+            }}
+          >
+            {mainItem.name}
+          </Typography>
+        </Box>
         <Box
           sx={{
             position: 'absolute',
@@ -96,286 +121,94 @@ export default function CustumSolutions() {
           <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
         </Box>
       </Grid>
+
+      {/* Sub Items Grid (Right/Bottom) */}
       <Grid size={{ xs: 12, sm: 12, md: 8 }} container>
-        <Grid
-          sx={{
-            p: { xs: '10px 0 10px 0', sm: '10px 10px 10px 0', md: '10px' },
-            position: 'relative',
-            '&:hover p': {
-              textDecoration: 'underline',
-            },
-          }}
-          size={{ xs: 12, sm: 6 }}
-          container
-          alignContent="flex-start"
-        >
-          <Box
+        {subItems.map((item, index) => (
+          <Grid
+            key={index}
             sx={{
+              p:
+                index % 2 === 0
+                  ? { xs: '10px 0 10px 0', sm: '10px 10px 10px 0', md: '10px' }
+                  : { xs: '10px 0 10px 0', sm: '10px 0 10px 10px', md: '10px 0 10px 10px' },
               position: 'relative',
-              width: { xs: '100%', sm: '100%', md: '100%' },
-              height: { xs: '205px', sm: '275px', md: '395px' }, // same fixed heights you had
-              borderRadius: '15px',
-              overflow: 'hidden',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+              '&:hover p': {
+                textDecoration: 'underline',
+              },
               cursor: 'pointer',
             }}
+            size={{ xs: 12, sm: 6 }}
+            container
+            alignContent="flex-start"
+            onClick={() => router.push(item.path)}
           >
-            <Image
-              src={images[0]}
-              alt="Makeup Remover"
-              fill
-              sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              style={{
-                objectFit: 'cover',
-                transition: 'transform 0.6s ease',
+            <Box
+              sx={{
+                position: 'relative',
+                width: { xs: '100%', sm: '100%', md: '100%' },
+                height: { xs: '205px', sm: '275px', md: '395px' },
+                borderRadius: '15px',
+                overflow: 'hidden',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
-              className="hover-scale"
-            />
-          </Box>
+            >
+              <Image
+                src={item.image}
+                alt={item.name}
+                fill
+                sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                style={{
+                  objectFit: 'cover',
+                  transition: 'transform 0.6s ease',
+                }}
+                className="hover-scale"
+              />
+            </Box>
 
-          <Typography
-            style={{
-              position: 'absolute',
-              bottom: '40px',
-              left: '40px',
-              fontSize: { xs: '14px', sm: '20px' },
-              fontWeight: 600,
-              color: '#2B3445',
-              pointerEvents: 'none',
-            }}
-          >
-            Makeup Remover
-          </Typography>
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: '40px',
-              right: '40px',
-              height: '35px',
-              width: '35px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              bgcolor: 'white',
-              borderRadius: '10px',
-              pointerEvents: 'none',
-            }}
-          >
-            <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
-          </Box>
-        </Grid>
-        <Grid
-          sx={{
-            p: { xs: '10px 0 10px 0', sm: '10px 0 10px 10px', md: '10px 0 10px 10px' },
-            overflow: 'hidden',
-            position: 'relative',
-            '&:hover p': {
-              textDecoration: 'underline',
-            },
-          }}
-          size={{ xs: 12, sm: 6 }}
-          container
-          alignContent="flex-start"
-        >
-          <Box
-            sx={{
-              position: 'relative',
-              width: { xs: '100%', sm: '100%', md: '100%' },
-              height: { xs: '205px', sm: '275px', md: '395px' }, // same fixed heights you had
-
-              borderRadius: '15px',
-              overflow: 'hidden',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
-          >
-            <Image
-              src={images[2]}
-              alt="Makeup Remover"
-              fill
-              sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              style={{
-                objectFit: 'cover',
-                transition: 'transform 0.6s ease',
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: '40px',
+                left: '40px',
+                bgcolor: 'rgba(255, 255, 255, 0.6)',
+                backdropFilter: 'blur(4px)',
+                borderRadius: '8px',
+                padding: '6px 14px',
+                pointerEvents: 'none',
               }}
-              className="hover-scale"
-            />
-          </Box>
-
-          <Typography
-            style={{
-              position: 'absolute',
-              bottom: '40px',
-              left: '40px',
-              fontSize: { xs: '14px', sm: '20px' },
-              fontWeight: 600,
-              color: '#2B3445',
-              pointerEvents: 'none',
-            }}
-          >
-            Makeup Remover
-          </Typography>
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: '40px',
-              right: '40px',
-              height: '35px',
-              width: '35px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              bgcolor: 'white',
-              borderRadius: '10px',
-              pointerEvents: 'none',
-            }}
-          >
-            <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
-          </Box>
-        </Grid>
-        <Grid
-          sx={{
-            p: { xs: '10px 0 10px 0', sm: '10px 10px 10px 0', md: '10px' },
-            overflow: 'hidden',
-            position: 'relative',
-            '&:hover p': {
-              textDecoration: 'underline',
-            },
-          }}
-          size={{ xs: 12, sm: 6 }}
-          container
-          alignContent="flex-start"
-        >
-          <Box
-            sx={{
-              position: 'relative',
-              width: { xs: '100%', sm: '100%', md: '100%' },
-              height: { xs: '205px', sm: '275px', md: '395px' }, // same fixed heights you had
-
-              borderRadius: '15px',
-              overflow: 'hidden',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
-          >
-            <Image
-              src={images[3]}
-              alt="Makeup Remover"
-              fill
-              sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              style={{
-                objectFit: 'cover',
-                transition: 'transform 0.6s ease',
+            >
+              <Typography
+                sx={{
+                  fontSize: { xs: '14px', sm: '20px' },
+                  fontWeight: 700,
+                  color: '#2B3445',
+                }}
+              >
+                {item.name}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: '40px',
+                right: '40px',
+                height: '35px',
+                width: '35px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                bgcolor: 'white',
+                borderRadius: '10px',
+                pointerEvents: 'none',
               }}
-              className="hover-scale"
-            />
-          </Box>
-
-          <Typography
-            style={{
-              position: 'absolute',
-              bottom: '40px',
-              left: '40px',
-              fontSize: { xs: '14px', sm: '20px' },
-              fontWeight: 600,
-              color: '#2B3445',
-              pointerEvents: 'none',
-            }}
-          >
-            Makeup Remover
-          </Typography>
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: '40px',
-              right: '40px',
-              height: '35px',
-              width: '35px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              bgcolor: 'white',
-              borderRadius: '10px',
-              pointerEvents: 'none',
-            }}
-          >
-            <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
-          </Box>
-        </Grid>
-        <Grid
-          sx={{
-            p: { xs: '10px 0 10px 0', sm: '10px 0 10px 10px', md: '10px 0 10px 10px' },
-            overflow: 'hidden',
-            position: 'relative',
-          }}
-          size={{ xs: 12, sm: 6 }}
-          container
-          alignContent="flex-start"
-        >
-          <Box
-            sx={{
-              position: 'relative',
-              width: { xs: '100%', sm: '100%', md: '100%' },
-              height: { xs: '205px', sm: '275px', md: '395px' }, // same fixed heights you had
-
-              borderRadius: '15px',
-              overflow: 'hidden',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
-          >
-            <Image
-              src={images[4]}
-              alt="Makeup Remover"
-              fill
-              sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              style={{
-                objectFit: 'cover',
-                transition: 'transform 0.6s ease',
-              }}
-              className="hover-scale"
-            />
-          </Box>
-
-          <Typography
-            style={{
-              position: 'absolute',
-              bottom: '40px',
-              left: '40px',
-              fontSize: { xs: '14px', sm: '20px' },
-              fontWeight: 600,
-              color: '#2B3445',
-              pointerEvents: 'none',
-            }}
-          >
-            Makeup Remover
-          </Typography>
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: '40px',
-              right: '40px',
-              height: '35px',
-              width: '35px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              bgcolor: 'white',
-              borderRadius: '10px',
-              pointerEvents: 'none',
-            }}
-          >
-            <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
-          </Box>
-        </Grid>
+            >
+              <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
+            </Box>
+          </Grid>
+        ))}
       </Grid>
     </Grid>
   );

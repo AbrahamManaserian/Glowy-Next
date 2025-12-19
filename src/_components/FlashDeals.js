@@ -1,205 +1,35 @@
 'use client';
 
-import { Box, Button, Dialog, Grid, Rating, Typography } from '@mui/material';
+import { Box, Button, Grid, Typography, Rating } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import CloseIcon from '@mui/icons-material/Close';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { ShoppingBasketIcon } from '@/_components/icons';
+import { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
-
+import { useRouter } from 'next/navigation';
 import useEmblaCarousel from 'embla-carousel-react';
+import { useGlobalContext } from '@/app/GlobalContext';
+import { handleClickAddToCart } from '@/_components/carts/ItemCart';
 
-export const images = [
-  '/images/ov4x8tqv11m5xi1kcm868rz43f7isui0.webp',
-  '/images/06lT4BbLdxYjqF7EjvbnSXT9ILosjlIZh539zWgD.webp',
-  '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',
-  '/images/w33w5wkxtoc8ine2mnc4pbfwqt40rfsh.webp',
-  '/images/ov4x8tqv11m5xi1kcm868rz43f7isui0.webp',
-  '/images/06lT4BbLdxYjqF7EjvbnSXT9ILosjlIZh539zWgD.webp',
-  '/images/w536b1l7mqqhu3f49c175z70yk5ld05f.webp',
-  '/images/w33w5wkxtoc8ine2mnc4pbfwqt40rfsh.webp',
-];
-
-function OpenDialog({ quickView, handleClose }) {
+export default function FlashDeals({ flashDeals = [] }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
+  const [itemsPerView, setItemsPerView] = useState(4);
+  const router = useRouter();
+  const { cart, setCart } = useGlobalContext();
+
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
 
-  return (
-    <Dialog onClose={handleClose} open={quickView || quickView === 0}>
-      <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
-        <CloseIcon
-          onClick={handleClose}
-          sx={{
-            zIndex: 1000,
-            color: '#8a8c8dff',
-            cursor: 'pointer',
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-          }}
-        />
-        <div
-          ref={emblaRef}
-          style={{
-            overflow: 'hidden',
-            maxWidth: '500px',
-            position: 'relative',
-            height: 'iner-height',
-          }}
-        >
-          <Box sx={{ display: 'flex' }}>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                alignContent: 'center',
-                overflow: 'hidden',
-                height: { xs: '200px', sm: '300px' },
-                flex: `0 0 100%`, // responsive width
-                minWidth: '0',
-                padding: '10px',
-                boxSizing: 'border-box', // ✅ keeps padding inside width
-                bgcolor: '#807d7d14',
-              }}
-            >
-              <Image
-                src={images[quickView] || images[0]}
-                alt=""
-                width={200}
-                height={200}
-                style={{ width: '50%', height: 'auto' }}
-              />
-            </Box>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                alignContent: 'center',
-                overflow: 'hidden',
-                height: { xs: '200px', sm: '300px' },
-                flex: `0 0 100%`, // responsive width
-                minWidth: '0',
-                padding: '10px',
-                boxSizing: 'border-box', // ✅ keeps padding inside width
-                bgcolor: '#807d7d14',
-              }}
-            >
-              <Image
-                src={images[quickView] || images[0]}
-                alt=""
-                width={200}
-                height={200}
-                style={{ width: '50%', height: 'auto' }}
-              />
-            </Box>
-          </Box>
-          <ChevronLeftIcon
-            onClick={scrollPrev}
-            sx={{
-              color: '#747982ff',
-              fontSize: '30px',
-              cursor: 'pointer',
-
-              position: 'absolute',
-              top: '48%',
-            }}
-          />
-          <NavigateNextIcon
-            onClick={scrollNext}
-            sx={{
-              color: '#747982ff',
-              fontSize: '30px',
-              cursor: 'pointer',
-              position: 'absolute',
-              top: '48%',
-              right: 0,
-            }}
-          />
-        </div>
-
-        <Box sx={{ padding: { xs: '10px', sm: '30px' }, maxWidth: '500px', boxSizing: 'border-box' }}>
-          <Typography sx={{ fontSize: '20px', fontWeight: 500 }}>
-            Armani Stronger With yuo Absolutely
-          </Typography>
-          <Typography sx={{ fontSize: '20px', fontWeight: 500, my: '10px' }}>$105.00</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Rating name="read-only" value={5} readOnly size="small" />
-            <Typography ml="10px"> (50) </Typography>
-          </Box>
-          <Typography sx={{ fontSize: '14px', fontWeight: 300, my: '10px' }}>
-            Sed egestas, ante et vulputate volutpat, eros pede semper est, vitae luctus metus libero eu augue.
-            Morbi purus liberpuro ate vol faucibus adipiscing.
-          </Typography>
-          <Button
-            variant="contained"
-            sx={{
-              textTransform: 'capitalize',
-              mt: '10px',
-              p: '10px 35px',
-              bgcolor: '#2B3445',
-              borderRadius: '10px',
-              fontWeight: 400,
-              textWrap: 'nowrap',
-              boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
-              ':hover': { boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)' },
-            }}
-          >
-            Add To Cart
-          </Button>
-          <Typography
-            sx={{
-              fontSize: '14px',
-              fontWeight: 400,
-              mt: '15px ',
-              ':hover': { borderBottom: 'solid 1px rgba(98, 91, 91, 0.6)' },
-              flexGrow: 0,
-              cursor: 'pointer',
-              width: 'fit-content',
-              borderBottom: 'solid 1px rgba(98, 91, 91, 0)',
-              // boxSizing: 'border-box',
-            }}
-          >
-            View Product Details
-          </Typography>
-        </Box>
-      </Box>
-    </Dialog>
-  );
-}
-
-export function Carousel() {
-  const [quickView, setQuicjView] = useState();
-  const [showButtons, setShowButtons] = useState();
-
-  const handleClickOpen = (index) => {
-    setQuicjView(index);
-  };
-
-  const handleClose = (value) => {
-    setQuicjView();
-  };
-
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, align: 'start' }
-    //   [Autoplay({ delay: 3000, align: 'start' })] // autoplay every 3s
-  );
-
-  const [itemsPerView, setItemsPerView] = useState(); // default desktop
-
-  // Responsive items per view
   useEffect(() => {
     const updateItemsPerView = () => {
       if (window.innerWidth < 550) {
-        setItemsPerView(1); // mobile
+        setItemsPerView(1);
       } else if (window.innerWidth >= 550 && window.innerWidth < 750) {
-        setItemsPerView(2); // tablet
+        setItemsPerView(2);
       } else if (window.innerWidth >= 750 && window.innerWidth < 1000) {
-        setItemsPerView(3); // tablet
+        setItemsPerView(3);
       } else {
-        setItemsPerView(4); // desktop
+        setItemsPerView(4);
       }
     };
 
@@ -208,200 +38,169 @@ export function Carousel() {
     return () => window.removeEventListener('resize', updateItemsPerView);
   }, []);
 
-  const slides = images;
+  if (!flashDeals || flashDeals.length === 0) return null;
 
-  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
-  if (!itemsPerView)
-    return <Box sx={{ width: '100%', height: { xs: '400px', sm: '470px' }, bgcolor: '#d2cccc17' }}></Box>;
   return (
-    <div
-      style={{
-        position: 'relative',
-        margin: '0 auto',
-        width: '100%',
-      }}
-    >
-      <OpenDialog quickView={quickView} handleClose={handleClose} />
-      <Box sx={{ display: 'flex' }}>
-        <Typography
-          sx={{ fontSize: { xs: '22px', sm: '32px' }, mb: '20px', flexGrow: 1 }}
-          fontWeight={700}
-          color="#2B3445"
-        >
-          Flash Deals
-        </Typography>
-        <ChevronLeftIcon
-          onClick={scrollPrev}
-          sx={{
-            color: '#747982ff',
-            fontSize: '30px',
-            cursor: 'pointer',
-            mr: '5px',
-          }}
-        />
-        <NavigateNextIcon
-          onClick={scrollNext}
-          sx={{
-            color: '#747982ff',
-            fontSize: '30px',
-            cursor: 'pointer',
-          }}
-        />
-      </Box>
-      {/* Carousel viewport */}
+    <Grid sx={{ m: { xs: '80px 15px', sm: '90px 25px' } }} size={12} container justifyContent="space-between">
       <div
-        ref={emblaRef}
         style={{
-          overflow: 'hidden',
+          position: 'relative',
+          margin: '0 auto',
+          width: '100%',
         }}
       >
-        <Box sx={{ display: 'flex' }}>
-          {slides.map((src, index) => (
-            <Box
-              key={index}
-              sx={{
-                flex: `0 0 ${100 / itemsPerView}%`, // responsive width
-                minWidth: '0',
-                padding: '10px',
-                boxSizing: 'border-box', // ✅ keeps padding inside width
-              }}
-            >
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: '20px' }}>
+          <Typography
+            sx={{ fontSize: { xs: '22px', sm: '32px' }, flexGrow: 1 }}
+            fontWeight={700}
+            color="#2B3445"
+          >
+            Flash Deals
+          </Typography>
+          <ChevronLeftIcon
+            onClick={scrollPrev}
+            sx={{
+              color: '#747982ff',
+              fontSize: '30px',
+              cursor: 'pointer',
+              mr: '5px',
+            }}
+          />
+          <NavigateNextIcon
+            onClick={scrollNext}
+            sx={{
+              color: '#747982ff',
+              fontSize: '30px',
+              cursor: 'pointer',
+            }}
+          />
+        </Box>
+
+        <div ref={emblaRef} style={{ overflow: 'hidden' }}>
+          <Box sx={{ display: 'flex' }}>
+            {flashDeals.map((item, index) => (
               <Box
-                onMouseEnter={() => setShowButtons(index)}
-                onMouseLeave={() => setShowButtons()}
+                key={item.id || index}
                 sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  height: { xs: '400px', sm: '470px' },
-                  overflow: 'hidden',
-                  bgcolor: '#d2cccc17',
-                  p: '10px',
-                  borderRadius: '15px',
-                  justifyContent: 'space-between',
+                  flex: `0 0 ${100 / itemsPerView}%`,
+                  minWidth: '0',
+                  padding: '10px',
+                  boxSizing: 'border-box',
                 }}
               >
                 <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    alignContent: 'center',
-                    height: '265px',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <Image
-                    src={src}
-                    alt=""
-                    width={200}
-                    height={200}
-                    style={{ width: 'auto', height: '100%' }}
-                  />
-                </Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    opacity: { xs: 1, sm: showButtons === index ? 1 : 0 },
-                    justifyContent: 'center',
-                    mt: showButtons === index ? '10px' : '15px',
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  <Button
-                    variant="contained"
-                    sx={{
-                      textTransform: 'capitalize',
-                      mr: '5px',
-                      p: '10px 35px',
-                      bgcolor: '#2B3445',
-                      borderRadius: '10px',
-                      fontWeight: 400,
-                      textWrap: 'nowrap',
-                      boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
-                      ':hover': { boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)' },
-                    }}
-                  >
-                    Add To Cart
-                  </Button>
-                  <Button
-                    onClick={() => handleClickOpen(index)}
-                    variant="contained"
-                    sx={{
-                      textTransform: 'capitalize',
-                      ml: '5px',
-                      p: '10px 35px',
-                      bgcolor: '#ffffffff',
-                      borderRadius: '10px',
-                      fontWeight: 400,
-                      color: '#2B3445',
-                      boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
-                      ':hover': {
-                        boxShadow: '1px 3px 2px -2px rgba(248, 244, 244, 0.2)',
-                      },
-                      textWrap: 'nowrap',
-                    }}
-                  >
-                    Quick View
-                  </Button>
-                </Box>
-                <Box
+                  onClick={() => router.push(`/item/${item.id}`)}
                   sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'flex-end',
-                    // overflow: 'hidden',
-                    my: '20px',
+                    height: { xs: '400px', sm: '470px' },
+                    overflow: 'hidden',
+                    bgcolor: '#fff',
+                    border: '1px solid #e0e0e0',
+                    p: '10px',
+                    borderRadius: '15px',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                    transition: 'box-shadow 0.3s ease',
+                    ':hover': {
+                      boxShadow: '0px 5px 15px rgba(0,0,0,0.1)',
+                    },
                   }}
                 >
-                  <Typography
+                  <Box
                     sx={{
-                      fontSize: { xs: '13px', sm: '14px' },
-                      textTransform: 'uppercase',
-                      color: '#b3acaaff',
-                      textAlign: 'center',
-                      fontWeight: 100,
-                    }}
-                  >
-                    Fragrance
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: { xs: '15px', sm: '17px' },
-                      color: '##2B3445',
-                      textAlign: 'center',
-                      lineHeight: '22px',
-                      whiteSpace: 'nowrap',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      height: '250px',
                       overflow: 'hidden',
-                      textOverflow: 'ellipsis',
+                      position: 'relative',
                     }}
                   >
-                    Armani Stronger With yuo Absolutely
-                  </Typography>
-                  <Typography
+                    <Image
+                      src={item.mainImage?.url || item.mainImage?.file || '/images/placeholder.jpg'}
+                      alt={item.fullName || item.title}
+                      width={300}
+                      height={300}
+                      style={{ width: 'auto', height: '100%', objectFit: 'contain' }}
+                    />
+                  </Box>
+
+                  <Box
                     sx={{
-                      fontSize: { xs: '15px', sm: '17px' },
-                      color: '##2B3445',
-                      textAlign: 'center',
-                      fontWeight: 500,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'flex-end',
+                      my: '10px',
                     }}
                   >
-                    $ 250.00
-                  </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: { xs: '15px', sm: '17px' },
+                        color: '#2B3445',
+                        textAlign: 'center',
+                        lineHeight: '22px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        my: 1,
+                      }}
+                    >
+                      {item.fullName || item.title}
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
+                      <Typography
+                        sx={{
+                          fontSize: { xs: '15px', sm: '17px' },
+                          color: '#e65100',
+                          textAlign: 'center',
+                          fontWeight: 700,
+                        }}
+                      >
+                        ֏{item.price?.toLocaleString()}
+                      </Typography>
+                      {/* If you have a discount price, show it here */}
+                    </Box>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+                      <Rating value={5} readOnly size="small" />
+                    </Box>
+                  </Box>
+
+                  <Button
+                    variant="contained"
+                    startIcon={<ShoppingBasketIcon size={20} color="white" />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleClickAddToCart(item, 1, setCart, cart);
+                    }}
+                    sx={{
+                      textTransform: 'none',
+                      width: '100%',
+                      bgcolor: '#2B3445',
+                      borderRadius: '8px',
+                      boxShadow: 'none',
+                      fontWeight: 600,
+                      fontSize: '14px',
+                      py: 1,
+                      mt: 1,
+                      transition: 'all 0.2s ease',
+                      ':hover': {
+                        bgcolor: '#1a202c',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        transform: 'translateY(-1px)',
+                      },
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
                 </Box>
               </Box>
-            </Box>
-          ))}
-        </Box>
+            ))}
+          </Box>
+        </div>
       </div>
-    </div>
-  );
-}
-
-export default function FlashDeals() {
-  return (
-    <Grid sx={{ m: { xs: '80px 15px', sm: '90px 25px' } }} size={12} container justifyContent="space-between">
-      <Carousel />
     </Grid>
   );
 }
