@@ -107,15 +107,12 @@ export const ProductImageComp = ({ images, idNum }) => {
             >
               <Box sx={{ display: 'flex' }}>
                 {images.map((img, index) => {
-                  //   if (index < 3)
                   return (
                     <div
                       key={index}
                       style={{
                         flex: `0 0 ${100}%`,
                         boxSizing: 'border-box',
-                        // padding: '10px',
-                        // borderRadius: '15px',
                         overflow: 'hidden',
                       }}
                     >
@@ -166,7 +163,6 @@ export const ProductImageComp = ({ images, idNum }) => {
             >
               <Box sx={{ display: 'flex' }}>
                 {images.map((img, index) => {
-                  //   if (index < 3)
                   return (
                     <div
                       key={index}
@@ -180,7 +176,7 @@ export const ProductImageComp = ({ images, idNum }) => {
                       <Box
                         sx={{
                           WebkitTapHighlightColor: 'transparent',
-                          boxSizing: 'border-box', // ✅ keeps padding inside width
+                          boxSizing: 'border-box',
                           display: 'flex',
                           alignItems: 'center',
                           opacity: imgIndex === index ? 1 : 0.5,
@@ -197,7 +193,6 @@ export const ProductImageComp = ({ images, idNum }) => {
                           width={200}
                           height={200}
                           style={{ width: '100%', height: 'auto', overflow: 'hidden', objectFit: 'contain' }}
-                          //   src={arr[+product].images[0].file}
                           src={img.file}
                           alt="image"
                         />
