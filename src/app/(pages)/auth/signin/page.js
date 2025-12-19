@@ -206,7 +206,7 @@ export default function SignIn() {
 
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="body2" sx={{ color: '#8D6E63' }}>
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link
                 href={`/auth/signup?redirect=${encodeURIComponent(redirect)}`}
                 style={{ textDecoration: 'none', color: '#E57373', fontWeight: 'bold' }}
