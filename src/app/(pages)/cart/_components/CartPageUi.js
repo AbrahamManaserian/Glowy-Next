@@ -209,16 +209,36 @@ export default function CartPageUi() {
         >
           {Object.keys(cart.items).map((id, index) => {
             return (
-              <DetailedCartItem
-                key={index}
-                item={cart.items[id]}
-                productDetails={cartDetails ? cartDetails[id] : null}
-                cart={cart}
-                setCart={setCart}
-                discountRate={subtotal >= 20000 ? 0.2 : 0}
-                isSelected={selectedItems.includes(id)}
-                toggleSelection={() => toggleItemSelection(id)}
-              />
+              <Box key={index}>
+                <DetailedCartItem
+                  item={cart.items[id]}
+                  productDetails={cartDetails ? cartDetails[id] : null}
+                  cart={cart}
+                  setCart={setCart}
+                  discountRate={subtotal >= 20000 ? 0.2 : 0}
+                  isSelected={selectedItems.includes(id)}
+                  toggleSelection={() => toggleItemSelection(id)}
+                />
+                {index === 0 && subtotal < 20000 && (
+                  <Box
+                    sx={{
+                      mb: '20px',
+                      mt: '10px',
+                      p: '12px',
+                      bgcolor: '#fff7ed',
+                      borderRadius: '8px',
+                      border: '1px dashed #e65100',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '14px', color: '#e65100', fontWeight: 600 }}>
+                      🔥 Add items worth ֏{(20000 - subtotal).toLocaleString()} more to get 20% discount!
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
             );
           })}
         </Grid>
@@ -650,27 +670,48 @@ export default function CartPageUi() {
           </Typography>
         </Box>
         {!params.has('checkout') ? (
-          <Link scroll={true} href={`/cart?checkout`}>
-            <Button
-              variant="contained"
-              sx={{
-                textTransform: 'capitalize',
-                width: '100%',
-                p: '10px 35px',
-                bgcolor: '#2B3445',
-                borderRadius: '8px',
-                fontWeight: 400,
-                textWrap: 'nowrap',
-                boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
-                ':hover': {
-                  boxShadow: '0px 3px 1px -2px rgba(246, 243, 243, 0.2)',
-                },
-                mb: '10px',
-              }}
-            >
-              Checkout
-            </Button>
-          </Link>
+          <>
+            <Link scroll={true} href={`/cart?checkout`}>
+              <Button
+                variant="contained"
+                sx={{
+                  textTransform: 'capitalize',
+                  width: '100%',
+                  p: '10px 35px',
+                  bgcolor: '#2B3445',
+                  borderRadius: '8px',
+                  fontWeight: 400,
+                  textWrap: 'nowrap',
+
+                  mb: '10px',
+                }}
+              >
+                Checkout
+              </Button>
+            </Link>
+            <Link href="/shop">
+              <Button
+                variant="outlined"
+                sx={{
+                  textTransform: 'capitalize',
+                  width: '100%',
+                  p: '10px 35px',
+                  borderColor: '#2B3445',
+                  color: '#2B3445',
+                  borderRadius: '8px',
+                  fontWeight: 400,
+                  textWrap: 'nowrap',
+                  mb: '10px',
+                  ':hover': {
+                    borderColor: '#2B3445',
+                    bgcolor: 'rgba(43, 52, 69, 0.04)',
+                  },
+                }}
+              >
+                Continue Shopping
+              </Button>
+            </Link>
+          </>
         ) : (
           <>
             <Button
