@@ -1,6 +1,8 @@
 'use client'; // context must be a client component
 
 import { createContext, useContext, useEffect, useState } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/firebase';
 
 const GlobalContext = createContext({
   isSticky: false,
@@ -11,6 +13,7 @@ const GlobalContext = createContext({
   setCartDetails: () => {},
   wishList: [],
   setWishList: () => {},
+  user: null,
 });
 
 export function GlobalProvider({ children }) {
@@ -18,6 +21,14 @@ export function GlobalProvider({ children }) {
   const [cart, setCart] = useState({ length: 0, items: {} });
   const [cartDetails, setCartDetails] = useState({});
   const [wishList, setWishList] = useState([]);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     try {
@@ -98,6 +109,7 @@ export function GlobalProvider({ children }) {
         setCartDetails,
         wishList,
         setWishList,
+        user,
       }}
     >
       {children}

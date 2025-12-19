@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Avatar,
   Badge,
   Collapse,
   Divider,
@@ -11,9 +12,16 @@ import {
   ListItemButton,
   ListItemText,
   Typography,
+  Menu,
+  MenuItem,
+  ListItemIcon,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import LocalMallOutlinedIcon from '@mui/icons-material/LocalMallOutlined';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import Logout from '@mui/icons-material/Logout';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { useEffect, useRef, useState } from 'react';
@@ -354,8 +362,41 @@ function DrawerMenu() {
   );
 }
 
+import { signOut } from 'firebase/auth';
+import { auth } from '@/firebase';
+
 export default function AppBarMenu() {
-  const { isSticky, setIsSticky, wishList } = useGlobalContext();
+  const { isSticky, setIsSticky, wishList, user } = useGlobalContext();
+ 
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openMenu = Boolean(anchorEl);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const redirectUrl =
+    searchParams.get('redirect') ||
+    (pathname.startsWith('/auth')
+      ? '/'
+      : pathname + (searchParams.toString() ? '?' + searchParams.toString() : ''));
+
+  const handleClickUser = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      handleCloseMenu();
+      router.push('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -422,13 +463,114 @@ export default function AppBarMenu() {
         </Link>
 
         <CartDrawer />
-        <Link
-          scroll={true}
-          href="/user"
-          style={{ margin: '0 15px 0 25px', WebkitTapHighlightColor: 'Background' }}
-        >
-          <UserAvatar />
-        </Link>
+        <div style={{ margin: '0 15px 0 25px', WebkitTapHighlightColor: 'Background' }}>
+          {user ? (
+            <>
+              <div onClick={handleClickUser} style={{ cursor: 'pointer' }}>
+                <Avatar
+                  src={user.photoURL}
+                  alt={user.displayName || 'User'}
+                  sx={{ width: 32, height: 32 }}
+                />
+              </div>
+              <Menu
+                anchorEl={anchorEl}
+                open={openMenu}
+                onClose={handleCloseMenu}
+                MenuListProps={{
+                  'aria-labelledby': 'basic-button',
+                }}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: 'visible',
+                    filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                    mt: 1.5,
+                    '& .MuiAvatar-root': {
+                      width: 32,
+                      height: 32,
+                      ml: -0.5,
+                      mr: 1,
+                    },
+                    '&:before': {
+                      content: '""',
+                      display: 'block',
+                      position: 'absolute',
+                      top: 0,
+                      right: 14,
+                      width: 10,
+                      height: 10,
+                      bgcolor: 'background.paper',
+                      transform: 'translateY(-50%) rotate(45deg)',
+                      zIndex: 0,
+                    },
+                  },
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              >
+                {user.displayName && (
+                  <div style={{ padding: '10px 20px', outline: 'none' }}>
+                    <Typography variant="subtitle1" noWrap fontWeight={600}>
+                      {user.displayName}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" noWrap>
+                      {user.email}
+                    </Typography>
+                  </div>
+                )}
+                {user.displayName && <Divider />}
+                <MenuItem
+                  onClick={() => {
+                    handleCloseMenu();
+                    router.push('/user');
+                  }}
+                >
+                  <ListItemIcon>
+                    <PersonOutlineIcon fontSize="small" />
+                  </ListItemIcon>
+                  Profile
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleCloseMenu();
+                    router.push('/user/orders');
+                  }}
+                >
+                  <ListItemIcon>
+                    <LocalMallOutlinedIcon fontSize="small" />
+                  </ListItemIcon>
+                  My Orders
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleCloseMenu();
+                    router.push('/favorite');
+                  }}
+                >
+                  <ListItemIcon>
+                    <FavoriteBorderIcon fontSize="small" />
+                  </ListItemIcon>
+                  Wishlist
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleSignOut}>
+                  <ListItemIcon>
+                    <Logout fontSize="small" />
+                  </ListItemIcon>
+                  Logout
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Link
+              href={`/auth/signin?redirect=${encodeURIComponent(redirectUrl)}`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <Typography sx={{ fontSize: '14px', fontWeight: 500, cursor: 'pointer' }}>Sign In</Typography>
+            </Link>
+          )}
+        </div>
       </Grid>
     </Grid>
   );
