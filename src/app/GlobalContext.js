@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '@/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '@/firebase';
 
 export const GlobalContext = createContext({
   isSticky: false,
@@ -39,40 +40,75 @@ export function GlobalProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    try {
-      const savedCart = localStorage.getItem('cart');
+    if (loading) return;
 
-      if (savedCart) {
-        const data = JSON.parse(savedCart);
-        if (data.items) {
-          setCart(data);
-        } else {
-          localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
-          setCart({ length: 0, items: {} });
+    const initializeData = async () => {
+      if (user) {
+        // User is signed in: Fetch from Firestore
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userDocRef);
+
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            if (userData.cart) {
+              setCart(userData.cart);
+            } else {
+              setCart({ length: 0, items: {} });
+            }
+
+            if (userData.wishList) {
+              setWishList(userData.wishList);
+            } else {
+              setWishList([]);
+            }
+          } else {
+            // New user or no data yet
+            setCart({ length: 0, items: {} });
+            setWishList([]);
+          }
+        } catch (error) {
+          console.error('Error fetching user data from Firestore:', error);
         }
       } else {
-        localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
-        setCart({ length: 0, items: {} });
-      }
-    } catch (error) {
-      localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
-      setCart({ length: 0, items: {} });
-      console.log(error);
-    }
+        // User is not signed in: Fetch from LocalStorage
+        try {
+          const savedCart = localStorage.getItem('cart');
+          if (savedCart) {
+            const data = JSON.parse(savedCart);
+            if (data.items) {
+              setCart(data);
+            } else {
+              localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
+              setCart({ length: 0, items: {} });
+            }
+          } else {
+            localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
+            setCart({ length: 0, items: {} });
+          }
+        } catch (error) {
+          localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
+          setCart({ length: 0, items: {} });
+          console.log(error);
+        }
 
-    try {
-      const savedWishList = localStorage.getItem('fav');
-      if (savedWishList) {
-        setWishList(JSON.parse(savedWishList));
-      } else {
-        localStorage.setItem('fav', JSON.stringify([]));
+        try {
+          const savedWishList = localStorage.getItem('fav');
+          if (savedWishList) {
+            setWishList(JSON.parse(savedWishList));
+          } else {
+            localStorage.setItem('fav', JSON.stringify([]));
+          }
+        } catch (error) {
+          localStorage.setItem('fav', JSON.stringify([]));
+          setWishList([]);
+          console.log(error);
+        }
       }
-    } catch (error) {
-      localStorage.setItem('fav', JSON.stringify([]));
-      setWishList([]);
-      console.log(error);
-    }
-  }, []);
+    };
+
+    initializeData();
+  }, [user, loading]);
 
   useEffect(() => {
     const fetchCartDetails = async () => {

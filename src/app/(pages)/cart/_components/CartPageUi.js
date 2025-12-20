@@ -12,6 +12,7 @@ import LocalAtmRoundedIcon from '@mui/icons-material/LocalAtmRounded';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import RocketLaunchOutlinedIcon from '@mui/icons-material/RocketLaunchOutlined';
 import { useEffect, useState, useRef } from 'react';
+import { clearCart } from '../functions/addDeleteIncDecreaseCart';
 
 const inputTextGroupObj = {
   fullName: 'Full name',
@@ -194,13 +195,21 @@ export default function CartPageUi() {
       container
       columnSpacing={5}
     >
-      <Typography
-        sx={{ fontSize: { xs: '22px', sm: '28px' }, width: '100%' }}
-        fontWeight={700}
-        color="#2B3445"
-      >
-        {!params.has('checkout') ? `Cart (${cart.length})` : 'Checkout'}
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <Typography sx={{ fontSize: { xs: '22px', sm: '28px' } }} fontWeight={700} color="#2B3445">
+          {!params.has('checkout') ? `Cart (${cart.length})` : 'Checkout'}
+        </Typography>
+        {!params.has('checkout') && (
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() => clearCart(setCart)}
+            sx={{ textTransform: 'none' }}
+          >
+            Clear Cart
+          </Button>
+        )}
+      </Box>
       {!params.has('checkout') ? (
         <Grid
           sx={{ overflow: 'hidden', boxSizing: 'border-box', mt: '20px' }}
@@ -212,6 +221,7 @@ export default function CartPageUi() {
               <Box key={index}>
                 <DetailedCartItem
                   item={cart.items[id]}
+                  id={id}
                   productDetails={cartDetails ? cartDetails[id] : null}
                   cart={cart}
                   setCart={setCart}

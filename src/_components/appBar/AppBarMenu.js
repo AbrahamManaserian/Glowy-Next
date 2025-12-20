@@ -185,7 +185,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
                   return (
                     <ListItem key={subIndex} disablePadding>
                       <ListItemButton
-                        sx={{ p: '0 2px 0 20px ' }}
+                        sx={{ p: '5px 2px 5px 20px' }}
                         onClick={() => handleCloseDrawer(`/${category}?subCategory=${key}&type=${subItem}`)}
                       >
                         <ListItemText

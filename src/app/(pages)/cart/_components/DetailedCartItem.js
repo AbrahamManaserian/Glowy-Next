@@ -10,6 +10,7 @@ import Link from 'next/link';
 
 export default function DetailedCartItem({
   item,
+  id,
   productDetails,
   cart,
   setCart,
@@ -102,25 +103,17 @@ export default function DetailedCartItem({
               alignContent: 'center',
             }}
           >
-            <IconButton
-              size="small"
-              onClick={() => decreaseQuantity(item.id, cart, setCart)}
-              aria-label="delete"
-            >
+            <IconButton size="small" onClick={() => decreaseQuantity(id, cart, setCart)} aria-label="delete">
               <RemoveIcon fontSize="small" />
             </IconButton>
             <Typography sx={{ bgcolor: '#6562620f', p: '4px 10px', fontSize: '13px' }}>
               {item.quantity}
             </Typography>
-            <IconButton
-              size="small"
-              onClick={() => increaseQuantity(item.id, cart, setCart)}
-              aria-label="add"
-            >
+            <IconButton size="small" onClick={() => increaseQuantity(id, cart, setCart)} aria-label="add">
               <AddIcon fontSize="small" />
             </IconButton>
           </Box>
-          <IconButton onClick={() => deleteItem(item.id, cart, setCart)} aria-label="delete" size="small">
+          <IconButton onClick={() => deleteItem(id, cart, setCart)} aria-label="delete" size="small">
             <DeleteOutlinedIcon fontSize="small" />
           </IconButton>
         </Box>

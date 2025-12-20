@@ -85,7 +85,7 @@ export default function WishlistItem({ item }) {
             </Typography>
 
             <Typography variant="subtitle1" color="#E57373" fontWeight="bold" sx={{ mb: 1 }}>
-              ${item.price}
+              ֏{item.price?.toLocaleString()}
             </Typography>
 
             <Box sx={{ display: 'flex', gap: 1, mt: 'auto', justifyContent: 'flex-end' }}>

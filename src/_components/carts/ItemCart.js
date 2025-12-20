@@ -10,16 +10,17 @@ import { useGlobalContext } from '@/app/GlobalContext';
 import { StyledBadge } from '@/app/(pages)/cart/_components/CartDrawer';
 import { handleAddItemToWishList } from '@/_functions/hadleAddItemToWishList';
 import { useRouter } from 'next/navigation';
+import { auth, db } from '@/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
-export const handleClickAddToCart = (item, quantity, setCart, cart) => {
+export const handleClickAddToCart = async (item, quantity, setCart, cart) => {
+  const user = auth.currentUser;
+  let updatedCart;
+
   if (cart.items[item.id]) {
-    const updatedCart = structuredClone(cart);
+    updatedCart = structuredClone(cart);
     updatedCart.items[item.id].quantity = updatedCart.items[item.id].quantity + quantity;
     updatedCart.length = updatedCart.length + quantity;
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-    setCart(updatedCart);
-
-    // console.log(updatedCart);
   } else {
     const newItem = {
       id: item.id,
@@ -28,12 +29,23 @@ export const handleClickAddToCart = (item, quantity, setCart, cart) => {
       price: item.price,
       name: item.brand + ' - ' + item.model,
     };
-    const updatedCart = structuredClone(cart);
+    updatedCart = structuredClone(cart);
 
     updatedCart.items[item.id] = newItem;
     updatedCart.length = cart.length + quantity;
+  }
+
+  setCart(updatedCart);
+
+  if (user) {
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      await setDoc(userRef, { cart: updatedCart }, { merge: true });
+    } catch (error) {
+      console.error('Error saving cart to Firestore:', error);
+    }
+  } else {
     localStorage.setItem('cart', JSON.stringify(updatedCart));
-    setCart(updatedCart);
   }
 };
 
@@ -179,12 +191,12 @@ export default function ItemCart({ item }) {
         </div>
         {wishList.includes(item.id) ? (
           <FavoriteIcon
-            onClick={() => handleAddItemToWishList(item.id, setWishList)}
+            onClick={() => handleAddItemToWishList(item.id, setWishList, wishList)}
             sx={{ color: '#ff3d00', ml: '5px', mb: '2px' }}
           />
         ) : (
           <FavoriteBorderIcon
-            onClick={() => handleAddItemToWishList(item.id, setWishList)}
+            onClick={() => handleAddItemToWishList(item.id, setWishList, wishList)}
             sx={{ color: '#ff3d00', ml: '5px', mb: '2px', cursor: 'pointer' }}
           />
         )}

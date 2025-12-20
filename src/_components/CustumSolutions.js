@@ -44,29 +44,26 @@ export default function CustumSolutions() {
 
       {/* Main Item (Left/Top Large Item) */}
       <Grid
-        alignContent="flex-start"
         size={{ xs: 12, sm: 12, md: 4 }}
-        container
         sx={{
           p: { xs: '10px 0 10px 0', sm: '10px 0 10px 0', md: '10px 10px 10px 0' },
-          position: 'relative',
-          '&:hover p': {
-            textDecoration: 'underline',
-          },
-          cursor: 'pointer',
         }}
-        onClick={() => router.push(mainItem.path)}
       >
         <Box
+          onClick={() => router.push(mainItem.path)}
           sx={{
             position: 'relative',
-            width: { xs: '100%', sm: '100%', md: '100%' },
+            width: '100%',
             height: { xs: 205, sm: 275, md: '810px' },
             borderRadius: '15px',
             overflow: 'hidden',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
+            cursor: 'pointer',
+            transform: 'translateZ(0)', // Fix for Safari border-radius clipping
+            backfaceVisibility: 'hidden', // Fix for Safari corner aliasing
+            WebkitTapHighlightColor: 'transparent',
+            '&:hover p': {
+              textDecoration: 'underline',
+            },
           }}
         >
           <Image
@@ -80,45 +77,45 @@ export default function CustumSolutions() {
             }}
             className="hover-scale"
           />
-        </Box>
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: '40px',
-            left: '40px',
-            bgcolor: 'rgba(255, 255, 255, 0.6)',
-            backdropFilter: 'blur(4px)',
-            borderRadius: '8px',
-            padding: '6px 14px',
-            pointerEvents: 'none',
-          }}
-        >
-          <Typography
+          <Box
             sx={{
-              fontSize: { xs: '14px', sm: '20px' },
-              fontWeight: 700,
-              color: '#2B3445',
+              position: 'absolute',
+              bottom: '40px',
+              left: '40px',
+              bgcolor: 'rgba(255, 255, 255, 0.6)',
+              backdropFilter: 'blur(4px)',
+              borderRadius: '8px',
+              padding: '6px 14px',
+              pointerEvents: 'none',
             }}
           >
-            {mainItem.name}
-          </Typography>
-        </Box>
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: '40px',
-            right: '40px',
-            height: '35px',
-            width: '35px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            bgcolor: 'white',
-            borderRadius: '10px',
-            pointerEvents: 'none',
-          }}
-        >
-          <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
+            <Typography
+              sx={{
+                fontSize: { xs: '14px', sm: '20px' },
+                fontWeight: 700,
+                color: '#2B3445',
+              }}
+            >
+              {mainItem.name}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: '40px',
+              right: '40px',
+              height: '35px',
+              width: '35px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              bgcolor: 'white',
+              borderRadius: '10px',
+              pointerEvents: 'none',
+            }}
+          >
+            <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
+          </Box>
         </Box>
       </Grid>
 
@@ -132,27 +129,24 @@ export default function CustumSolutions() {
                 index % 2 === 0
                   ? { xs: '10px 0 10px 0', sm: '10px 10px 10px 0', md: '10px' }
                   : { xs: '10px 0 10px 0', sm: '10px 0 10px 10px', md: '10px 0 10px 10px' },
-              position: 'relative',
-              '&:hover p': {
-                textDecoration: 'underline',
-              },
-              cursor: 'pointer',
             }}
             size={{ xs: 12, sm: 6 }}
-            container
-            alignContent="flex-start"
-            onClick={() => router.push(item.path)}
           >
             <Box
+              onClick={() => router.push(item.path)}
               sx={{
                 position: 'relative',
-                width: { xs: '100%', sm: '100%', md: '100%' },
+                width: '100%',
                 height: { xs: '205px', sm: '275px', md: '395px' },
                 borderRadius: '15px',
                 overflow: 'hidden',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
+                cursor: 'pointer',
+                transform: 'translateZ(0)', // Fix for Safari border-radius clipping
+                backfaceVisibility: 'hidden', // Fix for Safari corner aliasing
+                WebkitTapHighlightColor: 'transparent',
+                '&:hover p': {
+                  textDecoration: 'underline',
+                },
               }}
             >
               <Image
@@ -166,46 +160,46 @@ export default function CustumSolutions() {
                 }}
                 className="hover-scale"
               />
-            </Box>
 
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: '40px',
-                left: '40px',
-                bgcolor: 'rgba(255, 255, 255, 0.6)',
-                backdropFilter: 'blur(4px)',
-                borderRadius: '8px',
-                padding: '6px 14px',
-                pointerEvents: 'none',
-              }}
-            >
-              <Typography
+              <Box
                 sx={{
-                  fontSize: { xs: '14px', sm: '20px' },
-                  fontWeight: 700,
-                  color: '#2B3445',
+                  position: 'absolute',
+                  bottom: '40px',
+                  left: '40px',
+                  bgcolor: 'rgba(255, 255, 255, 0.6)',
+                  backdropFilter: 'blur(4px)',
+                  borderRadius: '8px',
+                  padding: '6px 14px',
+                  pointerEvents: 'none',
                 }}
               >
-                {item.name}
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: '40px',
-                right: '40px',
-                height: '35px',
-                width: '35px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                bgcolor: 'white',
-                borderRadius: '10px',
-                pointerEvents: 'none',
-              }}
-            >
-              <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
+                <Typography
+                  sx={{
+                    fontSize: { xs: '14px', sm: '20px' },
+                    fontWeight: 700,
+                    color: '#2B3445',
+                  }}
+                >
+                  {item.name}
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: '40px',
+                  right: '40px',
+                  height: '35px',
+                  width: '35px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  bgcolor: 'white',
+                  borderRadius: '10px',
+                  pointerEvents: 'none',
+                }}
+              >
+                <ArrowRightAltIcon sx={{ color: '#2B3445' }} />
+              </Box>
             </Box>
           </Grid>
         ))}

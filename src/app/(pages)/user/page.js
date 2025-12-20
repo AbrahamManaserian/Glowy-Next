@@ -19,6 +19,8 @@ import {
   IconButton,
   MenuItem,
   Badge,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import Image from 'next/image';
 import {
@@ -79,6 +81,8 @@ export default function UserPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const tabMap = ['profile', 'orders', 'wishlist', 'payment', 'settings'];
   const currentTabParam = searchParams.get('tab');
@@ -101,9 +105,12 @@ export default function UserPage() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/auth/signin?redirect=/user');
+      const tab = searchParams.get('tab');
+      if (tab !== 'wishlist') {
+        router.push('/auth/signin?redirect=/user');
+      }
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, searchParams]);
 
   // Profile State
   const [displayName, setDisplayName] = useState('');
@@ -175,7 +182,7 @@ export default function UserPage() {
 
   const handleTabChange = (event, newValue) => {
     const newTab = tabMap[newValue];
-    router.push(`${pathname}?tab=${newTab}`);
+    router.push(`${pathname}?tab=${newTab}`, { scroll: false });
     setMessage({ type: '', text: '' });
   };
 
@@ -283,7 +290,7 @@ export default function UserPage() {
     }
   };
 
-  if (authLoading || !user) {
+  if (authLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
         <CircularProgress sx={{ color: '#E57373' }} />
@@ -291,14 +298,18 @@ export default function UserPage() {
     );
   }
 
+  if (!user && activeTab !== 2) {
+    return null; // Or a loading spinner, but the useEffect will redirect
+  }
+
   return (
     <Container maxWidth="lg" sx={{ py: 8 }}>
       <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#5D4037' }}>
-        My Account
+        {user ? 'My Account' : 'My Wishlist'}
       </Typography>
 
       {/* Email Verification Banner */}
-      {!user.emailVerified && (
+      {user && !user.emailVerified && (
         <Alert
           severity="warning"
           sx={{ mb: 4, borderRadius: '12px' }}
@@ -326,50 +337,54 @@ export default function UserPage() {
         {/* Sidebar Navigation */}
         <Grid size={{ xs: 12, md: 3 }}>
           <Paper elevation={0} sx={{ border: '1px solid #E0E0E0', borderRadius: '16px', overflow: 'hidden' }}>
-            <Box sx={{ p: 3, textAlign: 'center', bgcolor: '#FAFAFA', borderBottom: '1px solid #E0E0E0' }}>
-              <Badge
-                overlap="circular"
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                badgeContent={
-                  <IconButton
-                    component="label"
-                    sx={{
-                      bgcolor: '#E57373',
-                      color: 'white',
-                      width: 32,
-                      height: 32,
-                      '&:hover': { bgcolor: '#EF5350' },
-                    }}
-                  >
-                    <CameraAlt sx={{ fontSize: 18 }} />
-                    <input hidden accept="image/*" type="file" onChange={handleAvatarChange} />
-                  </IconButton>
-                }
-              >
-                <Avatar
-                  src={photoURL}
-                  alt={displayName}
-                  sx={{ width: 80, height: 80, bgcolor: '#E57373', fontSize: '2rem' }}
+            {user && (
+              <Box sx={{ p: 3, textAlign: 'center', bgcolor: '#FAFAFA', borderBottom: '1px solid #E0E0E0' }}>
+                <Badge
+                  overlap="circular"
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  badgeContent={
+                    <IconButton
+                      component="label"
+                      sx={{
+                        bgcolor: '#E57373',
+                        color: 'white',
+                        width: 32,
+                        height: 32,
+                        '&:hover': { bgcolor: '#EF5350' },
+                      }}
+                    >
+                      <CameraAlt sx={{ fontSize: 18 }} />
+                      <input hidden accept="image/*" type="file" onChange={handleAvatarChange} />
+                    </IconButton>
+                  }
                 >
-                  {displayName ? displayName[0].toUpperCase() : <Person />}
-                </Avatar>
-              </Badge>
-              <Typography variant="subtitle1" fontWeight="bold" noWrap sx={{ mt: 2 }}>
-                {displayName || 'User'}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" display="block" noWrap>
-                {user.email}
-              </Typography>
-            </Box>
+                  <Avatar
+                    src={photoURL}
+                    alt={displayName}
+                    sx={{ width: 80, height: 80, bgcolor: '#E57373', fontSize: '2rem' }}
+                  >
+                    {displayName ? displayName[0].toUpperCase() : <Person />}
+                  </Avatar>
+                </Badge>
+                <Typography variant="subtitle1" fontWeight="bold" noWrap sx={{ mt: 2 }}>
+                  {displayName || 'User'}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" display="block" noWrap>
+                  {user.email}
+                </Typography>
+              </Box>
+            )}
             <Tabs
-              orientation="vertical"
+              orientation={isMobile ? 'horizontal' : 'vertical'}
               variant="scrollable"
+              scrollButtons="auto"
+              allowScrollButtonsMobile
               value={activeTab}
               onChange={handleTabChange}
               sx={{
                 '& .MuiTab-root': {
-                  alignItems: 'flex-start', // Aligns content to the left
-                  justifyContent: 'flex-start', // Ensures text starts from left
+                  alignItems: isMobile ? 'center' : 'flex-start', // Aligns content to the left
+                  justifyContent: isMobile ? 'center' : 'flex-start', // Ensures text starts from left
                   textTransform: 'none',
                   fontWeight: 500,
                   minHeight: 48,
@@ -378,29 +393,56 @@ export default function UserPage() {
                 '& .Mui-selected': {
                   color: '#E57373',
                   bgcolor: 'rgba(229, 115, 115, 0.04)',
-                  borderRight: '3px solid #E57373',
+                  borderRight: isMobile ? 'none' : '3px solid #E57373',
+                  borderBottom: isMobile ? '3px solid #E57373' : 'none',
                 },
                 '& .MuiTabs-indicator': { display: 'none' },
               }}
             >
-              <Tab icon={<Person sx={{ mr: 1 }} />} iconPosition="start" label="Profile" />
-              <Tab icon={<ShoppingBag sx={{ mr: 1 }} />} iconPosition="start" label="Orders" />
-              <Tab icon={<Favorite sx={{ mr: 1 }} />} iconPosition="start" label="Wishlist" />
-              <Tab icon={<Payment sx={{ mr: 1 }} />} iconPosition="start" label="Payment" />
-              <Tab icon={<Settings sx={{ mr: 1 }} />} iconPosition="start" label="Settings" />
+              {user && (
+                <Tab value={0} icon={<Person sx={{ mr: 1 }} />} iconPosition="start" label="Profile" />
+              )}
+              {user && (
+                <Tab value={1} icon={<ShoppingBag sx={{ mr: 1 }} />} iconPosition="start" label="Orders" />
+              )}
+              <Tab value={2} icon={<Favorite sx={{ mr: 1 }} />} iconPosition="start" label="Wishlist" />
+              {user && (
+                <Tab value={3} icon={<Payment sx={{ mr: 1 }} />} iconPosition="start" label="Payment" />
+              )}
+              {user && (
+                <Tab value={4} icon={<Settings sx={{ mr: 1 }} />} iconPosition="start" label="Settings" />
+              )}
             </Tabs>
             <Divider />
-            <Box sx={{ p: 2 }}>
-              <Button
-                fullWidth
-                color="error"
-                startIcon={<Logout />}
-                onClick={handleSignOut}
-                sx={{ justifyContent: 'flex-start', pl: 2, textTransform: 'none' }}
-              >
-                Sign Out
-              </Button>
-            </Box>
+            {user ? (
+              <Box sx={{ p: 2 }}>
+                <Button
+                  fullWidth
+                  color="error"
+                  startIcon={<Logout />}
+                  onClick={handleSignOut}
+                  sx={{ justifyContent: 'flex-start', pl: 2, textTransform: 'none' }}
+                >
+                  Sign Out
+                </Button>
+              </Box>
+            ) : (
+              <Box sx={{ p: 2 }}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={() => router.push('/auth/signin?redirect=/user?tab=wishlist')}
+                  sx={{
+                    justifyContent: 'center',
+                    textTransform: 'none',
+                    borderColor: '#E57373',
+                    color: '#E57373',
+                  }}
+                >
+                  Sign In
+                </Button>
+              </Box>
+            )}
           </Paper>
         </Grid>
 
@@ -427,12 +469,12 @@ export default function UserPage() {
                   <TextField
                     label="Email Address"
                     fullWidth
-                    value={user.email}
+                    value={user?.email || ''}
                     disabled
                     variant="outlined"
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px', bgcolor: '#F5F5F5' } }}
                     InputProps={{
-                      endAdornment: user.emailVerified ? (
+                      endAdornment: user?.emailVerified ? (
                         <InputAdornment position="end">
                           <CheckCircle color="success" fontSize="small" />
                         </InputAdornment>
@@ -605,7 +647,7 @@ export default function UserPage() {
                             sx={{ textAlign: { sm: 'right' }, mt: { xs: 2, sm: 0 } }}
                           >
                             <Typography variant="h6" color="#E57373" fontWeight="bold">
-                              ${order.total?.toFixed(2)}
+                              ֏{order.total?.toLocaleString()}
                             </Typography>
                             <Button
                               variant="outlined"
