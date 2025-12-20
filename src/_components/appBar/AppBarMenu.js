@@ -469,11 +469,7 @@ export default function AppBarMenu() {
           {user ? (
             <>
               <div onClick={handleClickUser} style={{ cursor: 'pointer' }}>
-                <Avatar
-                  src={user.photoURL}
-                  alt={user.displayName || 'User'}
-                  sx={{ width: 32, height: 32 }}
-                />
+                <Avatar src={user.photoURL} alt={user.displayName || 'User'} sx={{ width: 32, height: 32 }} />
               </div>
               <Menu
                 anchorEl={anchorEl}
