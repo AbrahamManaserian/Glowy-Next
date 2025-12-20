@@ -23,8 +23,10 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   updateProfile,
+  sendEmailVerification,
 } from 'firebase/auth';
-import { auth } from '@/firebase';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '@/firebase';
 
 export default function SignUp() {
   const [name, setName] = useState('');
@@ -41,9 +43,24 @@ export default function SignUp() {
     setError('');
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCredential.user, {
+      const user = userCredential.user;
+
+      await updateProfile(user, {
         displayName: name,
       });
+
+      // Create user document in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        name: name,
+        email: email,
+        role: 'customer',
+        provider: 'email',
+        createdAt: serverTimestamp(),
+      });
+
+      await sendEmailVerification(user);
+      alert('Account created! Please check your email to verify your account.');
+
       router.push(redirect);
     } catch (err) {
       let errorMessage = 'Failed to create an account.';
@@ -61,7 +78,23 @@ export default function SignUp() {
     setError('');
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Check if user exists
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        await setDoc(docRef, {
+          name: user.displayName,
+          email: user.email,
+          role: 'customer',
+          provider: 'google',
+          createdAt: serverTimestamp(),
+        });
+      }
+
       router.push(redirect);
     } catch (err) {
       setError('Failed to sign up with Google.');

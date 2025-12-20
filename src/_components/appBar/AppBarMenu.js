@@ -452,15 +452,17 @@ export default function AppBarMenu() {
         alignItems="center"
         justifyContent="flex-end"
       >
-        <Link
-          scroll={true}
-          href="/favorite"
-          style={{ margin: '0 25px 0 10px', WebkitTapHighlightColor: 'Background' }}
-        >
-          <StyledBadgeFavorite badgeContent={wishList.length}>
-            <FavoriteIcon size={21} />
-          </StyledBadgeFavorite>
-        </Link>
+        {!user && (
+          <Link
+            scroll={true}
+            href="/user?tab=wishlist"
+            style={{ margin: '0 25px 0 10px', WebkitTapHighlightColor: 'Background' }}
+          >
+            <StyledBadgeFavorite badgeContent={wishList.length}>
+              <FavoriteIcon size={21} />
+            </StyledBadgeFavorite>
+          </Link>
+        )}
 
         <CartDrawer />
         <div style={{ margin: '0 15px 0 25px', WebkitTapHighlightColor: 'Background' }}>
@@ -534,7 +536,7 @@ export default function AppBarMenu() {
                 <MenuItem
                   onClick={() => {
                     handleCloseMenu();
-                    router.push('/user/orders');
+                    router.push('/user?tab=orders');
                   }}
                 >
                   <ListItemIcon>
@@ -545,7 +547,7 @@ export default function AppBarMenu() {
                 <MenuItem
                   onClick={() => {
                     handleCloseMenu();
-                    router.push('/favorite');
+                    router.push('/user?tab=wishlist');
                   }}
                 >
                   <ListItemIcon>

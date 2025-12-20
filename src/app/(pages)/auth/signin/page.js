@@ -18,14 +18,22 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { auth } from '@/firebase';
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  sendPasswordResetEmail,
+} from 'firebase/auth';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '@/firebase';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isResetMode, setIsResetMode] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
@@ -33,6 +41,7 @@ export default function SignIn() {
   const handleSignIn = async (e) => {
     e.preventDefault();
     setError('');
+    setMessage('');
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.push(redirect);
@@ -42,11 +51,50 @@ export default function SignIn() {
     }
   };
 
+  const handleForgotPassword = async (e) => {
+    if (e) e.preventDefault();
+    if (!email) {
+      setError('Please enter your email address first to reset password.');
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setMessage('Password reset email sent! Check your inbox.');
+      setError('');
+    } catch (err) {
+      setError('Failed to send reset email. Please check your email address.');
+      console.error(err);
+    }
+  };
+
+  const toggleResetMode = () => {
+    setIsResetMode(!isResetMode);
+    setError('');
+    setMessage('');
+  };
+
   const handleGoogleSignIn = async () => {
     setError('');
+    setMessage('');
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Check if user exists (in case they sign in with Google for the first time here)
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        await setDoc(docRef, {
+          name: user.displayName,
+          email: user.email,
+          role: 'customer',
+          provider: 'google',
+          createdAt: serverTimestamp(),
+        });
+      }
+
       router.push(redirect);
     } catch (err) {
       setError('Failed to sign in with Google.');
@@ -91,7 +139,9 @@ export default function SignIn() {
               GLOWY
             </Typography>
             <Typography variant="body2" sx={{ color: '#8D6E63' }}>
-              Welcome back! Please sign in to continue.
+              {isResetMode
+                ? 'Enter your email to receive a password reset link.'
+                : 'Welcome back! Please sign in to continue.'}
             </Typography>
           </Box>
 
@@ -100,8 +150,13 @@ export default function SignIn() {
               {error}
             </Alert>
           )}
+          {message && (
+            <Alert severity="success" sx={{ mb: 3, borderRadius: '8px' }}>
+              {message}
+            </Alert>
+          )}
 
-          <Box component="form" onSubmit={handleSignIn}>
+          <Box component="form" onSubmit={isResetMode ? handleForgotPassword : handleSignIn}>
             <TextField
               label="Email Address"
               fullWidth
@@ -124,37 +179,39 @@ export default function SignIn() {
                 },
               }}
             />
-            <TextField
-              label="Password"
-              fullWidth
-              margin="normal"
-              type={showPassword ? 'text' : 'password'}
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '12px',
-                  bgcolor: '#FAFAFA',
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#E57373',
+            {!isResetMode && (
+              <TextField
+                label="Password"
+                fullWidth
+                margin="normal"
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    bgcolor: '#FAFAFA',
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#E57373',
+                    },
                   },
-                },
-                '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#E57373',
-                },
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#E57373',
+                  },
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
 
             <Button
               type="submit"
@@ -177,44 +234,64 @@ export default function SignIn() {
                 },
               }}
             >
-              Sign In
+              {isResetMode ? 'Reset Password' : 'Sign In'}
             </Button>
-          </Box>
 
-          <Divider sx={{ my: 3, color: '#8D6E63', fontSize: '14px' }}>OR</Divider>
-
-          <Button
-            fullWidth
-            variant="outlined"
-            startIcon={<Google />}
-            onClick={handleGoogleSignIn}
-            sx={{
-              mb: 3,
-              py: 1.5,
-              borderRadius: '12px',
-              textTransform: 'none',
-              borderColor: '#E0E0E0',
-              color: '#5D4037',
-              '&:hover': {
-                borderColor: '#E57373',
-                bgcolor: 'rgba(229, 115, 115, 0.04)',
-              },
-            }}
-          >
-            Sign in with Google
-          </Button>
-
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ color: '#8D6E63' }}>
-              Don&apos;t have an account?{' '}
-              <Link
-                href={`/auth/signup?redirect=${encodeURIComponent(redirect)}`}
-                style={{ textDecoration: 'none', color: '#E57373', fontWeight: 'bold' }}
+            <Box sx={{ textAlign: 'right', mt: -1, mb: 2 }}>
+              <Typography
+                variant="body2"
+                onClick={toggleResetMode}
+                sx={{
+                  color: '#E57373',
+                  cursor: 'pointer',
+                  fontWeight: 500,
+                  display: 'inline-block',
+                  '&:hover': { textDecoration: 'underline' },
+                }}
               >
-                Sign Up
-              </Link>
-            </Typography>
+                {isResetMode ? 'Back to Sign In' : 'Forgot Password?'}
+              </Typography>
+            </Box>
           </Box>
+
+          {!isResetMode && (
+            <>
+              <Divider sx={{ my: 3, color: '#8D6E63', fontSize: '14px' }}>OR</Divider>
+
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<Google />}
+                onClick={handleGoogleSignIn}
+                sx={{
+                  mb: 3,
+                  py: 1.5,
+                  borderRadius: '12px',
+                  textTransform: 'none',
+                  borderColor: '#E0E0E0',
+                  color: '#5D4037',
+                  '&:hover': {
+                    borderColor: '#E57373',
+                    bgcolor: 'rgba(229, 115, 115, 0.04)',
+                  },
+                }}
+              >
+                Sign in with Google
+              </Button>
+
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="body2" sx={{ color: '#8D6E63' }}>
+                  Don&apos;t have an account?{' '}
+                  <Link
+                    href={`/auth/signup?redirect=${encodeURIComponent(redirect)}`}
+                    style={{ textDecoration: 'none', color: '#E57373', fontWeight: 'bold' }}
+                  >
+                    Sign Up
+                  </Link>
+                </Typography>
+              </Box>
+            </>
+          )}
         </Paper>
       </Container>
     </Box>

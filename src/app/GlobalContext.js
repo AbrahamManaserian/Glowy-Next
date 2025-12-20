@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/firebase';
 
-const GlobalContext = createContext({
+export const GlobalContext = createContext({
   isSticky: false,
   setIsSticky: () => {},
   cart: { length: 0, items: {} },
@@ -13,7 +13,11 @@ const GlobalContext = createContext({
   setCartDetails: () => {},
   wishList: [],
   setWishList: () => {},
+  wishListDetails: [],
+  setWishListDetails: () => {},
+  wishListLoading: false,
   user: null,
+  loading: true,
 });
 
 export function GlobalProvider({ children }) {
@@ -21,11 +25,15 @@ export function GlobalProvider({ children }) {
   const [cart, setCart] = useState({ length: 0, items: {} });
   const [cartDetails, setCartDetails] = useState({});
   const [wishList, setWishList] = useState([]);
+  const [wishListDetails, setWishListDetails] = useState([]);
+  const [wishListLoading, setWishListLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -98,6 +106,30 @@ export function GlobalProvider({ children }) {
     fetchCartDetails();
   }, [cart]);
 
+  useEffect(() => {
+    const fetchWishListDetails = async () => {
+      if (wishList && wishList.length > 0) {
+        setWishListLoading(true);
+        try {
+          const sortedIds = [...wishList].sort().join(',');
+          const response = await fetch(`/api/cart?ids=${sortedIds}`);
+          if (response.ok) {
+            const data = await response.json();
+            setWishListDetails(Object.values(data));
+          }
+        } catch (error) {
+          console.error('Error fetching wishlist items:', error);
+        } finally {
+          setWishListLoading(false);
+        }
+      } else {
+        setWishListDetails([]);
+        setWishListLoading(false);
+      }
+    };
+    fetchWishListDetails();
+  }, [wishList]);
+
   return (
     <GlobalContext.Provider
       value={{
@@ -109,7 +141,11 @@ export function GlobalProvider({ children }) {
         setCartDetails,
         wishList,
         setWishList,
+        wishListDetails,
+        setWishListDetails,
+        wishListLoading,
         user,
+        loading,
       }}
     >
       {children}
