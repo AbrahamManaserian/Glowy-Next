@@ -24,7 +24,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body style={{ position: 'relative' }}>
         <ThemeRegistry>
-          <ScrollToTop />
+          <Suspense fallback={null}>
+            <ScrollToTop />
+          </Suspense>
           <Suspense fallback={<Loading />}>
             <GlobalProvider>
               <TopOfPage />
