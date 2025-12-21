@@ -9,7 +9,6 @@ import { Suspense } from 'react';
 import TopOfPage from '@/_components/appBar/TopOfPage';
 import Loading from './loading';
 import { GlobalProvider } from './GlobalContext';
-import ScrollToTop from '@/_components/ScrollToTop';
 
 export const metadata = {
   title: 'Glowy Perfume & Cosmetics',
@@ -24,9 +23,6 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body style={{ position: 'relative' }}>
         <ThemeRegistry>
-          <Suspense fallback={null}>
-            <ScrollToTop />
-          </Suspense>
           <Suspense fallback={<Loading />}>
             <GlobalProvider>
               <TopOfPage />
