@@ -214,7 +214,7 @@ export default function ItemCart({ item }) {
           }}
           variant="contained"
         >
-          Buy now
+          Order Now
         </Button>
         {/* </Link> */}
       </Box>

@@ -138,7 +138,7 @@ export default function CartDrawer() {
                       mb: '10px',
                     }}
                   >
-                    Procced To Checkout
+                    Order now
                   </Button>
                 </Link>
               )}

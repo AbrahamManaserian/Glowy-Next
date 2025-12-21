@@ -323,16 +323,6 @@ export default function UserPageUi() {
         </Alert>
       )}
 
-      {message.text && (
-        <Alert
-          severity={message.type}
-          sx={{ mb: 4, borderRadius: '12px' }}
-          onClose={() => setMessage({ type: '', text: '' })}
-        >
-          {message.text}
-        </Alert>
-      )}
-
       <Grid container spacing={4}>
         {/* Sidebar Navigation */}
         <Grid size={{ xs: 12, md: 3 }}>
@@ -552,6 +542,15 @@ export default function UserPageUi() {
                   </Button>
                 </Grid>
               </Grid>
+              {message.text && (
+                <Alert
+                  severity={message.type}
+                  sx={{ mt: 3, borderRadius: '12px' }}
+                  onClose={() => setMessage({ type: '', text: '' })}
+                >
+                  {message.text}
+                </Alert>
+              )}
             </TabPanel>
 
             {/* Orders Tab */}
@@ -787,6 +786,15 @@ export default function UserPageUi() {
                     </Button>
                   </Grid>
                 </Grid>
+                {message.text && (
+                  <Alert
+                    severity={message.type}
+                    sx={{ mt: 3, borderRadius: '12px' }}
+                    onClose={() => setMessage({ type: '', text: '' })}
+                  >
+                    {message.text}
+                  </Alert>
+                )}
               </Box>
             </TabPanel>
           </Paper>
