@@ -2,8 +2,7 @@ import { Grid } from '@mui/material';
 import CartPageUi from './_components/CartPageUi';
 
 export default async function CartPage({ searchParams }) {
- 
-   const url = await searchParams;
+  const url = await searchParams;
 
   return (
     <Grid
