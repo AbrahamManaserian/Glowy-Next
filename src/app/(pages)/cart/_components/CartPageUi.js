@@ -1,14 +1,28 @@
 'use client';
 
 import { useGlobalContext } from '@/app/GlobalContext';
-import { Box, Button, Grid, Typography, Stepper, Step, StepLabel } from '@mui/material';
+import {
+  Box,
+  Button,
+  Grid,
+  Typography,
+  Stepper,
+  Step,
+  StepLabel,
+  CircularProgress,
+  Snackbar,
+  Alert,
+} from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import { clearCart } from '../functions/addDeleteIncDecreaseCart';
 import CartItemsList from './CartItemsList';
 import CheckoutForm from './CheckoutForm';
+import { db } from '@/firebase';
+import { runTransaction, doc, serverTimestamp } from 'firebase/firestore';
 
 export default function CartPageUi() {
   const [cartState, setCartState] = useState({
@@ -20,12 +34,16 @@ export default function CartPageUi() {
     email: '',
     note: '',
   });
-  const { cart, setCart, cartDetails } = useGlobalContext();
+  const { cart, setCart, cartDetails, user } = useGlobalContext();
   // console.log(cartDetails);
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
   const [selectedItems, setSelectedItems] = useState([]);
   const isInitialized = useRef(false);
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'error' });
+  const [orderSuccess, setOrderSuccess] = useState(null);
 
   useEffect(() => {
     if (cart?.items && !isInitialized.current) {
@@ -112,6 +130,160 @@ export default function CartPageUi() {
   const discount = subtotal >= 20000 ? subtotal * 0.2 : 0;
   const total = subtotal + shippingCost - discount;
   const totalSaved = savedFromOriginalPrice + discount + shippingSavings;
+
+  const handleCreateOrder = async () => {
+    if (!cartState.fullName || !cartState.phoneNumber || !cartState.address) {
+      setSnackbar({
+        open: true,
+        message: 'Please fill in all required fields (Name, Phone, Address)',
+        severity: 'error',
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const newOrderNumber = await runTransaction(db, async (transaction) => {
+        const projectDetailsRef = doc(db, 'details', 'projectDetails');
+        const projectDetailsDoc = await transaction.get(projectDetailsRef);
+
+        if (!projectDetailsDoc.exists()) {
+          throw 'Document details/projectDetails does not exist!';
+        }
+
+        const lastOrderNumber = projectDetailsDoc.data().lastOrderNumber || 0;
+        const newOrderNumber = lastOrderNumber + 1;
+        const formattedOrderNumber = newOrderNumber.toString().padStart(7, '0');
+
+        transaction.update(projectDetailsRef, { lastOrderNumber: newOrderNumber });
+
+        const orderRef = doc(db, 'orders', formattedOrderNumber);
+
+        const orderItems = Object.keys(cart.items)
+          .filter((id) => selectedItems.includes(id))
+          .map((id) => {
+            const item = cart.items[id];
+            const details = cartDetails ? cartDetails[id] : {};
+            const { options, ...restItem } = item;
+            const flattenedOptions = options ? { ...options } : {};
+
+            // Sanitize restItem and flattenedOptions to remove undefined values
+            const cleanRestItem = Object.fromEntries(
+              Object.entries(restItem).filter(([_, v]) => v !== undefined)
+            );
+            const cleanOptions = Object.fromEntries(
+              Object.entries(flattenedOptions).filter(([_, v]) => v !== undefined)
+            );
+
+            return {
+              id,
+              ...cleanRestItem,
+              ...cleanOptions,
+              price: details.price || item.price || 0,
+              name: details.name || item.name || '',
+              image: details.images?.[0] || item.image || '',
+            };
+          });
+
+        transaction.set(orderRef, {
+          orderNumber: formattedOrderNumber,
+          status: 'pending',
+          createdAt: serverTimestamp(),
+          userId: user?.uid || null,
+          customer: {
+            fullName: cartState.fullName || '',
+            phoneNumber: cartState.phoneNumber || '',
+            address: cartState.address || '',
+            email: cartState.email || '',
+            note: cartState.note || '',
+          },
+          items: orderItems,
+          financials: {
+            subtotal: subtotal || 0,
+            shippingCost: shippingCost || 0,
+            discount: discount || 0,
+            total: total || 0,
+            savedFromOriginalPrice: savedFromOriginalPrice || 0,
+            shippingSavings: shippingSavings || 0,
+            totalSaved: totalSaved || 0,
+          },
+          paymentMethod: cartState.paymentMethod || 'cash',
+          shippingMethod: cartState.shippingMethod || 'standart',
+        });
+
+        return formattedOrderNumber;
+      });
+
+      // Send Notification
+      try {
+        await fetch('/api/admin/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: newOrderNumber,
+            customerName: cartState.fullName,
+            total: total,
+            phoneNumber: cartState.phoneNumber,
+          }),
+        });
+      } catch (notifyError) {
+        console.error('Notification failed:', notifyError);
+      }
+
+      clearCart(setCart);
+      setOrderSuccess(newOrderNumber);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+      console.error('Transaction failed: ', e);
+      setSnackbar({
+        open: true,
+        message: 'Failed to place order. Please try again. ' + e,
+        severity: 'error',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (orderSuccess) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '60vh',
+          textAlign: 'center',
+          px: 2,
+        }}
+      >
+        <CheckCircleOutlineIcon sx={{ fontSize: 80, color: '#4caf50', mb: 2 }} />
+        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a' }}>
+          Order Placed Successfully!
+        </Typography>
+        <Typography variant="body1" sx={{ color: '#666', mb: 4, fontSize: '18px' }}>
+          Thank you for your purchase. Your order number is <strong>#{orderSuccess}</strong>.
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Link href="/shop">
+            <Button variant="contained" sx={{ bgcolor: '#2B3445', textTransform: 'none' }}>
+              Continue Shopping
+            </Button>
+          </Link>
+          <Link href="/user?tab=orders">
+            <Button
+              variant="outlined"
+              sx={{ color: '#2B3445', borderColor: '#2B3445', textTransform: 'none' }}
+            >
+              View My Orders
+            </Button>
+          </Link>
+        </Box>
+      </Box>
+    );
+  }
 
   if (!cart || cart.length === 0 || Object.keys(cart.items).length === 0) {
     return (
@@ -433,6 +605,8 @@ export default function CartPageUi() {
           <>
             <Button
               variant="contained"
+              onClick={handleCreateOrder}
+              disabled={loading}
               sx={{
                 textTransform: 'capitalize',
                 width: '100%',
@@ -448,7 +622,13 @@ export default function CartPageUi() {
                 mb: '10px',
               }}
             >
-              {cartState.paymentMethod === 'cash' ? 'Submit order' : 'Go to payment'}
+              {loading ? (
+                <CircularProgress size={24} sx={{ color: 'white' }} />
+              ) : cartState.paymentMethod === 'cash' ? (
+                'Submit order'
+              ) : (
+                'Go to payment'
+              )}
             </Button>
             <Link scroll={true} href={`/cart`}>
               <Button
@@ -475,6 +655,20 @@ export default function CartPageUi() {
           </>
         )}
       </Grid>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Grid>
   );
 }

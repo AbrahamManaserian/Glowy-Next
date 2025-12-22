@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 
 import { useState, useContext, useEffect } from 'react';
 import {
@@ -21,6 +22,7 @@ import {
   Badge,
   useMediaQuery,
   useTheme,
+  Chip,
 } from '@mui/material';
 import Image from 'next/image';
 import {
@@ -63,6 +65,12 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '@/firebase';
 import { GlobalContext } from '@/app/GlobalContext';
 import WishlistItem from './WishlistItem';
+import Resizer from 'react-image-file-resizer';
+import ProfileTab from './ProfileTab';
+import OrdersTab from './OrdersTab';
+import WishlistTab from './WishlistTab';
+import PaymentTab from './PaymentTab';
+import SettingsTab from './SettingsTab';
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -123,19 +131,66 @@ export default function UserPageUi() {
   }, [currentTabParam]);
 
   const [loading, setLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [emailMessage, setEmailMessage] = useState({ type: '', text: '' });
   const [verificationMessage, setVerificationMessage] = useState({ type: '', text: '' });
 
   const [orders, setOrders] = useState([]);
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      const tab = searchParams.get('tab');
-      if (tab !== 'wishlist') {
-        router.push('/auth/signin?redirect=/user');
-      }
+  // Track Order State (for unsigned users)
+  const [trackOrderId, setTrackOrderId] = useState('');
+  const [trackPhoneNumber, setTrackPhoneNumber] = useState('');
+  const [trackLoading, setTrackLoading] = useState(false);
+  const [trackError, setTrackError] = useState('');
+  const [trackedOrder, setTrackedOrder] = useState(null);
+
+  const handleTrackOrder = async (e) => {
+    e.preventDefault();
+    if (!trackOrderId || !trackPhoneNumber) {
+      setTrackError('Please enter both Order ID and Phone Number');
+      return;
     }
+
+    setTrackLoading(true);
+    setTrackError('');
+    setTrackedOrder(null);
+
+    try {
+      const q = query(collection(db, 'orders'), where('orderNumber', '==', trackOrderId));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        setTrackError('Order not found. Please check your Order ID.');
+        setTrackLoading(false);
+        return;
+      }
+
+      const orderDoc = querySnapshot.docs[0];
+      const orderData = orderDoc.data();
+
+      if (orderData.customer.phoneNumber !== trackPhoneNumber) {
+        setTrackError('Phone number does not match this order.');
+        setTrackLoading(false);
+        return;
+      }
+
+      setTrackedOrder({ id: orderDoc.id, ...orderData });
+    } catch (err) {
+      console.error(err);
+      setTrackError('Failed to fetch order details. Please try again.');
+    } finally {
+      setTrackLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // if (!authLoading && !user) {
+    //   const tab = searchParams.get('tab');
+    //   if (tab !== 'wishlist') {
+    //     router.push('/auth/signin?redirect=/user');
+    //   }
+    // }
   }, [user, authLoading, router, searchParams]);
 
   // Profile State
@@ -192,8 +247,8 @@ export default function UserPageUi() {
         try {
           const q = query(
             collection(db, 'orders'),
-            where('userId', '==', user.uid),
-            orderBy('createdAt', 'desc')
+            where('userId', '==', user.uid)
+            // orderBy('createdAt', 'desc')
           );
           const querySnapshot = await getDocs(q);
           const ordersData = querySnapshot.docs.map((doc) => ({
@@ -223,13 +278,30 @@ export default function UserPageUi() {
     setEmailMessage({ type: '', text: '' });
   };
 
+  const resizeFile = (file) =>
+    new Promise((resolve) => {
+      Resizer.imageFileResizer(
+        file,
+        500, // maxWidth
+        500, // maxHeight
+        'JPEG', // compressFormat
+        80, // quality
+        0, // rotation
+        (uri) => {
+          resolve(uri);
+        },
+        'blob' // outputType
+      );
+    });
+
   const handleAvatarChange = async (e) => {
     if (e.target.files[0]) {
       const file = e.target.files[0];
-      setLoading(true);
+      setImageLoading(true);
       try {
+        const resizedImage = await resizeFile(file);
         const storageRef = ref(storage, `avatars/${user.uid}`);
-        await uploadBytes(storageRef, file);
+        await uploadBytes(storageRef, resizedImage);
         const downloadURL = await getDownloadURL(storageRef);
 
         await updateProfile(auth.currentUser, { photoURL: downloadURL });
@@ -243,7 +315,7 @@ export default function UserPageUi() {
       } catch (error) {
         setMessage({ type: 'error', text: 'Failed to upload image: ' + error.message });
       }
-      setLoading(false);
+      setImageLoading(false);
     }
   };
 
@@ -378,14 +450,10 @@ export default function UserPageUi() {
     );
   }
 
-  if (!user && activeTab !== 2) {
-    return null; // Or a loading spinner, but the useEffect will redirect
-  }
-
   return (
     <Container maxWidth="lg" sx={{ py: 8 }}>
       <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#5D4037' }}>
-        {user ? 'My Account' : 'My Wishlist'}
+        {user ? 'My Account' : 'Guest Services'}
       </Typography>
 
       {/* Email Verification Banner */}
@@ -422,6 +490,7 @@ export default function UserPageUi() {
                   badgeContent={
                     <IconButton
                       component="label"
+                      disabled={imageLoading}
                       sx={{
                         bgcolor: '#E57373',
                         color: 'white',
@@ -435,13 +504,35 @@ export default function UserPageUi() {
                     </IconButton>
                   }
                 >
-                  <Avatar
-                    src={photoURL}
-                    alt={displayName}
-                    sx={{ width: 80, height: 80, bgcolor: '#E57373', fontSize: '2rem' }}
-                  >
-                    {displayName ? displayName[0].toUpperCase() : <Person />}
-                  </Avatar>
+                  <Box sx={{ position: 'relative' }}>
+                    <Avatar
+                      src={photoURL}
+                      alt={displayName}
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        bgcolor: '#E57373',
+                        fontSize: '2rem',
+                        opacity: imageLoading ? 0.5 : 1,
+                      }}
+                    >
+                      {displayName ? displayName[0].toUpperCase() : <Person />}
+                    </Avatar>
+                    {imageLoading && (
+                      <CircularProgress
+                        size={40}
+                        sx={{
+                          color: '#E57373',
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          marginTop: '-20px',
+                          marginLeft: '-20px',
+                          zIndex: 1,
+                        }}
+                      />
+                    )}
+                  </Box>
                 </Badge>
                 <Typography variant="subtitle1" fontWeight="bold" noWrap sx={{ mt: 2 }}>
                   {displayName || 'User'}
@@ -476,12 +567,8 @@ export default function UserPageUi() {
                 '& .MuiTabs-indicator': { display: 'none' },
               }}
             >
-              {user && (
-                <Tab value={0} icon={<Person sx={{ mr: 1 }} />} iconPosition="start" label="Profile" />
-              )}
-              {user && (
-                <Tab value={1} icon={<ShoppingBag sx={{ mr: 1 }} />} iconPosition="start" label="Orders" />
-              )}
+              <Tab value={0} icon={<Person sx={{ mr: 1 }} />} iconPosition="start" label="Profile" />
+              <Tab value={1} icon={<ShoppingBag sx={{ mr: 1 }} />} iconPosition="start" label="Orders" />
               <Tab value={2} icon={<Favorite sx={{ mr: 1 }} />} iconPosition="start" label="Wishlist" />
               {user && (
                 <Tab value={3} icon={<Payment sx={{ mr: 1 }} />} iconPosition="start" label="Payment" />
@@ -528,461 +615,86 @@ export default function UserPageUi() {
           <Paper elevation={0} sx={{ border: '1px solid #E0E0E0', borderRadius: '16px', minHeight: '400px' }}>
             {/* Profile Tab */}
             <TabPanel value={activeTab} index={0}>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
-                Personal Information
-              </Typography>
-
-              {user && !user.providerData.some((p) => p.providerId === 'password') && (
-                <Alert severity="info" sx={{ mb: 3, borderRadius: '8px' }}>
-                  You signed in with Google. To enable email/password sign-in, please set a password in the{' '}
-                  <strong
-                    style={{ cursor: 'pointer', textDecoration: 'underline' }}
-                    onClick={() => setActiveTab(4)}
-                  >
-                    Settings
-                  </strong>{' '}
-                  tab.
-                </Alert>
-              )}
-
-              <Grid container spacing={3}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    label="Display Name"
-                    fullWidth
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    variant="outlined"
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    label="Email Address"
-                    fullWidth
-                    value={user?.email || ''}
-                    disabled
-                    variant="outlined"
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px', bgcolor: '#F5F5F5' } }}
-                    InputProps={{
-                      endAdornment: user?.emailVerified ? (
-                        <InputAdornment position="end">
-                          <CheckCircle color="success" fontSize="small" />
-                        </InputAdornment>
-                      ) : (
-                        <InputAdornment position="end">
-                          <Warning color="warning" fontSize="small" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    label="Phone Number"
-                    fullWidth
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    variant="outlined"
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    label="Birthday"
-                    type="date"
-                    fullWidth
-                    value={birthday}
-                    onChange={(e) => setBirthday(e.target.value)}
-                    variant="outlined"
-                    InputLabelProps={{ shrink: true }}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    select
-                    label="Gender"
-                    fullWidth
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
-                    variant="outlined"
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
-                  >
-                    <MenuItem value="male">Male</MenuItem>
-                    <MenuItem value="female">Female</MenuItem>
-                    <MenuItem value="other">Other</MenuItem>
-                  </TextField>
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    label="Shipping Address"
-                    fullWidth
-                    multiline
-                    rows={3}
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    variant="outlined"
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <Button
-                    variant="contained"
-                    onClick={handleUpdateProfile}
-                    disabled={loading}
-                    sx={{
-                      bgcolor: '#E57373',
-                      borderRadius: '12px',
-                      textTransform: 'none',
-                      px: 4,
-                      '&:hover': { bgcolor: '#EF5350' },
-                    }}
-                  >
-                    {loading ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                </Grid>
-              </Grid>
-              {message.text && (
-                <Alert
-                  severity={message.type}
-                  sx={{ mt: 3, borderRadius: '12px' }}
-                  onClose={() => setMessage({ type: '', text: '' })}
-                >
-                  {message.text}
-                </Alert>
-              )}
+              <ProfileTab
+                user={user}
+                displayName={displayName}
+                setDisplayName={setDisplayName}
+                phoneNumber={phoneNumber}
+                setPhoneNumber={setPhoneNumber}
+                address={address}
+                setAddress={setAddress}
+                birthday={birthday}
+                setBirthday={setBirthday}
+                gender={gender}
+                setGender={setGender}
+                photoURL={photoURL}
+                setPhotoURL={setPhotoURL}
+                message={message}
+                setMessage={setMessage}
+                loading={loading}
+                setLoading={setLoading}
+                imageLoading={imageLoading}
+                setImageLoading={setImageLoading}
+                handleUpdateProfile={handleUpdateProfile}
+                handleSendVerification={handleSendVerification}
+                verificationMessage={verificationMessage}
+              />
             </TabPanel>
 
             {/* Orders Tab */}
             <TabPanel value={activeTab} index={1}>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
-                My Orders
-              </Typography>
-              {orders.length > 0 ? (
-                <Grid container spacing={2}>
-                  {orders.map((order) => (
-                    <Grid size={{ xs: 12 }} key={order.id}>
-                      <Paper sx={{ p: 2, border: '1px solid #E0E0E0', borderRadius: '12px' }}>
-                        <Grid container justifyContent="space-between" alignItems="center">
-                          <Grid size={{ xs: 12, sm: 6 }}>
-                            <Typography variant="subtitle1" fontWeight="bold">
-                              Order #{order.id.slice(0, 12)}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              Date:{' '}
-                              {order.createdAt?.toDate
-                                ? order.createdAt.toDate().toLocaleDateString()
-                                : new Date(order.createdAt).toLocaleDateString()}
-                            </Typography>
-                            <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-                              {order.items &&
-                                order.items.slice(0, 4).map((item, idx) => (
-                                  <Box
-                                    key={idx}
-                                    sx={{
-                                      width: 40,
-                                      height: 40,
-                                      position: 'relative',
-                                      borderRadius: '4px',
-                                      overflow: 'hidden',
-                                      border: '1px solid #eee',
-                                    }}
-                                  >
-                                    {/* Use a placeholder if no image, or the actual image */}
-                                    <Image
-                                      src={item.img || '/images/cosmetic/placeholder.jpg'}
-                                      alt="Product"
-                                      fill
-                                      style={{ objectFit: 'cover' }}
-                                    />
-                                  </Box>
-                                ))}
-                              {order.items && order.items.length > 4 && (
-                                <Box
-                                  sx={{
-                                    width: 40,
-                                    height: 40,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    bgcolor: '#f5f5f5',
-                                    borderRadius: '4px',
-                                    fontSize: '12px',
-                                    color: '#757575',
-                                  }}
-                                >
-                                  +{order.items.length - 4}
-                                </Box>
-                              )}
-                            </Box>
-                            <Box sx={{ mt: 1 }}>
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  bgcolor:
-                                    order.status === 'Delivered'
-                                      ? '#E8F5E9'
-                                      : order.status === 'Shipped'
-                                      ? '#E3F2FD'
-                                      : '#FFF3E0',
-                                  color:
-                                    order.status === 'Delivered'
-                                      ? '#2E7D32'
-                                      : order.status === 'Shipped'
-                                      ? '#1565C0'
-                                      : '#EF6C00',
-                                  px: 1,
-                                  py: 0.5,
-                                  borderRadius: '6px',
-                                  fontWeight: 600,
-                                }}
-                              >
-                                {order.status}
-                              </Typography>
-                            </Box>
-                          </Grid>
-                          <Grid
-                            size={{ xs: 12, sm: 6 }}
-                            sx={{ textAlign: { sm: 'right' }, mt: { xs: 2, sm: 0 } }}
-                          >
-                            <Typography variant="h6" color="#E57373" fontWeight="bold">
-                              ֏{order.total?.toLocaleString()}
-                            </Typography>
-                            <Button
-                              variant="outlined"
-                              size="small"
-                              sx={{
-                                mt: 1,
-                                borderRadius: '8px',
-                                textTransform: 'none',
-                                borderColor: '#E0E0E0',
-                                color: '#757575',
-                              }}
-                            >
-                              View Details
-                            </Button>
-                          </Grid>
-                        </Grid>
-                      </Paper>
-                    </Grid>
-                  ))}
-                </Grid>
-              ) : (
-                <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
-                  <ShoppingBag sx={{ fontSize: 60, mb: 2, opacity: 0.5 }} />
-                  <Typography>No orders found yet.</Typography>
-                  <Button
-                    variant="outlined"
-                    sx={{ mt: 2, borderRadius: '12px', color: '#E57373', borderColor: '#E57373' }}
-                    onClick={() => router.push('/')}
-                  >
-                    Start Shopping
-                  </Button>
-                </Box>
-              )}
+              <OrdersTab
+                user={user}
+                orders={orders}
+                trackOrderId={trackOrderId}
+                setTrackOrderId={setTrackOrderId}
+                trackPhoneNumber={trackPhoneNumber}
+                setTrackPhoneNumber={setTrackPhoneNumber}
+                trackLoading={trackLoading}
+                setTrackLoading={setTrackLoading}
+                trackError={trackError}
+                setTrackError={setTrackError}
+                trackedOrder={trackedOrder}
+                setTrackedOrder={setTrackedOrder}
+              />
             </TabPanel>
 
             {/* Wishlist Tab */}
             <TabPanel value={activeTab} index={2}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                  My Wishlist
-                </Typography>
-                {wishListDetails.length > 0 && (
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                    startIcon={<DeleteOutline />}
-                    onClick={handleClearWishlist}
-                    sx={{ textTransform: 'none', borderRadius: '8px' }}
-                  >
-                    Clear Wishlist
-                  </Button>
-                )}
-              </Box>
-              {wishListLoading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-                  <CircularProgress />
-                </Box>
-              ) : wishListDetails.length > 0 ? (
-                <Grid container spacing={2}>
-                  {wishListDetails.map((item) => (
-                    <Grid size={{ xs: 12, sm: 6 }} key={item.id}>
-                      <WishlistItem item={item} />
-                    </Grid>
-                  ))}
-                </Grid>
-              ) : (
-                <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
-                  <Favorite sx={{ fontSize: 60, mb: 2, opacity: 0.5 }} />
-                  <Typography>Your wishlist is empty.</Typography>
-                </Box>
-              )}
+              <WishlistTab
+                user={user}
+                wishList={wishList}
+                setWishList={setWishList}
+                wishListDetails={wishListDetails}
+                wishListLoading={wishListLoading}
+              />
             </TabPanel>
 
             {/* Payment Tab */}
             <TabPanel value={activeTab} index={3}>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
-                Payment Methods
-              </Typography>
-              <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
-                <Payment sx={{ fontSize: 60, mb: 2, opacity: 0.5 }} />
-                <Typography>No payment methods saved.</Typography>
-                <Button
-                  variant="outlined"
-                  startIcon={<Payment />}
-                  sx={{ mt: 2, borderRadius: '12px', color: '#E57373', borderColor: '#E57373' }}
-                >
-                  Add New Card
-                </Button>
-              </Box>
+              <PaymentTab />
             </TabPanel>
 
             {/* Settings Tab */}
             <TabPanel value={activeTab} index={4}>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
-                Account Settings
-              </Typography>
-
-              {/* Change Email Section */}
-              <Box sx={{ mb: 5 }}>
-                <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 500 }}>
-                  Change Email Address
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  Update your login and recovery email. You will need to verify the new email address.
-                </Typography>
-
-                <Grid container spacing={3}>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      label="New Email Address"
-                      type="email"
-                      fullWidth
-                      value={newEmail}
-                      onChange={(e) => setNewEmail(e.target.value)}
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      label="Current Password"
-                      type={showEmailPassword ? 'text' : 'password'}
-                      fullWidth
-                      value={currentPasswordForEmail}
-                      onChange={(e) => setCurrentPasswordForEmail(e.target.value)}
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton onClick={() => setShowEmailPassword(!showEmailPassword)} edge="end">
-                              {showEmailPassword ? <VisibilityOff /> : <Visibility />}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 12 }}>
-                    <Button
-                      variant="outlined"
-                      onClick={handleUpdateEmail}
-                      disabled={loading}
-                      sx={{
-                        borderRadius: '12px',
-                        textTransform: 'none',
-                        px: 4,
-                        borderColor: '#E57373',
-                        color: '#E57373',
-                        '&:hover': { borderColor: '#EF5350', bgcolor: 'rgba(229, 115, 115, 0.04)' },
-                      }}
-                    >
-                      {loading ? 'Processing...' : 'Update Email'}
-                    </Button>
-                  </Grid>
-                </Grid>
-                {emailMessage.text && (
-                  <Alert
-                    severity={emailMessage.type}
-                    sx={{ mt: 3, borderRadius: '12px' }}
-                    onClose={() => setEmailMessage({ type: '', text: '' })}
-                  >
-                    {emailMessage.text}
-                  </Alert>
-                )}
-              </Box>
-
-              <Divider sx={{ mb: 5 }} />
-
-              <Box sx={{ mb: 4 }}>
-                <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 500 }}>
-                  {user && !user.providerData.some((p) => p.providerId === 'password')
-                    ? 'Set Password'
-                    : 'Change Password'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  Ensure your account is using a long, random password to stay secure.
-                </Typography>
-
-                <Grid container spacing={3}>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      label="New Password"
-                      type={showPassword ? 'text' : 'password'}
-                      fullWidth
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                              {showPassword ? <VisibilityOff /> : <Visibility />}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      label="Confirm New Password"
-                      type={showPassword ? 'text' : 'password'}
-                      fullWidth
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 12 }}>
-                    <Button
-                      variant="contained"
-                      onClick={handleUpdatePassword}
-                      disabled={loading}
-                      sx={{
-                        bgcolor: '#E57373',
-                        borderRadius: '12px',
-                        textTransform: 'none',
-                        px: 4,
-                        '&:hover': { bgcolor: '#EF5350' },
-                      }}
-                    >
-                      {loading ? 'Updating...' : 'Update Password'}
-                    </Button>
-                  </Grid>
-                </Grid>
-                {message.text && (
-                  <Alert
-                    severity={message.type}
-                    sx={{ mt: 3, borderRadius: '12px' }}
-                    onClose={() => setMessage({ type: '', text: '' })}
-                  >
-                    {message.text}
-                  </Alert>
-                )}
-              </Box>
+              <SettingsTab
+                user={user}
+                newPassword={newPassword}
+                setNewPassword={setNewPassword}
+                confirmPassword={confirmPassword}
+                setConfirmPassword={setConfirmPassword}
+                newEmail={newEmail}
+                setNewEmail={setNewEmail}
+                currentPasswordForEmail={currentPasswordForEmail}
+                setCurrentPasswordForEmail={setCurrentPasswordForEmail}
+                loading={loading}
+                setLoading={setLoading}
+                message={message}
+                setMessage={setMessage}
+                emailMessage={emailMessage}
+                setEmailMessage={setEmailMessage}
+                handleUpdateEmail={handleUpdateEmail}
+              />
             </TabPanel>
           </Paper>
         </Grid>

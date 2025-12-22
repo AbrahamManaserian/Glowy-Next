@@ -132,14 +132,14 @@ export default function CheckoutForm({
                 sx={{ mb: '3px', ml: '3px', fontSize: '13px', fontWeight: 500, color: '#333' }}
               >
                 {inputTextGroupObj[key]}
-                {(key === 'fullName' || key === 'phoneNumber') && (
+                {(key === 'fullName' || key === 'phoneNumber' || key === 'address') && (
                   <span style={{ color: 'red', marginLeft: '4px' }}>*</span>
                 )}
               </Typography>
               <InputBase
                 defaultValue={cartState[key]}
                 name={key}
-                required={key === 'fullName' || key === 'phoneNumber'}
+                required={key === 'fullName' || key === 'phoneNumber' || key === 'address'}
                 onBlur={(e) => handleInputBlur(e.target.name, e.target.value)}
                 sx={{
                   minHeight: '50px',
@@ -191,7 +191,13 @@ export default function CheckoutForm({
       <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
         {Object.keys(shippingMethodObj).map((key, index) => {
           const isDisabled =
-            key === 'free' ? !isFreeShippingAvailable : key === 'standart' ? isFreeShippingAvailable : false;
+            key === 'free'
+              ? !isFreeShippingAvailable
+              : key === 'standart'
+              ? isFreeShippingAvailable
+              : key === 'express'
+              ? true
+              : false;
 
           return (
             <Box

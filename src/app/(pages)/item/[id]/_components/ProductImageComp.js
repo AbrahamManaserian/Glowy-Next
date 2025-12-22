@@ -3,12 +3,39 @@
 import { Box, Grid } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import CloseIcon from '@mui/icons-material/Close';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import useEmblaCarousel from 'embla-carousel-react';
 import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
+import Lightbox from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
+import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails';
+import 'yet-another-react-lightbox/plugins/thumbnails.css';
 
 export const ProductImageComp = ({ images, idNum }) => {
   const [state, setState] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => {
+    setOpen(true);
+    window.history.pushState(null, '');
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    window.history.back();
+  };
+
+  useEffect(() => {
+    const onPopState = () => {
+      setOpen(false);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
 
   const [imgIndex, setImgIndex] = useState(0);
   const [emblaRefBig, emblaApiBig] = useEmblaCarousel({ loop: false, align: 'center', startIndex: 0 });
@@ -121,7 +148,9 @@ export const ProductImageComp = ({ images, idNum }) => {
                           display: 'flex',
                           height: { xs: '50vh', sm: '60vh' },
                           justifyContent: 'center',
+                          cursor: 'zoom-in',
                         }}
+                        onClick={handleOpen}
                       >
                         <Image
                           width={500}
@@ -205,6 +234,26 @@ export const ProductImageComp = ({ images, idNum }) => {
           </div>
         </Box>
       </Box>
+      <Lightbox
+        open={open}
+        close={handleClose}
+        index={imgIndex}
+        on={{
+          view: ({ index }) => setImgIndex(index),
+        }}
+        slides={images.map((img) => ({ src: img.file }))}
+        plugins={[Zoom, Thumbnails]}
+        styles={{
+          container: { backgroundColor: 'rgba(0, 0, 0, 0.9)' },
+        }}
+        render={{
+          iconPrev: () => <ChevronLeftIcon sx={{ fontSize: 32, color: 'white', opacity: 0.7 }} />,
+          iconNext: () => <NavigateNextIcon sx={{ fontSize: 32, color: 'white', opacity: 0.7 }} />,
+          iconClose: () => <CloseIcon sx={{ fontSize: 28, color: 'white', opacity: 0.7 }} />,
+          iconZoomIn: () => <ZoomInIcon sx={{ fontSize: 28, color: 'white', opacity: 0.7 }} />,
+          iconZoomOut: () => <ZoomOutIcon sx={{ fontSize: 28, color: 'white', opacity: 0.7 }} />,
+        }}
+      />
     </Grid>
   );
 };
