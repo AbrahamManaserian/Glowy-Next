@@ -12,8 +12,9 @@ import {
   Paper,
   InputAdornment,
   IconButton,
+  CircularProgress,
 } from '@mui/material';
-import { Google } from '@mui/icons-material';
+import { Google, CheckCircleOutline } from '@mui/icons-material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Link from 'next/link';
@@ -33,7 +34,9 @@ export default function SignUp() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
@@ -41,27 +44,31 @@ export default function SignUp() {
   const handleSignUp = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
+    setLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password.trim());
       const user = userCredential.user;
 
       await updateProfile(user, {
-        displayName: name,
+        displayName: name.trim(),
       });
 
       // Create user document in Firestore
       await setDoc(doc(db, 'users', user.uid), {
-        name: name,
-        email: email,
+        name: name.trim(),
+        email: email.trim(),
         role: 'customer',
         provider: 'email',
         createdAt: serverTimestamp(),
       });
 
       await sendEmailVerification(user);
-      alert('Account created! Please check your email to verify your account.');
+      setSuccess('Account created! Please check your email to verify your account. Redirecting...');
 
-      router.push(redirect);
+      setTimeout(() => {
+        router.push(redirect);
+      }, 3000);
     } catch (err) {
       let errorMessage = 'Failed to create an account.';
       if (err.code === 'auth/email-already-in-use') {
@@ -71,11 +78,13 @@ export default function SignUp() {
       }
       setError(errorMessage);
       console.error(err);
+      setLoading(false);
     }
   };
 
   const handleGoogleSignUp = async () => {
     setError('');
+    setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
@@ -99,6 +108,7 @@ export default function SignUp() {
     } catch (err) {
       setError('Failed to sign up with Google.');
       console.error(err);
+      setLoading(false);
     }
   };
 
@@ -149,141 +159,171 @@ export default function SignUp() {
             </Alert>
           )}
 
-          <Box component="form" onSubmit={handleSignUp}>
-            <TextField
-              label="Full Name"
-              fullWidth
-              margin="normal"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              variant="outlined"
+          {success ? (
+            <Box
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '12px',
-                  bgcolor: '#FAFAFA',
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#E57373',
-                  },
-                },
-                '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#E57373',
-                },
-              }}
-            />
-            <TextField
-              label="Email Address"
-              fullWidth
-              margin="normal"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '12px',
-                  bgcolor: '#FAFAFA',
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#E57373',
-                  },
-                },
-                '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#E57373',
-                },
-              }}
-            />
-            <TextField
-              label="Password"
-              fullWidth
-              margin="normal"
-              type={showPassword ? 'text' : 'password'}
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '12px',
-                  bgcolor: '#FAFAFA',
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#E57373',
-                  },
-                },
-                '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#E57373',
-                },
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              size="large"
-              sx={{
-                mt: 3,
-                mb: 2,
-                py: 1.5,
-                fontWeight: 'bold',
-                bgcolor: '#E57373',
-                borderRadius: '12px',
-                textTransform: 'none',
-                fontSize: '16px',
-                boxShadow: '0 4px 12px rgba(229, 115, 115, 0.4)',
-                '&:hover': {
-                  bgcolor: '#EF5350',
-                  boxShadow: '0 6px 16px rgba(229, 115, 115, 0.6)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                py: 4,
+                animation: 'fadeIn 0.5s ease-in-out',
+                '@keyframes fadeIn': {
+                  '0%': { opacity: 0, transform: 'scale(0.9)' },
+                  '100%': { opacity: 1, transform: 'scale(1)' },
                 },
               }}
             >
-              Sign Up
-            </Button>
-          </Box>
+              <CheckCircleOutline sx={{ fontSize: 80, color: '#4CAF50', mb: 2 }} />
+              <Typography variant="h5" sx={{ fontWeight: 700, color: '#2E7D32', mb: 1 }}>
+                Success!
+              </Typography>
+              <Typography variant="body1" sx={{ color: '#5D4037', textAlign: 'center', mb: 3 }}>
+                {success}
+              </Typography>
+              <CircularProgress size={24} sx={{ color: '#E57373' }} />
+            </Box>
+          ) : (
+            <>
+              <Box component="form" onSubmit={handleSignUp}>
+                <TextField
+                  label="Full Name"
+                  fullWidth
+                  margin="normal"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  variant="outlined"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      bgcolor: '#FAFAFA',
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#E57373',
+                      },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#E57373',
+                    },
+                  }}
+                />
+                <TextField
+                  label="Email Address"
+                  fullWidth
+                  margin="normal"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  variant="outlined"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      bgcolor: '#FAFAFA',
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#E57373',
+                      },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#E57373',
+                    },
+                  }}
+                />
+                <TextField
+                  label="Password"
+                  fullWidth
+                  margin="normal"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  variant="outlined"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      bgcolor: '#FAFAFA',
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#E57373',
+                      },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#E57373',
+                    },
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
 
-          <Divider sx={{ my: 3, color: '#8D6E63', fontSize: '14px' }}>OR</Divider>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  disabled={loading}
+                  sx={{
+                    mt: 3,
+                    mb: 2,
+                    py: 1.5,
+                    fontWeight: 'bold',
+                    bgcolor: '#E57373',
+                    borderRadius: '12px',
+                    textTransform: 'none',
+                    fontSize: '16px',
+                    boxShadow: '0 4px 12px rgba(229, 115, 115, 0.4)',
+                    '&:hover': {
+                      bgcolor: '#EF5350',
+                      boxShadow: '0 6px 16px rgba(229, 115, 115, 0.6)',
+                    },
+                  }}
+                >
+                  {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign Up'}
+                </Button>
+              </Box>
 
-          <Button
-            fullWidth
-            variant="outlined"
-            startIcon={<Google />}
-            onClick={handleGoogleSignUp}
-            sx={{
-              mb: 3,
-              py: 1.5,
-              borderRadius: '12px',
-              textTransform: 'none',
-              borderColor: '#E0E0E0',
-              color: '#5D4037',
-              '&:hover': {
-                borderColor: '#E57373',
-                bgcolor: 'rgba(229, 115, 115, 0.04)',
-              },
-            }}
-          >
-            Sign up with Google
-          </Button>
+              <Divider sx={{ my: 3, color: '#8D6E63', fontSize: '14px' }}>OR</Divider>
 
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ color: '#8D6E63' }}>
-              Already have an account?{' '}
-              <Link
-                href={`/auth/signin?redirect=${encodeURIComponent(redirect)}`}
-                style={{ textDecoration: 'none', color: '#E57373', fontWeight: 'bold' }}
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Google />}
+                onClick={handleGoogleSignUp}
+                disabled={loading}
+                sx={{
+                  mb: 3,
+                  py: 1.5,
+                  borderRadius: '12px',
+                  textTransform: 'none',
+                  borderColor: '#E0E0E0',
+                  color: '#5D4037',
+                  '&:hover': {
+                    borderColor: '#E57373',
+                    bgcolor: 'rgba(229, 115, 115, 0.04)',
+                  },
+                }}
               >
-                Sign In
-              </Link>
-            </Typography>
-          </Box>
+                {loading ? 'Processing...' : 'Sign up with Google'}
+              </Button>
+
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="body2" sx={{ color: '#8D6E63' }}>
+                  Already have an account?{' '}
+                  <Link
+                    href={`/auth/signin?redirect=${encodeURIComponent(redirect)}`}
+                    style={{ textDecoration: 'none', color: '#E57373', fontWeight: 'bold' }}
+                  >
+                    Sign In
+                  </Link>
+                </Typography>
+              </Box>
+            </>
+          )}
         </Paper>
       </Container>
     </Box>

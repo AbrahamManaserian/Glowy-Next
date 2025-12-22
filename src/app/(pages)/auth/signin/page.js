@@ -34,6 +34,7 @@ export default function SignIn() {
   const [message, setMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isResetMode, setIsResetMode] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
@@ -42,23 +43,25 @@ export default function SignIn() {
     e.preventDefault();
     setError('');
     setMessage('');
+    setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, email.trim(), password.trim());
       router.push(redirect);
     } catch (err) {
       setError('Failed to sign in. Please check your email and password.');
       console.error(err);
+      setLoading(false);
     }
   };
 
   const handleForgotPassword = async (e) => {
     if (e) e.preventDefault();
-    if (!email) {
+    if (!email.trim()) {
       setError('Please enter your email address first to reset password.');
       return;
     }
     try {
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth, email.trim());
       setMessage('Password reset email sent! Check your inbox.');
       setError('');
     } catch (err) {
@@ -76,6 +79,7 @@ export default function SignIn() {
   const handleGoogleSignIn = async () => {
     setError('');
     setMessage('');
+    setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
@@ -99,6 +103,7 @@ export default function SignIn() {
     } catch (err) {
       setError('Failed to sign in with Google.');
       console.error(err);
+      setLoading(false);
     }
   };
 
@@ -218,6 +223,7 @@ export default function SignIn() {
               fullWidth
               variant="contained"
               size="large"
+              disabled={loading}
               sx={{
                 mt: 3,
                 mb: 2,
@@ -234,7 +240,7 @@ export default function SignIn() {
                 },
               }}
             >
-              {isResetMode ? 'Reset Password' : 'Sign In'}
+              {loading ? 'Processing...' : isResetMode ? 'Reset Password' : 'Sign In'}
             </Button>
 
             <Box sx={{ textAlign: 'right', mt: -1, mb: 2 }}>
@@ -263,6 +269,7 @@ export default function SignIn() {
                 variant="outlined"
                 startIcon={<Google />}
                 onClick={handleGoogleSignIn}
+                disabled={loading}
                 sx={{
                   mb: 3,
                   py: 1.5,
@@ -276,7 +283,7 @@ export default function SignIn() {
                   },
                 }}
               >
-                Sign in with Google
+                {loading ? 'Signing in...' : 'Sign in with Google'}
               </Button>
 
               <Box sx={{ textAlign: 'center' }}>

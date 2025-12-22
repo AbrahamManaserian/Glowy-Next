@@ -36,9 +36,18 @@ import {
   Payment,
   Edit,
   CameraAlt,
+  DeleteOutline,
 } from '@mui/icons-material';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { updateProfile, updatePassword, sendEmailVerification, signOut } from 'firebase/auth';
+import {
+  updateProfile,
+  updatePassword,
+  sendEmailVerification,
+  signOut,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  verifyBeforeUpdateEmail,
+} from 'firebase/auth';
 import {
   doc,
   getDoc,
@@ -75,6 +84,7 @@ export default function UserPageUi() {
     user,
     loading: authLoading,
     wishList,
+    setWishList,
     wishListDetails,
     wishListLoading,
   } = useContext(GlobalContext);
@@ -89,6 +99,20 @@ export default function UserPageUi() {
 
   const [activeTab, setActiveTab] = useState(0);
 
+  const handleClearWishlist = async () => {
+    setWishList([]);
+    if (user) {
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, { wishList: [] }, { merge: true });
+      } catch (error) {
+        console.error('Error clearing wishlist:', error);
+      }
+    } else {
+      localStorage.setItem('fav', JSON.stringify([]));
+    }
+  };
+
   useEffect(() => {
     const tabIndex = tabMap.indexOf(currentTabParam);
     if (tabIndex !== -1) {
@@ -100,6 +124,8 @@ export default function UserPageUi() {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [emailMessage, setEmailMessage] = useState({ type: '', text: '' });
+  const [verificationMessage, setVerificationMessage] = useState({ type: '', text: '' });
 
   const [orders, setOrders] = useState([]);
 
@@ -125,6 +151,11 @@ export default function UserPageUi() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  // Email Change State
+  const [newEmail, setNewEmail] = useState('');
+  const [currentPasswordForEmail, setCurrentPasswordForEmail] = useState('');
+  const [showEmailPassword, setShowEmailPassword] = useState(false);
+
   useEffect(() => {
     if (user) {
       setDisplayName(user.displayName || '');
@@ -141,6 +172,11 @@ export default function UserPageUi() {
             setAddress(data.address || '');
             setBirthday(data.birthday || '');
             setGender(data.gender || '');
+
+            // Sync email if it changed in Auth but not in Firestore
+            if (user.email && data.email !== user.email) {
+              await setDoc(docRef, { email: user.email }, { merge: true });
+            }
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -184,6 +220,7 @@ export default function UserPageUi() {
     const newTab = tabMap[newValue];
     router.push(`${pathname}?tab=${newTab}`, { scroll: false });
     setMessage({ type: '', text: '' });
+    setEmailMessage({ type: '', text: '' });
   };
 
   const handleAvatarChange = async (e) => {
@@ -243,11 +280,12 @@ export default function UserPageUi() {
 
   const handleSendVerification = async () => {
     setLoading(true);
+    setVerificationMessage({ type: '', text: '' });
     try {
       await sendEmailVerification(auth.currentUser);
-      setMessage({ type: 'success', text: 'Verification email sent! Please check your inbox.' });
+      setVerificationMessage({ type: 'success', text: 'Verification email sent! Please check your inbox.' });
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to send verification email. Try again later.' });
+      setVerificationMessage({ type: 'error', text: 'Failed to send verification email. Try again later.' });
     }
     setLoading(false);
   };
@@ -276,6 +314,48 @@ export default function UserPageUi() {
         });
       } else {
         setMessage({ type: 'error', text: error.message });
+      }
+    }
+    setLoading(false);
+  };
+
+  const handleUpdateEmail = async () => {
+    if (!newEmail.trim()) {
+      setEmailMessage({ type: 'error', text: 'Please enter a new email address.' });
+      return;
+    }
+    if (!currentPasswordForEmail) {
+      setEmailMessage({ type: 'error', text: 'Please enter your current password to confirm.' });
+      return;
+    }
+
+    setLoading(true);
+    setEmailMessage({ type: '', text: '' });
+
+    try {
+      // 1. Re-authenticate the user
+      const credential = EmailAuthProvider.credential(user.email, currentPasswordForEmail);
+      await reauthenticateWithCredential(auth.currentUser, credential);
+
+      // 2. Send verification email to the new address
+      await verifyBeforeUpdateEmail(auth.currentUser, newEmail.trim());
+
+      setEmailMessage({
+        type: 'success',
+        text: `Verification email sent to ${newEmail}. Please check your inbox and click the link to finalize the change.`,
+      });
+      setNewEmail('');
+      setCurrentPasswordForEmail('');
+    } catch (error) {
+      console.error('Error updating email:', error);
+      if (error.code === 'auth/wrong-password') {
+        setEmailMessage({ type: 'error', text: 'Incorrect password. Please try again.' });
+      } else if (error.code === 'auth/email-already-in-use') {
+        setEmailMessage({ type: 'error', text: 'This email is already in use by another account.' });
+      } else if (error.code === 'auth/requires-recent-login') {
+        setEmailMessage({ type: 'error', text: 'Please sign out and sign in again to perform this action.' });
+      } else {
+        setEmailMessage({ type: 'error', text: 'Failed to update email: ' + error.message });
       }
     }
     setLoading(false);
@@ -310,17 +390,24 @@ export default function UserPageUi() {
 
       {/* Email Verification Banner */}
       {user && !user.emailVerified && (
-        <Alert
-          severity="warning"
-          sx={{ mb: 4, borderRadius: '12px' }}
-          action={
-            <Button color="inherit" size="small" onClick={handleSendVerification} disabled={loading}>
-              Verify Email
-            </Button>
-          }
-        >
-          Your email address is not verified. Please verify it to secure your account.
-        </Alert>
+        <Box sx={{ mb: 4 }}>
+          <Alert
+            severity="warning"
+            sx={{ borderRadius: '12px' }}
+            action={
+              <Button color="inherit" size="small" onClick={handleSendVerification} disabled={loading}>
+                Verify Email
+              </Button>
+            }
+          >
+            Your email address is not verified. Please verify it to secure your account.
+          </Alert>
+          {verificationMessage.text && (
+            <Alert severity={verificationMessage.type} sx={{ mt: 1, borderRadius: '12px' }}>
+              {verificationMessage.text}
+            </Alert>
+          )}
+        </Box>
       )}
 
       <Grid container spacing={4}>
@@ -444,6 +531,20 @@ export default function UserPageUi() {
               <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
                 Personal Information
               </Typography>
+
+              {user && !user.providerData.some((p) => p.providerId === 'password') && (
+                <Alert severity="info" sx={{ mb: 3, borderRadius: '8px' }}>
+                  You signed in with Google. To enable email/password sign-in, please set a password in the{' '}
+                  <strong
+                    style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                    onClick={() => setActiveTab(4)}
+                  >
+                    Settings
+                  </strong>{' '}
+                  tab.
+                </Alert>
+              )}
+
               <Grid container spacing={3}>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
@@ -684,9 +785,23 @@ export default function UserPageUi() {
 
             {/* Wishlist Tab */}
             <TabPanel value={activeTab} index={2}>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
-                My Wishlist
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                  My Wishlist
+                </Typography>
+                {wishListDetails.length > 0 && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    startIcon={<DeleteOutline />}
+                    onClick={handleClearWishlist}
+                    sx={{ textTransform: 'none', borderRadius: '8px' }}
+                  >
+                    Clear Wishlist
+                  </Button>
+                )}
+              </Box>
               {wishListLoading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
                   <CircularProgress />
@@ -728,12 +843,84 @@ export default function UserPageUi() {
             {/* Settings Tab */}
             <TabPanel value={activeTab} index={4}>
               <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
-                Security Settings
+                Account Settings
               </Typography>
+
+              {/* Change Email Section */}
+              <Box sx={{ mb: 5 }}>
+                <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 500 }}>
+                  Change Email Address
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                  Update your login and recovery email. You will need to verify the new email address.
+                </Typography>
+
+                <Grid container spacing={3}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      label="New Email Address"
+                      type="email"
+                      fullWidth
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      label="Current Password"
+                      type={showEmailPassword ? 'text' : 'password'}
+                      fullWidth
+                      value={currentPasswordForEmail}
+                      onChange={(e) => setCurrentPasswordForEmail(e.target.value)}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton onClick={() => setShowEmailPassword(!showEmailPassword)} edge="end">
+                              {showEmailPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12 }}>
+                    <Button
+                      variant="outlined"
+                      onClick={handleUpdateEmail}
+                      disabled={loading}
+                      sx={{
+                        borderRadius: '12px',
+                        textTransform: 'none',
+                        px: 4,
+                        borderColor: '#E57373',
+                        color: '#E57373',
+                        '&:hover': { borderColor: '#EF5350', bgcolor: 'rgba(229, 115, 115, 0.04)' },
+                      }}
+                    >
+                      {loading ? 'Processing...' : 'Update Email'}
+                    </Button>
+                  </Grid>
+                </Grid>
+                {emailMessage.text && (
+                  <Alert
+                    severity={emailMessage.type}
+                    sx={{ mt: 3, borderRadius: '12px' }}
+                    onClose={() => setEmailMessage({ type: '', text: '' })}
+                  >
+                    {emailMessage.text}
+                  </Alert>
+                )}
+              </Box>
+
+              <Divider sx={{ mb: 5 }} />
 
               <Box sx={{ mb: 4 }}>
                 <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 500 }}>
-                  Change Password
+                  {user && !user.providerData.some((p) => p.providerId === 'password')
+                    ? 'Set Password'
+                    : 'Change Password'}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                   Ensure your account is using a long, random password to stay secure.

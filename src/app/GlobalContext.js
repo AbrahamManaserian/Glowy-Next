@@ -151,7 +151,24 @@ export function GlobalProvider({ children }) {
           const response = await fetch(`/api/cart?ids=${sortedIds}`);
           if (response.ok) {
             const data = await response.json();
-            setWishListDetails(Object.values(data));
+            const validItems = Object.values(data);
+            setWishListDetails(validItems);
+
+            // Sync local wishlist with valid items from DB
+            const validIds = Object.keys(data);
+            if (validIds.length !== wishList.length) {
+              const newWishList = wishList.filter((id) => validIds.includes(id));
+              setWishList(newWishList);
+
+              if (user) {
+                const userRef = doc(db, 'users', user.uid);
+                setDoc(userRef, { wishList: newWishList }, { merge: true }).catch((err) =>
+                  console.error('Error syncing wishlist:', err)
+                );
+              } else {
+                localStorage.setItem('fav', JSON.stringify(newWishList));
+              }
+            }
           }
         } catch (error) {
           console.error('Error fetching wishlist items:', error);
@@ -164,7 +181,7 @@ export function GlobalProvider({ children }) {
       }
     };
     fetchWishListDetails();
-  }, [wishList]);
+  }, [wishList, user]);
 
   return (
     <GlobalContext.Provider
