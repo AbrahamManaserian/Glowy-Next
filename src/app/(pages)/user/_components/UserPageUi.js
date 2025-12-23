@@ -57,12 +57,17 @@ function TabPanel({ children, value, index, ...other }) {
 
 export default function UserPageUi() {
   const {
+    orders,
+    setUserData,
+
+    userData,
     user,
     loading: authLoading,
     setWishList,
     wishListDetails,
     wishListLoading,
   } = useContext(GlobalContext);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -89,7 +94,7 @@ export default function UserPageUi() {
   const [emailMessage, setEmailMessage] = useState({ type: '', text: '' });
   const [verificationMessage, setVerificationMessage] = useState({ type: '', text: '' });
 
-  const [orders, setOrders] = useState([]);
+  // const [orders, setOrders] = useState([]);
 
   // Profile State
   const [displayName, setDisplayName] = useState('');
@@ -108,110 +113,91 @@ export default function UserPageUi() {
   const [currentPasswordForEmail, setCurrentPasswordForEmail] = useState('');
 
   useEffect(() => {
-    if (user) {
-      setDisplayName(user.displayName || '');
-      setPhotoURL(user.photoURL || '');
-
-      // Fetch additional user data from Firestore
-      const fetchUserData = async () => {
-        try {
-          const docRef = doc(db, 'users', user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            setPhoneNumber(data.phoneNumber || '');
-            setAddress(data.address || '');
-            setBirthday(data.birthday || '');
-            setGender(data.gender || '');
-
-            // Sync email if it changed in Auth but not in Firestore
-            if (user.email && data.email !== user.email) {
-              await setDoc(docRef, { email: user.email }, { merge: true });
-            }
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-        }
-      };
-      fetchUserData();
+    if (userData) {
+      setDisplayName(userData.displayName || '');
+      setPhotoURL(userData.photoURL || '');
+      setPhoneNumber(userData.phoneNumber || '');
+      setAddress(userData.address || '');
+      setBirthday(userData.birthday || '');
+      setGender(userData.gender || '');
     }
-  }, [user]);
+  }, [userData]);
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      if (user) {
-        try {
-          const q = query(
-            collection(db, 'orders'),
-            where('userId', '==', user.uid),
-            orderBy('createdAt', 'desc')
-          );
-          const querySnapshot = await getDocs(q);
-          const ordersData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setOrders(ordersData);
-        } catch (error) {
-          console.error('Error fetching orders:', error);
-        }
-      } else {
-        // Unsigned user: fetch orders by IDs from localStorage
-        try {
-          const key = 'guestOrderIds';
-          const existing = typeof window !== 'undefined' ? localStorage.getItem(key) : null;
-          let arr = [];
-          if (existing) {
-            try {
-              arr = JSON.parse(existing);
-              if (!Array.isArray(arr)) arr = [];
-            } catch (parseError) {
-              // If parsing fails, clear the invalid localStorage value
-              localStorage.setItem(key, JSON.stringify([]));
-              setOrders([]);
-              return;
-            }
-          }
-          if (arr.length === 0) {
-            setOrders([]);
-            return;
-          }
-          // Fetch each order by ID
-          const orderPromises = arr.map(async (orderId) => {
-            const docRef = doc(db, 'orders', orderId);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-              return { id: docSnap.id, ...docSnap.data() };
-            } else {
-              // Remove non-existent orderId from localStorage
-              try {
-                const key = 'guestOrderIds';
-                const existing = typeof window !== 'undefined' ? localStorage.getItem(key) : null;
-                let ids = [];
-                if (existing) {
-                  ids = JSON.parse(existing);
-                  if (!Array.isArray(ids)) ids = [];
-                }
-                const filtered = ids.filter((id) => id !== orderId);
-                localStorage.setItem(key, JSON.stringify(filtered));
-              } catch {}
-              return null;
-            }
-          });
-          const ordersData = (await Promise.all(orderPromises)).filter(Boolean);
-          setOrders(ordersData);
-        } catch (error) {
-          // If any other error occurs, clear guestOrderIds and set orders to empty
-          try {
-            localStorage.setItem('guestOrderIds', JSON.stringify([]));
-          } catch {}
-          setOrders([]);
-          console.error('Error fetching guest orders:', error);
-        }
-      }
-    };
-    fetchOrders();
-  }, [user]);
+  // useEffect(() => {
+  //   const fetchOrders = async () => {
+  //     if (user) {
+  //       try {
+  //         const q = query(
+  //           collection(db, 'orders'),
+  //           where('userId', '==', user.uid),
+  //           orderBy('createdAt', 'desc')
+  //         );
+  //         const querySnapshot = await getDocs(q);
+  //         const ordersData = querySnapshot.docs.map((doc) => ({
+  //           id: doc.id,
+  //           ...doc.data(),
+  //         }));
+  //         setOrders(ordersData);
+  //       } catch (error) {
+  //         console.error('Error fetching orders:', error);
+  //       }
+  //     } else {
+  //       // Unsigned user: fetch orders by IDs from localStorage
+  //       try {
+  //         const key = 'guestOrderIds';
+  //         const existing = typeof window !== 'undefined' ? localStorage.getItem(key) : null;
+  //         let arr = [];
+  //         if (existing) {
+  //           try {
+  //             arr = JSON.parse(existing);
+  //             if (!Array.isArray(arr)) arr = [];
+  //           } catch (parseError) {
+  //             // If parsing fails, clear the invalid localStorage value
+  //             localStorage.setItem(key, JSON.stringify([]));
+  //             setOrders([]);
+  //             return;
+  //           }
+  //         }
+  //         if (arr.length === 0) {
+  //           setOrders([]);
+  //           return;
+  //         }
+  //         // Fetch each order by ID
+  //         const orderPromises = arr.map(async (orderId) => {
+  //           const docRef = doc(db, 'orders', orderId);
+  //           const docSnap = await getDoc(docRef);
+  //           if (docSnap.exists()) {
+  //             return { id: docSnap.id, ...docSnap.data() };
+  //           } else {
+  //             // Remove non-existent orderId from localStorage
+  //             try {
+  //               const key = 'guestOrderIds';
+  //               const existing = typeof window !== 'undefined' ? localStorage.getItem(key) : null;
+  //               let ids = [];
+  //               if (existing) {
+  //                 ids = JSON.parse(existing);
+  //                 if (!Array.isArray(ids)) ids = [];
+  //               }
+  //               const filtered = ids.filter((id) => id !== orderId);
+  //               localStorage.setItem(key, JSON.stringify(filtered));
+  //             } catch {}
+  //             return null;
+  //           }
+  //         });
+  //         const ordersData = (await Promise.all(orderPromises)).filter(Boolean);
+  //         setOrders(ordersData);
+  //       } catch (error) {
+  //         // If any other error occurs, clear guestOrderIds and set orders to empty
+  //         try {
+  //           localStorage.setItem('guestOrderIds', JSON.stringify([]));
+  //         } catch {}
+  //         setOrders([]);
+  //         console.error('Error fetching guest orders:', error);
+  //       }
+  //     }
+  //   };
+  //   fetchOrders();
+  // }, [user]);
 
   const handleTabChange = (event, newValue) => {
     const newTab = tabMap[newValue];
@@ -271,6 +257,16 @@ export default function UserPageUi() {
       }
 
       // Update Firestore Profile
+
+      setUserData((prevData) => ({
+        ...prevData,
+        displayName,
+        phoneNumber,
+        address,
+        birthday,
+        gender,
+      }));
+
       const userRef = doc(db, 'users', user.uid);
       await setDoc(
         userRef,

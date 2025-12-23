@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Typography, Grid, Paper, Divider, Chip, Collapse, IconButton } from '@mui/material';
+import Link from 'next/link';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import React from 'react';
 import Image from 'next/image';
@@ -10,6 +11,7 @@ export default function OrdersTab({ orders }) {
   const handleToggle = (orderId) => {
     setOpenItems((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
   };
+
   return (
     <Box sx={{ maxWidth: 600 }}>
       {orders.length > 0 ? (
@@ -102,62 +104,162 @@ export default function OrdersTab({ orders }) {
                   <Collapse in={!!openItems[order.id]} timeout="auto" unmountOnExit>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.7 }}>
                       {order.items?.map((item, idx) => (
-                        <Box key={idx} sx={{ display: 'flex', gap: 0.7, py: 0.2 }}>
+                        <Link
+                          key={idx}
+                          href={`/item/${item.id}`}
+                          style={{ textDecoration: 'none', color: 'inherit' }}
+                          passHref
+                        >
                           <Box
                             sx={{
-                              width: 34,
-                              height: 34,
-                              position: 'relative',
-                              borderRadius: '5px',
-                              overflow: 'hidden',
-                              border: '1px solid #eee',
-                              flexShrink: 0,
+                              display: 'flex',
+                              gap: 0.7,
+                              py: 0.2,
+                              cursor: 'pointer',
+                              '&:hover': { background: '#f5f5f5' },
                             }}
                           >
-                            <Image
-                              src={item.img || '/images/cosmetic/placeholder.jpg'}
-                              alt={item.name}
-                              fill
-                              style={{ objectFit: 'cover' }}
-                            />
-                          </Box>
-                          <Box>
-                            <Typography
-                              variant="body2"
-                              fontWeight={500}
-                              sx={{ fontSize: { xs: '0.72rem', sm: '0.85rem' }, lineHeight: 1.18 }}
+                            <Box
+                              sx={{
+                                width: 37.4, // 34 * 1.1
+                                height: 37.4,
+                                position: 'relative',
+                                borderRadius: '5px',
+                                overflow: 'hidden',
+                                border: '1px solid #eee',
+                                flexShrink: 0,
+                              }}
                             >
-                              {item.name}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
-                              Qty: {item.quantity} x ${item.price}
-                            </Typography>
-                            {item.selectedColor && (
+                              <Image
+                                src={item.img || '/images/cosmetic/placeholder.jpg'}
+                                alt={item.name}
+                                fill
+                                style={{ objectFit: 'cover' }}
+                              />
+                            </Box>
+                            <Box>
+                              <Typography
+                                variant="body2"
+                                fontWeight={500}
+                                sx={{ fontSize: { xs: '0.72rem', sm: '0.85rem' }, lineHeight: 1.18 }}
+                              >
+                                {item.name}
+                              </Typography>
                               <Typography
                                 variant="caption"
-                                display="block"
                                 color="text.secondary"
-                                sx={{ fontSize: '0.66rem' }}
+                                sx={{ fontSize: '0.72rem' }}
                               >
-                                Color: {item.selectedColor.name}
+                                Qty: {item.quantity} x ${item.price}
                               </Typography>
+                              {item.selectedColor && (
+                                <Typography
+                                  variant="caption"
+                                  display="block"
+                                  color="text.secondary"
+                                  sx={{ fontSize: '0.66rem' }}
+                                >
+                                  Color: {item.selectedColor.name}
+                                </Typography>
+                              )}
+                              {item.selectedSize && (
+                                <Typography
+                                  variant="caption"
+                                  display="block"
+                                  color="text.secondary"
+                                  sx={{ fontSize: '0.66rem' }}
+                                >
+                                  Size: {item.selectedSize}
+                                </Typography>
+                              )}
+                            </Box>
+                          </Box>
+                        </Link>
+                      ))}
+                      {/* Subtotal above Total Savings section inside the same collapse */}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          mt: 1,
+                          mb: 0.5,
+                        }}
+                      >
+                        <Typography
+                          variant="subtitle2"
+                          fontWeight={500}
+                          sx={{ fontSize: '0.93rem', color: '#666' }}
+                        >
+                          Subtotal
+                        </Typography>
+                        <Typography
+                          variant="subtitle2"
+                          fontWeight={500}
+                          sx={{ color: '#666', fontSize: '0.96rem', letterSpacing: 0.2 }}
+                        >
+                          {order.financials?.subtotal?.toLocaleString('en-US')} ֏
+                        </Typography>
+                      </Box>
+                      {order.financials &&
+                        (order.financials.totalSaved > 0 ||
+                          order.financials.savedFromOriginalPrice > 0 ||
+                          order.financials.discount > 0 ||
+                          order.financials.shippingSavings > 0) && (
+                          <Box
+                            sx={{
+                              mb: '10px',
+                              mt: '10px',
+                              p: '10px',
+                              bgcolor: '#fff7ed',
+                              borderRadius: '8px',
+                              border: '1px dashed #e65100',
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '5px' }}>
+                              <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 600 }}>
+                                Total Savings
+                              </Typography>
+                              <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 700 }}>
+                                ֏{order.financials.totalSaved?.toLocaleString('en-US')}
+                              </Typography>
+                            </Box>
+                            {order.financials.savedFromOriginalPrice > 0 && (
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                                  • Product markdowns
+                                </Typography>
+                                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                                  ֏{order.financials.savedFromOriginalPrice?.toLocaleString('en-US')}
+                                </Typography>
+                              </Box>
                             )}
-                            {item.selectedSize && (
-                              <Typography
-                                variant="caption"
-                                display="block"
-                                color="text.secondary"
-                                sx={{ fontSize: '0.66rem' }}
-                              >
-                                Size: {item.selectedSize}
-                              </Typography>
+                            {order.financials.discount > 0 && (
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                                  • Extra 20% discount
+                                </Typography>
+                                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                                  ֏{order.financials.discount?.toLocaleString('en-US')}
+                                </Typography>
+                              </Box>
+                            )}
+                            {order.financials.shippingSavings > 0 && (
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                                  • Free shipping
+                                </Typography>
+                                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                                  ֏{order.financials.shippingSavings?.toLocaleString('en-US')}
+                                </Typography>
+                              </Box>
                             )}
                           </Box>
-                        </Box>
-                      ))}
+                        )}
                     </Box>
                   </Collapse>
                   <Divider sx={{ my: 1.1 }} />
+                  {/* Detailed order financials info styled like CartPageUi.js */}
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.93rem' }}>
@@ -171,6 +273,7 @@ export default function OrdersTab({ orders }) {
                         {order.financials?.total?.toLocaleString('en-US')} ֏
                       </Typography>
                     </Box>
+                    {/* Removed duplicate total savings section. Only the one inside the items collapse remains. */}
                   </Box>
                 </Paper>
               </Grid>

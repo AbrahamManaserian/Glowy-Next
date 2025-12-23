@@ -85,7 +85,12 @@ const ShippingMethod = ({ checked, icon, type, duration, price, disabled }) => {
   );
 };
 
-export default function CheckoutForm({ cartState, setCartState, handleInputChange, isFreeShippingAvailable }) {
+export default function CheckoutForm({
+  cartState,
+  setCartState,
+  handleInputChange,
+  isFreeShippingAvailable,
+}) {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: '30px' }}>

@@ -19,6 +19,10 @@ export const GlobalContext = createContext({
   wishListLoading: false,
   user: null,
   loading: true,
+  userData: null,
+  orders: [],
+  setOrders: () => {},
+  setUserData: () => {},
 });
 
 export function GlobalProvider({ children }) {
@@ -29,6 +33,8 @@ export function GlobalProvider({ children }) {
   const [wishListDetails, setWishListDetails] = useState([]);
   const [wishListLoading, setWishListLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -51,6 +57,7 @@ export function GlobalProvider({ children }) {
 
           if (userDoc.exists()) {
             const userData = userDoc.data();
+            setUserData(userData);
             if (userData.cart) {
               setCart(userData.cart);
             } else {
@@ -66,11 +73,27 @@ export function GlobalProvider({ children }) {
             // New user or no data yet
             setCart({ length: 0, items: {} });
             setWishList([]);
+            setUserData(null);
           }
         } catch (error) {
           console.error('Error fetching user data from Firestore:', error);
         }
+
+        // Fetch orders for signed-in user
+        try {
+          const res = await fetch(`/api/orders?userId=${user.uid}`);
+          if (res.ok) {
+            const ordersData = await res.json();
+            setOrders(ordersData);
+          } else {
+            setOrders([]);
+          }
+        } catch (error) {
+          setOrders([]);
+          console.error('Error fetching orders:', error);
+        }
       } else {
+        setUserData(null);
         // User is not signed in: Fetch from LocalStorage
         try {
           const savedCart = localStorage.getItem('cart');
@@ -103,6 +126,32 @@ export function GlobalProvider({ children }) {
           localStorage.setItem('fav', JSON.stringify([]));
           setWishList([]);
           console.log(error);
+        }
+
+        // Fetch orders for guest user
+        try {
+          const key = 'guestOrderIds';
+          const existing = localStorage.getItem(key);
+          let arr = [];
+          if (existing) {
+            arr = JSON.parse(existing);
+            if (!Array.isArray(arr)) arr = [];
+          }
+          if (arr.length > 0) {
+            const sortedIds = arr.sort().join(',');
+            const res = await fetch(`/api/orders?ids=${sortedIds}`);
+            if (res.ok) {
+              const ordersData = await res.json();
+              setOrders(ordersData);
+            } else {
+              setOrders([]);
+            }
+          } else {
+            setOrders([]);
+          }
+        } catch (error) {
+          setOrders([]);
+          console.error('Error fetching guest orders:', error);
         }
       }
     };
@@ -199,6 +248,10 @@ export function GlobalProvider({ children }) {
         wishListLoading,
         user,
         loading,
+        userData,
+        orders,
+        setOrders,
+        setUserData,
       }}
     >
       {children}

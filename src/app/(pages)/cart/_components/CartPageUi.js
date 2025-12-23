@@ -16,7 +16,7 @@ import {
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Link from 'next/link';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import { clearCart } from '../functions/addDeleteIncDecreaseCart';
 import CartItemsList from './CartItemsList';
@@ -25,6 +25,7 @@ import { db } from '@/firebase';
 import { runTransaction, doc, serverTimestamp } from 'firebase/firestore';
 
 export default function CartPageUi() {
+  const { cart, setCart, cartDetails, user, setOrders, userData } = useGlobalContext();
   const [cartState, setCartState] = useState({
     shippingMethod: 'free',
     paymentMethod: 'cash',
@@ -34,13 +35,24 @@ export default function CartPageUi() {
     email: '',
     note: '',
   });
-  const { cart, setCart, cartDetails, user } = useGlobalContext();
-  // console.log(cartDetails);
+
+  useEffect(() => {
+    if (userData) {
+      setCartState((prev) => ({
+        ...prev,
+        fullName: userData.displayName || '',
+        phoneNumber: userData.phoneNumber || '',
+        address: userData.address || '',
+        email: user?.email || '',
+      }));
+    }
+  }, [userData]);
+
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
   const [selectedItems, setSelectedItems] = useState([]);
   const isInitialized = useRef(false);
-  const router = useRouter();
+
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'error' });
   const [orderSuccess, setOrderSuccess] = useState(null);
@@ -187,7 +199,7 @@ export default function CartPageUi() {
             };
           });
 
-        transaction.set(orderRef, {
+        const newOrder = {
           orderNumber: formattedOrderNumber,
           status: 'pending',
           createdAt: serverTimestamp(),
@@ -211,7 +223,10 @@ export default function CartPageUi() {
           },
           paymentMethod: cartState.paymentMethod || 'cash',
           shippingMethod: cartState.shippingMethod || 'standart',
-        });
+        };
+
+        transaction.set(orderRef, newOrder);
+        setOrders((prev) => [{ id: formattedOrderNumber, ...newOrder }, ...prev]);
 
         return formattedOrderNumber;
       });
@@ -402,6 +417,7 @@ export default function CartPageUi() {
             handleInputChange={handleInputChange}
             handleInputBlur={handleInputBlur}
             isFreeShippingAvailable={subtotal >= 5000}
+            userData={userData}
           />
         </Grid>
       )}
