@@ -209,7 +209,7 @@ export default function OrdersTab({ orders }) {
               No Orders Yet
             </Typography>
             <Typography variant="body2" sx={{ color: '#888', mt: 1 }}>
-              You haven't placed any orders yet.
+              You haven&apos;t placed any orders yet.
             </Typography>
           </Box>
         </Box>
