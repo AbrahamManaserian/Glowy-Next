@@ -63,7 +63,8 @@ export default function CartPageUi() {
   };
 
   const handleInputChange = (event) => {
-    setCartState((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+    const { name, value } = event.target;
+    setCartState((prev) => (prev[name] === value ? prev : { ...prev, [name]: value }));
   };
 
   const handleInputBlur = (name, value) => {
@@ -214,6 +215,26 @@ export default function CartPageUi() {
 
         return formattedOrderNumber;
       });
+
+      // Save order ID in localStorage for unsigned users
+      if (!user) {
+        try {
+          const key = 'guestOrderIds';
+          const existing = localStorage.getItem(key);
+          let arr = [];
+          if (existing) {
+            arr = JSON.parse(existing);
+            if (!Array.isArray(arr)) arr = [];
+          }
+          if (!arr.includes(newOrderNumber)) {
+            arr.push(newOrderNumber);
+            localStorage.setItem(key, JSON.stringify(arr));
+          }
+        } catch (err) {
+          // Ignore localStorage errors
+          console.error('Failed to update guestOrderIds in localStorage', err);
+        }
+      }
 
       // Send Notification
       try {

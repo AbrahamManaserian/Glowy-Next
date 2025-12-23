@@ -6,7 +6,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/firebase';
 import WishlistItem from './WishlistItem';
 
-export default function WishlistTab({ user, wishList, setWishList, wishListDetails, wishListLoading }) {
+export default function WishlistTab({ user, setWishList, wishListDetails, wishListLoading }) {
   const handleClearWishlist = async () => {
     setWishList([]);
     if (user) {

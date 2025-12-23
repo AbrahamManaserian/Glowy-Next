@@ -1,234 +1,41 @@
 'use client';
 
-import { Box, Typography, Button, TextField, Alert, Grid, Paper, Divider, Chip } from '@mui/material';
+import { Box, Typography, Grid, Paper, Divider, Chip, Collapse, IconButton } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import React from 'react';
 import Image from 'next/image';
-import { ShoppingBag } from '@mui/icons-material';
-import { useRouter } from 'next/navigation';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/firebase';
 
-export default function OrdersTab({
-  user,
-  orders,
-  trackOrderId,
-  setTrackOrderId,
-  trackPhoneNumber,
-  setTrackPhoneNumber,
-  trackLoading,
-  setTrackLoading,
-  trackError,
-  setTrackError,
-  trackedOrder,
-  setTrackedOrder,
-}) {
-  const router = useRouter();
-
-  const handleTrackOrder = async (e) => {
-    e.preventDefault();
-    if (!trackOrderId || !trackPhoneNumber) {
-      setTrackError('Please enter both Order ID and Phone Number');
-      return;
-    }
-
-    setTrackLoading(true);
-    setTrackError('');
-    setTrackedOrder(null);
-
-    try {
-      const q = query(collection(db, 'orders'), where('orderNumber', '==', trackOrderId));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        setTrackError('Order not found. Please check your Order ID.');
-        setTrackLoading(false);
-        return;
-      }
-
-      const orderDoc = querySnapshot.docs[0];
-      const orderData = orderDoc.data();
-
-      if (orderData.customer.phoneNumber !== trackPhoneNumber) {
-        setTrackError('Phone number does not match this order.');
-        setTrackLoading(false);
-        return;
-      }
-
-      setTrackedOrder({ id: orderDoc.id, ...orderData });
-    } catch (err) {
-      console.error(err);
-      setTrackError('Failed to fetch order details. Please try again.');
-    } finally {
-      setTrackLoading(false);
-    }
+export default function OrdersTab({ orders }) {
+  const [openItems, setOpenItems] = React.useState({});
+  const handleToggle = (orderId) => {
+    setOpenItems((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
   };
-
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', py: 4 }}>
-      {!user && (
+    <Box sx={{ maxWidth: 600 }}>
+      {orders.length > 0 ? (
         <>
-          <Typography variant="h5" fontWeight="bold" gutterBottom align="center">
-            Track Your Order
-          </Typography>
-          <Typography variant="body1" color="text.secondary" align="center" sx={{ mb: 4 }}>
-            Enter your order ID and phone number to see the status and details of your purchase.
-          </Typography>
-          <Box
-            component="form"
-            onSubmit={handleTrackOrder}
-            sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 4 }}
-          >
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="Order ID"
-                  placeholder="e.g. 0000001"
-                  value={trackOrderId}
-                  onChange={(e) => setTrackOrderId(e.target.value)}
-                  variant="outlined"
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="Phone Number"
-                  placeholder="e.g. 5551234567"
-                  value={trackPhoneNumber}
-                  onChange={(e) => setTrackPhoneNumber(e.target.value)}
-                  variant="outlined"
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
-                  type="tel"
-                />
-              </Grid>
-            </Grid>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={trackLoading}
-              sx={{
-                bgcolor: '#E57373',
-                borderRadius: '12px',
-                textTransform: 'none',
-                px: 4,
-                '&:hover': { bgcolor: '#EF5350' },
-              }}
-            >
-              {trackLoading ? 'Tracking...' : 'Track'}
-            </Button>
-          </Box>
-        </>
-      )}
-
-      {trackError && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: '12px' }}>
-          {trackError}
-        </Alert>
-      )}
-
-      {trackedOrder && (
-        <Paper sx={{ p: 3, border: '1px solid #E0E0E0', borderRadius: '16px' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6" fontWeight="bold">
-              Order #{trackedOrder.id}
-            </Typography>
-            <Chip
-              label={trackedOrder.status || 'Processing'}
-              color={
-                trackedOrder.status === 'Delivered'
-                  ? 'success'
-                  : trackedOrder.status === 'Shipped'
-                  ? 'primary'
-                  : trackedOrder.status === 'Cancelled'
-                  ? 'error'
-                  : 'default'
-              }
-              sx={{ fontWeight: 'bold' }}
-            />
-          </Box>
-
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Date:{' '}
-            {trackedOrder.createdAt?.toDate
-              ? trackedOrder.createdAt.toDate().toLocaleDateString()
-              : new Date(trackedOrder.createdAt).toLocaleDateString()}
-          </Typography>
-
-          <Divider sx={{ my: 2 }} />
-
-          <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-            Items
-          </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {trackedOrder.items?.map((item, idx) => (
-              <Box key={idx} sx={{ display: 'flex', gap: 2 }}>
-                <Box
-                  sx={{
-                    width: 60,
-                    height: 60,
-                    position: 'relative',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                    border: '1px solid #eee',
-                    flexShrink: 0,
-                  }}
-                >
-                  <Image
-                    src={item.img || '/images/cosmetic/placeholder.jpg'}
-                    alt={item.name}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
-                </Box>
-                <Box>
-                  <Typography variant="body1" fontWeight="500">
-                    {item.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Qty: {item.quantity} x ${item.price}
-                  </Typography>
-                  {item.selectedColor && (
-                    <Typography variant="caption" display="block" color="text.secondary">
-                      Color: {item.selectedColor.name}
-                    </Typography>
-                  )}
-                  {item.selectedSize && (
-                    <Typography variant="caption" display="block" color="text.secondary">
-                      Size: {item.selectedSize}
-                    </Typography>
-                  )}
-                </Box>
-              </Box>
-            ))}
-          </Box>
-
-          <Divider sx={{ my: 2 }} />
-
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="subtitle1" fontWeight="bold">
-              Total Amount
-            </Typography>
-            <Typography variant="h6" fontWeight="bold" color="primary">
-              ${trackedOrder.totalAmount?.toFixed(2)}
-            </Typography>
-          </Box>
-        </Paper>
-      )}
-
-      {/* For signed-in users, show their orders as trackable cards */}
-      {user && orders.length > 0 && !trackedOrder && (
-        <>
-          <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, fontSize: '1.05rem' }}>
             My Orders
           </Typography>
-          <Grid container spacing={2}>
+          <Grid container spacing={1.2}>
             {orders.map((order) => (
               <Grid size={{ xs: 12 }} key={order.id}>
-                <Paper sx={{ p: 2, border: '1px solid #E0E0E0', borderRadius: '12px' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="subtitle1" fontWeight="bold">
+                <Paper
+                  sx={{
+                    p: 0.7,
+                    borderTop: '1px solid #E0E0E0',
+                    borderBottom: '1px solid #E0E0E0',
+                    borderLeft: '1px solid #E0E0E0',
+                    borderRight: '1px solid #E0E0E0',
+                    boxShadow: 'none',
+                    borderRadius: 2,
+                  }}
+                >
+                  {/* ...existing code for order card... */}
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.1 }}
+                  >
+                    <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.98rem' }}>
                       Order #{order.id.slice(0, 12)}
                     </Typography>
                     <Chip
@@ -240,90 +47,171 @@ export default function OrdersTab({
                           ? 'primary'
                           : order.status === 'Cancelled'
                           ? 'error'
-                          : 'default'
+                          : 'error'
                       }
-                      sx={{ fontWeight: 'bold' }}
+                      sx={{ fontWeight: 600, fontSize: '0.78rem', height: 22 }}
                     />
                   </Box>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    gutterBottom
+                    sx={{ fontSize: '0.82rem', mb: 0.5 }}
+                  >
                     Date:{' '}
-                    {order.createdAt?.toDate
-                      ? order.createdAt.toDate().toLocaleDateString()
-                      : new Date(order.createdAt).toLocaleDateString()}
+                    {(() => {
+                      const dateObj = order.createdAt?.toDate
+                        ? order.createdAt.toDate()
+                        : new Date(order.createdAt);
+                      return dateObj.toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                      });
+                    })()}
                   </Typography>
-                  <Divider sx={{ my: 2 }} />
-                  <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                    Items
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {order.items?.map((item, idx) => (
-                      <Box key={idx} sx={{ display: 'flex', gap: 2 }}>
-                        <Box
-                          sx={{
-                            width: 60,
-                            height: 60,
-                            position: 'relative',
-                            borderRadius: '8px',
-                            overflow: 'hidden',
-                            border: '1px solid #eee',
-                            flexShrink: 0,
-                          }}
-                        >
-                          <Image
-                            src={item.img || '/images/cosmetic/placeholder.jpg'}
-                            alt={item.name}
-                            fill
-                            style={{ objectFit: 'cover' }}
-                          />
-                        </Box>
-                        <Box>
-                          <Typography variant="body1" fontWeight="500">
-                            {item.name}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            Qty: {item.quantity} x ${item.price}
-                          </Typography>
-                          {item.selectedColor && (
-                            <Typography variant="caption" display="block" color="text.secondary">
-                              Color: {item.selectedColor.name}
-                            </Typography>
-                          )}
-                          {item.selectedSize && (
-                            <Typography variant="caption" display="block" color="text.secondary">
-                              Size: {item.selectedSize}
-                            </Typography>
-                          )}
-                        </Box>
-                      </Box>
-                    ))}
+                  <Divider sx={{ my: 1.1 }} />
+                  <Box
+                    sx={{ display: 'flex', alignItems: 'center', mb: 0.5, justifyContent: 'space-between' }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      fontWeight={600}
+                      sx={{ fontSize: '0.93rem' }}
+                      gutterBottom
+                    >
+                      Items
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleToggle(order.id)}
+                      sx={{
+                        ml: 0.5,
+                        transform: openItems[order.id] ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s',
+                        p: 0.5,
+                      }}
+                      aria-label={openItems[order.id] ? 'Collapse items' : 'Expand items'}
+                    >
+                      <ExpandMoreIcon fontSize="small" />
+                    </IconButton>
                   </Box>
-                  <Divider sx={{ my: 2 }} />
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      Total Amount
-                    </Typography>
-                    <Typography variant="h6" fontWeight="bold" color="primary">
-                      ${order.totalAmount?.toFixed(2)}
-                    </Typography>
+                  <Collapse in={!!openItems[order.id]} timeout="auto" unmountOnExit>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.7 }}>
+                      {order.items?.map((item, idx) => (
+                        <Box key={idx} sx={{ display: 'flex', gap: 0.7, py: 0.2 }}>
+                          <Box
+                            sx={{
+                              width: 34,
+                              height: 34,
+                              position: 'relative',
+                              borderRadius: '5px',
+                              overflow: 'hidden',
+                              border: '1px solid #eee',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <Image
+                              src={item.img || '/images/cosmetic/placeholder.jpg'}
+                              alt={item.name}
+                              fill
+                              style={{ objectFit: 'cover' }}
+                            />
+                          </Box>
+                          <Box>
+                            <Typography
+                              variant="body2"
+                              fontWeight={500}
+                              sx={{ fontSize: { xs: '0.72rem', sm: '0.85rem' }, lineHeight: 1.18 }}
+                            >
+                              {item.name}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
+                              Qty: {item.quantity} x ${item.price}
+                            </Typography>
+                            {item.selectedColor && (
+                              <Typography
+                                variant="caption"
+                                display="block"
+                                color="text.secondary"
+                                sx={{ fontSize: '0.66rem' }}
+                              >
+                                Color: {item.selectedColor.name}
+                              </Typography>
+                            )}
+                            {item.selectedSize && (
+                              <Typography
+                                variant="caption"
+                                display="block"
+                                color="text.secondary"
+                                sx={{ fontSize: '0.66rem' }}
+                              >
+                                Size: {item.selectedSize}
+                              </Typography>
+                            )}
+                          </Box>
+                        </Box>
+                      ))}
+                    </Box>
+                  </Collapse>
+                  <Divider sx={{ my: 1.1 }} />
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.93rem' }}>
+                        Total Paid
+                      </Typography>
+                      <Typography
+                        variant="subtitle2"
+                        fontWeight={600}
+                        sx={{ color: '#000', fontSize: '0.98rem' }}
+                      >
+                        {order.financials?.total?.toLocaleString('en-US')} ֏
+                      </Typography>
+                    </Box>
                   </Box>
                 </Paper>
               </Grid>
             ))}
           </Grid>
         </>
-      )}
-
-      {user && orders.length === 0 && !trackedOrder && (
-        <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
-          <ShoppingBag sx={{ fontSize: 60, mb: 2, opacity: 0.5 }} />
-          <Typography>No orders found yet.</Typography>
-          <Button
-            variant="outlined"
-            sx={{ mt: 2, borderRadius: '12px', color: '#E57373', borderColor: '#E57373' }}
-            onClick={() => router.push('/')}
+      ) : (
+        <Box sx={{ textAlign: 'center', color: '#888' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              mb: 2,
+            }}
           >
-            Start Shopping
-          </Button>
+            <Box
+              sx={{
+                width: 80,
+                height: 80,
+                bgcolor: '#F5F5F5',
+                borderRadius: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 1,
+              }}
+            >
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
+                <path d="M7 7V6a5 5 0 0 1 10 0v1" stroke="#E57373" strokeWidth="1.7" strokeLinecap="round" />
+                <rect x="3" y="7" width="18" height="13" rx="3" stroke="#E57373" strokeWidth="1.7" />
+                <path d="M16 11a4 4 0 0 1-8 0" stroke="#E57373" strokeWidth="1.7" strokeLinecap="round" />
+              </svg>
+            </Box>
+            <Typography variant="h6" sx={{ mt: 2, fontWeight: 600, color: '#E57373' }}>
+              No Orders Yet
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#888', mt: 1 }}>
+              You haven't placed any orders yet.
+            </Typography>
+          </Box>
         </Box>
       )}
     </Box>

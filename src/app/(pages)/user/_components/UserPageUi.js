@@ -1,5 +1,4 @@
 'use client';
-import React from 'react';
 
 import { useState, useContext, useEffect } from 'react';
 import {
@@ -9,62 +8,31 @@ import {
   Tabs,
   Tab,
   Button,
-  TextField,
   Avatar,
   Alert,
   Grid,
   Paper,
   Divider,
   CircularProgress,
-  InputAdornment,
   IconButton,
-  MenuItem,
   Badge,
   useMediaQuery,
   useTheme,
-  Chip,
 } from '@mui/material';
-import Image from 'next/image';
-import {
-  Person,
-  ShoppingBag,
-  Favorite,
-  Settings,
-  Logout,
-  Visibility,
-  VisibilityOff,
-  Warning,
-  CheckCircle,
-  Payment,
-  Edit,
-  CameraAlt,
-  DeleteOutline,
-} from '@mui/icons-material';
+import { Person, ShoppingBag, Favorite, Settings, Logout, Payment, CameraAlt } from '@mui/icons-material';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import {
   updateProfile,
-  updatePassword,
   sendEmailVerification,
   signOut,
   EmailAuthProvider,
   reauthenticateWithCredential,
   verifyBeforeUpdateEmail,
 } from 'firebase/auth';
-import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-  orderBy,
-} from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '@/firebase';
 import { GlobalContext } from '@/app/GlobalContext';
-import WishlistItem from './WishlistItem';
 import Resizer from 'react-image-file-resizer';
 import ProfileTab from './ProfileTab';
 import OrdersTab from './OrdersTab';
@@ -82,7 +50,7 @@ function TabPanel({ children, value, index, ...other }) {
       {...other}
       style={{ width: '100%' }}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ p: 0 }}>{children}</Box>}
     </div>
   );
 }
@@ -91,7 +59,6 @@ export default function UserPageUi() {
   const {
     user,
     loading: authLoading,
-    wishList,
     setWishList,
     wishListDetails,
     wishListLoading,
@@ -106,20 +73,6 @@ export default function UserPageUi() {
   const currentTabParam = searchParams.get('tab');
 
   const [activeTab, setActiveTab] = useState(0);
-
-  const handleClearWishlist = async () => {
-    setWishList([]);
-    if (user) {
-      try {
-        const userRef = doc(db, 'users', user.uid);
-        await setDoc(userRef, { wishList: [] }, { merge: true });
-      } catch (error) {
-        console.error('Error clearing wishlist:', error);
-      }
-    } else {
-      localStorage.setItem('fav', JSON.stringify([]));
-    }
-  };
 
   useEffect(() => {
     const tabIndex = tabMap.indexOf(currentTabParam);
@@ -138,61 +91,6 @@ export default function UserPageUi() {
 
   const [orders, setOrders] = useState([]);
 
-  // Track Order State (for unsigned users)
-  const [trackOrderId, setTrackOrderId] = useState('');
-  const [trackPhoneNumber, setTrackPhoneNumber] = useState('');
-  const [trackLoading, setTrackLoading] = useState(false);
-  const [trackError, setTrackError] = useState('');
-  const [trackedOrder, setTrackedOrder] = useState(null);
-
-  const handleTrackOrder = async (e) => {
-    e.preventDefault();
-    if (!trackOrderId || !trackPhoneNumber) {
-      setTrackError('Please enter both Order ID and Phone Number');
-      return;
-    }
-
-    setTrackLoading(true);
-    setTrackError('');
-    setTrackedOrder(null);
-
-    try {
-      const q = query(collection(db, 'orders'), where('orderNumber', '==', trackOrderId));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        setTrackError('Order not found. Please check your Order ID.');
-        setTrackLoading(false);
-        return;
-      }
-
-      const orderDoc = querySnapshot.docs[0];
-      const orderData = orderDoc.data();
-
-      if (orderData.customer.phoneNumber !== trackPhoneNumber) {
-        setTrackError('Phone number does not match this order.');
-        setTrackLoading(false);
-        return;
-      }
-
-      setTrackedOrder({ id: orderDoc.id, ...orderData });
-    } catch (err) {
-      console.error(err);
-      setTrackError('Failed to fetch order details. Please try again.');
-    } finally {
-      setTrackLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    // if (!authLoading && !user) {
-    //   const tab = searchParams.get('tab');
-    //   if (tab !== 'wishlist') {
-    //     router.push('/auth/signin?redirect=/user');
-    //   }
-    // }
-  }, [user, authLoading, router, searchParams]);
-
   // Profile State
   const [displayName, setDisplayName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -204,12 +102,10 @@ export default function UserPageUi() {
   // Password State
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
 
   // Email Change State
   const [newEmail, setNewEmail] = useState('');
   const [currentPasswordForEmail, setCurrentPasswordForEmail] = useState('');
-  const [showEmailPassword, setShowEmailPassword] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -247,8 +143,8 @@ export default function UserPageUi() {
         try {
           const q = query(
             collection(db, 'orders'),
-            where('userId', '==', user.uid)
-            // orderBy('createdAt', 'desc')
+            where('userId', '==', user.uid),
+            orderBy('createdAt', 'desc')
           );
           const querySnapshot = await getDocs(q);
           const ordersData = querySnapshot.docs.map((doc) => ({
@@ -260,12 +156,58 @@ export default function UserPageUi() {
           console.error('Error fetching orders:', error);
         }
       } else {
-        // DEMO DATA: If no user or no orders found (for demonstration purposes)
-        // In a real app, you might only show this if the user has no orders
-        // setOrders([
-        //   { id: '12345678-demo', createdAt: new Date(), status: 'Delivered', total: 120.50 },
-        //   { id: '87654321-demo', createdAt: new Date(Date.now() - 86400000 * 5), status: 'Processing', total: 45.00 }
-        // ]);
+        // Unsigned user: fetch orders by IDs from localStorage
+        try {
+          const key = 'guestOrderIds';
+          const existing = typeof window !== 'undefined' ? localStorage.getItem(key) : null;
+          let arr = [];
+          if (existing) {
+            try {
+              arr = JSON.parse(existing);
+              if (!Array.isArray(arr)) arr = [];
+            } catch (parseError) {
+              // If parsing fails, clear the invalid localStorage value
+              localStorage.setItem(key, JSON.stringify([]));
+              setOrders([]);
+              return;
+            }
+          }
+          if (arr.length === 0) {
+            setOrders([]);
+            return;
+          }
+          // Fetch each order by ID
+          const orderPromises = arr.map(async (orderId) => {
+            const docRef = doc(db, 'orders', orderId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              return { id: docSnap.id, ...docSnap.data() };
+            } else {
+              // Remove non-existent orderId from localStorage
+              try {
+                const key = 'guestOrderIds';
+                const existing = typeof window !== 'undefined' ? localStorage.getItem(key) : null;
+                let ids = [];
+                if (existing) {
+                  ids = JSON.parse(existing);
+                  if (!Array.isArray(ids)) ids = [];
+                }
+                const filtered = ids.filter((id) => id !== orderId);
+                localStorage.setItem(key, JSON.stringify(filtered));
+              } catch {}
+              return null;
+            }
+          });
+          const ordersData = (await Promise.all(orderPromises)).filter(Boolean);
+          setOrders(ordersData);
+        } catch (error) {
+          // If any other error occurs, clear guestOrderIds and set orders to empty
+          try {
+            localStorage.setItem('guestOrderIds', JSON.stringify([]));
+          } catch {}
+          setOrders([]);
+          console.error('Error fetching guest orders:', error);
+        }
       }
     };
     fetchOrders();
@@ -362,35 +304,6 @@ export default function UserPageUi() {
     setLoading(false);
   };
 
-  const handleUpdatePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      setMessage({ type: 'error', text: 'Passwords do not match.' });
-      return;
-    }
-    if (newPassword.length < 6) {
-      setMessage({ type: 'error', text: 'Password should be at least 6 characters.' });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await updatePassword(auth.currentUser, newPassword);
-      setMessage({ type: 'success', text: 'Password updated successfully!' });
-      setNewPassword('');
-      setConfirmPassword('');
-    } catch (error) {
-      if (error.code === 'auth/requires-recent-login') {
-        setMessage({
-          type: 'error',
-          text: 'For security, please sign out and sign in again to change your password.',
-        });
-      } else {
-        setMessage({ type: 'error', text: error.message });
-      }
-    }
-    setLoading(false);
-  };
-
   const handleUpdateEmail = async () => {
     if (!newEmail.trim()) {
       setEmailMessage({ type: 'error', text: 'Please enter a new email address.' });
@@ -452,7 +365,7 @@ export default function UserPageUi() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 8 }}>
-      <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#5D4037' }}>
+      <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#5D4037' }}>
         {user ? 'My Account' : 'Guest Services'}
       </Typography>
 
@@ -483,7 +396,7 @@ export default function UserPageUi() {
         <Grid size={{ xs: 12, md: 3 }}>
           <Paper elevation={0} sx={{ border: '1px solid #E0E0E0', borderRadius: '16px', overflow: 'hidden' }}>
             {user && (
-              <Box sx={{ p: 3, textAlign: 'center', bgcolor: '#FAFAFA', borderBottom: '1px solid #E0E0E0' }}>
+              <Box sx={{ p: 2, textAlign: 'center', bgcolor: '#FAFAFA', borderBottom: '1px solid #E0E0E0' }}>
                 <Badge
                   overlap="circular"
                   anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
@@ -555,8 +468,8 @@ export default function UserPageUi() {
                   justifyContent: isMobile ? 'center' : 'flex-start', // Ensures text starts from left
                   textTransform: 'none',
                   fontWeight: 500,
-                  minHeight: 48,
-                  pl: 3,
+                  minHeight: 40,
+                  pl: 2,
                 },
                 '& .Mui-selected': {
                   color: '#E57373',
@@ -579,7 +492,7 @@ export default function UserPageUi() {
             </Tabs>
             <Divider />
             {user ? (
-              <Box sx={{ p: 2 }}>
+              <Box sx={{ p: 1.5 }}>
                 <Button
                   fullWidth
                   color="error"
@@ -591,7 +504,7 @@ export default function UserPageUi() {
                 </Button>
               </Box>
             ) : (
-              <Box sx={{ p: 2 }}>
+              <Box sx={{ p: 1.5 }}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -612,7 +525,7 @@ export default function UserPageUi() {
 
         {/* Content Area */}
         <Grid size={{ xs: 12, md: 9 }}>
-          <Paper elevation={0} sx={{ border: '1px solid #E0E0E0', borderRadius: '16px', minHeight: '400px' }}>
+          <Paper elevation={0} sx={{ minHeight: '400px' }}>
             {/* Profile Tab */}
             <TabPanel value={activeTab} index={0}>
               <ProfileTab
@@ -627,43 +540,23 @@ export default function UserPageUi() {
                 setBirthday={setBirthday}
                 gender={gender}
                 setGender={setGender}
-                photoURL={photoURL}
-                setPhotoURL={setPhotoURL}
                 message={message}
                 setMessage={setMessage}
                 loading={loading}
                 setLoading={setLoading}
-                imageLoading={imageLoading}
-                setImageLoading={setImageLoading}
                 handleUpdateProfile={handleUpdateProfile}
-                handleSendVerification={handleSendVerification}
-                verificationMessage={verificationMessage}
               />
             </TabPanel>
 
             {/* Orders Tab */}
             <TabPanel value={activeTab} index={1}>
-              <OrdersTab
-                user={user}
-                orders={orders}
-                trackOrderId={trackOrderId}
-                setTrackOrderId={setTrackOrderId}
-                trackPhoneNumber={trackPhoneNumber}
-                setTrackPhoneNumber={setTrackPhoneNumber}
-                trackLoading={trackLoading}
-                setTrackLoading={setTrackLoading}
-                trackError={trackError}
-                setTrackError={setTrackError}
-                trackedOrder={trackedOrder}
-                setTrackedOrder={setTrackedOrder}
-              />
+              <OrdersTab orders={orders} />
             </TabPanel>
 
             {/* Wishlist Tab */}
             <TabPanel value={activeTab} index={2}>
               <WishlistTab
                 user={user}
-                wishList={wishList}
                 setWishList={setWishList}
                 wishListDetails={wishListDetails}
                 wishListLoading={wishListLoading}

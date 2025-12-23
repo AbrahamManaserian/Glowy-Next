@@ -85,13 +85,7 @@ const ShippingMethod = ({ checked, icon, type, duration, price, disabled }) => {
   );
 };
 
-export default function CheckoutForm({
-  cartState,
-  setCartState,
-  handleInputChange,
-  handleInputBlur,
-  isFreeShippingAvailable,
-}) {
+export default function CheckoutForm({ cartState, setCartState, handleInputChange, isFreeShippingAvailable }) {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: '30px' }}>
@@ -137,10 +131,10 @@ export default function CheckoutForm({
                 )}
               </Typography>
               <InputBase
-                defaultValue={cartState[key]}
+                value={cartState[key]}
+                onChange={(e) => handleInputChange(e)}
                 name={key}
                 required={key === 'fullName' || key === 'phoneNumber' || key === 'address'}
-                onBlur={(e) => handleInputBlur(e.target.name, e.target.value)}
                 sx={{
                   minHeight: '50px',
                   fontSize: '14px',

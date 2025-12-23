@@ -8,20 +8,10 @@ import {
   Avatar,
   Alert,
   Grid,
-  Paper,
-  Divider,
-  CircularProgress,
   InputAdornment,
-  IconButton,
   MenuItem,
 } from '@mui/material';
-import { Person, Visibility, VisibilityOff, Warning, CheckCircle, CameraAlt } from '@mui/icons-material';
-import { useRouter } from 'next/navigation';
-import { updateProfile, sendEmailVerification, verifyBeforeUpdateEmail } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { auth, db, storage } from '@/firebase';
-import Resizer from 'react-image-file-resizer';
+import { Person, Warning, CheckCircle } from '@mui/icons-material';
 
 export default function ProfileTab({
   user,
@@ -35,61 +25,11 @@ export default function ProfileTab({
   setBirthday,
   gender,
   setGender,
-  photoURL,
-  setPhotoURL,
   message,
   setMessage,
   loading,
-  setLoading,
-  imageLoading,
-  setImageLoading,
   handleUpdateProfile,
-  handleSendVerification,
-  verificationMessage,
 }) {
-  const router = useRouter();
-
-  const resizeFile = (file) =>
-    new Promise((resolve) => {
-      Resizer.imageFileResizer(
-        file,
-        500, // maxWidth
-        500, // maxHeight
-        'JPEG', // compressFormat
-        80, // quality
-        0, // rotation
-        (uri) => {
-          resolve(uri);
-        },
-        'blob' // outputType
-      );
-    });
-
-  const handleAvatarChange = async (e) => {
-    if (e.target.files[0]) {
-      const file = e.target.files[0];
-      setImageLoading(true);
-      try {
-        const resizedImage = await resizeFile(file);
-        const storageRef = ref(storage, `avatars/${user.uid}`);
-        await uploadBytes(storageRef, resizedImage);
-        const downloadURL = await getDownloadURL(storageRef);
-
-        await updateProfile(auth.currentUser, { photoURL: downloadURL });
-        setPhotoURL(downloadURL);
-
-        // Also update in Firestore
-        const userRef = doc(db, 'users', user.uid);
-        await setDoc(userRef, { photoURL: downloadURL }, { merge: true });
-
-        setMessage({ type: 'success', text: 'Profile picture updated!' });
-      } catch (error) {
-        setMessage({ type: 'error', text: 'Failed to upload image: ' + error.message });
-      }
-      setImageLoading(false);
-    }
-  };
-
   if (!user) {
     return (
       <Box
@@ -98,17 +38,17 @@ export default function ProfileTab({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          py: 8,
+
           textAlign: 'center',
         }}
       >
-        <Avatar sx={{ width: 80, height: 80, bgcolor: '#E57373', mb: 2 }}>
-          <Person fontSize="large" />
+        <Avatar sx={{ width: 48, height: 48, bgcolor: '#E57373', mb: 1.5 }}>
+          <Person fontSize="small" />
         </Avatar>
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
+        <Typography variant="subtitle1" fontWeight="bold" gutterBottom sx={{ fontSize: '1.1rem' }}>
           Sign in to your profile
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 400 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 320, fontSize: '0.95rem' }}>
           Sign in to access your personal information, manage your orders, and view your wishlist.
         </Typography>
         <Button
@@ -116,11 +56,12 @@ export default function ProfileTab({
           href="/auth/signin"
           sx={{
             bgcolor: '#E57373',
-            borderRadius: '12px',
+            borderRadius: '10px',
             textTransform: 'none',
-            px: 6,
-            py: 1.5,
-            fontSize: '1.1rem',
+            px: 3,
+            py: 0.7,
+            fontSize: '0.95rem',
+            minWidth: 120,
             '&:hover': { bgcolor: '#EF5350' },
           }}
         >
@@ -138,10 +79,7 @@ export default function ProfileTab({
 
       {user && !user.providerData.some((p) => p.providerId === 'password') && (
         <Alert severity="info" sx={{ mb: 3, borderRadius: '8px' }}>
-          You signed in with Google. To enable email/password sign-in, please set a password in the{' '}
-          <strong style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setActiveTab(4)}>
-            Settings
-          </strong>{' '}
+          You signed in with Google. To enable email/password sign-in, please set a password in the Settings
           tab.
         </Alert>
       )}
@@ -154,6 +92,7 @@ export default function ProfileTab({
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             variant="outlined"
+            size="small"
             sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
           />
         </Grid>
@@ -164,6 +103,7 @@ export default function ProfileTab({
             value={user?.email || ''}
             disabled
             variant="outlined"
+            size="small"
             sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px', bgcolor: '#F5F5F5' } }}
             InputProps={{
               endAdornment: user?.emailVerified ? (
@@ -185,6 +125,8 @@ export default function ProfileTab({
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             variant="outlined"
+            size="small"
+            type="number"
             sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
           />
         </Grid>
@@ -197,6 +139,7 @@ export default function ProfileTab({
             onChange={(e) => setBirthday(e.target.value)}
             variant="outlined"
             InputLabelProps={{ shrink: true }}
+            size="small"
             sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
           />
         </Grid>
@@ -208,6 +151,7 @@ export default function ProfileTab({
             value={gender}
             onChange={(e) => setGender(e.target.value)}
             variant="outlined"
+            size="small"
             sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
           >
             <MenuItem value="male">Male</MenuItem>
@@ -224,6 +168,7 @@ export default function ProfileTab({
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             variant="outlined"
+            size="small"
             sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
           />
         </Grid>
