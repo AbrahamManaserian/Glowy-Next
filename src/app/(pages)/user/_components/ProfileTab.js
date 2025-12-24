@@ -10,8 +10,11 @@ import {
   Grid,
   InputAdornment,
   MenuItem,
+  Badge,
+  IconButton,
+  CircularProgress,
 } from '@mui/material';
-import { Person, Warning, CheckCircle } from '@mui/icons-material';
+import { Person, Warning, CheckCircle, CameraAlt } from '@mui/icons-material';
 
 export default function ProfileTab({
   user,
@@ -29,6 +32,9 @@ export default function ProfileTab({
   setMessage,
   loading,
   handleUpdateProfile,
+  photoURL,
+  imageLoading,
+  handleAvatarChange,
 }) {
   if (!user) {
     return (
@@ -83,6 +89,59 @@ export default function ProfileTab({
           tab.
         </Alert>
       )}
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+        <Badge
+          overlap="circular"
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          badgeContent={
+            <IconButton
+              component="label"
+              disabled={imageLoading}
+              sx={{
+                bgcolor: '#E57373',
+                color: 'white',
+                width: 32,
+                height: 32,
+                '&:hover': { bgcolor: '#EF5350' },
+              }}
+            >
+              <CameraAlt sx={{ fontSize: 18 }} />
+              <input hidden accept="image/*" type="file" onChange={handleAvatarChange} />
+            </IconButton>
+          }
+        >
+          <Box sx={{ position: 'relative' }}>
+            <Avatar
+              src={photoURL}
+              alt={displayName}
+              sx={{
+                width: 80,
+                height: 80,
+                bgcolor: '#E57373',
+                fontSize: '2rem',
+                opacity: imageLoading ? 0.5 : 1,
+              }}
+            >
+              {displayName ? displayName[0].toUpperCase() : <Person />}
+            </Avatar>
+            {imageLoading && (
+              <CircularProgress
+                size={40}
+                sx={{
+                  color: '#E57373',
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  marginTop: '-20px',
+                  marginLeft: '-20px',
+                  zIndex: 1,
+                }}
+              />
+            )}
+          </Box>
+        </Badge>
+      </Box>
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, sm: 6 }}>

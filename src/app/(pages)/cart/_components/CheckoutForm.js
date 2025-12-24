@@ -1,4 +1,4 @@
-import { Box, InputBase, Typography } from '@mui/material';
+import { Box, InputBase, Typography, Checkbox, FormControlLabel } from '@mui/material';
 import DoneIcon from '@mui/icons-material/Done';
 import DirectionsBikeIcon from '@mui/icons-material/DirectionsBike';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -119,9 +119,9 @@ export default function CheckoutForm({
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                width: { xs: '100%', sm: 'calc(50% - 8px)' },
-                mr: { xs: 0, sm: index % 2 !== 0 ? 0 : '8px' },
-                ml: { xs: 0, sm: index % 2 == 0 ? 0 : '8px' },
+                width: key === 'note' ? '100%' : { xs: '100%', sm: 'calc(50% - 8px)' },
+                mr: key === 'note' ? 0 : { xs: 0, sm: index % 2 !== 0 ? 0 : '8px' },
+                ml: key === 'note' ? 0 : { xs: 0, sm: index % 2 == 0 ? 0 : '8px' },
                 mb: '20px',
                 boxSizing: 'border-box',
               }}
@@ -168,6 +168,18 @@ export default function CheckoutForm({
             </Box>
           );
         })}
+      </Box>
+      <Box sx={{ mt: '20px' }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={cartState.saveUserInfo}
+              onChange={(e) => setCartState({ ...cartState, saveUserInfo: e.target.checked })}
+              color="primary"
+            />
+          }
+          label="Save this information for future orders"
+        />
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mt: '35px', mb: '15px' }}>
         <Typography

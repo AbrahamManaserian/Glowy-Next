@@ -61,19 +61,14 @@ export default function OrdersTab({ orders }) {
                     sx={{ fontSize: '0.82rem', mb: 0.5 }}
                   >
                     Date:{' '}
-                    {(() => {
-                      const dateObj = order.createdAt?.toDate
-                        ? order.createdAt.toDate()
-                        : new Date(order.createdAt);
-                      return dateObj.toLocaleString('en-US', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false,
-                      });
-                    })()}
+                    {new Date(order.createdAt).toLocaleString('en-US', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    })}
                   </Typography>
                   <Divider sx={{ my: 1.1 }} />
                   <Box
@@ -121,8 +116,8 @@ export default function OrdersTab({ orders }) {
                           >
                             <Box
                               sx={{
-                                width: 37.4, // 34 * 1.1
-                                height: 37.4,
+                                width: 50,
+                                height: 50,
                                 position: 'relative',
                                 borderRadius: '5px',
                                 overflow: 'hidden',
@@ -183,7 +178,6 @@ export default function OrdersTab({ orders }) {
                           justifyContent: 'space-between',
                           alignItems: 'center',
                           mt: 1,
-                          mb: 0.5,
                         }}
                       >
                         <Typography
@@ -201,6 +195,30 @@ export default function OrdersTab({ orders }) {
                           {order.financials?.subtotal?.toLocaleString('en-US')} ֏
                         </Typography>
                       </Box>
+                      {order.financials?.shippingCost > 0 && (
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Typography
+                            variant="subtitle2"
+                            fontWeight={400}
+                            sx={{ fontSize: '0.88rem', color: '#666' }}
+                          >
+                            Shipping
+                          </Typography>
+                          <Typography
+                            variant="subtitle2"
+                            fontWeight={400}
+                            sx={{ color: '#666', fontSize: '0.91rem', letterSpacing: 0.2 }}
+                          >
+                            {order.financials.shippingCost?.toLocaleString('en-US')} ֏
+                          </Typography>
+                        </Box>
+                      )}
                       {order.financials &&
                         (order.financials.totalSaved > 0 ||
                           order.financials.savedFromOriginalPrice > 0 ||

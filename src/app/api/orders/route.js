@@ -20,9 +20,18 @@ export async function GET(request) {
 
     if (userId) {
       // Signed-in user: fetch by userId
-      const q = query(collection(db, 'orders'), where('userId', '==', userId), orderBy('createdAt', 'desc'));
+      const q = query(
+        collection(db, 'orders'),
+        where('userId', '==', userId),
+        where('status', '!=', 'delivered'),
+        orderBy('createdAt', 'desc')
+      );
       const querySnapshot = await getDocs(q);
-      const ordersData = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const ordersData = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+
+        return { id: doc.id, ...data, createdAt: data.createdAt.toDate().toISOString() };
+      });
 
       return NextResponse.json(ordersData, {
         headers: {
@@ -34,15 +43,25 @@ export async function GET(request) {
     } else if (ids.length > 0) {
       // Guest user: fetch by order IDs
       const orderPromises = ids.map(async (orderId) => {
-        const docRef = doc(db, 'orders', orderId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          return { id: docSnap.id, ...docSnap.data() };
+        const q = query(
+          collection(db, 'orders'),
+          where('orderNumber', '==', orderId),
+          where('status', '!=', 'delivered'),
+          orderBy('createdAt', 'desc')
+        );
+        const querySnapshot = await getDocs(q);
+        if (querySnapshot.docs.length > 0) {
+          const doc = querySnapshot.docs[0];
+          return { id: doc.id, ...doc.data() };
         } else {
           return null;
         }
       });
-      const ordersData = (await Promise.all(orderPromises)).filter(Boolean);
+      const ordersData = (await Promise.all(orderPromises)).filter(Boolean).map((order) => ({
+        ...order,
+
+        createdAt: order.createdAt.toDate().toISOString(),
+      }));
 
       return NextResponse.json(ordersData, {
         headers: {

@@ -8,18 +8,15 @@ import {
   Tabs,
   Tab,
   Button,
-  Avatar,
   Alert,
   Grid,
   Paper,
   Divider,
   CircularProgress,
-  IconButton,
-  Badge,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { Person, ShoppingBag, Favorite, Settings, Logout, Payment, CameraAlt } from '@mui/icons-material';
+import { Person, ShoppingBag, Favorite, Settings, Logout, Payment } from '@mui/icons-material';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import {
   updateProfile,
@@ -29,7 +26,7 @@ import {
   reauthenticateWithCredential,
   verifyBeforeUpdateEmail,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '@/firebase';
 import { GlobalContext } from '@/app/GlobalContext';
@@ -59,7 +56,6 @@ export default function UserPageUi() {
   const {
     orders,
     setUserData,
-
     userData,
     user,
     loading: authLoading,
@@ -114,7 +110,7 @@ export default function UserPageUi() {
 
   useEffect(() => {
     if (userData) {
-      setDisplayName(userData.displayName || '');
+      setDisplayName(userData.fullName || '');
       setPhotoURL(userData.photoURL || '');
       setPhoneNumber(userData.phoneNumber || '');
       setAddress(userData.address || '');
@@ -122,82 +118,7 @@ export default function UserPageUi() {
       setGender(userData.gender || '');
     }
   }, [userData]);
-
-  // useEffect(() => {
-  //   const fetchOrders = async () => {
-  //     if (user) {
-  //       try {
-  //         const q = query(
-  //           collection(db, 'orders'),
-  //           where('userId', '==', user.uid),
-  //           orderBy('createdAt', 'desc')
-  //         );
-  //         const querySnapshot = await getDocs(q);
-  //         const ordersData = querySnapshot.docs.map((doc) => ({
-  //           id: doc.id,
-  //           ...doc.data(),
-  //         }));
-  //         setOrders(ordersData);
-  //       } catch (error) {
-  //         console.error('Error fetching orders:', error);
-  //       }
-  //     } else {
-  //       // Unsigned user: fetch orders by IDs from localStorage
-  //       try {
-  //         const key = 'guestOrderIds';
-  //         const existing = typeof window !== 'undefined' ? localStorage.getItem(key) : null;
-  //         let arr = [];
-  //         if (existing) {
-  //           try {
-  //             arr = JSON.parse(existing);
-  //             if (!Array.isArray(arr)) arr = [];
-  //           } catch (parseError) {
-  //             // If parsing fails, clear the invalid localStorage value
-  //             localStorage.setItem(key, JSON.stringify([]));
-  //             setOrders([]);
-  //             return;
-  //           }
-  //         }
-  //         if (arr.length === 0) {
-  //           setOrders([]);
-  //           return;
-  //         }
-  //         // Fetch each order by ID
-  //         const orderPromises = arr.map(async (orderId) => {
-  //           const docRef = doc(db, 'orders', orderId);
-  //           const docSnap = await getDoc(docRef);
-  //           if (docSnap.exists()) {
-  //             return { id: docSnap.id, ...docSnap.data() };
-  //           } else {
-  //             // Remove non-existent orderId from localStorage
-  //             try {
-  //               const key = 'guestOrderIds';
-  //               const existing = typeof window !== 'undefined' ? localStorage.getItem(key) : null;
-  //               let ids = [];
-  //               if (existing) {
-  //                 ids = JSON.parse(existing);
-  //                 if (!Array.isArray(ids)) ids = [];
-  //               }
-  //               const filtered = ids.filter((id) => id !== orderId);
-  //               localStorage.setItem(key, JSON.stringify(filtered));
-  //             } catch {}
-  //             return null;
-  //           }
-  //         });
-  //         const ordersData = (await Promise.all(orderPromises)).filter(Boolean);
-  //         setOrders(ordersData);
-  //       } catch (error) {
-  //         // If any other error occurs, clear guestOrderIds and set orders to empty
-  //         try {
-  //           localStorage.setItem('guestOrderIds', JSON.stringify([]));
-  //         } catch {}
-  //         setOrders([]);
-  //         console.error('Error fetching guest orders:', error);
-  //       }
-  //     }
-  //   };
-  //   fetchOrders();
-  // }, [user]);
+  // console.log(userData);
 
   const handleTabChange = (event, newValue) => {
     const newTab = tabMap[newValue];
@@ -260,7 +181,7 @@ export default function UserPageUi() {
 
       setUserData((prevData) => ({
         ...prevData,
-        displayName,
+        fullName: displayName,
         phoneNumber,
         address,
         birthday,
@@ -271,7 +192,7 @@ export default function UserPageUi() {
       await setDoc(
         userRef,
         {
-          displayName,
+          fullName: displayName,
           phoneNumber,
           address,
           birthday,
@@ -392,62 +313,14 @@ export default function UserPageUi() {
         <Grid size={{ xs: 12, md: 3 }}>
           <Paper elevation={0} sx={{ border: '1px solid #E0E0E0', borderRadius: '16px', overflow: 'hidden' }}>
             {user && (
-              <Box sx={{ p: 2, textAlign: 'center', bgcolor: '#FAFAFA', borderBottom: '1px solid #E0E0E0' }}>
-                <Badge
-                  overlap="circular"
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                  badgeContent={
-                    <IconButton
-                      component="label"
-                      disabled={imageLoading}
-                      sx={{
-                        bgcolor: '#E57373',
-                        color: 'white',
-                        width: 32,
-                        height: 32,
-                        '&:hover': { bgcolor: '#EF5350' },
-                      }}
-                    >
-                      <CameraAlt sx={{ fontSize: 18 }} />
-                      <input hidden accept="image/*" type="file" onChange={handleAvatarChange} />
-                    </IconButton>
-                  }
-                >
-                  <Box sx={{ position: 'relative' }}>
-                    <Avatar
-                      src={photoURL}
-                      alt={displayName}
-                      sx={{
-                        width: 80,
-                        height: 80,
-                        bgcolor: '#E57373',
-                        fontSize: '2rem',
-                        opacity: imageLoading ? 0.5 : 1,
-                      }}
-                    >
-                      {displayName ? displayName[0].toUpperCase() : <Person />}
-                    </Avatar>
-                    {imageLoading && (
-                      <CircularProgress
-                        size={40}
-                        sx={{
-                          color: '#E57373',
-                          position: 'absolute',
-                          top: '50%',
-                          left: '50%',
-                          marginTop: '-20px',
-                          marginLeft: '-20px',
-                          zIndex: 1,
-                        }}
-                      />
-                    )}
-                  </Box>
-                </Badge>
-                <Typography variant="subtitle1" fontWeight="bold" noWrap sx={{ mt: 2 }}>
+              <Box
+                sx={{ p: '10px', textAlign: 'center', bgcolor: '#FAFAFA', borderBottom: '1px solid #E0E0E0' }}
+              >
+                <Typography variant="subtitle1" fontWeight="bold" noWrap>
                   {displayName || 'User'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" display="block" noWrap>
-                  {user.email}
+                  {userData?.email}
                 </Typography>
               </Box>
             )}
@@ -541,6 +414,9 @@ export default function UserPageUi() {
                 loading={loading}
                 setLoading={setLoading}
                 handleUpdateProfile={handleUpdateProfile}
+                photoURL={photoURL}
+                imageLoading={imageLoading}
+                handleAvatarChange={handleAvatarChange}
               />
             </TabPanel>
 

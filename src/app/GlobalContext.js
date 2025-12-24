@@ -73,7 +73,7 @@ export function GlobalProvider({ children }) {
             // New user or no data yet
             setCart({ length: 0, items: {} });
             setWishList([]);
-            setUserData(null);
+            // setUserData(null);
           }
         } catch (error) {
           console.error('Error fetching user data from Firestore:', error);
@@ -158,7 +158,6 @@ export function GlobalProvider({ children }) {
 
     initializeData();
   }, [user, loading]);
-
   useEffect(() => {
     const fetchCartDetails = async () => {
       if (cart && cart.items) {

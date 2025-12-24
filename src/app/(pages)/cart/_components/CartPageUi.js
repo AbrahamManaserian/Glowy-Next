@@ -22,10 +22,10 @@ import { clearCart } from '../functions/addDeleteIncDecreaseCart';
 import CartItemsList from './CartItemsList';
 import CheckoutForm from './CheckoutForm';
 import { db } from '@/firebase';
-import { runTransaction, doc, serverTimestamp } from 'firebase/firestore';
+import { runTransaction, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 export default function CartPageUi() {
-  const { cart, setCart, cartDetails, user, setOrders, userData } = useGlobalContext();
+  const { cart, setCart, cartDetails, user, setOrders, userData, setUserData } = useGlobalContext();
   const [cartState, setCartState] = useState({
     shippingMethod: 'free',
     paymentMethod: 'cash',
@@ -34,13 +34,14 @@ export default function CartPageUi() {
     address: '',
     email: '',
     note: '',
+    saveUserInfo: false,
   });
 
   useEffect(() => {
     if (userData) {
       setCartState((prev) => ({
         ...prev,
-        fullName: userData.displayName || '',
+        fullName: userData.fullName || '',
         phoneNumber: userData.phoneNumber || '',
         address: userData.address || '',
         email: user?.email || '',
@@ -202,7 +203,7 @@ export default function CartPageUi() {
         const newOrder = {
           orderNumber: formattedOrderNumber,
           status: 'pending',
-          createdAt: serverTimestamp(),
+          createdAt: new Date(),
           userId: user?.uid || null,
           customer: {
             fullName: cartState.fullName || '',
@@ -225,11 +226,32 @@ export default function CartPageUi() {
           shippingMethod: cartState.shippingMethod || 'standart',
         };
 
-        transaction.set(orderRef, newOrder);
+        const firestoreOrder = { ...newOrder, createdAt: serverTimestamp() };
+
+        transaction.set(orderRef, firestoreOrder);
         setOrders((prev) => [{ id: formattedOrderNumber, ...newOrder }, ...prev]);
 
         return formattedOrderNumber;
       });
+
+      // Update user data based on checkbox and existing profile fields
+      if (user) {
+        const shouldUpdate = cartState.saveUserInfo || (!userData?.address && !userData?.phoneNumber);
+        if (shouldUpdate) {
+          const userRef = doc(db, 'users', user.uid);
+          const updates = {};
+          if (cartState.address) updates.address = cartState.address;
+          if (cartState.phoneNumber) updates.phoneNumber = cartState.phoneNumber;
+          if (Object.keys(updates).length > 0) {
+            try {
+              await updateDoc(userRef, updates);
+              setUserData((prev) => ({ ...prev, ...updates }));
+            } catch (error) {
+              console.error('Failed to update user data:', error);
+            }
+          }
+        }
+      }
 
       // Save order ID in localStorage for unsigned users
       if (!user) {

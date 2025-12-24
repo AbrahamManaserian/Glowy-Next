@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import {
   Box,
   Button,
@@ -28,8 +28,10 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '@/firebase';
+import { GlobalContext } from '@/app/GlobalContext';
 
 export default function SignUp() {
+  const { setUserData, user } = useContext(GlobalContext);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -49,6 +51,7 @@ export default function SignUp() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password.trim());
       const user = userCredential.user;
+      setSuccess('Account created! Please check your email to verify your account. Redirecting...');
 
       await updateProfile(user, {
         displayName: name.trim(),
@@ -56,7 +59,7 @@ export default function SignUp() {
 
       // Create user document in Firestore
       await setDoc(doc(db, 'users', user.uid), {
-        name: name.trim(),
+        fullName: name.trim(),
         email: email.trim(),
         role: 'customer',
         provider: 'email',
@@ -64,8 +67,14 @@ export default function SignUp() {
       });
 
       await sendEmailVerification(user);
-      setSuccess('Account created! Please check your email to verify your account. Redirecting...');
-
+      setUserData({
+        fullName: name.trim(),
+        email: email.trim(),
+        role: 'customer',
+        provider: 'email',
+        // createdAt: serverTimestamp(),
+      });
+      // router.push(redirect);
       setTimeout(() => {
         router.push(redirect);
       }, 3000);
@@ -84,11 +93,13 @@ export default function SignUp() {
 
   const handleGoogleSignUp = async () => {
     setError('');
+    setSuccess('');
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+      setSuccess('Account created! Redirecting...');
 
       // Check if user exists
       const docRef = doc(db, 'users', user.uid);
@@ -96,15 +107,27 @@ export default function SignUp() {
 
       if (!docSnap.exists()) {
         await setDoc(docRef, {
-          name: user.displayName,
+          fullName: user.displayName,
           email: user.email,
+          photoURL: user.photoURL,
           role: 'customer',
           provider: 'google',
           createdAt: serverTimestamp(),
         });
       }
 
-      router.push(redirect);
+      setUserData({
+        fullName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        role: 'customer',
+        provider: 'google',
+        // createdAt: serverTimestamp(),
+      });
+
+      setTimeout(() => {
+        router.push(redirect);
+      }, 3000);
     } catch (err) {
       setError('Failed to sign up with Google.');
       console.error(err);
@@ -159,7 +182,7 @@ export default function SignUp() {
             </Alert>
           )}
 
-          {success ? (
+          {success || user ? (
             <Box
               sx={{
                 display: 'flex',
@@ -179,9 +202,27 @@ export default function SignUp() {
                 Success!
               </Typography>
               <Typography variant="body1" sx={{ color: '#5D4037', textAlign: 'center', mb: 3 }}>
-                {success}
+                {success || 'You are already signed in.'}
               </Typography>
-              <CircularProgress size={24} sx={{ color: '#E57373' }} />
+              <Link href="/shop" style={{ textDecoration: 'none' }}>
+                <Button
+                  variant="contained"
+                  sx={{
+                    bgcolor: '#E57373',
+                    color: 'white',
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    px: 3,
+                    py: 1,
+                    borderRadius: '8px',
+                    '&:hover': {
+                      bgcolor: '#EF5350',
+                    },
+                  }}
+                >
+                  Go Shopping
+                </Button>
+              </Link>
             </Box>
           ) : (
             <>
