@@ -8,6 +8,7 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
+    const includeDelivered = searchParams.get('includeDelivered') === 'true';
     let ids = [];
 
     // Handle ?ids=1,2,3 for guest users
@@ -23,7 +24,7 @@ export async function GET(request) {
       const q = query(
         collection(db, 'orders'),
         where('userId', '==', userId),
-        where('status', '!=', 'delivered'),
+        ...(includeDelivered ? [] : [where('status', '!=', 'Delivered')]),
         orderBy('createdAt', 'desc')
       );
       const querySnapshot = await getDocs(q);
@@ -46,7 +47,7 @@ export async function GET(request) {
         const q = query(
           collection(db, 'orders'),
           where('orderNumber', '==', orderId),
-          where('status', '!=', 'delivered'),
+          ...(includeDelivered ? [] : [where('status', '!=', 'Delivered')]),
           orderBy('createdAt', 'desc')
         );
         const querySnapshot = await getDocs(q);

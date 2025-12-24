@@ -367,7 +367,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase';
 
 export default function AppBarMenu() {
-  const { isSticky, setIsSticky, wishList, user } = useGlobalContext();
+  const { isSticky, setIsSticky, userData, user } = useGlobalContext();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const openMenu = Boolean(anchorEl);
@@ -456,7 +456,11 @@ export default function AppBarMenu() {
         <CartDrawer />
         <div style={{ margin: '0 15px 0 25px', WebkitTapHighlightColor: 'Background' }}>
           <div onClick={handleClickUser} style={{ cursor: 'pointer' }}>
-            <Avatar src={user?.photoURL} alt={user?.displayName || 'User'} sx={{ width: 32, height: 32 }} />
+            <Avatar
+              src={userData?.photoURL}
+              alt={userData?.fullName || 'User'}
+              sx={{ width: 32, height: 32 }}
+            />
           </div>
           <Menu
             anchorEl={anchorEl}
@@ -496,11 +500,11 @@ export default function AppBarMenu() {
           >
             <div style={{ padding: '10px 20px', outline: 'none' }}>
               <Typography variant="subtitle1" noWrap fontWeight={600}>
-                {user ? user.displayName || 'User' : 'Welcome, Guest'}
+                {userData ? userData.fullName || 'User' : 'Welcome, Guest'}
               </Typography>
-              {user && (
+              {userData && (
                 <Typography variant="body2" color="text.secondary" noWrap>
-                  {user.email}
+                  {userData.email}
                 </Typography>
               )}
             </div>
@@ -539,7 +543,7 @@ export default function AppBarMenu() {
               Wishlist
             </MenuItem>
             <Divider />
-            {user ? (
+            {userData ? (
               <MenuItem onClick={handleSignOut}>
                 <ListItemIcon>
                   <Logout fontSize="small" />

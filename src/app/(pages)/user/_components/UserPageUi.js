@@ -154,7 +154,8 @@ export default function UserPageUi() {
         const downloadURL = await getDownloadURL(storageRef);
 
         await updateProfile(auth.currentUser, { photoURL: downloadURL });
-        setPhotoURL(downloadURL);
+       
+        setUserData((prevData) => ({ ...prevData, photoURL: downloadURL }));
 
         // Also update in Firestore
         const userRef = doc(db, 'users', user.uid);
