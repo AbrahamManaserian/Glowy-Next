@@ -63,6 +63,7 @@ export default function SignUp() {
         email: email.trim(),
         role: 'customer',
         provider: 'email',
+        uid: user.uid,
         createdAt: serverTimestamp(),
       });
 
@@ -72,6 +73,7 @@ export default function SignUp() {
         email: email.trim(),
         role: 'customer',
         provider: 'email',
+        uid: user.uid,
         // createdAt: serverTimestamp(),
       });
       // router.push(redirect);
@@ -112,6 +114,7 @@ export default function SignUp() {
           photoURL: user.photoURL,
           role: 'customer',
           provider: 'google',
+          uid: user.uid,
           createdAt: serverTimestamp(),
         });
       }
@@ -122,6 +125,7 @@ export default function SignUp() {
         photoURL: user.photoURL,
         role: 'customer',
         provider: 'google',
+        uid: user.uid,
         // createdAt: serverTimestamp(),
       });
 

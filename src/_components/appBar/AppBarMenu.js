@@ -23,6 +23,7 @@ import LocalMallOutlinedIcon from '@mui/icons-material/LocalMallOutlined';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import Logout from '@mui/icons-material/Logout';
 import Login from '@mui/icons-material/Login';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { useEffect, useRef, useState } from 'react';
@@ -32,7 +33,7 @@ import { FavoriteIcon, UserAvatar } from '../icons';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import CartDrawer from '@/app/(pages)/cart/_components/CartDrawer';
 import { useGlobalContext } from '@/app/GlobalContext';
-import { categoriesObj } from '@/app/(pages)/admin/add-product/page';
+import { categoriesObj } from '@/app/(pages)/admin1/add-product/page';
 
 const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -370,6 +371,7 @@ export default function AppBarMenu() {
   const { isSticky, setIsSticky, userData, user } = useGlobalContext();
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const openMenu = Boolean(anchorEl);
   const router = useRouter();
   const pathname = usePathname();
@@ -411,6 +413,19 @@ export default function AppBarMenu() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      user
+        .getIdTokenResult()
+        .then((idTokenResult) => {
+          setIsAdmin(!!idTokenResult.claims.admin);
+        })
+        .catch(() => setIsAdmin(false));
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
 
   return (
     <Grid
@@ -542,6 +557,19 @@ export default function AppBarMenu() {
               </ListItemIcon>
               Wishlist
             </MenuItem>
+            {isAdmin && (
+              <MenuItem
+                onClick={() => {
+                  handleCloseMenu();
+                  router.push('/admin');
+                }}
+              >
+                <ListItemIcon>
+                  <AdminPanelSettingsIcon fontSize="small" />
+                </ListItemIcon>
+                Admin
+              </MenuItem>
+            )}
             <Divider />
             {userData ? (
               <MenuItem onClick={handleSignOut}>

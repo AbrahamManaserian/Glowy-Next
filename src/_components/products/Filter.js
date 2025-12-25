@@ -16,7 +16,7 @@ import {
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import React, { useRef, useState } from 'react';
-import { categoriesObj } from '@/app/(pages)/admin/add-product/page';
+import { categoriesObj } from '@/app/(pages)/admin1/add-product/page';
 import styled from '@emotion/styled';
 
 function BottomPopper(props) {
