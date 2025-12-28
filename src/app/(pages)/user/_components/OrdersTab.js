@@ -15,12 +15,83 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import React from 'react';
 import Image from 'next/image';
 import { useGlobalContext } from '@/app/GlobalContext';
 
+// Robust date formatter that supports numbers, ISO strings, Firestore Timestamps and objects with `seconds` or `_seconds`.
+const formatDate = (value) => {
+  if (value === null || value === undefined) return '—';
+
+  try {
+    // Firestore Timestamp-like with toDate()
+    if (value?.toDate && typeof value.toDate === 'function') {
+      const d = value.toDate();
+      return isNaN(d.getTime())
+        ? '—'
+        : d.toLocaleString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          });
+    }
+
+    // Plain object with seconds/_seconds and optional nanoseconds
+    const seconds = value?.seconds ?? value?._seconds;
+    const nanoseconds = value?.nanoseconds ?? value?._nanoseconds ?? value?.nanos ?? 0;
+    if (seconds !== undefined && seconds !== null) {
+      const ms = Number(seconds) * 1000 + Math.floor((Number(nanoseconds) || 0) / 1e6);
+      const d = new Date(ms);
+      return isNaN(d.getTime())
+        ? '—'
+        : d.toLocaleString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          });
+    }
+
+    // numbers (milliseconds)
+    if (typeof value === 'number') {
+      const d = new Date(value);
+      return isNaN(d.getTime())
+        ? '—'
+        : d.toLocaleString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          });
+    }
+
+    // ISO or parseable date string
+    const d = new Date(value);
+    return isNaN(d.getTime())
+      ? '—'
+      : d.toLocaleString('en-US', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        });
+  } catch (err) {
+    return '—';
+  }
+};
+
 export default function OrdersTab({ orders }) {
-  const { user } = useGlobalContext();
+  const { user, setOrders } = useGlobalContext();
   const [openItems, setOpenItems] = React.useState({});
   const [tabValue, setTabValue] = React.useState(0); // 0: pending, 1: delivered
   const [deliveredOrders, setDeliveredOrders] = React.useState([]);
@@ -31,7 +102,7 @@ export default function OrdersTab({ orders }) {
   };
 
   const fetchDeliveredOrders = async () => {
-    if (deliveredOrders.length > 0 || !user) return; // already fetched or not signed in
+    if (!user) return; // already fetched or not signed in
 
     setLoadingDelivered(true);
     const url = `/api/orders/delivered?userId=${user.uid}`;
@@ -57,14 +128,46 @@ export default function OrdersTab({ orders }) {
     }
   };
 
+  const handleRefresh = async () => {
+    setLoadingDelivered(true);
+    try {
+      if (tabValue === 0) {
+        // Refresh pending orders
+        const res = await fetch(`/api/orders?userId=${user.uid}`);
+        if (res.ok) {
+          const data = await res.json();
+          setOrders(data);
+        } else {
+          setOrders([]);
+        }
+      } else {
+        // Refresh delivered orders
+
+        await fetchDeliveredOrders();
+      }
+    } catch (error) {
+      console.error('Error refreshing orders:', error);
+      if (tabValue === 0) {
+        setOrders([]);
+      }
+    } finally {
+      setLoadingDelivered(false);
+    }
+  };
+
   const displayOrders = tabValue === 0 ? orders : deliveredOrders;
 
   return (
     <Box sx={{ maxWidth: 1200 }}>
       <>
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, fontSize: '1.05rem' }}>
-          My Orders
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.05rem' }}>
+            My Orders
+          </Typography>
+          <IconButton onClick={handleRefresh} size="small" aria-label="Refresh orders">
+            <RefreshIcon />
+          </IconButton>
+        </Box>
         <Tabs value={tabValue} onChange={handleTabChange} sx={{ mb: 2 }}>
           <Tab label="Pending Orders" />
           <Tab label="Delivered Orders" />
@@ -95,40 +198,40 @@ export default function OrdersTab({ orders }) {
                 }}
               >
                 {/* ...existing code for order card... */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.1 }}>
-                  <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.98rem' }}>
-                    Order #{order.id.slice(0, 12)}
-                  </Typography>
-                  <Chip
-                    label={order.status || 'Processing'}
-                    color={
-                      order.status === 'delivered'
-                        ? 'success'
-                        : order.status === 'inTransit'
-                        ? 'primary'
-                        : order.status === 'cancelled'
-                        ? 'error'
-                        : 'error'
-                    }
-                    sx={{ fontWeight: 600, fontSize: '0.78rem', height: 22 }}
-                  />
-                </Box>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  gutterBottom
-                  sx={{ fontSize: '0.82rem', mb: 0.5 }}
+                <Box
+                  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.1 }}
                 >
-                  Date:{' '}
-                  {new Date(order.createdAt).toLocaleString('en-US', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false,
-                  })}
-                </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.98rem' }}>
+                      Order #{order.id.slice(0, 12)}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ fontSize: '0.82rem', mt: 0.5 }}
+                    >
+                      Created: <br /> {formatDate(order.createdAt)}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                    <Chip
+                      label={order.status || 'Processing'}
+                      color={
+                        order.status === 'delivered'
+                          ? 'success'
+                          : order.status === 'inTransit'
+                          ? 'primary'
+                          : order.status === 'cancelled'
+                          ? 'error'
+                          : 'error'
+                      }
+                      sx={{ fontWeight: 600, fontSize: '0.78rem', height: 22, mb: 0.5 }}
+                    />
+                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
+                      {formatDate(order?.[`${order.status}At`] || order?.updatedAt)}
+                    </Typography>
+                  </Box>
+                </Box>
                 <Divider sx={{ my: 1.1 }} />
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5, justifyContent: 'space-between' }}>
                   <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.93rem' }} gutterBottom>
@@ -149,179 +252,224 @@ export default function OrdersTab({ orders }) {
                   </IconButton>
                 </Box>
                 <Collapse in={!!openItems[order.id]} timeout="auto" unmountOnExit>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.7 }}>
-                    {order.items?.map((item, idx) => (
-                      <Link
-                        key={idx}
-                        href={`/item/${item.id}`}
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                        passHref
-                      >
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            gap: 0.7,
-                            py: 0.2,
-                            cursor: 'pointer',
-                            '&:hover': { background: '#f5f5f5' },
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              width: 50,
-                              height: 50,
-                              position: 'relative',
-                              borderRadius: '5px',
-                              overflow: 'hidden',
-                              border: '1px solid #eee',
-                              flexShrink: 0,
-                            }}
-                          >
-                            <Image
-                              src={item.img || '/images/cosmetic/placeholder.jpg'}
-                              alt={item.name}
-                              fill
-                              style={{ objectFit: 'cover' }}
-                            />
-                          </Box>
-                          <Box>
-                            <Typography
-                              variant="body2"
-                              fontWeight={500}
-                              sx={{ fontSize: { xs: '0.72rem', sm: '0.85rem' }, lineHeight: 1.18 }}
-                            >
-                              {item.name}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
-                              Qty: {item.quantity} x ${item.price}
-                            </Typography>
-                            {item.selectedColor && (
-                              <Typography
-                                variant="caption"
-                                display="block"
-                                color="text.secondary"
-                                sx={{ fontSize: '0.66rem' }}
-                              >
-                                Color: {item.selectedColor.name}
-                              </Typography>
-                            )}
-                            {item.selectedSize && (
-                              <Typography
-                                variant="caption"
-                                display="block"
-                                color="text.secondary"
-                                sx={{ fontSize: '0.66rem' }}
-                              >
-                                Size: {item.selectedSize}
-                              </Typography>
-                            )}
-                          </Box>
-                        </Box>
-                      </Link>
-                    ))}
-                    {/* Subtotal above Total Savings section inside the same collapse */}
+                  <Box sx={{ py: 0.5 }}>
                     <Box
                       sx={{
                         display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        mt: 1,
+                        gap: 1,
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        alignItems: 'flex-start',
+                        // px: 0.5,
                       }}
                     >
-                      <Typography
-                        variant="subtitle2"
-                        fontWeight={500}
-                        sx={{ fontSize: '0.93rem', color: '#666' }}
-                      >
-                        Subtotal
-                      </Typography>
-                      <Typography
-                        variant="subtitle2"
-                        fontWeight={500}
-                        sx={{ color: '#666', fontSize: '0.96rem', letterSpacing: 0.2 }}
-                      >
-                        {order.financials?.subtotal?.toLocaleString('en-US')} ֏
-                      </Typography>
-                    </Box>
-                    {order.financials?.shippingCost > 0 && (
+                      {/* LEFT: Items list (50%) */}
                       <Box
                         sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
+                          width: { xs: '100%', sm: '50%' },
                         }}
                       >
-                        <Typography
-                          variant="subtitle2"
-                          fontWeight={400}
-                          sx={{ fontSize: '0.88rem', color: '#666' }}
-                        >
-                          Shipping
-                        </Typography>
-                        <Typography
-                          variant="subtitle2"
-                          fontWeight={400}
-                          sx={{ color: '#666', fontSize: '0.91rem', letterSpacing: 0.2 }}
-                        >
-                          {order.financials.shippingCost?.toLocaleString('en-US')} ֏
-                        </Typography>
+                        {order.items?.map((item, idx) => (
+                          <Box
+                            key={idx}
+                            sx={{
+                              display: 'flex',
+                              gap: 0.7,
+                              py: 0.75,
+                              // px: 1,
+                              alignItems: 'center',
+                              borderColor: 'divider',
+                            }}
+                          >
+                            <Link
+                              href={`/item/${item.id}`}
+                              style={{ textDecoration: 'none', color: 'inherit' }}
+                              passHref
+                            >
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  gap: 0.7,
+                                  alignItems: 'center',
+                                  width: '100%',
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    width: 50,
+                                    height: 50,
+                                    position: 'relative',
+                                    borderRadius: '5px',
+                                    overflow: 'hidden',
+                                    border: '1px solid #eee',
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  <Image
+                                    src={item.img || '/images/cosmetic/placeholder.jpg'}
+                                    alt={item.name}
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                  />
+                                </Box>
+                                <Box>
+                                  <Typography
+                                    variant="body2"
+                                    fontWeight={500}
+                                    sx={{ fontSize: { xs: '0.72rem', sm: '0.85rem' }, lineHeight: 1.18 }}
+                                  >
+                                    {item.name}
+                                  </Typography>
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{ fontSize: '0.72rem' }}
+                                  >
+                                    Qty: {item.quantity} x ֏{item.price}
+                                  </Typography>
+                                  {item.selectedColor && (
+                                    <Typography
+                                      variant="caption"
+                                      display="block"
+                                      color="text.secondary"
+                                      sx={{ fontSize: '0.66rem' }}
+                                    >
+                                      Color: {item.selectedColor.name}
+                                    </Typography>
+                                  )}
+                                  {item.selectedSize && (
+                                    <Typography
+                                      variant="caption"
+                                      display="block"
+                                      color="text.secondary"
+                                      sx={{ fontSize: '0.66rem' }}
+                                    >
+                                      Size: {item.selectedSize}
+                                    </Typography>
+                                  )}
+                                </Box>
+                              </Box>
+                            </Link>
+                          </Box>
+                        ))}
                       </Box>
-                    )}
-                    {order.financials &&
-                      (order.financials.totalSaved > 0 ||
-                        order.financials.savedFromOriginalPrice > 0 ||
-                        order.financials.discount > 0 ||
-                        order.financials.shippingSavings > 0) && (
+
+                      {/* RIGHT: Financial summary (50%) */}
+                      <Box
+                        sx={{
+                          width: { xs: '100%', sm: '50%' },
+                          display: 'flex',
+                        }}
+                      >
                         <Box
                           sx={{
-                            mb: '10px',
-                            mt: '10px',
-                            p: '10px',
-                            bgcolor: '#fff7ed',
-                            borderRadius: '8px',
-                            border: '1px dashed #e65100',
+                            width: { xs: '100%', sm: 320 },
+                            p: 1,
+                            borderLeft: { xs: 'none', sm: '1px solid' },
+                            borderColor: 'divider',
+                            bgcolor: 'background.paper',
+                            position: { xs: 'static', sm: 'sticky' },
+                            top: { sm: 12 },
+                            alignSelf: 'flex-start',
                           }}
                         >
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '5px' }}>
-                            <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 600 }}>
-                              Total Savings
+                          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                            Summary
+                          </Typography>
+
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                            <Typography variant="caption" color="text.secondary">
+                              Subtotal
                             </Typography>
-                            <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 700 }}>
-                              ֏{order.financials.totalSaved?.toLocaleString('en-US')}
+                            <Typography variant="body2">
+                              {order.financials?.subtotal?.toLocaleString('en-US')} ֏
                             </Typography>
                           </Box>
-                          {order.financials.savedFromOriginalPrice > 0 && (
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                              <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                                • Product markdowns
+                          {order.financials?.shippingCost > 0 && (
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                              <Typography variant="caption" color="text.secondary">
+                                Shipping
                               </Typography>
-                              <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
-                                ֏{order.financials.savedFromOriginalPrice?.toLocaleString('en-US')}
-                              </Typography>
-                            </Box>
-                          )}
-                          {order.financials.discount > 0 && (
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                              <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                                • Extra 20% discount
-                              </Typography>
-                              <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
-                                ֏{order.financials.discount?.toLocaleString('en-US')}
+                              <Typography variant="body2">
+                                {order.financials.shippingCost?.toLocaleString('en-US')} ֏
                               </Typography>
                             </Box>
                           )}
-                          {order.financials.shippingSavings > 0 && (
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                              <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                                • Free shipping
-                              </Typography>
-                              <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
-                                ֏{order.financials.shippingSavings?.toLocaleString('en-US')}
-                              </Typography>
-                            </Box>
-                          )}
+                          {order.financials &&
+                            (order.financials.totalSaved > 0 ||
+                              order.financials.savedFromOriginalPrice > 0 ||
+                              order.financials.extraDiscount > 0 ||
+                              order.financials.firstShopDiscount > 0 ||
+                              order.financials.shippingSavings > 0) && (
+                              <Box
+                                sx={{
+                                  mt: 0.5,
+                                  p: 1,
+                                  bgcolor: '#fff7ed',
+                                  borderRadius: 1,
+                                  border: '1px dashed #e65100',
+                                }}
+                              >
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '5px' }}>
+                                  <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 600 }}>
+                                    Total Savings
+                                  </Typography>
+                                  <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 700 }}>
+                                    ֏{order.financials.totalSaved?.toLocaleString('en-US')}
+                                  </Typography>
+                                </Box>
+                                {order.financials.savedFromOriginalPrice > 0 && (
+                                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                                      • Product markdowns
+                                    </Typography>
+                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                                      ֏{order.financials.savedFromOriginalPrice?.toLocaleString('en-US')}
+                                    </Typography>
+                                  </Box>
+                                )}
+                                {order.financials.firstShopDiscount > 0 && (
+                                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                                      • First Shop discount (
+                                      {Math.round(
+                                        (order.financials.firstShopDiscount / order.financials.subtotal) * 100
+                                      )}
+                                      %)
+                                    </Typography>
+                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                                      ֏{order.financials.firstShopDiscount?.toLocaleString('en-US')}
+                                    </Typography>
+                                  </Box>
+                                )}
+                                {order.financials.extraDiscount > 0 && (
+                                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                                      • Extra discount (
+                                      {Math.round(
+                                        (order.financials.extraDiscount / order.financials.subtotal) * 100
+                                      )}
+                                      %)
+                                    </Typography>
+                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                                      ֏{order.financials.extraDiscount?.toLocaleString('en-US')}
+                                    </Typography>
+                                  </Box>
+                                )}
+                                {order.financials.shippingSavings > 0 && (
+                                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                                      • Free shipping
+                                    </Typography>
+                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                                      ֏{order.financials.shippingSavings?.toLocaleString('en-US')}
+                                    </Typography>
+                                  </Box>
+                                )}
+                              </Box>
+                            )}
                         </Box>
-                      )}
+                      </Box>
+                    </Box>
                   </Box>
                 </Collapse>
                 <Divider sx={{ my: 1.1 }} />

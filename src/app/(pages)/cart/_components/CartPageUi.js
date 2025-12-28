@@ -15,8 +15,9 @@ import {
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import { clearCart } from '../functions/addDeleteIncDecreaseCart';
 import CartItemsList from './CartItemsList';
@@ -51,6 +52,12 @@ export default function CartPageUi() {
 
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
+  const pathname = usePathname();
+  const redirectUrl =
+    searchParams.get('redirect') ||
+    (pathname.startsWith('/auth')
+      ? '/'
+      : pathname + (searchParams.toString() ? '?' + searchParams.toString() : ''));
   const [selectedItems, setSelectedItems] = useState([]);
   const isInitialized = useRef(false);
 
@@ -141,9 +148,18 @@ export default function CartPageUi() {
   }
 
   const shippingSavings = subtotal >= 5000 && shippingCost === 0 ? 1000 : 0;
-  const discount = subtotal >= 20000 ? subtotal * 0.2 : 0;
-  const total = subtotal + shippingCost - discount;
-  const totalSaved = savedFromOriginalPrice + discount + shippingSavings;
+  const discount =
+    subtotal >= 20000
+      ? user
+        ? userData?.firstShopp
+          ? subtotal * 0.05
+          : subtotal * 0.1
+        : subtotal * 0.1
+      : 0;
+  const firstShopDiscount = user && userData?.firstShopp ? subtotal * 0.2 : 0;
+  const totalDiscount = discount + firstShopDiscount;
+  const total = subtotal + shippingCost - totalDiscount;
+  const totalSaved = savedFromOriginalPrice + totalDiscount + shippingSavings;
 
   const handleCreateOrder = async () => {
     if (!cartState.fullName || !cartState.phoneNumber || !cartState.address) {
@@ -216,7 +232,8 @@ export default function CartPageUi() {
           financials: {
             subtotal: subtotal || 0,
             shippingCost: shippingCost || 0,
-            discount: discount || 0,
+            extraDiscount: discount || 0,
+            firstShopDiscount: firstShopDiscount || 0,
             total: total || 0,
             savedFromOriginalPrice: savedFromOriginalPrice || 0,
             shippingSavings: shippingSavings || 0,
@@ -249,6 +266,16 @@ export default function CartPageUi() {
             } catch (error) {
               console.error('Failed to update user data:', error);
             }
+          }
+        }
+        // Update firstShopp to false after first order
+        if (userData?.firstShopp) {
+          try {
+            const userRef = doc(db, 'users', user.uid);
+            await updateDoc(userRef, { firstShopp: false });
+            setUserData((prev) => ({ ...prev, firstShopp: false }));
+          } catch (error) {
+            console.error('Failed to update firstShopp:', error);
           }
         }
       }
@@ -369,6 +396,41 @@ export default function CartPageUi() {
       container
       columnSpacing={5}
     >
+      {' '}
+      {!params.has('checkout') && !user && (
+        <Box
+          sx={{
+            width: '100%',
+            mb: '40px',
+            p: '16px',
+            bgcolor: 'white',
+            borderRadius: '12px',
+            border: '1px solid #e65100',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+          }}
+        >
+          <Link
+            href={`/auth/signin?redirect=${encodeURIComponent(redirectUrl)}`}
+            style={{ textDecoration: 'none' }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Typography
+                sx={{
+                  fontSize: '16px',
+                  color: '#e65100',
+                  fontWeight: 500,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  '&:hover': { textDecoration: 'underline' },
+                }}
+              >
+                Sign in and get 20% discount for your first shopping.
+              </Typography>
+              <ArrowForwardIcon sx={{ ml: 1, fontSize: '18px', color: '#e65100' }} />
+            </Box>
+          </Link>
+        </Box>
+      )}{' '}
       <Box sx={{ width: '100%', mb: '40px' }}>
         <Stepper
           activeStep={!params.has('checkout') ? 0 : 1}
@@ -429,6 +491,8 @@ export default function CartPageUi() {
             subtotal={subtotal}
             selectedItems={selectedItems}
             toggleItemSelection={toggleItemSelection}
+            user={user}
+            userData={userData}
           />
         </Grid>
       ) : (
@@ -511,6 +575,28 @@ export default function CartPageUi() {
             </Typography>
           </Box>
         )}
+        {firstShopDiscount > 0 ? (
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
+            <Typography
+              sx={{
+                color: '#e65100',
+                fontSize: '15px',
+                fontWeight: 300,
+              }}
+            >
+              First Shop Discount (20%)
+            </Typography>
+            <Typography
+              sx={{
+                color: '#e65100',
+                fontSize: '15px',
+                fontWeight: 500,
+              }}
+            >
+              -֏{firstShopDiscount.toLocaleString()}
+            </Typography>
+          </Box>
+        ) : null}
         {discount > 0 ? (
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
             <Typography
@@ -520,7 +606,7 @@ export default function CartPageUi() {
                 fontWeight: 300,
               }}
             >
-              Discount (20%)
+              Extra Discount ({user ? (userData?.firstShopp ? '5%' : '10%') : '10%'})
             </Typography>
             <Typography
               sx={{
@@ -535,7 +621,8 @@ export default function CartPageUi() {
         ) : (
           <Box sx={{ mb: '15px' }}>
             <Typography sx={{ fontSize: '13px', color: '#e65100', fontWeight: 500 }}>
-              Add items worth ֏{(20000 - subtotal).toLocaleString()} to get 20% discount
+              Add items worth ֏{(20000 - subtotal).toLocaleString()} to get{' '}
+              {user ? (userData?.firstShopp ? '5%' : '10%') : '10%'} extra discount
             </Typography>
           </Box>
         )}
@@ -570,10 +657,20 @@ export default function CartPageUi() {
             {discount > 0 && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                  • Extra 20% discount
+                  • Extra discount
                 </Typography>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
                   ֏{discount.toLocaleString()}
+                </Typography>
+              </Box>
+            )}
+            {firstShopDiscount > 0 && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                  • First shop discount
+                </Typography>
+                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                  ֏{firstShopDiscount.toLocaleString()}
                 </Typography>
               </Box>
             )}

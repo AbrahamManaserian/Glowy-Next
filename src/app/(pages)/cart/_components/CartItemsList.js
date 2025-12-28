@@ -8,7 +8,11 @@ export default function CartItemsList({
   subtotal,
   selectedItems,
   toggleItemSelection,
+  user,
+  userData,
 }) {
+  const firstShopRate = userData?.firstShopp ? 0.2 : 0;
+  const extraRate = subtotal >= 20000 ? (user ? (userData?.firstShopp ? 0.05 : 0.1) : 0.1) : 0;
   return (
     <>
       {Object.keys(cart.items).map((id, index) => {
@@ -20,7 +24,8 @@ export default function CartItemsList({
               productDetails={cartDetails ? cartDetails[id] : null}
               cart={cart}
               setCart={setCart}
-              discountRate={subtotal >= 20000 ? 0.2 : 0}
+              firstShopRate={firstShopRate}
+              extraRate={extraRate}
               isSelected={selectedItems.includes(id)}
               toggleSelection={() => toggleItemSelection(id)}
             />
@@ -39,7 +44,8 @@ export default function CartItemsList({
                 }}
               >
                 <Typography sx={{ fontSize: '14px', color: '#e65100', fontWeight: 600 }}>
-                  🔥 Add items worth ֏{(20000 - subtotal).toLocaleString()} more to get 20% discount!
+                  🔥 Add items worth ֏{(20000 - subtotal).toLocaleString()} more to get{' '}
+                  {user ? (userData?.firstShopp ? '5%' : '10%') : '10%'} extra discount!
                 </Typography>
               </Box>
             )}

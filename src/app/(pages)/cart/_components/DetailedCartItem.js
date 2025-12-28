@@ -14,7 +14,8 @@ export default function DetailedCartItem({
   productDetails,
   cart,
   setCart,
-  discountRate = 0,
+  firstShopRate = 0,
+  extraRate = 0,
   isSelected,
   toggleSelection,
 }) {
@@ -30,7 +31,8 @@ export default function DetailedCartItem({
   const quantity = item.quantity ?? 1;
 
   const savedFromOriginal = (previousPrice > price ? previousPrice - price : 0) * quantity;
-  const savedFromDiscount = price * discountRate * quantity;
+  const savedFromFirstShop = price * firstShopRate * quantity;
+  const savedFromExtra = price * extraRate * quantity;
 
   return (
     <Box
@@ -173,9 +175,14 @@ export default function DetailedCartItem({
               Markdown: ֏{savedFromOriginal.toLocaleString()}
             </Typography>
           )}
-          {savedFromDiscount > 0 && (
+          {savedFromFirstShop > 0 && (
+            <Typography sx={{ fontSize: '12px', color: '#e65100', fontWeight: 500, mb: '2px' }}>
+              First Shop 20%: ֏{savedFromFirstShop.toLocaleString()}
+            </Typography>
+          )}
+          {savedFromExtra > 0 && (
             <Typography sx={{ fontSize: '12px', color: '#e65100', fontWeight: 500, mb: '5px' }}>
-              Extra 20%: ֏{savedFromDiscount.toLocaleString()}
+              Extra {extraRate * 100}%: ֏{savedFromExtra.toLocaleString()}
             </Typography>
           )}
         </Box>

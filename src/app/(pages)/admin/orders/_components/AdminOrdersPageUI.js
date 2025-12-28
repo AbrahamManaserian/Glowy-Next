@@ -35,14 +35,13 @@ import PendingIcon from '@mui/icons-material/Pending';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp, increment, runTransaction } from 'firebase/firestore';
 import { db } from '@/firebase';
 
 export default function AdminOrdersPageUI({
   data = { items: [] },
   counts = { total: 0, pending: 0, delivered: 0, failed: 0, inTransit: 0 },
   initialLoading,
-  onUpdateOrderStatus,
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -227,8 +226,26 @@ export default function AdminOrdersPageUI({
     closeStatusMenu();
     try {
       setStatusUpdatingId(orderId);
-      const performUpdate = onUpdateOrderStatus || defaultUpdateOrderStatus;
-      await Promise.resolve(performUpdate(orderId, newStatus));
+
+      await Promise.resolve(defaultUpdateOrderStatus(orderId, newStatus));
+
+      // Update user totalSpent if status changed to 'delivered'
+      if (newStatus === 'delivered') {
+        const currentOrder = data.items?.find((o) => o.id === orderId);
+        const userId = currentOrder?.userId;
+        const orderTotal = currentOrder?.financials?.total;
+
+        if (userId && orderTotal > 0) {
+          try {
+            await runTransaction(db, async (transaction) => {
+              const userRef = doc(db, 'users', userId);
+              transaction.update(userRef, { totalSpent: increment(orderTotal) });
+            });
+          } catch (err) {
+            console.error('Failed to update user totalSpent', err);
+          }
+        }
+      }
     } catch (err) {
       console.error('Failed to update order status', err);
     } finally {
@@ -245,7 +262,7 @@ export default function AdminOrdersPageUI({
   ];
 
   return (
-    <Box sx={{ p: { xs: 2, md: 3 }, minWidth: { xs: 680 }, overflowX: 'auto' }}>
+    <Box sx={{ p: { xs: 2, md: 3 }, overflowX: 'auto' }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
         <Typography variant="h4">Orders Overview</Typography>
       </Stack>
@@ -645,7 +662,8 @@ export default function AdminOrdersPageUI({
                                     {!(
                                       order.financials?.totalSaved > 0 ||
                                       order.financials?.savedFromOriginalPrice > 0 ||
-                                      order.financials?.discount > 0 ||
+                                      order.financials?.extraDiscount > 0 ||
+                                      order.financials?.firstShopDiscount > 0 ||
                                       order.financials?.shippingSavings > 0
                                     ) && (
                                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
@@ -663,7 +681,8 @@ export default function AdminOrdersPageUI({
                                     {/* Savings details */}
                                     {(order.financials?.totalSaved > 0 ||
                                       order.financials?.savedFromOriginalPrice > 0 ||
-                                      order.financials?.discount > 0 ||
+                                      order.financials?.extraDiscount > 0 ||
+                                      order.financials?.firstShopDiscount > 0 ||
                                       order.financials?.shippingSavings > 0) && (
                                       <Box
                                         sx={{
@@ -726,7 +745,7 @@ export default function AdminOrdersPageUI({
                                           </Box>
                                         )}
 
-                                        {order.financials?.discount > 0 && (
+                                        {order.financials?.extraDiscount > 0 && (
                                           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                             <Typography
                                               sx={{
@@ -744,7 +763,30 @@ export default function AdminOrdersPageUI({
                                                 fontWeight: 500,
                                               }}
                                             >
-                                              {formatAMD(order.financials.discount)}
+                                              {formatAMD(order.financials.extraDiscount)}
+                                            </Typography>
+                                          </Box>
+                                        )}
+
+                                        {order.financials?.firstShopDiscount > 0 && (
+                                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <Typography
+                                              sx={{
+                                                color: 'text.secondary',
+                                                fontSize: '0.82rem',
+                                                fontWeight: 300,
+                                              }}
+                                            >
+                                              • First shop discount
+                                            </Typography>
+                                            <Typography
+                                              sx={{
+                                                color: 'text.secondary',
+                                                fontSize: '0.82rem',
+                                                fontWeight: 500,
+                                              }}
+                                            >
+                                              {formatAMD(order.financials.firstShopDiscount)}
                                             </Typography>
                                           </Box>
                                         )}
