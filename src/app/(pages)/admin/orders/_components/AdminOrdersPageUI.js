@@ -509,68 +509,292 @@ export default function AdminOrdersPageUI({
                         >
                           <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                             <Box sx={{ py: 1 }}>
-                              {(order.items || []).map((item, idx) => (
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  gap: 2,
+                                  flexDirection: { xs: 'column', sm: 'row' },
+                                  alignItems: 'flex-start',
+                                  px: 1,
+                                }}
+                              >
+                                {/* LEFT: Items list (50%) */}
                                 <Box
-                                  key={`${order.id}-item-${idx}`}
                                   sx={{
-                                    display: 'flex',
-                                    gap: 0.7,
-                                    py: 0.75,
-                                    px: 2,
-                                    alignItems: 'center',
-                                    borderColor: 'divider',
+                                    width: { xs: '100%', sm: '50%' },
                                   }}
                                 >
-                                  <Link
-                                    href={`/item/${item.id}`}
-                                    passHref
-                                    style={{ textDecoration: 'none', color: 'inherit' }}
-                                  >
+                                  {(order.items || []).map((item, idx) => (
                                     <Box
-                                      sx={{ display: 'flex', gap: 0.7, alignItems: 'center', width: '100%' }}
+                                      key={`${order.id}-item-${idx}`}
+                                      sx={{
+                                        display: 'flex',
+                                        gap: 0.7,
+                                        py: 0.75,
+                                        px: 2,
+                                        alignItems: 'center',
+                                        borderColor: 'divider',
+                                      }}
                                     >
-                                      <Box
-                                        sx={{
-                                          width: 50,
-                                          height: 50,
-                                          position: 'relative',
-                                          borderRadius: '5px',
-                                          overflow: 'hidden',
-                                          border: '1px solid #eee',
-                                          flexShrink: 0,
-                                        }}
+                                      <Link
+                                        href={`/item/${item.id}`}
+                                        passHref
+                                        style={{ textDecoration: 'none', color: 'inherit' }}
                                       >
-                                        <Image
-                                          src={item.img || '/images/cosmetic/placeholder.jpg'}
-                                          alt={item.name || item.title || item.sku || 'Item'}
-                                          fill
-                                          style={{ objectFit: 'cover' }}
-                                        />
-                                      </Box>
-                                      <Box>
-                                        <Typography
-                                          variant="body2"
-                                          fontWeight={500}
+                                        <Box
                                           sx={{
-                                            fontSize: { xs: '0.72rem', sm: '0.85rem' },
-                                            lineHeight: 1.18,
+                                            display: 'flex',
+                                            gap: 0.7,
+                                            alignItems: 'center',
+                                            width: '100%',
                                           }}
                                         >
-                                          {item.name || item.title || item.sku || 'Item'}
+                                          <Box
+                                            sx={{
+                                              width: 50,
+                                              height: 50,
+                                              position: 'relative',
+                                              borderRadius: '5px',
+                                              overflow: 'hidden',
+                                              border: '1px solid #eee',
+                                              flexShrink: 0,
+                                            }}
+                                          >
+                                            <Image
+                                              src={item.img || '/images/cosmetic/placeholder.jpg'}
+                                              alt={item.name || item.title || item.sku || 'Item'}
+                                              fill
+                                              style={{ objectFit: 'cover' }}
+                                            />
+                                          </Box>
+                                          <Box>
+                                            <Typography
+                                              variant="body2"
+                                              fontWeight={500}
+                                              sx={{
+                                                fontSize: { xs: '0.72rem', sm: '0.85rem' },
+                                                lineHeight: 1.18,
+                                              }}
+                                            >
+                                              {item.name || item.title || item.sku || 'Item'}
+                                            </Typography>
+                                            <Typography
+                                              variant="caption"
+                                              color="text.secondary"
+                                              sx={{ fontSize: '0.72rem' }}
+                                            >
+                                              Qty: {item.quantity ?? item.qty ?? item.count ?? 1} x{' '}
+                                              {typeof item.price === 'number' ? formatAMD(item.price) : '—'}
+                                            </Typography>
+                                          </Box>
+                                        </Box>
+                                      </Link>
+                                    </Box>
+                                  ))}
+                                </Box>
+
+                                {/* RIGHT: Financial summary (50%) */}
+                                <Box
+                                  sx={{
+                                    width: { xs: '100%', sm: '50%' },
+                                    display: 'flex',
+                                    justifyContent: { xs: 'flex-start', sm: 'flex-end' },
+                                    px: { xs: 1, sm: 2 },
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      width: { xs: '100%', sm: 320 },
+                                      p: 2,
+                                      borderLeft: { xs: 'none', sm: '1px solid' },
+                                      borderColor: 'divider',
+                                      bgcolor: 'background.paper',
+                                      position: { xs: 'static', sm: 'sticky' },
+                                      top: { sm: 12 },
+                                      alignSelf: 'flex-start',
+                                    }}
+                                  >
+                                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                      Summary
+                                    </Typography>
+
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                      <Typography variant="caption" color="text.secondary">
+                                        Subtotal
+                                      </Typography>
+                                      <Typography variant="body2">
+                                        {formatAMD(
+                                          order.financials?.subtotal ??
+                                            order.financials?.subTotal ??
+                                            order.financials?.itemsTotal ??
+                                            0
+                                        )}
+                                      </Typography>
+                                    </Box>
+
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                      <Typography variant="caption" color="text.secondary">
+                                        Shipping
+                                      </Typography>
+                                      <Typography variant="body2">
+                                        {formatAMD(order.financials?.shippingCost ?? 0)}
+                                      </Typography>
+                                    </Box>
+
+                                    {/* Show simple Savings line only when there is no detailed savings breakdown */}
+                                    {!(
+                                      order.financials?.totalSaved > 0 ||
+                                      order.financials?.savedFromOriginalPrice > 0 ||
+                                      order.financials?.discount > 0 ||
+                                      order.financials?.shippingSavings > 0
+                                    ) && (
+                                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                        <Typography variant="caption" color="text.secondary">
+                                          Savings
                                         </Typography>
-                                        <Typography
-                                          variant="caption"
-                                          color="text.secondary"
-                                          sx={{ fontSize: '0.72rem' }}
-                                        >
-                                          Qty: {item.quantity ?? item.qty ?? item.count ?? 1} x{' '}
-                                          {typeof item.price === 'number' ? formatAMD(item.price) : '—'}
+                                        <Typography variant="body2">
+                                          {formatAMD(
+                                            order.financials?.savings ?? order.financials?.discount ?? 0
+                                          )}
                                         </Typography>
                                       </Box>
+                                    )}
+
+                                    {/* Savings details */}
+                                    {(order.financials?.totalSaved > 0 ||
+                                      order.financials?.savedFromOriginalPrice > 0 ||
+                                      order.financials?.discount > 0 ||
+                                      order.financials?.shippingSavings > 0) && (
+                                      <Box
+                                        sx={{
+                                          mt: 1,
+                                          p: 1,
+                                          bgcolor: 'rgba(255,243,224,0.6)',
+                                          borderRadius: 1,
+                                          border: '1px dashed',
+                                          borderColor: 'divider',
+                                        }}
+                                      >
+                                        <Box
+                                          sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}
+                                        >
+                                          <Typography
+                                            sx={{
+                                              color: 'text.secondary',
+                                              fontSize: '0.86rem',
+                                              fontWeight: 600,
+                                            }}
+                                          >
+                                            Total Savings
+                                          </Typography>
+                                          <Typography
+                                            sx={{
+                                              color: 'text.secondary',
+                                              fontSize: '0.86rem',
+                                              fontWeight: 700,
+                                            }}
+                                          >
+                                            {formatAMD(
+                                              order.financials?.totalSaved ??
+                                                order.financials?.savings ??
+                                                order.financials?.discount ??
+                                                0
+                                            )}
+                                          </Typography>
+                                        </Box>
+
+                                        {order.financials?.savedFromOriginalPrice > 0 && (
+                                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <Typography
+                                              sx={{
+                                                color: 'text.secondary',
+                                                fontSize: '0.82rem',
+                                                fontWeight: 300,
+                                              }}
+                                            >
+                                              • Product markdowns
+                                            </Typography>
+                                            <Typography
+                                              sx={{
+                                                color: 'text.secondary',
+                                                fontSize: '0.82rem',
+                                                fontWeight: 500,
+                                              }}
+                                            >
+                                              {formatAMD(order.financials.savedFromOriginalPrice)}
+                                            </Typography>
+                                          </Box>
+                                        )}
+
+                                        {order.financials?.discount > 0 && (
+                                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <Typography
+                                              sx={{
+                                                color: 'text.secondary',
+                                                fontSize: '0.82rem',
+                                                fontWeight: 300,
+                                              }}
+                                            >
+                                              • Extra discount
+                                            </Typography>
+                                            <Typography
+                                              sx={{
+                                                color: 'text.secondary',
+                                                fontSize: '0.82rem',
+                                                fontWeight: 500,
+                                              }}
+                                            >
+                                              {formatAMD(order.financials.discount)}
+                                            </Typography>
+                                          </Box>
+                                        )}
+
+                                        {order.financials?.shippingSavings > 0 && (
+                                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <Typography
+                                              sx={{
+                                                color: 'text.secondary',
+                                                fontSize: '0.82rem',
+                                                fontWeight: 300,
+                                              }}
+                                            >
+                                              • Free shipping
+                                            </Typography>
+                                            <Typography
+                                              sx={{
+                                                color: 'text.secondary',
+                                                fontSize: '0.82rem',
+                                                fontWeight: 500,
+                                              }}
+                                            >
+                                              {formatAMD(order.financials.shippingSavings)}
+                                            </Typography>
+                                          </Box>
+                                        )}
+                                      </Box>
+                                    )}
+
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        mt: 1,
+                                        pt: 1,
+                                        borderTop: '1px solid',
+                                        borderColor: 'divider',
+                                      }}
+                                    >
+                                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                        Total
+                                      </Typography>
+                                      <Typography variant="h6">
+                                        {formatAMD(order.financials?.total ?? order.financials?.amount ?? 0)}
+                                      </Typography>
                                     </Box>
-                                  </Link>
+                                  </Box>
                                 </Box>
-                              ))}
+                              </Box>
                             </Box>
                           </Collapse>
                         </TableCell>
