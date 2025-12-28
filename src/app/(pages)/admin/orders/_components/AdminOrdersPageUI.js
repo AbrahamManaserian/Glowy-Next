@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, Fragment } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, Fragment, useRef } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import {
   Box,
   Collapse,
@@ -21,62 +21,82 @@ import {
   Tooltip,
   Skeleton,
   Button,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Link from 'next/link';
 import Image from 'next/image';
+import { CustomPagination } from '@/_components/products/PageUi';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PendingIcon from '@mui/icons-material/Pending';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
-import RefreshIcon from '@mui/icons-material/Refresh';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/firebase';
 
 export default function AdminOrdersPageUI({
-  initialOrders,
-  counts = { total: 0, pending: 0, delivered: 0, failed: 0 },
+  data = { items: [] },
+  counts = { total: 0, pending: 0, delivered: 0, failed: 0, inTransit: 0 },
   initialLoading,
+  onUpdateOrderStatus,
 }) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentStatus = searchParams?.get('status') || 'pending';
 
-  const [orders, setOrders] = useState([]);
-  const [ordersLoading, setOrdersLoading] = useState(false);
-  const [ordersError, setOrdersError] = useState(null);
-  const [nextCursor, setNextCursor] = useState(initialOrders?.nextCursor || null);
-  const [fetchingMore, setFetchingMore] = useState(false);
+  const [page, setPage] = useState();
+  const [status, setStatus] = useState(searchParams?.get('status') || '');
+  const [expandedIds, setExpandedIds] = useState([]);
+  const [isReplacing, setIsReplacing] = useState(false);
 
-  // useEffect(() => {
-  //   const fetchCounts = async () => {
-  //     try {
-  //       const response = await fetch('/api/admin/orders/counts');
-  //       if (!response.ok) throw new Error('Failed to fetch counts');
-  //       const data = await response.json();
-  //       setCounts(data);
-  //     } catch (err) {
-  //       setError(err.message);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  const isSelected = (s) => status === s;
 
-  //   fetchCounts();
-  // }, []);
-  // console.log(initialOrders);
-  // Fetch orders when status (filter) changes
+  useEffect(() => {
+    setIsReplacing(false);
+    setPage(+searchParams.get('page') || 1);
+    if (searchParams.get('status')) {
+      setStatus(searchParams?.get('status'));
+    }
+  }, [searchParams]);
 
-  const loadMore = async () => {
-    // if (!nextCursor) return;
+  const PAGE_SIZE = 5;
+  const totalPages = Math.ceil((counts?.[status] || 0) / PAGE_SIZE);
 
-    const params = new URLSearchParams(searchParams?.toString() || '');
-    params.set('after', String(initialOrders.nextCursor));
+  const handlePageChange = (e, value) => {
+    if (value === +page || (value === 1 && !page)) return;
+    // setLoading(true);
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === 1) {
+      params.delete('page');
+      params.delete('startId');
+      params.delete('lastId');
+      params.delete('nav');
+    } else if (value === totalPages) {
+      params.set('page', value);
+      params.set('startId', data.newStartId);
+      params.set('lastId', data.newLastId);
+      params.set('nav', 'last');
+    } else {
+      params.set('page', value);
+      params.set('startId', data.newStartId);
+      params.set('lastId', data.newLastId);
+      if (value > page || !page) {
+        params.set('nav', 'next');
+      } else {
+        params.set('nav', 'prev');
+      }
+    }
+    setIsReplacing(true);
+    setPage(value);
     router.push(`?${params.toString()}`);
-    // console.log('Load more clicked');
+  };
+
+  const handleStatusChange = (status) => {
+    setStatus(status);
+    setIsReplacing(status);
   };
 
   // Format amount in Armenian Dram (AMD) without trailing .00 when integer
@@ -91,204 +111,174 @@ export default function AdminOrdersPageUI({
     }).format(value);
   };
 
-  // Expanded rows state
-  const [expandedIds, setExpandedIds] = useState([]);
-
   const toggleExpand = (id) => {
     setExpandedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
-  if (error) {
-    return null;
-    <Box sx={{ textAlign: 'center', mt: 4 }}>
-      <Typography color="error">Error: {error}</Typography>
-    </Box>;
-  }
+  // Local UI state derived from props so we can update UI optimistically
+
+  // Status edit menu state
+  const [statusMenuAnchorEl, setStatusMenuAnchorEl] = useState(null);
+  const [statusMenuOrderId, setStatusMenuOrderId] = useState(null);
+  const [statusUpdatingId, setStatusUpdatingId] = useState(null);
+
+  const STATUS_OPTIONS = ['pending', 'inTransit', 'delivered', 'failed'];
+
+  const openStatusMenu = (e, orderId) => {
+    e.stopPropagation();
+    setStatusMenuAnchorEl(e.currentTarget);
+    setStatusMenuOrderId(orderId);
+  };
+
+  const closeStatusMenu = () => {
+    setStatusMenuAnchorEl(null);
+    setStatusMenuOrderId(null);
+  };
+
+  // Default implementation: update Firestore and update local UI
+  const defaultUpdateOrderStatus = async (orderId, newStatus) => {
+    const orderRef = doc(db, 'orders', orderId);
+    // Update Firestore
+    await updateDoc(orderRef, { status: newStatus });
+
+    // Request a refresh of the listing (go to page 1) so parent re-fetches data and counts
+    // handlePageChange?.(null, 1);
+
+    // Also refresh the route to ensure server data and counts are revalidated
+    try {
+      if (typeof router?.refresh === 'function') {
+        router.refresh();
+      } else if (typeof window !== 'undefined') {
+        window.location.reload();
+      }
+    } catch (err) {
+      // As a last resort, reload the page
+      if (typeof window !== 'undefined') window.location.reload();
+    }
+  };
+
+  const handleSelectStatus = async (newStatus) => {
+    if (!statusMenuOrderId) {
+      closeStatusMenu();
+      return;
+    }
+    const orderId = statusMenuOrderId;
+    closeStatusMenu();
+    try {
+      setStatusUpdatingId(orderId);
+      const performUpdate = onUpdateOrderStatus || defaultUpdateOrderStatus;
+      await Promise.resolve(performUpdate(orderId, newStatus));
+    } catch (err) {
+      console.error('Failed to update order status', err);
+    } finally {
+      setStatusUpdatingId(null);
+    }
+  };
+
+  const stats = [
+    { key: 'total', label: 'Total', icon: ShoppingCartIcon, color: 'secondary' },
+    { key: 'pending', label: 'Pending', icon: PendingIcon, color: 'warning' },
+    { key: 'inTransit', label: 'In Transit', icon: LocalShippingIcon, color: 'info' },
+    { key: 'delivered', label: 'Delivered', icon: CheckCircleIcon, color: 'success' },
+    { key: 'failed', label: 'Failed', icon: ErrorIcon, color: 'error' },
+  ];
 
   return (
     <Box sx={{ p: { xs: 2, md: 3 }, minWidth: { xs: 680 }, overflowX: 'auto' }}>
-      {loading && (
-        <CircularProgress sx={{ position: 'absolute', top: '10px', display: 'flex', left: '50%' }} />
-      )}
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
         <Typography variant="h4">Orders Overview</Typography>
-        <Stack direction="row" spacing={1} alignItems="center">
-          <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-            Last updated
-          </Typography>
-          <Tooltip title="Refresh counts">
-            <IconButton
-              size="small"
-              onClick={async () => {
-                // setLoading(true);
-                // try {
-                //   const res = await fetch('/api/admin/orders/counts');
-                //   const data = await res.json();
-                //   setCounts(data);
-                // } catch (e) {
-                //   setError(e.message);
-                // } finally {
-                //   setLoading(false);
-                // }
-              }}
-            >
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-        </Stack>
       </Stack>
 
       <>
         <Grid container spacing={{ xs: 1, sm: 2 }} sx={{ mb: 2 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Paper
-              sx={{ display: 'flex', alignItems: 'center', gap: 2, p: { xs: 1.25, sm: 2 }, boxShadow: 1 }}
-            >
-              <Avatar
-                sx={{ bgcolor: 'primary.light', width: { xs: 40, sm: 48 }, height: { xs: 40, sm: 48 } }}
-              >
-                <ShoppingCartIcon sx={{ color: 'primary.main', fontSize: { xs: 20, sm: 24 } }} />
-              </Avatar>
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Total
-                </Typography>
-                <Typography variant="h6">{counts.total}</Typography>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <Paper
-              sx={{ display: 'flex', alignItems: 'center', gap: 2, p: { xs: 1.25, sm: 2 }, boxShadow: 1 }}
-            >
-              <Avatar
-                sx={{ bgcolor: 'warning.light', width: { xs: 40, sm: 48 }, height: { xs: 40, sm: 48 } }}
-              >
-                <PendingIcon sx={{ color: 'warning.main', fontSize: { xs: 20, sm: 24 } }} />
-              </Avatar>
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Pending
-                </Typography>
-                <Typography variant="h6">{counts.pending}</Typography>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <Paper
-              sx={{ display: 'flex', alignItems: 'center', gap: 2, p: { xs: 1.25, sm: 2 }, boxShadow: 1 }}
-            >
-              <Avatar
-                sx={{ bgcolor: 'success.light', width: { xs: 40, sm: 48 }, height: { xs: 40, sm: 48 } }}
-              >
-                <CheckCircleIcon sx={{ color: 'success.main', fontSize: { xs: 20, sm: 24 } }} />
-              </Avatar>
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Delivered
-                </Typography>
-                <Typography variant="h6">{counts.delivered}</Typography>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <Paper
-              sx={{ display: 'flex', alignItems: 'center', gap: 2, p: { xs: 1.25, sm: 2 }, boxShadow: 1 }}
-            >
-              <Avatar sx={{ bgcolor: 'error.light', width: { xs: 40, sm: 48 }, height: { xs: 40, sm: 48 } }}>
-                <ErrorIcon sx={{ color: 'error.main', fontSize: { xs: 20, sm: 24 } }} />
-              </Avatar>
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Failed
-                </Typography>
-                <Typography variant="h6">{counts.failed}</Typography>
-              </Box>
-            </Paper>
-          </Grid>
+          {stats.map((s) => {
+            const Icon = s.icon;
+            const count = counts[s.key] ?? 0;
+            return (
+              <Grid item xs={12} sm={6} md={3} key={s.key}>
+                <Link
+                  href={`/admin/orders?status=${s.key}`}
+                  onClick={() => handleStatusChange(s.key)}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <Paper
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1.25,
+                      p: { xs: 1, sm: 1.5 },
+                      boxShadow: isSelected(s.key) ? '0 6px 14px rgba(2,6,23,0.05)' : 'none',
+                      border: '1px solid',
+                      borderColor: isSelected(s.key) ? `${s.color}.light` : 'transparent',
+                      bgcolor: isSelected(s.key) ? `${s.color}.lighter` : 'background.paper',
+                      transition: 'box-shadow 160ms ease, transform 160ms ease, background 160ms ease',
+                      '&:hover': {
+                        transform: 'translateY(-1px)',
+                        boxShadow: isSelected(s.key)
+                          ? '0 7px 18px rgba(2,6,23,0.06)'
+                          : '0 3px 8px rgba(2,6,23,0.03)',
+                      },
+                    }}
+                  >
+                    <Avatar
+                      sx={{
+                        bgcolor: `${s.color}.light`,
+                        width: { xs: 36, sm: 44 },
+                        height: { xs: 36, sm: 44 },
+                      }}
+                    >
+                      {isReplacing === s.key || initialLoading ? (
+                        <CircularProgress size={20} color="inherit" />
+                      ) : (
+                        <Icon sx={{ color: 'white', fontSize: { xs: 18, sm: 20 } }} />
+                      )}
+                    </Avatar>
+                    <Box>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: '0.72rem', sm: '0.82rem' } }}
+                      >
+                        {s.label}
+                      </Typography>
+                      <Typography variant="h6" sx={{ fontSize: { xs: '0.96rem', sm: '1rem' } }}>
+                        {count}
+                      </Typography>
+                    </Box>
+                  </Paper>
+                </Link>
+              </Grid>
+            );
+          })}
         </Grid>
 
-        <Box sx={{ overflowX: 'auto', py: 1, mb: 2 }}>
-          <Stack direction="row" spacing={1} sx={{ minWidth: 'max-content', px: 0.5 }}>
-            <Chip
-              avatar={
-                <Avatar
-                  sx={{
-                    bgcolor: 'transparent',
-                    color: currentStatus === 'all' ? 'primary.main' : 'text.secondary',
-                    width: 24,
-                    height: 24,
-                    fontSize: 12,
-                  }}
-                >
-                  {counts.total}
-                </Avatar>
-              }
-              label="All"
-              color={currentStatus === 'all' ? 'primary' : 'default'}
-              onClick={() => router.push('/admin/orders?status=all')}
-            />
-            <Chip
-              avatar={
-                <Avatar
-                  sx={{
-                    bgcolor: 'transparent',
-                    color: currentStatus === 'pending' ? 'warning.main' : 'text.secondary',
-                    width: 24,
-                    height: 24,
-                    fontSize: 12,
-                  }}
-                >
-                  {counts.pending}
-                </Avatar>
-              }
-              label="Pending"
-              color={currentStatus === 'pending' ? 'warning' : 'default'}
-              onClick={() => router.push('/admin/orders?status=pending')}
-            />
-            <Chip
-              avatar={
-                <Avatar
-                  sx={{
-                    bgcolor: 'transparent',
-                    color: currentStatus === 'delivered' ? 'success.main' : 'text.secondary',
-                    width: 24,
-                    height: 24,
-                    fontSize: 12,
-                  }}
-                >
-                  {counts.delivered}
-                </Avatar>
-              }
-              label="Delivered"
-              color={currentStatus === 'delivered' ? 'success' : 'default'}
-              onClick={() => router.push('/admin/orders?status=delivered')}
-            />
-            <Chip
-              avatar={
-                <Avatar
-                  sx={{
-                    bgcolor: 'transparent',
-                    color: currentStatus === 'failed' ? 'error.main' : 'text.secondary',
-                    width: 24,
-                    height: 24,
-                    fontSize: 12,
-                  }}
-                >
-                  {counts.failed}
-                </Avatar>
-              }
-              label="Failed"
-              color={currentStatus === 'failed' ? 'error' : 'default'}
-              onClick={() => router.push('/admin/orders?status=failed')}
-            />
-          </Stack>
-        </Box>
-
-        <Paper sx={{ p: 2, overflowX: 'auto' }}>
+        <Paper sx={{ p: 2, mt: '20px' }}>
+          {isReplacing && (
+            <div
+              style={{
+                position: 'absolute', // 👈 key difference — relative to the parent
+                inset: 0,
+                backdropFilter: 'blur(0.5px)',
+                background: 'rgba(255, 255, 255, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '12px', // optional, matches parent if rounded
+                zIndex: 100,
+              }}
+            >
+              <style jsx>{`
+                @keyframes spin {
+                  0% {
+                    transform: rotate(0deg);
+                  }
+                  100% {
+                    transform: rotate(360deg);
+                  }
+                }
+              `}</style>
+            </div>
+          )}
           <Table size="small" sx={{ minWidth: 760 }}>
             <TableHead>
               <TableRow>
@@ -328,14 +318,14 @@ export default function AdminOrdersPageUI({
                     </TableCell>
                   </TableRow>
                 ))
-              ) : initialOrders?.items.length === 0 ? (
+              ) : data.items.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} sx={{ textAlign: 'center', color: 'text.secondary' }}>
                     No orders found.
                   </TableCell>
                 </TableRow>
               ) : (
-                initialOrders?.items.map((order) => {
+                data.items.map((order) => {
                   const isExpanded = expandedIds.includes(order.id);
                   return (
                     <Fragment key={order.id}>
@@ -396,17 +386,37 @@ export default function AdminOrdersPageUI({
                           <Chip
                             label={order.status ?? '—'}
                             size="small"
-                            color={
-                              order.status === 'pending'
-                                ? 'warning'
-                                : order.status === 'delivered'
-                                ? 'success'
-                                : order.status === 'failed'
-                                ? 'error'
-                                : 'default'
-                            }
-                            sx={{ textTransform: 'capitalize' }}
+                            variant="outlined"
+                            onClick={(e) => openStatusMenu(e, order.id)}
+                            sx={{
+                              cursor: 'pointer',
+                              textTransform: 'capitalize',
+                              color:
+                                order.status === 'pending'
+                                  ? 'warning.main'
+                                  : order.status === 'delivered'
+                                  ? 'success.main'
+                                  : order.status === 'failed'
+                                  ? 'error.main'
+                                  : order.status === 'inTransit'
+                                  ? 'info.main'
+                                  : 'text.primary',
+                              borderColor:
+                                order.status === 'pending'
+                                  ? 'warning.main'
+                                  : order.status === 'delivered'
+                                  ? 'success.main'
+                                  : order.status === 'failed'
+                                  ? 'error.main'
+                                  : order.status === 'inTransit'
+                                  ? 'info.main'
+                                  : 'divider',
+                              background: 'transparent',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                            }}
                           />
+                          {statusUpdatingId === order.id && <CircularProgress size={14} sx={{ ml: 1 }} />}
                         </TableCell>
 
                         <TableCell>
@@ -506,13 +516,33 @@ export default function AdminOrdersPageUI({
               )}
             </TableBody>
           </Table>
+
+          <Menu
+            anchorEl={statusMenuAnchorEl}
+            open={Boolean(statusMenuAnchorEl)}
+            onClose={closeStatusMenu}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          >
+            {STATUS_OPTIONS.map((s) => {
+              const label = s === 'inTransit' ? 'In Transit' : s.charAt(0).toUpperCase() + s.slice(1);
+              const currentOrder = data.items?.find((o) => o.id === statusMenuOrderId);
+              const isCurrent = currentOrder?.status === s;
+              return (
+                <MenuItem key={s} selected={isCurrent} onClick={() => handleSelectStatus(s)}>
+                  <Typography sx={{ textTransform: 'capitalize' }}>{label}</Typography>
+                </MenuItem>
+              );
+            })}
+          </Menu>
         </Paper>
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2, gap: 2 }}>
-          {initialOrders?.nextCursor ? (
-            <Button variant="outlined" size="small" onClick={loadMore} disabled={fetchingMore}>
-              {fetchingMore ? <CircularProgress size={18} /> : 'Load more'}
-            </Button>
+          {totalPages > 1 ? (
+            <CustomPagination
+              curentPage={page || 1}
+              totalPages={totalPages}
+              handlePageChange={handlePageChange}
+            />
           ) : (
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>
               End of results

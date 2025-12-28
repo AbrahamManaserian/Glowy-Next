@@ -102,11 +102,11 @@ export default function OrdersTab({ orders }) {
                   <Chip
                     label={order.status || 'Processing'}
                     color={
-                      order.status === 'Delivered'
+                      order.status === 'delivered'
                         ? 'success'
-                        : order.status === 'Shipped'
+                        : order.status === 'inTransit'
                         ? 'primary'
-                        : order.status === 'Cancelled'
+                        : order.status === 'cancelled'
                         ? 'error'
                         : 'error'
                     }

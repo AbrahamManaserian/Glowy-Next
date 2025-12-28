@@ -561,7 +561,7 @@ export default function AppBarMenu() {
               <MenuItem
                 onClick={() => {
                   handleCloseMenu();
-                  router.push('/admin');
+                  router.push('/admin/orders?status=pending');
                 }}
               >
                 <ListItemIcon>

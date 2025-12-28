@@ -4,7 +4,7 @@ import AdminOrdersPageUI from './_components/AdminOrdersPageUI';
 export default async function AdminOrdersPage({ searchParams }) {
   const url = await searchParams;
   // allow only safe keys from incoming searchParams
-  const allowedKeys = ['status', 'limit', 'after'];
+  const allowedKeys = ['status', 'limit', 'after', 'page', 'startId', 'lastId', 'nav'];
   const safeParams = Object.fromEntries(Object.entries(url || {}).map(([k, v]) => [String(k), String(v)]));
   const filteredParams = Object.fromEntries(
     Object.entries(safeParams).filter(([key]) => allowedKeys.includes(key))
@@ -15,8 +15,11 @@ export default async function AdminOrdersPage({ searchParams }) {
     process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://glowy-store-next.netlify.app';
 
   // Fetch server-side with error handling
-  let data = null;
+
   let counts = null;
+
+  let data;
+
   try {
     const res = await fetch(`${baseUrl}/api/admin/orders?${queryString}`, { cache: 'no-store' });
 
@@ -42,9 +45,8 @@ export default async function AdminOrdersPage({ searchParams }) {
     }
 
     data = await res.json();
-    counts = await resCount.json();
 
-    // console.log(data);
+    counts = await resCount.json();
   } catch (err) {
     console.error('Network error fetching orders:', err);
     return (
@@ -58,5 +60,9 @@ export default async function AdminOrdersPage({ searchParams }) {
       </Box>
     );
   }
-  return <AdminOrdersPageUI initialLoading={false} counts={counts} initialOrders={data} searchParams={url} />;
+
+  return (
+    <AdminOrdersPageUI data={data} initialLoading={false} counts={counts} searchParams={url} />
+    // <div>asd</div>
+  );
 }

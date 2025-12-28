@@ -29,15 +29,17 @@ export async function GET() {
     const total = totalSnapshot.data().count;
 
     // Get counts by status
-    const [pendingSnapshot, deliveredSnapshot, failedSnapshot] = await Promise.all([
+    const [pendingSnapshot, deliveredSnapshot, failedSnapshot, inTransitSnapshot] = await Promise.all([
       ordersRef.where('status', '==', 'pending').count().get(),
       ordersRef.where('status', '==', 'delivered').count().get(),
       ordersRef.where('status', '==', 'failed').count().get(),
+      ordersRef.where('status', '==', 'inTransit').count().get(),
     ]);
 
     const pending = pendingSnapshot.data().count;
     const delivered = deliveredSnapshot.data().count;
-    const failed = failedSnapshot.data().count;
+      const failed = failedSnapshot.data().count;
+      const inTransit = inTransitSnapshot.data().count;
 
     return NextResponse.json(
       {
@@ -45,6 +47,7 @@ export async function GET() {
         pending,
         delivered,
         failed,
+        inTransit,
       },
       {
         headers: {

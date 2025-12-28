@@ -39,22 +39,22 @@ export default function AdminLayout({ children }) {
   const [openProducts, setOpenProducts] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    if (!user) {
-      router.push('/auth/signin?redirect=/admin');
-      return;
-    }
-    user
-      .getIdTokenResult()
-      .then((result) => {
-        if (!result.claims.admin) {
-          router.push('/');
-        }
-      })
-      .catch(() => {
-        router.push('/');
-      });
-  }, [user, router]);
+  // useEffect(() => {
+  //   if (!user) {
+  //     router.push('/auth/signin?redirect=/admin');
+  //     return;
+  //   }
+  //   user
+  //     .getIdTokenResult()
+  //     .then((result) => {
+  //       if (!result.claims.admin) {
+  //         router.push('/');
+  //       }
+  //     })
+  //     .catch(() => {
+  //       router.push('/');
+  //     });
+  // }, [user, router]);
 
   const handleProductsClick = () => {
     setOpenProducts(!openProducts);

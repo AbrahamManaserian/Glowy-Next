@@ -10,7 +10,7 @@ import ItemCart from '@/_components/carts/ItemCart';
 import { categoriesObj } from '@/app/(pages)/admin1/add-product/page';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
-const CustomPagination = ({ curentPage, currentPage, totalPages, handlePageChange }) => {
+export const CustomPagination = ({ curentPage, currentPage, totalPages, handlePageChange }) => {
   // accept both `curentPage` (existing prop in codebase) and `currentPage`
   const current = typeof currentPage === 'number' ? currentPage : curentPage;
 

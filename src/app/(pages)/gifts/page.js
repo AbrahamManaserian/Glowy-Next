@@ -1,7 +1,7 @@
 'use client';
 
-import { Button, Grid, Typography } from '@mui/material';
-import Link from 'next/link';
+import { Grid, Typography } from '@mui/material';
+
 
 export default function Home() {
   return (
