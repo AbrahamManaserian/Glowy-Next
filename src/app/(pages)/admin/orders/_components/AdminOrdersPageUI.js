@@ -35,7 +35,7 @@ import PendingIcon from '@mui/icons-material/Pending';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase';
 
 export default function AdminOrdersPageUI({
@@ -62,7 +62,7 @@ export default function AdminOrdersPageUI({
     }
   }, [searchParams]);
 
-  const PAGE_SIZE = 5;
+  const PAGE_SIZE = 20;
   const totalPages = Math.ceil((counts?.[status] || 0) / PAGE_SIZE);
 
   const handlePageChange = (e, value) => {
@@ -111,6 +111,56 @@ export default function AdminOrdersPageUI({
     }).format(value);
   };
 
+  // Robust date formatter that supports numbers, ISO strings, Firestore Timestamps and objects with `seconds` or `_seconds`.
+  const formatDate = (value) => {
+    if (value === null || value === undefined) return '—';
+
+    try {
+      // numbers (milliseconds)
+      if (typeof value === 'number') {
+        const d = new Date(value);
+        return isNaN(d.getTime()) ? '—' : d.toLocaleString();
+      }
+
+      // numeric string
+      if (typeof value === 'string') {
+        const num = Number(value);
+        if (!Number.isNaN(num)) {
+          const d = new Date(num);
+          return isNaN(d.getTime()) ? '—' : d.toLocaleString();
+        }
+        // ISO or parseable date string
+        const d = new Date(value);
+        return isNaN(d.getTime()) ? '—' : d.toLocaleString();
+      }
+
+      // Firestore Timestamp-like with toMillis()
+      if (value?.toMillis && typeof value.toMillis === 'function') {
+        const d = new Date(value.toMillis());
+        return isNaN(d.getTime()) ? '—' : d.toLocaleString();
+      }
+
+      // Firestore Timestamp-like with toDate()
+      if (value?.toDate && typeof value.toDate === 'function') {
+        const d = value.toDate();
+        return isNaN(d.getTime()) ? '—' : d.toLocaleString();
+      }
+
+      // Plain object with seconds/_seconds and optional nanoseconds
+      const seconds = value?.seconds ?? value?._seconds;
+      const nanoseconds = value?.nanoseconds ?? value?._nanoseconds ?? value?.nanos ?? 0;
+      if (seconds !== undefined && seconds !== null) {
+        const ms = Number(seconds) * 1000 + Math.floor((Number(nanoseconds) || 0) / 1e6);
+        const d = new Date(ms);
+        return isNaN(d.getTime()) ? '—' : d.toLocaleString();
+      }
+    } catch (err) {
+      // ignore and fall through
+    }
+
+    return '—';
+  };
+
   const toggleExpand = (id) => {
     setExpandedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
@@ -138,8 +188,19 @@ export default function AdminOrdersPageUI({
   // Default implementation: update Firestore and update local UI
   const defaultUpdateOrderStatus = async (orderId, newStatus) => {
     const orderRef = doc(db, 'orders', orderId);
-    // Update Firestore
-    await updateDoc(orderRef, { status: newStatus });
+    // Minimal update payload: set status, updatedAt and a dynamic timestamp like `${status}At`
+    const updatePayload = {
+      status: newStatus,
+      updatedAt: serverTimestamp(),
+      [`${newStatus}At`]: serverTimestamp(),
+    };
+
+    try {
+      await updateDoc(orderRef, updatePayload);
+    } catch (err) {
+      console.error('Failed to update order in Firestore', err);
+      throw err; // rethrow so caller can handle (shows spinner off / snackbar)
+    }
 
     // Request a refresh of the listing (go to page 1) so parent re-fetches data and counts
     // handlePageChange?.(null, 1);
@@ -252,7 +313,7 @@ export default function AdminOrdersPageUI({
           })}
         </Grid>
 
-        <Paper sx={{ p: 2, mt: '20px' }}>
+        <Paper sx={{ p: 2, mt: '20px', minWidth: 760, boxSizing: 'border-box' }}>
           {isReplacing && (
             <div
               style={{
@@ -279,7 +340,7 @@ export default function AdminOrdersPageUI({
               `}</style>
             </div>
           )}
-          <Table size="small" sx={{ minWidth: 760 }}>
+          <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell>Order</TableCell>
@@ -287,7 +348,7 @@ export default function AdminOrdersPageUI({
                 <TableCell>Items</TableCell>
                 <TableCell>Amount</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Date</TableCell>
+                <TableCell>Created</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -383,45 +444,49 @@ export default function AdminOrdersPageUI({
                         <TableCell>{formatAMD(order.financials?.total)}</TableCell>
 
                         <TableCell>
-                          <Chip
-                            label={order.status ?? '—'}
-                            size="small"
-                            variant="outlined"
-                            onClick={(e) => openStatusMenu(e, order.id)}
-                            sx={{
-                              cursor: 'pointer',
-                              textTransform: 'capitalize',
-                              color:
-                                order.status === 'pending'
-                                  ? 'warning.main'
-                                  : order.status === 'delivered'
-                                  ? 'success.main'
-                                  : order.status === 'failed'
-                                  ? 'error.main'
-                                  : order.status === 'inTransit'
-                                  ? 'info.main'
-                                  : 'text.primary',
-                              borderColor:
-                                order.status === 'pending'
-                                  ? 'warning.main'
-                                  : order.status === 'delivered'
-                                  ? 'success.main'
-                                  : order.status === 'failed'
-                                  ? 'error.main'
-                                  : order.status === 'inTransit'
-                                  ? 'info.main'
-                                  : 'divider',
-                              background: 'transparent',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                            }}
-                          />
-                          {statusUpdatingId === order.id && <CircularProgress size={14} sx={{ ml: 1 }} />}
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.4 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Chip
+                                label={order.status ?? '—'}
+                                size="small"
+                                variant="outlined"
+                                onClick={(e) => openStatusMenu(e, order.id)}
+                                sx={{
+                                  cursor: 'pointer',
+                                  textTransform: 'capitalize',
+                                  color:
+                                    order.status === 'pending'
+                                      ? 'warning.main'
+                                      : order.status === 'delivered'
+                                      ? 'success.main'
+                                      : order.status === 'failed'
+                                      ? 'error.main'
+                                      : order.status === 'inTransit'
+                                      ? 'info.main'
+                                      : 'text.primary',
+                                  borderColor:
+                                    order.status === 'pending'
+                                      ? 'warning.main'
+                                      : order.status === 'delivered'
+                                      ? 'success.main'
+                                      : order.status === 'failed'
+                                      ? 'error.main'
+                                      : order.status === 'inTransit'
+                                      ? 'info.main'
+                                      : 'divider',
+                                  background: 'transparent',
+                                }}
+                              />
+                              {statusUpdatingId === order.id && <CircularProgress size={14} sx={{ ml: 1 }} />}
+                            </Box>
+
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                              {formatDate(order?.[`${order.status}At`] || order?.updatedAt)}
+                            </Typography>
+                          </Box>
                         </TableCell>
 
-                        <TableCell>
-                          {order.createdAt ? new Date(order.createdAt).toLocaleString() : '—'}
-                        </TableCell>
+                        <TableCell>{formatDate(order.createdAt)}</TableCell>
 
                         <TableCell align="right">
                           <Tooltip title="View order">

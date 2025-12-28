@@ -24,6 +24,7 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
+
 export const dynamic = 'force-dynamic';
 
 // GET /api/admin/orders?status=pending&limit=5&after=1672531200000
@@ -62,7 +63,7 @@ export async function GET(request) {
         let q = ordersRef.orderBy('createdAt', 'desc');
         if (chckStatus) q = q.where('status', '==', status);
         if (item) q = q.startAfter(item);
-        q = q.limitToLast(5);
+        q = q.limitToLast(20);
 
         const querySnapshot = await q.get();
         items = querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -80,7 +81,7 @@ export async function GET(request) {
         let q = ordersRef.orderBy('createdAt', 'desc');
         if (chckStatus) q = q.where('status', '==', status);
         if (item) q = q.startAfter(item);
-        q = q.limit(5);
+        q = q.limit(20);
 
         const querySnapshot = await q.get();
         items = querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -98,7 +99,7 @@ export async function GET(request) {
         let q = ordersRef.orderBy('createdAt', 'desc');
         if (chckStatus) q = q.where('status', '==', status);
         if (item) q = q.endBefore(item);
-        q = q.limitToLast(5);
+        q = q.limitToLast(20);
 
         const querySnapshot = await q.get();
         items = querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -109,7 +110,7 @@ export async function GET(request) {
     } else {
       let q = ordersRef.orderBy('createdAt', 'desc');
       if (chckStatus) q = q.where('status', '==', status);
-      q = q.limit(5);
+      q = q.limit(20);
 
       const querySnapshot = await q.get();
       newLastId = querySnapshot.docs[querySnapshot.docs.length - 1]?.id;
@@ -117,88 +118,10 @@ export async function GET(request) {
       items = querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
     }
 
-    // Abraham alskdlaskdlasd
-
-    // // Total count for the current filter (useful for pagination)
-    // let totalSnapshot;
-    // if (status && status !== 'all') {
-    //   totalSnapshot = await ordersRef.where('status', '==', status).count().get();
-    // } else {
-    //   totalSnapshot = await ordersRef.count().get();
-    // }
-    // const totalDocs = totalSnapshot.data().count;
-
-    // // Build query depending on page/after/nav
-    // let q;
-
-    // if (!isNaN(pageParam)) {
-    //   // Page-based navigation using anchors (startId / lastId + nav)
-    //   if (nav === 'last' && lastId) {
-    //     const anchor = await ordersRef
-    //       .doc(lastId)
-    //       .get()
-    //       .catch(() => null);
-    //     q = ordersRef;
-    //     if (status && status !== 'all') q = q.where('status', '==', status);
-    //     q = q.orderBy('createdAt', 'desc').startAfter(anchor).limitToLast(limit);
-    //   } else if (nav === 'next' && lastId) {
-    //     const anchor = await ordersRef
-    //       .doc(lastId)
-    //       .get()
-    //       .catch(() => null);
-    //     q = ordersRef;
-    //     if (status && status !== 'all') q = q.where('status', '==', status);
-    //     q = q.orderBy('createdAt', 'desc').startAfter(anchor).limit(limit);
-    //   } else if (startId) {
-    //     const anchor = await ordersRef
-    //       .doc(startId)
-    //       .get()
-    //       .catch(() => null);
-    //     q = ordersRef;
-    //     if (status && status !== 'all') q = q.where('status', '==', status);
-    //     q = q.orderBy('createdAt', 'desc').endBefore(anchor).limitToLast(limit);
-    //   } else {
-    //     // Page number provided without anchors — do NOT use offset (to avoid
-    //     // expensive reads). Enforce cursor/anchor navigation by returning the
-    //     // first page instead. Use startId/lastId or `after` cursor for paging.
-    //     q = ordersRef;
-    //     if (status && status !== 'all') q = q.where('status', '==', status);
-    //     q = q.orderBy('createdAt', 'desc').limit(limit);
-    //   }
-    // } else if (after) {
-    //   // Cursor-based pagination (existing behavior)
-    //   const afterMillis = Number(after);
-    //   q = ordersRef;
-    //   if (status && status !== 'all') q = q.where('status', '==', status);
-    //   q = q.orderBy('createdAt', 'desc');
-    //   if (!isNaN(afterMillis)) {
-    //     const ts = admin.firestore.Timestamp.fromMillis(afterMillis);
-    //     q = q.startAfter(ts);
-    //   }
-    //   q = q.limit(limit);
-    // } else {
-    //   // Default: first page
-    //   q = ordersRef;
-    //   if (status && status !== 'all') q = q.where('status', '==', status);
-    //   q = q.orderBy('createdAt', 'desc').limit(limit);
-    // }
-
-    // const snapshot = await q.get();
-
-    // const items = snapshot.docs.map((d) => {
-    //   const data = d.data();
-    //   const createdAt = data.createdAt && data.createdAt.toMillis ? data.createdAt.toMillis() : null;
-    //   return { id: d.id, ...data, createdAt };
-    // });
-
     const response = {
       items,
       newStartId,
       newLastId,
-      // nextCursor: items.length === limit ? items[items.length - 1].createdAt : null,
-      // totalDocs,
-      // lastId: snapshot.docs[snapshot.docs.length - 1]?.id || null,
-      // startId: snapshot.docs[0]?.id || null,
     };
 
     return NextResponse.json(response, {

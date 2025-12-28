@@ -24,7 +24,7 @@ export const getCachedDeliveredOrders = unstable_cache(
   },
   ['delivered-orders'], // Key parts
   {
-    revalidate: 86400, // Cache for 1 day
+    revalidate: 60, // Cache for 1 minute
     tags: ['orders'],
   }
 );
