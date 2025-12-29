@@ -153,10 +153,8 @@ export default function CategoriesDekstop() {
                 );
               })}
             </List>
-          </Paper>;
-          {
-            /* Nested Popper */
-          }
+          </Paper>
+          ;{/* Nested Popper */}
           <Popper
             sx={{
               zIndex: 1100,
@@ -237,8 +235,8 @@ export default function CategoriesDekstop() {
                 })}
               </Box>
             </Paper>
-          </Popper>;
-          ; ; ;;
+          </Popper>
+          ; ; ; ;;
         </Popper>
       </div>
     </ClickAwayListener>

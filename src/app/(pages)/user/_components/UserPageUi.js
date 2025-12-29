@@ -62,6 +62,7 @@ export default function UserPageUi() {
     setWishList,
     wishListDetails,
     wishListLoading,
+    initializeData,
   } = useContext(GlobalContext);
 
   const router = useRouter();
@@ -74,6 +75,10 @@ export default function UserPageUi() {
   const currentTabParam = searchParams.get('tab');
 
   const [activeTab, setActiveTab] = useState(0);
+
+  useEffect(() => {
+    initializeData();
+  }, []);
 
   useEffect(() => {
     const tabIndex = tabMap.indexOf(currentTabParam);

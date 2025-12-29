@@ -15,7 +15,6 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import React from 'react';
 import Image from 'next/image';
 import { useGlobalContext } from '@/app/GlobalContext';
@@ -91,7 +90,7 @@ const formatDate = (value) => {
 };
 
 export default function OrdersTab({ orders }) {
-  const { user, setOrders } = useGlobalContext();
+  const { user } = useGlobalContext();
   const [openItems, setOpenItems] = React.useState({});
   const [tabValue, setTabValue] = React.useState(0); // 0: pending, 1: delivered
   const [deliveredOrders, setDeliveredOrders] = React.useState([]);
@@ -128,33 +127,6 @@ export default function OrdersTab({ orders }) {
     }
   };
 
-  const handleRefresh = async () => {
-    setLoadingDelivered(true);
-    try {
-      if (tabValue === 0) {
-        // Refresh pending orders
-        const res = await fetch(`/api/orders?userId=${user.uid}`);
-        if (res.ok) {
-          const data = await res.json();
-          setOrders(data);
-        } else {
-          setOrders([]);
-        }
-      } else {
-        // Refresh delivered orders
-
-        await fetchDeliveredOrders();
-      }
-    } catch (error) {
-      console.error('Error refreshing orders:', error);
-      if (tabValue === 0) {
-        setOrders([]);
-      }
-    } finally {
-      setLoadingDelivered(false);
-    }
-  };
-
   const displayOrders = tabValue === 0 ? orders : deliveredOrders;
 
   return (
@@ -164,9 +136,6 @@ export default function OrdersTab({ orders }) {
           <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.05rem' }}>
             My Orders
           </Typography>
-          <IconButton onClick={handleRefresh} size="small" aria-label="Refresh orders">
-            <RefreshIcon />
-          </IconButton>
         </Box>
         <Tabs value={tabValue} onChange={handleTabChange} sx={{ mb: 2 }}>
           <Tab label="Pending Orders" />
@@ -462,6 +431,16 @@ export default function OrdersTab({ orders }) {
                                     </Typography>
                                     <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
                                       ֏{order.financials.shippingSavings?.toLocaleString('en-US')}
+                                    </Typography>
+                                  </Box>
+                                )}
+                                {order.financials.bonusApplied > 0 && (
+                                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                                      • Bonus applied
+                                    </Typography>
+                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                                      ֏{order.financials.bonusApplied?.toLocaleString('en-US')}
                                     </Typography>
                                   </Box>
                                 )}

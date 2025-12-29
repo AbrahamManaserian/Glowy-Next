@@ -23,6 +23,7 @@ export const GlobalContext = createContext({
   orders: [],
   setOrders: () => {},
   setUserData: () => {},
+  initializeData: () => {},
 });
 
 export function GlobalProvider({ children }) {
@@ -37,6 +38,115 @@ export function GlobalProvider({ children }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const initializeData = async () => {
+    if (loading) return;
+    if (user) {
+      // User is signed in: Fetch from Firestore
+      try {
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUserData(userData);
+          if (userData.cart) {
+            setCart(userData.cart);
+          } else {
+            setCart({ length: 0, items: {} });
+          }
+
+          if (userData.wishList) {
+            setWishList(userData.wishList);
+          } else {
+            setWishList([]);
+          }
+        } else {
+          // New user or no data yet
+          setCart({ length: 0, items: {} });
+          setWishList([]);
+          // setUserData(null);
+        }
+      } catch (error) {
+        console.error('Error fetching user data from Firestore:', error);
+      }
+
+      // Fetch orders for signed-in user
+      try {
+        const res = await fetch(`/api/orders?userId=${user.uid}`);
+        if (res.ok) {
+          const ordersData = await res.json();
+          setOrders(ordersData);
+        } else {
+          setOrders([]);
+        }
+      } catch (error) {
+        setOrders([]);
+        console.error('Error fetching orders:', error);
+      }
+    } else {
+      setUserData(null);
+      // User is not signed in: Fetch from LocalStorage
+      try {
+        const savedCart = localStorage.getItem('cart');
+        if (savedCart) {
+          const data = JSON.parse(savedCart);
+          if (data.items) {
+            setCart(data);
+          } else {
+            localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
+            setCart({ length: 0, items: {} });
+          }
+        } else {
+          localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
+          setCart({ length: 0, items: {} });
+        }
+      } catch (error) {
+        localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
+        setCart({ length: 0, items: {} });
+        console.log(error);
+      }
+
+      try {
+        const savedWishList = localStorage.getItem('fav');
+        if (savedWishList) {
+          setWishList(JSON.parse(savedWishList));
+        } else {
+          localStorage.setItem('fav', JSON.stringify([]));
+        }
+      } catch (error) {
+        localStorage.setItem('fav', JSON.stringify([]));
+        setWishList([]);
+        console.log(error);
+      }
+
+      // Fetch orders for guest user
+      try {
+        const key = 'guestOrderIds';
+        const existing = localStorage.getItem(key);
+        let arr = [];
+        if (existing) {
+          arr = JSON.parse(existing);
+          if (!Array.isArray(arr)) arr = [];
+        }
+        if (arr.length > 0) {
+          const sortedIds = arr.sort().join(',');
+          const res = await fetch(`/api/orders?ids=${sortedIds}`);
+          if (res.ok) {
+            const ordersData = await res.json();
+            setOrders(ordersData);
+          } else {
+            setOrders([]);
+          }
+        } else {
+          setOrders([]);
+        }
+      } catch (error) {
+        setOrders([]);
+        console.error('Error fetching guest orders:', error);
+      }
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -47,114 +157,6 @@ export function GlobalProvider({ children }) {
 
   useEffect(() => {
     if (loading) return;
-
-    const initializeData = async () => {
-      if (user) {
-        // User is signed in: Fetch from Firestore
-        try {
-          const userDocRef = doc(db, 'users', user.uid);
-          const userDoc = await getDoc(userDocRef);
-
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setUserData(userData);
-            if (userData.cart) {
-              setCart(userData.cart);
-            } else {
-              setCart({ length: 0, items: {} });
-            }
-
-            if (userData.wishList) {
-              setWishList(userData.wishList);
-            } else {
-              setWishList([]);
-            }
-          } else {
-            // New user or no data yet
-            setCart({ length: 0, items: {} });
-            setWishList([]);
-            // setUserData(null);
-          }
-        } catch (error) {
-          console.error('Error fetching user data from Firestore:', error);
-        }
-
-        // Fetch orders for signed-in user
-        try {
-          const res = await fetch(`/api/orders?userId=${user.uid}`);
-          if (res.ok) {
-            const ordersData = await res.json();
-            setOrders(ordersData);
-          } else {
-            setOrders([]);
-          }
-        } catch (error) {
-          setOrders([]);
-          console.error('Error fetching orders:', error);
-        }
-      } else {
-        setUserData(null);
-        // User is not signed in: Fetch from LocalStorage
-        try {
-          const savedCart = localStorage.getItem('cart');
-          if (savedCart) {
-            const data = JSON.parse(savedCart);
-            if (data.items) {
-              setCart(data);
-            } else {
-              localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
-              setCart({ length: 0, items: {} });
-            }
-          } else {
-            localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
-            setCart({ length: 0, items: {} });
-          }
-        } catch (error) {
-          localStorage.setItem('cart', JSON.stringify({ length: 0, items: {} }));
-          setCart({ length: 0, items: {} });
-          console.log(error);
-        }
-
-        try {
-          const savedWishList = localStorage.getItem('fav');
-          if (savedWishList) {
-            setWishList(JSON.parse(savedWishList));
-          } else {
-            localStorage.setItem('fav', JSON.stringify([]));
-          }
-        } catch (error) {
-          localStorage.setItem('fav', JSON.stringify([]));
-          setWishList([]);
-          console.log(error);
-        }
-
-        // Fetch orders for guest user
-        try {
-          const key = 'guestOrderIds';
-          const existing = localStorage.getItem(key);
-          let arr = [];
-          if (existing) {
-            arr = JSON.parse(existing);
-            if (!Array.isArray(arr)) arr = [];
-          }
-          if (arr.length > 0) {
-            const sortedIds = arr.sort().join(',');
-            const res = await fetch(`/api/orders?ids=${sortedIds}`);
-            if (res.ok) {
-              const ordersData = await res.json();
-              setOrders(ordersData);
-            } else {
-              setOrders([]);
-            }
-          } else {
-            setOrders([]);
-          }
-        } catch (error) {
-          setOrders([]);
-          console.error('Error fetching guest orders:', error);
-        }
-      }
-    };
 
     initializeData();
   }, [user, loading]);
@@ -251,6 +253,7 @@ export function GlobalProvider({ children }) {
         orders,
         setOrders,
         setUserData,
+        initializeData,
       }}
     >
       {children}

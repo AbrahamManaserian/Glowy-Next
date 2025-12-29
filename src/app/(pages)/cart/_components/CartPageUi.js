@@ -12,10 +12,13 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
+  Checkbox,
+  Switch,
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import RedeemIcon from '@mui/icons-material/Redeem';
 import Link from 'next/link';
 import { useSearchParams, usePathname } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
@@ -26,7 +29,8 @@ import { db } from '@/firebase';
 import { runTransaction, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 export default function CartPageUi() {
-  const { cart, setCart, cartDetails, user, setOrders, userData, setUserData } = useGlobalContext();
+  const { cart, setCart, cartDetails, user, setOrders, userData, setUserData, initializeData } =
+    useGlobalContext();
   const [cartState, setCartState] = useState({
     shippingMethod: 'free',
     paymentMethod: 'cash',
@@ -37,6 +41,11 @@ export default function CartPageUi() {
     note: '',
     saveUserInfo: false,
   });
+  const [applyBonus, setApplyBonus] = useState(false);
+
+  useEffect(() => {
+    initializeData();
+  }, []);
 
   useEffect(() => {
     if (userData) {
@@ -49,6 +58,10 @@ export default function CartPageUi() {
       }));
     }
   }, [userData]);
+
+  useEffect(() => {
+    setApplyBonus(false);
+  }, [user, userData]);
 
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
@@ -158,8 +171,10 @@ export default function CartPageUi() {
       : 0;
   const firstShopDiscount = user && userData?.firstShopp ? subtotal * 0.2 : 0;
   const totalDiscount = discount + firstShopDiscount;
-  const total = subtotal + shippingCost - totalDiscount;
-  const totalSaved = savedFromOriginalPrice + totalDiscount + shippingSavings;
+  const bonus = user && userData ? Math.floor((userData.totalSpent - (userData.bonusUsed || 0)) * 0.03) : 0;
+  const appliedBonus = applyBonus ? Math.min(bonus, subtotal + shippingCost - totalDiscount) : 0;
+  const total = subtotal + shippingCost - totalDiscount - appliedBonus;
+  const totalSaved = savedFromOriginalPrice + totalDiscount + shippingSavings + appliedBonus;
 
   const handleCreateOrder = async () => {
     if (!cartState.fullName || !cartState.phoneNumber || !cartState.address) {
@@ -234,6 +249,7 @@ export default function CartPageUi() {
             shippingCost: shippingCost || 0,
             extraDiscount: discount || 0,
             firstShopDiscount: firstShopDiscount || 0,
+            bonusApplied: appliedBonus,
             total: total || 0,
             savedFromOriginalPrice: savedFromOriginalPrice || 0,
             shippingSavings: shippingSavings || 0,
@@ -276,6 +292,17 @@ export default function CartPageUi() {
             setUserData((prev) => ({ ...prev, firstShopp: false }));
           } catch (error) {
             console.error('Failed to update firstShopp:', error);
+          }
+        }
+        // Update bonusUsed if bonus applied
+        if (applyBonus && appliedBonus > 0) {
+          try {
+            const userRef = doc(db, 'users', user.uid);
+            const newBonusUsed = (userData.bonusUsed || 0) + appliedBonus / 0.03;
+            await updateDoc(userRef, { bonusUsed: newBonusUsed });
+            setUserData((prev) => ({ ...prev, bonusUsed: newBonusUsed }));
+          } catch (error) {
+            console.error('Failed to update bonusUsed:', error);
           }
         }
       }
@@ -447,6 +474,44 @@ export default function CartPageUi() {
           ))}
         </Stepper>
       </Box>
+      {bonus > 0 && (
+        <Box
+          sx={{
+            width: '100%',
+            mb: '20px',
+            p: '20px',
+            background: 'linear-gradient(135deg, #e91e63 0%, #f06292 100%)',
+            borderRadius: '16px',
+            boxShadow: '0 4px 12px rgba(233, 30, 99, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2,
+            color: 'white',
+          }}
+        >
+          <RedeemIcon sx={{ fontSize: '28px' }} />
+          <Box>
+            <Typography
+              sx={{
+                fontSize: '18px',
+                fontWeight: 600,
+                mb: 0.5,
+              }}
+            >
+              Bonus Available!
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '16px',
+                fontWeight: 400,
+              }}
+            >
+              You have ֏{bonus.toLocaleString()} to use on this order.
+            </Typography>
+          </Box>
+        </Box>
+      )}
       <Box
         sx={{
           display: 'flex',
@@ -626,6 +691,34 @@ export default function CartPageUi() {
             </Typography>
           </Box>
         )}
+        {bonus > 0 && (
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: '15px' }}>
+            <Typography
+              sx={{
+                color: '#e65100',
+                fontSize: '15px',
+                fontWeight: 300,
+              }}
+            >
+              Use bonus (֏{bonus.toLocaleString()})
+            </Typography>
+            <Switch
+              checked={applyBonus}
+              onChange={(e) => setApplyBonus(e.target.checked)}
+              sx={{
+                '& .MuiSwitch-switchBase.Mui-checked': {
+                  color: '#4caf50',
+                  '& + .MuiSwitch-track': {
+                    backgroundColor: '#4caf50',
+                  },
+                },
+                '& .MuiSwitch-track': {
+                  backgroundColor: '#ccc',
+                },
+              }}
+            />
+          </Box>
+        )}
         {totalSaved > 0 && (
           <Box
             sx={{
@@ -684,6 +777,16 @@ export default function CartPageUi() {
                 </Typography>
               </Box>
             )}
+            {applyBonus && appliedBonus > 0 && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                  • Bonus applied
+                </Typography>
+                <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                  ֏{appliedBonus.toLocaleString()}
+                </Typography>
+              </Box>
+            )}
           </Box>
         )}
         <Box
@@ -716,7 +819,26 @@ export default function CartPageUi() {
         </Box>
         {!params.has('checkout') ? (
           <>
-            <Link scroll={true} href={`/cart?checkout`}>
+            {subtotal > 0 ? (
+              <Link scroll={true} href={`/cart?checkout`}>
+                <Button
+                  variant="contained"
+                  sx={{
+                    textTransform: 'capitalize',
+                    width: '100%',
+                    p: '10px 35px',
+                    bgcolor: '#2B3445',
+                    borderRadius: '8px',
+                    fontWeight: 400,
+                    textWrap: 'nowrap',
+
+                    mb: '10px',
+                  }}
+                >
+                  Order now
+                </Button>
+              </Link>
+            ) : (
               <Button
                 variant="contained"
                 sx={{
@@ -730,10 +852,11 @@ export default function CartPageUi() {
 
                   mb: '10px',
                 }}
+                disabled
               >
                 Order now
               </Button>
-            </Link>
+            )}
             <Link href="/shop">
               <Button
                 variant="outlined"

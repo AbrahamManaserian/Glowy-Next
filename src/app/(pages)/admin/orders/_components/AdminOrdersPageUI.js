@@ -683,7 +683,8 @@ export default function AdminOrdersPageUI({
                                       order.financials?.savedFromOriginalPrice > 0 ||
                                       order.financials?.extraDiscount > 0 ||
                                       order.financials?.firstShopDiscount > 0 ||
-                                      order.financials?.shippingSavings > 0) && (
+                                      order.financials?.shippingSavings > 0 ||
+                                      order.financials?.bonusApplied > 0) && (
                                       <Box
                                         sx={{
                                           mt: 1,
@@ -810,6 +811,29 @@ export default function AdminOrdersPageUI({
                                               }}
                                             >
                                               {formatAMD(order.financials.shippingSavings)}
+                                            </Typography>
+                                          </Box>
+                                        )}
+
+                                        {order.financials?.bonusApplied > 0 && (
+                                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <Typography
+                                              sx={{
+                                                color: 'text.secondary',
+                                                fontSize: '0.82rem',
+                                                fontWeight: 300,
+                                              }}
+                                            >
+                                              • Bonus applied
+                                            </Typography>
+                                            <Typography
+                                              sx={{
+                                                color: 'text.secondary',
+                                                fontSize: '0.82rem',
+                                                fontWeight: 500,
+                                              }}
+                                            >
+                                              {formatAMD(order.financials.bonusApplied)}
                                             </Typography>
                                           </Box>
                                         )}
