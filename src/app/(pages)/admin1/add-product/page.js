@@ -219,6 +219,10 @@ export const categoriesObj = {
     category: 'Accessories',
     accessories: { category: 'Accessories', type: [] },
   },
+  collection: {
+    category: 'Collection',
+    collection: { category: 'Collection', type: ['Fragrance', 'Makeup', 'Skincare'] },
+  },
 };
 
 export default function AddProductPage() {

@@ -1,4 +1,5 @@
-import { Box, Typography } from '@mui/material';
+'use client';
+
 import AdminOrdersPageUI from './_components/AdminOrdersPageUI';
 
 export default function Loading() {

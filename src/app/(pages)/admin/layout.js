@@ -83,7 +83,7 @@ export default function AdminLayout({ children }) {
     <Box sx={{ display: 'flex', pt: '15px', flexWrap: 'nowrap', position: 'relative' }}>
       <Box
         sx={{
-          width: { xs: sidebarOpen ? '100%' : 0, sm: sidebarWidth },
+          width: { xs: sidebarOpen ? '100%' : 0, sm: sidebarOpen ? '100%' : 0, md: sidebarWidth },
           position: { xs: 'absolute', sm: 'sticky' },
           top: 0,
           height: 'calc(100vh - 64px)',
@@ -91,7 +91,11 @@ export default function AdminLayout({ children }) {
           borderRight: '1px solid',
           borderColor: 'divider',
           overflowY: 'auto',
-          transform: { xs: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)', sm: 'translateX(0)' },
+          transform: {
+            xs: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+            sm: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+            md: 'translateX(0)',
+          },
           transition: 'transform 0.3s ease',
           zIndex: 1000,
         }}
@@ -163,7 +167,7 @@ export default function AdminLayout({ children }) {
       >
         <IconButton
           onClick={handleSidebarToggle}
-          sx={{ display: { sm: 'none' }, position: 'sticky', top: '0px', bgcolor: 'GrayText', ml: '10px' }}
+          sx={{ display: { md: 'none' }, position: 'sticky', top: '0px', bgcolor: 'GrayText', ml: '10px' }}
         >
           <MenuIcon />
         </IconButton>

@@ -59,6 +59,8 @@ export default function AdminOrdersPageUI({
     if (searchParams.get('status')) {
       setStatus(searchParams?.get('status'));
     }
+    // Reset scroll to top on navigation
+    window.scrollTo(0, 0);
   }, [searchParams]);
 
   const PAGE_SIZE = 20;

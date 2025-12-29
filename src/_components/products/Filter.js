@@ -331,23 +331,23 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
         open={collapseItems.brands}
         handleCangeCollapse={handleCangeCollapse}
       />
-      <Collapse sx={{ mb: '100px' }} in={collapseItems.brands} timeout="auto" unmountOnExit>
+      <Collapse sx={{ mb: '300px' }} in={collapseItems.brands} timeout="auto" unmountOnExit>
         <Autocomplete
           disablePortal
           blurOnSelect
           freeSolo
-          slots={{ popper: BottomPopper }}
-          slotProps={{
-            paper: { sx: { maxHeight: 900 } },
-            listbox: { sx: { maxHeight: 900 } },
-          }}
+          // slots={{ popper: BottomPopper }}
+          // slotProps={{
+          //   paper: { sx: { maxHeight: 900 } },
+          //   listbox: { sx: { maxHeight: 900 } },
+          // }}
           sx={{ boxSizing: 'border-box', width: '100%', my: '10px' }}
           size="small"
           options={(categoriesObj?.[category]?.[paramsState.subCategory]?.brands || []).map(
             (option) => option
           )}
           renderInput={(params) => <TextField inputRef={inputRef} {...params} label="Brands" />}
-          value={brand}
+          value={paramsState.brand || ''}
           onChange={(event, value, reason) => {
             if (reason !== 'clear') {
               handleChangeParams('brand', value ?? '', noRout);
