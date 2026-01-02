@@ -478,7 +478,6 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
 
               <Button
                 onClick={() => {
-                  // toggleDrawer(false);
                   applyFilters(paramsState);
                 }}
                 variant="text"
