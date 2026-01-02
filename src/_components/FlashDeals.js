@@ -10,12 +10,14 @@ import { useRouter } from 'next/navigation';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { handleClickAddToCart } from '@/_components/carts/ItemCart';
+import { useTranslations } from 'next-intl';
 
 export default function FlashDeals({ flashDeals = [] }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
   const [itemsPerView, setItemsPerView] = useState(4);
   const router = useRouter();
   const { cart, setCart } = useGlobalContext();
+  const t = useTranslations('HomePage.flashDeals');
 
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
@@ -55,7 +57,7 @@ export default function FlashDeals({ flashDeals = [] }) {
             fontWeight={700}
             color="#2B3445"
           >
-            Flash Deals
+            {t('title')}
           </Typography>
           <ChevronLeftIcon
             onClick={scrollPrev}

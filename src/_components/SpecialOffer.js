@@ -4,11 +4,13 @@ import { Box, Button, Grid, Typography } from '@mui/material';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export default function SpecialOffer({ specialOffer: initialOffer }) {
   const [specialOffer, setSpecialOffer] = useState(initialOffer);
   const [option, setOption] = useState(null);
   const router = useRouter();
+  const t = useTranslations('HomePage.specialOffer');
 
   useEffect(() => {
     if (initialOffer) {
@@ -52,7 +54,7 @@ export default function SpecialOffer({ specialOffer: initialOffer }) {
         fontWeight={700}
         color="#2B3445"
       >
-        Special Offer
+        {t('title')}
       </Typography>
       <Grid size={12} maxWidth={'1150px'} spacing={5} container>
         <Grid
@@ -69,7 +71,7 @@ export default function SpecialOffer({ specialOffer: initialOffer }) {
           alignItems="center"
         >
           <Typography sx={{ color: '#f44336', fontSize: '14px' }}>
-            {specialOffer.category || 'Special Deal'}
+            {specialOffer.category || t('specialDeal')}
           </Typography>
           <Typography
             sx={{

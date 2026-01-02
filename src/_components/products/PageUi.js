@@ -7,8 +7,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import SortView from './SortView';
 import Filter from './Filter';
 import ItemCart from '@/_components/carts/ItemCart';
-import { categoriesObj } from '@/app/(pages)/admin1/add-product/page';
+import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
+import { useTranslations } from 'next-intl';
 
 export const CustomPagination = ({ curentPage, currentPage, totalPages, handlePageChange }) => {
   // accept both `curentPage` (existing prop in codebase) and `currentPage`
@@ -101,10 +102,13 @@ const defaultParams = {
   brands: [],
   original: false,
   inStock: false,
+  sale: false,
   page: '',
 };
 
 export default function PageUi({ data, categoryText, category, totalDocs, lastId, startId }) {
+  const t = useTranslations('ShopPage');
+  const tCommon = useTranslations('Common.nav');
   const [loading, setLoading] = useState(false);
   // console.log(lastId, startId);
   const router = useRouter();
@@ -131,7 +135,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
         } else {
           params.delete(key);
         }
-      } else if (key === 'original' || key === 'inStock') {
+      } else if (key === 'original' || key === 'inStock' || key === 'sale') {
         if (value) {
           params.set(key, 'true');
         } else {
@@ -165,6 +169,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
         'page',
         'original',
         'inStock',
+        'sale',
         'orderBy',
         'minPrice',
         'maxPrice',
@@ -262,7 +267,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
         let parsedValue = value;
         if (key === 'brands') {
           parsedValue = value ? value.split(',') : [];
-        } else if (key === 'original' || key === 'inStock') {
+        } else if (key === 'original' || key === 'inStock' || key === 'sale') {
           parsedValue = value !== 'false';
         } else {
           if (value === 'true') parsedValue = true;
@@ -324,7 +329,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
               mb: '20px',
             }}
           >
-            {categoryText}
+            {tCommon(category)}
           </Typography>
 
           <SortView
@@ -343,7 +348,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
           sx={{ textTransform: 'initial' }}
           size="small"
         >
-          Reset filters
+          {t('resetFilters')}
         </Button>
         <Grid container sx={{ width: '100%', flexWrap: 'nowrap' }}>
           <Box sx={{ display: { xs: 'none', sm: 'none', md: 'flex' }, mt: '40px' }}>
@@ -378,9 +383,10 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
               {paramsState.subCategory && categoriesObj[category][paramsState.subCategory].category}{' '}
               {paramsState.type && ` > ${paramsState.type} `}
               {paramsState.brands && paramsState.brands.length > 0 && ` > ${paramsState.brands.join(', ')}  `}
-              {paramsState.size && ` > Size - ${paramsState.size} `}
+              {paramsState.size && ` > ${t('size')} - ${paramsState.size} `}
+              {paramsState.sale && ` > ${t('sale')} `}
               <br />
-              Totoal items - {totalDocs}
+              {t('totalItems')} - {totalDocs}
             </Typography>
             {loading && (
               <div

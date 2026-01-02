@@ -2,8 +2,10 @@ import { Box, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TuneIcon from '@mui/icons-material/Tune';
 import { GridViewIcon, ListViewIcon } from '@/_components/icons';
+import { useTranslations } from 'next-intl';
 
 export default function SortView({ handleChangeParams, paramsState, toggleDrawer }) {
+  const t = useTranslations('ShopPage');
   return (
     <Box
       sx={{
@@ -16,7 +18,7 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
       <Box sx={{ display: { xs: 'flex', sm: 'flex', md: 'none' }, flexGrow: 1 }}>
         <Box onClick={() => toggleDrawer(true)} sx={{ display: 'flex' }}>
           <TuneIcon sx={{ color: '#8a8c8dff' }} />
-          <Typography sx={{ color: '#262b2eff', fontSize: '14px', ml: '10px' }}>Filters</Typography>
+          <Typography sx={{ color: '#262b2eff', fontSize: '14px', ml: '10px' }}>{t('filters')}</Typography>
         </Box>
       </Box>
 
@@ -72,13 +74,13 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
             },
           }}
         >
-          Sort by
+          {t('sortBy')}
         </InputLabel>
 
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          label="Sort by"
+          label={t('sortBy')}
           value={paramsState.orderBy}
           onChange={(event) => handleChangeParams('orderBy', event.target.value)}
           IconComponent={ExpandMoreIcon}
@@ -106,9 +108,9 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
           }}
           inputProps={{ sx: { height: '40px', display: 'flex', alignItems: 'center' } }}
         >
-          <MenuItem value={'price_asc'}>Price: Low to High</MenuItem>
-          <MenuItem value={'price_desc'}>Price: High to Low</MenuItem>
-          <MenuItem value={'default'}>Default</MenuItem>
+          <MenuItem value={'price_asc'}>{t('priceLowHigh')}</MenuItem>
+          <MenuItem value={'price_desc'}>{t('priceHighLow')}</MenuItem>
+          <MenuItem value={'default'}>{t('default')}</MenuItem>
         </Select>
       </FormControl>
     </Box>

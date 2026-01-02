@@ -4,6 +4,7 @@ import { Box, Grid, Typography } from '@mui/material';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 const images = [
   '/images/giftCollection/491418281_17894849493207296_8185218575935560017_n.jpg',
@@ -13,16 +14,18 @@ const images = [
   '/images/giftCollection/491415702_17894775201207296_2836718220170321531_n.jpg',
 ];
 
-const arr = [
-  { path: '/fragrance?subCategory=fragrance', name: 'Fragrance', image: images[0] },
-  { path: '/makeup', name: 'Makeup', image: images[1] },
-  { path: '/skincare', name: 'Skincare', image: images[2] },
-  { path: '/hair', name: 'Haircare', image: images[3] },
-  { path: '/bathBody', name: 'Bath & Body', image: images[4] },
-];
-
 export default function CustumSolutions() {
   const router = useRouter();
+  const t = useTranslations('HomePage.customSolutions');
+
+  const arr = [
+    { path: '/fragrance?subCategory=fragrance', name: t('fragrance'), image: images[0] },
+    { path: '/makeup', name: t('makeup'), image: images[1] },
+    { path: '/skincare', name: t('skincare'), image: images[2] },
+    { path: '/hair', name: t('haircare'), image: images[3] },
+    { path: '/bathBody', name: t('bathBody'), image: images[4] },
+  ];
+
   const mainItem = arr[1]; // Makeup
   const subItems = [arr[0], arr[2], arr[3], arr[4]]; // Fragrance, Skincare, Haircare, Bath & Body
 
@@ -39,7 +42,7 @@ export default function CustumSolutions() {
         fontWeight={700}
         color="#2B3445"
       >
-        Custom solutions for your needs
+        {t('title')}
       </Typography>
 
       {/* Main Item (Left/Top Large Item) */}

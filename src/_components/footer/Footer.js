@@ -7,8 +7,12 @@ import { LogoHome } from '../appBar/AppBarMenu';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import { useTranslations } from 'next-intl';
 
 export default function Footer() {
+  const t = useTranslations('Common.footer');
+  const tNav = useTranslations('Common.nav');
+
   return (
     <Grid
       size={12}
@@ -33,8 +37,7 @@ export default function Footer() {
             m: '17px 0 15px 8px',
           }}
         >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Auctor libero id et, in gravida. Sit diam
-          duis mauris nulla cursus. Erat et lectus vel ut sollicitudin elit at amet.
+          {t('description')}
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
@@ -47,7 +50,7 @@ export default function Footer() {
               m: '0 0 2px 15px',
             }}
           >
-            Safe Payment
+            {t('safePayment')}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'flex-end', mt: '10px' }}>
@@ -60,7 +63,7 @@ export default function Footer() {
               ml: '15px',
             }}
           >
-            Fast Deelivery
+            {t('fastDelivery')}
           </Typography>
         </Box>
       </Grid>
@@ -76,18 +79,22 @@ export default function Footer() {
         pt={'10px'}
       >
         <Typography sx={{ fontSize: '18px', fontWeight: 500, mb: '15px', color: 'white' }}>
-          About Us
-        </Typography>
-        <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>Story</Typography>
-        <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>
-          Our Goals
-        </Typography>
-        <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>Stores</Typography>
-        <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>
-          Terms & Conditions
+          {t('aboutUs')}
         </Typography>
         <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>
-          Privacy Policy
+          {tNav('story')}
+        </Typography>
+        <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>
+          {tNav('ourGoals')}
+        </Typography>
+        <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>
+          {tNav('stores')}
+        </Typography>
+        <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>
+          {tNav('termsConditions')}
+        </Typography>
+        <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>
+          {tNav('privacyPolicy')}
         </Typography>
       </Grid>
       <Grid
@@ -101,19 +108,23 @@ export default function Footer() {
         pt={'10px'}
       >
         <Typography sx={{ fontSize: '18px', fontWeight: 500, mb: '15px', color: 'white' }}>
-          Customer Care
+          {t('customerCare')}
         </Typography>
         <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>
-          Help Center
+          {tNav('helpCenter')}
         </Typography>
         <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>
-          Track Your Order
+          {tNav('trackOrder')}
         </Typography>
-        <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>Stores</Typography>
         <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>
-          Returns & Refunds
+          {tNav('stores')}
         </Typography>
-        <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>FAQ</Typography>
+        <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>
+          {tNav('returnsRefunds')}
+        </Typography>
+        <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '5px', color: 'white' }}>
+          {tNav('faq')}
+        </Typography>
       </Grid>
       <Grid
         pt={'10px'}
@@ -126,7 +137,7 @@ export default function Footer() {
         borderTop={{ xs: 'solid 0.1px #6d6d71ee', sm: 'solid 0px #6d6d71ee' }}
       >
         <Typography sx={{ fontSize: '18px', fontWeight: 500, mb: '15px', color: 'white' }}>
-          Contact Us
+          {t('contactUs')}
         </Typography>
         <Typography sx={{ fontSize: '14px', fontWeight: 300, mb: '10px', color: 'white' }}>
           70 Washington Square South, New York, NY 10012, United States

@@ -17,7 +17,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 // import { categoriesObj } from '@/app/admin/add-product/page';
-import { categoriesObj } from '@/app/(pages)/admin1/add-product/page';
+import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
 
 export default function CategoriesDekstop() {
   const [data, setData] = useState({});

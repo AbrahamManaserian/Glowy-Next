@@ -4,15 +4,19 @@ import { Box, Grid, Rating, Typography } from '@mui/material';
 import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export default function PopularProducts({ popularProducts }) {
   const [tabIndex, setTabIndex] = useState(0);
   const router = useRouter();
+  const t = useTranslations('HomePage.popularProducts');
   const handleClick = (i) => setTabIndex(i);
 
   const categories = ['fragrance', 'makeup', 'hair'];
   const currentCategory = categories[tabIndex];
   const products = popularProducts?.[currentCategory] || [];
+
+  const tabLabels = [t('fragrance'), t('makeup'), t('hair')];
 
   return (
     <Grid sx={{ m: { xs: '80px 15px', sm: '90px 25px' } }} size={12} container alignContent={'flex-start'}>
@@ -21,10 +25,10 @@ export default function PopularProducts({ popularProducts }) {
         fontWeight={700}
         color="#2B3445"
       >
-        Popular Products
+        {t('title')}
       </Typography>
       <Grid size={12} container>
-        {['Fragrance', 'Makeup', 'Hair'].map((item, index) => {
+        {tabLabels.map((item, index) => {
           return (
             <Typography
               key={index}

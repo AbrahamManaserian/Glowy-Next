@@ -24,16 +24,19 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import Logout from '@mui/icons-material/Logout';
 import Login from '@mui/icons-material/Login';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import TranslateIcon from '@mui/icons-material/Translate';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { useEffect, useRef, useState } from 'react';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { FavoriteIcon, UserAvatar } from '../icons';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import CartDrawer from '@/app/(pages)/cart/_components/CartDrawer';
+import { useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from '@/i18n/routing';
+import { useLocale, useTranslations } from 'next-intl';
+import CartDrawer from '@/app/[locale]/(pages)/cart/_components/CartDrawer';
 import { useGlobalContext } from '@/app/GlobalContext';
-import { categoriesObj } from '@/app/(pages)/admin1/add-product/page';
+import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
 
 const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -48,35 +51,6 @@ const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
     borderRadius: '13px',
   },
 }));
-
-const navObj = {
-  shop: 'Shop',
-  makeup: 'Makeup',
-  fragrance: 'Fragrance',
-  sale: 'Sale',
-  gifts: 'Gifts',
-  about: 'About',
-};
-const navObjGeneral = {
-  shop: 'Shop',
-  home: 'Home',
-  sale: 'Sale',
-  gifts: 'Gifts',
-  about: 'About',
-  blog: 'Blog',
-};
-const navObjAbout = {
-  about: 'Story',
-  'about#2': 'Our Goals',
-  'about#3': 'Terms & Conditions',
-  'about#4': 'Privacy Policy',
-};
-const navObjCusCare = {
-  help: 'Help Center',
-  'help#2': 'Track Your Order',
-  'help#3': 'Returns & Refunds',
-  'help#4': 'FAQ',
-};
 
 export function LogoHome() {
   return (
@@ -218,6 +192,27 @@ function DrawerMenu() {
   const [openNested, setOpenNested] = useState();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const t = useTranslations('Common.nav');
+
+  const navObjGeneral = {
+    '': t('home'),
+    shop: t('shop'),
+    sale: t('sale'),
+    giftCards: t('giftCards'),
+    about: t('about'),
+  };
+  const navObjAbout = {
+    about: t('story'),
+    'about#2': t('ourGoals'),
+    'about#3': t('termsConditions'),
+    'about#4': t('privacyPolicy'),
+  };
+  const navObjCusCare = {
+    help: t('helpCenter'),
+    'help#2': t('trackOrder'),
+    'help#3': t('returnsRefunds'),
+    'help#4': t('faq'),
+  };
 
   const toggleDrawer = (newOpen) => {
     setOpen(newOpen);
@@ -277,26 +272,8 @@ function DrawerMenu() {
               onClick={() => toggleDrawer(false)}
             />
           </div>
-          <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#434a4eff' }}>
-            All Categories
-          </Typography>
-          <List ref={drawerRef} sx={{ pl: '10px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
-            {Object.keys(categoriesObj).map((key) => {
-              return (
-                <SingleCategory
-                  data={categoriesObj[key]}
-                  category={key}
-                  key={key}
-                  open={openNested}
-                  setOpen={setOpenNested}
-                  closeDrawer={toggleDrawer}
-                  rootProps={{ 'data-category': key }}
-                />
-              );
-            })}
-          </List>
-          <Divider sx={{ mb: '10px' }} />
-          <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
+
+          <Typography sx={{ fontSize: '17px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
             General
           </Typography>
           {Object.keys(navObjGeneral).map((key, index) => {
@@ -317,7 +294,27 @@ function DrawerMenu() {
             );
           })}
           <Divider sx={{ mb: '10px' }} />
-          <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
+          <Typography sx={{ fontSize: '17px', fontWeight: 600, color: '#434a4eff' }}>
+            All Categories
+          </Typography>
+          <List ref={drawerRef} sx={{ pl: '10px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
+            {Object.keys(categoriesObj).map((key) => {
+              return (
+                <SingleCategory
+                  data={categoriesObj[key]}
+                  category={key}
+                  key={key}
+                  open={openNested}
+                  setOpen={setOpenNested}
+                  closeDrawer={toggleDrawer}
+                  rootProps={{ 'data-category': key }}
+                />
+              );
+            })}
+          </List>
+
+          <Divider sx={{ mb: '10px' }} />
+          <Typography sx={{ fontSize: '17px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
             Customer Care
           </Typography>
           {Object.keys(navObjCusCare).map((key, index) => {
@@ -338,7 +335,7 @@ function DrawerMenu() {
             );
           })}
           <Divider sx={{ mb: '10px' }} />
-          <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
+          <Typography sx={{ fontSize: '17px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
             About Us
           </Typography>
           {Object.keys(navObjAbout).map((key, index) => {
@@ -368,6 +365,9 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase';
 
 export default function AppBarMenu() {
+  const locale = useLocale();
+  const t = useTranslations('Common.nav');
+  const tUser = useTranslations('Common.user');
   const { isSticky, setIsSticky, userData, user } = useGlobalContext();
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -376,6 +376,15 @@ export default function AppBarMenu() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const navObj = {
+    shop: t('shop'),
+    makeup: t('makeup'),
+    fragrance: t('fragrance'),
+    sale: t('sale'),
+    giftCards: t('giftCards'),
+    about: t('about'),
+  };
 
   const redirectUrl =
     searchParams.get('redirect') ||
@@ -389,6 +398,11 @@ export default function AppBarMenu() {
 
   const handleCloseMenu = () => {
     setAnchorEl(null);
+  };
+
+  const handleLanguageChange = (newLocale) => {
+    handleCloseMenu();
+    router.replace(pathname, { locale: newLocale });
   };
 
   const handleSignOut = async () => {
@@ -533,7 +547,7 @@ export default function AppBarMenu() {
               <ListItemIcon>
                 <PersonOutlineIcon fontSize="small" />
               </ListItemIcon>
-              Profile
+              {tUser('profile')}
             </MenuItem>
             <MenuItem
               onClick={() => {
@@ -544,7 +558,7 @@ export default function AppBarMenu() {
               <ListItemIcon>
                 <LocalMallOutlinedIcon fontSize="small" />
               </ListItemIcon>
-              My Orders
+              {tUser('myOrders')}
             </MenuItem>
             <MenuItem
               onClick={() => {
@@ -555,7 +569,7 @@ export default function AppBarMenu() {
               <ListItemIcon>
                 <FavoriteBorderIcon fontSize="small" />
               </ListItemIcon>
-              Wishlist
+              {tUser('wishlist')}
             </MenuItem>
             {isAdmin && (
               <MenuItem
@@ -567,16 +581,32 @@ export default function AppBarMenu() {
                 <ListItemIcon>
                   <AdminPanelSettingsIcon fontSize="small" />
                 </ListItemIcon>
-                Admin
+                {tUser('adminPanel')}
               </MenuItem>
             )}
+            <Divider />
+            <MenuItem disabled sx={{ opacity: '1 !important' }}>
+              <ListItemIcon>
+                <TranslateIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Language" primaryTypographyProps={{ fontWeight: 600 }} />
+            </MenuItem>
+            <MenuItem selected={locale === 'hy'} onClick={() => handleLanguageChange('hy')} sx={{ pl: 4 }}>
+              <ListItemText primary="Հայերեն" />
+            </MenuItem>
+            <MenuItem selected={locale === 'en'} onClick={() => handleLanguageChange('en')} sx={{ pl: 4 }}>
+              <ListItemText primary="English" />
+            </MenuItem>
+            <MenuItem selected={locale === 'ru'} onClick={() => handleLanguageChange('ru')} sx={{ pl: 4 }}>
+              <ListItemText primary="Русский" />
+            </MenuItem>
             <Divider />
             {userData ? (
               <MenuItem onClick={handleSignOut}>
                 <ListItemIcon>
                   <Logout fontSize="small" />
                 </ListItemIcon>
-                Logout
+                {tUser('logout')}
               </MenuItem>
             ) : (
               <MenuItem
@@ -588,7 +618,7 @@ export default function AppBarMenu() {
                 <ListItemIcon>
                   <Login fontSize="small" />
                 </ListItemIcon>
-                Sign In
+                {tUser('login')}
               </MenuItem>
             )}
           </Menu>

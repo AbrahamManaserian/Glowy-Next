@@ -17,8 +17,9 @@ import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import React, { useRef, useState } from 'react';
-import { categoriesObj } from '@/app/(pages)/admin1/add-product/page';
+import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 
 const IOSSwitch = styled(({ color, prop, noRout, checked, handleChangeParams, ...props }) => (
   <Switch
@@ -146,6 +147,8 @@ const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
 import Link from 'next/link';
 
 export default function Filter({ paramsState, handleChangeParams, noRout, category, brands }) {
+  const t = useTranslations('ShopPage');
+  const tCommon = useTranslations('Common.nav');
   const inputRef = useRef(null);
   const initialValue = useRef('');
 
@@ -164,7 +167,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
     return (
       <Grid container sx={{ width: { xs: '100%', sm: '250px' } }} direction={'column'}>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-          Categories
+          {t('categories')}
         </Typography>
         {Object.entries(categoriesObj).map(([key, value]) => (
           <Link
@@ -173,7 +176,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
             className="bar-link"
             style={{ display: 'block', marginBottom: '4px' }}
           >
-            {value.category}
+            {tCommon(key)}
           </Link>
         ))}
       </Grid>
@@ -184,16 +187,16 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
     <Grid container sx={{ width: { xs: '100%', sm: '250px' }, pb: '200px' }} direction={'column'}>
       <ColllapseItem
         prop="price"
-        name="Price"
+        name={t('price')}
         open={collapseItems.price}
         handleCangeCollapse={handleCangeCollapse}
       />
       <Collapse in={collapseItems.price} timeout="auto" unmountOnExit>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', my: '10px' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', m: '10px 0 20px 0' }}>
           <TextField
             key={`minPrice${paramsState.minPrice}`}
             type="number"
-            placeholder="Min price"
+            placeholder={t('minPrice')}
             defaultValue={paramsState.minPrice}
             onFocus={(e) => (initialValue.current = e.target.value)}
             onBlur={(e) => {
@@ -208,12 +211,12 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
               }
             }}
             sx={textFieldStyle}
-            helperText="Min Price AMD"
+            helperText={t('minPriceAMD')}
           />
           <TextField
             key={`maxPrice${paramsState.maxPrice}`}
             type="number"
-            placeholder="Max price"
+            placeholder={t('maxPrice')}
             variant="outlined"
             onKeyDown={(e) => {
               if (['e', 'E', '+', '-'].includes(e.key)) {
@@ -228,30 +231,21 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
               }
             }}
             sx={textFieldStyle}
-            helperText="Max Price AMD"
+            helperText={t('maxPriceAMD')}
           />
         </Box>
       </Collapse>
-      <Box sx={{ display: 'flex', my: '15px', alignItems: 'center' }}>
+      <Box sx={{ display: 'flex', mt: '5px', alignItems: 'center' }}>
         <IOSSwitch
-          prop="original"
+          prop="sale"
           handleChangeParams={handleChangeParams}
-          checked={paramsState.original === true}
+          checked={paramsState.sale}
           noRout={noRout}
           color="green"
         />
 
-        <Typography
-          sx={{
-            color: paramsState.original ? '#263045fb' : '#a5abb9fb',
-            fontWeight: 500,
-            ml: '15px',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          Oroginal brand
-          <VerifiedIcon sx={{ fontSize: '18px', ml: '8px', color: '#1976d2' }} />
+        <Typography sx={{ color: '#263045fb', fontWeight: 500, ml: '15px' }}>
+          {t('discountedProducts')}
         </Typography>
       </Box>
       <Typography
@@ -259,16 +253,16 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
           color: '#263045fb',
           fontSize: '12px',
           ml: '51px',
-          mt: '5px',
+          mb: '15px',
           fontWeight: 400,
         }}
       >
-        Show only products from original brands
+        {t('showDiscountedOnly')}
       </Typography>
 
       <ColllapseItem
         prop="category"
-        name="Category"
+        name={t('categories')}
         open={collapseItems.category}
         handleCangeCollapse={handleCangeCollapse}
       />
@@ -294,7 +288,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
 
       <ColllapseItem
         prop="type"
-        name="Type"
+        name={t('type')}
         open={collapseItems.type}
         handleCangeCollapse={handleCangeCollapse}
       />
@@ -321,7 +315,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
 
       <ColllapseItem
         prop="brands"
-        name="Brands"
+        name={t('brands')}
         open={collapseItems.brands}
         handleCangeCollapse={handleCangeCollapse}
       />
@@ -347,7 +341,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
             };
             return options.filter((option) => isSubsequence(normalize(inputValue), normalize(option)));
           }}
-          renderInput={(params) => <TextField inputRef={inputRef} {...params} label="Brands" />}
+          renderInput={(params) => <TextField inputRef={inputRef} {...params} label={t('brands')} />}
           value={paramsState.brands || []}
           onChange={(event, value) => {
             handleChangeParams('brands', value, noRout);
@@ -356,11 +350,11 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
       </Collapse>
 
       <Box sx={{ display: 'flex', my: '15px', flexWrap: 'wrap' }}>
-        <Typography sx={{ color: '#263045fb', fontWeight: 500, mb: '15px' }}> Size </Typography>
+        <Typography sx={{ color: '#263045fb', fontWeight: 500, mb: '15px' }}> {t('size')} </Typography>
         <TextField
           key={`size${paramsState.size}`}
           type="number"
-          placeholder="Size"
+          placeholder={t('size')}
           defaultValue={paramsState.size}
           onFocus={(e) => (initialValue.current = e.target.value)}
           onBlur={(e) => {
@@ -379,8 +373,40 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
           size="small"
         />
       </Box>
+      <Box sx={{ display: 'flex', mt: '5px', alignItems: 'center' }}>
+        <IOSSwitch
+          prop="original"
+          handleChangeParams={handleChangeParams}
+          checked={paramsState.original === true}
+          noRout={noRout}
+          color="#1976d2"
+        />
 
-      <Box sx={{ display: 'flex', my: '10px' }}>
+        <Typography
+          sx={{
+            color: '#263045fb',
+            fontWeight: 500,
+            ml: '15px',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          {t('originalBrand')}
+          <VerifiedIcon sx={{ fontSize: '18px', ml: '8px', color: '#1976d2' }} />
+        </Typography>
+      </Box>
+      <Typography
+        sx={{
+          color: '#263045fb',
+          fontSize: '12px',
+          ml: '51px',
+          mb: '15px',
+          fontWeight: 400,
+        }}
+      >
+        {t('showOriginalOnly')}
+      </Typography>
+      <Box sx={{ display: 'flex', mt: '5px' }}>
         <IOSSwitch
           prop="inStock"
           handleChangeParams={handleChangeParams}
@@ -388,7 +414,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
           noRout={noRout}
         />
 
-        <Typography sx={{ color: '#263045fb', fontWeight: 500, ml: '15px' }}>Only in Stock</Typography>
+        <Typography sx={{ color: '#263045fb', fontWeight: 500, ml: '15px' }}>{t('onlyInStock')}</Typography>
       </Box>
       <Typography
         sx={{
@@ -399,7 +425,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
           fontWeight: 400,
         }}
       >
-        Show only products that are currently in stock
+        {t('showInStockOnly')}
       </Typography>
     </Grid>
   );

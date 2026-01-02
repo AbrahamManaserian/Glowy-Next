@@ -7,11 +7,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingBasketIcon } from '@/_components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
-import { StyledBadge } from '@/app/(pages)/cart/_components/CartDrawer';
+import { StyledBadge } from '@/app/[locale]/(pages)/cart/_components/CartDrawer';
 import { handleAddItemToWishList } from '@/_functions/hadleAddItemToWishList';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
+import { useTranslations } from 'next-intl';
 
 export const handleClickAddToCart = async (item, quantity, setCart, cart) => {
   const user = auth.currentUser;
@@ -50,6 +51,7 @@ export const handleClickAddToCart = async (item, quantity, setCart, cart) => {
 };
 
 export default function ItemCart({ item }) {
+  const t = useTranslations('ShopPage');
   const router = useRouter();
   let newAdded;
 
@@ -89,7 +91,7 @@ export default function ItemCart({ item }) {
             zIndex: 1,
           }}
         >
-          NEW
+          {t('new')}
         </Typography>
       )}
       {item.previousPrice && (
@@ -177,7 +179,7 @@ export default function ItemCart({ item }) {
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '5px' }}>
         <Rating name="read-only" value={5} readOnly size="small" />
         <Typography sx={{ color: '#3c4354a3', fontSize: 12, lineHeight: '12px' }}>
-          {item.sold ? `${item.sold} sold` : ''}
+          {item.sold ? `${item.sold} ${t('sold')}` : ''}
         </Typography>
       </Box>
       <Box sx={{ display: 'flex', gap: 1, mt: '10px', alignItems: 'flex-end' }}>
@@ -214,7 +216,7 @@ export default function ItemCart({ item }) {
           }}
           variant="contained"
         >
-          Order Now
+          {t('orderNow')}
         </Button>
         {/* </Link> */}
       </Box>
