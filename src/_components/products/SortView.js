@@ -79,8 +79,8 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
           labelId="demo-simple-select-label"
           id="demo-simple-select"
           label="Sort by"
-          value={paramsState.sortBy}
-          onChange={(event) => handleChangeParams('sortBy', event.target.value)}
+          value={paramsState.orderBy}
+          onChange={(event) => handleChangeParams('orderBy', event.target.value)}
           IconComponent={ExpandMoreIcon}
           sx={{
             position: 'relative',
@@ -106,9 +106,9 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
           }}
           inputProps={{ sx: { height: '40px', display: 'flex', alignItems: 'center' } }}
         >
-          <MenuItem value={'latest'}>Latest</MenuItem>
-          <MenuItem value={'oldest'}>Oldest</MenuItem>
-          <MenuItem value={'popular'}>Popular</MenuItem>
+          <MenuItem value={'price_asc'}>Price: Low to High</MenuItem>
+          <MenuItem value={'price_desc'}>Price: High to Low</MenuItem>
+          <MenuItem value={'default'}>Default</MenuItem>
         </Select>
       </FormControl>
     </Box>

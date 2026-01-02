@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Container, Typography, Box, Grid, Button, Paper, Stack } from '@mui/material';
 import { Spa, Favorite, Diamond, LocalShipping, ArrowForward } from '@mui/icons-material';

@@ -90,23 +90,29 @@ export const CustomPagination = ({ curentPage, currentPage, totalPages, handlePa
   );
 };
 
+const defaultParams = {
+  orderBy: '',
+  size: '',
+  view: '',
+  minPrice: '',
+  maxPrice: '',
+  type: '',
+  subCategory: '',
+  brands: [],
+  original: false,
+  inStock: false,
+  page: '',
+};
+
 export default function PageUi({ data, categoryText, category, totalDocs, lastId, startId }) {
   const [loading, setLoading] = useState(false);
   // console.log(lastId, startId);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [paramsState, setParamsState] = useState({
-    sortBy: '',
-    size: '',
-    view: '',
-    minPrice: '',
-    maxPrice: '',
-    type: '',
-    subCategory: '',
-    brand: '',
-    inStock: 'noCheck',
-  });
+  const [paramsState, setParamsState] = useState(defaultParams);
+
+  const [brands, setBrands] = useState([]);
 
   const resetFilters = () => {
     setLoading(true);
@@ -118,7 +124,24 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
     toggleDrawer(false);
     const params = new URLSearchParams(searchParams.toString());
     Object.keys(paramsState).forEach((key) => {
-      params.set(key, paramsState[key]);
+      const value = paramsState[key];
+      if (key === 'brands') {
+        if (Array.isArray(value) && value.length > 0) {
+          params.set(key, value.join(','));
+        } else {
+          params.delete(key);
+        }
+      } else if (key === 'original' || key === 'inStock') {
+        if (value) {
+          params.set(key, 'true');
+        } else {
+          params.delete(key);
+        }
+      } else if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
     });
     params.delete('page');
     params.delete('startId');
@@ -133,41 +156,68 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
   };
 
   const doRout = (prop, value) => {
-    if (prop === 'type' || prop === 'subCategory' || prop === 'size' || prop === 'brand' || prop === 'page') {
+    if (
+      [
+        'type',
+        'subCategory',
+        'size',
+        'brands',
+        'page',
+        'original',
+        'inStock',
+        'orderBy',
+        'minPrice',
+        'maxPrice',
+      ].includes(prop)
+    ) {
       setLoading(true);
       const params = new URLSearchParams(searchParams.toString());
       if (prop === 'subCategory') {
         params.set('type', '');
-        params.set('brand', '');
+        params.delete('brands');
         params.set('size', '');
       }
-      if (prop !== 'page' || prop !== 'startId' || prop !== 'lastId') {
+      if (prop !== 'page' && prop !== 'startId' && prop !== 'lastId') {
         params.delete('page');
         params.delete('startId');
         params.delete('lastId');
         params.delete('nav');
       }
 
-      params.set(prop, value);
+      if (prop === 'brands') {
+        if (Array.isArray(value) && value.length > 0) {
+          params.set(prop, value.join(','));
+        } else {
+          params.delete(prop);
+        }
+      } else if (prop === 'original' || prop === 'inStock') {
+        if (value) {
+          params.set(prop, 'true');
+        } else {
+          params.delete(prop);
+        }
+      } else {
+        if (value) params.set(prop, value);
+        else params.delete(prop);
+      }
       router.push(`?${params.toString()}`);
     }
   };
 
   const handleChangeParams = (prop, value, noRout) => {
-    // console.log('asd');
     if (prop === 'subCategory') {
       setParamsState({
-        sortBy: '',
+        ...paramsState,
         size: '',
         view: '',
         minPrice: '',
         maxPrice: '',
         type: '',
         subCategory: value,
-        brand: '',
-        inStock: 'noCheck',
+        brands: [],
       });
     } else {
+      // console.log(prop);
       setParamsState({ ...paramsState, [prop]: value });
     }
     if (!noRout) {
@@ -205,20 +255,37 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
   };
 
   useEffect(() => {
-    // window.scrollTo({ top: 0, behavior: 'smooth' });
-    const newState = {};
-    Object.keys(paramsState).forEach((key) => {
-      newState[key] = searchParams.get(key) || '';
+    const newState = { ...defaultParams };
+    Object.keys(defaultParams).forEach((key) => {
+      if (searchParams.has(key)) {
+        let value = searchParams.get(key);
+        let parsedValue = value;
+        if (key === 'brands') {
+          parsedValue = value ? value.split(',') : [];
+        } else if (key === 'original' || key === 'inStock') {
+          parsedValue = value !== 'false';
+        } else {
+          if (value === 'true') parsedValue = true;
+          else if (value === 'false') parsedValue = false;
+        }
+        newState[key] = parsedValue;
+      }
     });
-    if (searchParams.get('page')) {
-      newState.page = searchParams.get('page');
-    }
     setParamsState(newState);
   }, [searchParams]);
 
   useEffect(() => {
     setLoading(false);
   }, [data]);
+
+  useEffect(() => {
+    if (category) {
+      fetch(`/api/brands/${category}`)
+        .then((res) => res.json())
+        .then((data) => setBrands(data))
+        .catch((err) => console.error('Error fetching brands:', err));
+    }
+  }, [category]);
 
   return (
     <Grid sx={{ m: { xs: '50px 10px', sm: '90px 35px' } }} size={12}>
@@ -266,9 +333,26 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
             paramsState={paramsState}
           />
         </Box>
+        <Button
+          onClick={() => {
+            toggleDrawer(false);
+            resetFilters();
+          }}
+          variant="text"
+          // color="success"
+          sx={{ textTransform: 'initial' }}
+          size="small"
+        >
+          Reset filters
+        </Button>
         <Grid container sx={{ width: '100%', flexWrap: 'nowrap' }}>
           <Box sx={{ display: { xs: 'none', sm: 'none', md: 'flex' }, mt: '40px' }}>
-            <Filter paramsState={paramsState} handleChangeParams={handleChangeParams} category={category} />
+            <Filter
+              paramsState={paramsState}
+              handleChangeParams={handleChangeParams}
+              category={category}
+              brands={brands}
+            />
           </Box>
           <Grid
             alignContent={'flex-start'}
@@ -293,7 +377,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
             >
               {paramsState.subCategory && categoriesObj[category][paramsState.subCategory].category}{' '}
               {paramsState.type && ` > ${paramsState.type} `}
-              {paramsState.brand && ` > ${paramsState.brand}  `}
+              {paramsState.brands && paramsState.brands.length > 0 && ` > ${paramsState.brands.join(', ')}  `}
               {paramsState.size && ` > Size - ${paramsState.size} `}
               <br />
               Totoal items - {totalDocs}
@@ -391,13 +475,14 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
               }}
             >
               <CloseIcon sx={{ color: '#8a8c8dff' }} onClick={() => toggleDrawer(false)} />
+
               <Button
                 onClick={() => {
                   // toggleDrawer(false);
                   applyFilters(paramsState);
                 }}
                 variant="text"
-                sx={{ m: 0 }}
+                sx={{ textTransform: 'capitalize' }}
               >
                 Aply
               </Button>
@@ -408,6 +493,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
                 handleChangeParams={handleChangeParams}
                 noRout={true}
                 category={category}
+                brands={brands}
               />
             </div>
           </div>

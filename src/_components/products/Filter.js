@@ -15,23 +15,20 @@ import {
 } from '@mui/material';
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import VerifiedIcon from '@mui/icons-material/Verified';
 import React, { useRef, useState } from 'react';
 import { categoriesObj } from '@/app/(pages)/admin1/add-product/page';
 import styled from '@emotion/styled';
 
-function BottomPopper(props) {
-  return <Popper {...props} placement="bottom-start" />;
-}
-
-const IOSSwitch = styled(({ noRout, checked, handleChangeParams, ...props }) => (
+const IOSSwitch = styled(({ color, prop, noRout, checked, handleChangeParams, ...props }) => (
   <Switch
-    onChange={(e) => handleChangeParams('inStock', e.target.checked ? 'check' : '', noRout)}
+    onChange={(e) => handleChangeParams(prop, e.target.checked, noRout)}
     checked={checked}
     focusVisibleClassName=".Mui-focusVisible"
     disableRipple
     {...props}
   />
-))(({ theme }) => ({
+))(({ theme, color }) => ({
   width: 36,
   height: 20,
   padding: 0,
@@ -43,7 +40,7 @@ const IOSSwitch = styled(({ noRout, checked, handleChangeParams, ...props }) => 
       transform: 'translateX(16px)',
       color: '#fff',
       '& + .MuiSwitch-track': {
-        backgroundColor: '#f44336',
+        backgroundColor: color ? color : '#f44336',
         opacity: 1,
         border: 0,
       },
@@ -148,9 +145,8 @@ const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
 
 import Link from 'next/link';
 
-export default function Filter({ paramsState, handleChangeParams, noRout, category }) {
+export default function Filter({ paramsState, handleChangeParams, noRout, category, brands }) {
   const inputRef = useRef(null);
-  const [brand, setBrand] = useState(paramsState.brand);
   const initialValue = useRef('');
 
   const [collapseItems, setCollapseItems] = useState({
@@ -185,7 +181,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
   }
 
   return (
-    <Grid container sx={{ width: { xs: '100%', sm: '250px' } }} direction={'column'}>
+    <Grid container sx={{ width: { xs: '100%', sm: '250px' }, pb: '200px' }} direction={'column'}>
       <ColllapseItem
         prop="price"
         name="Price"
@@ -236,6 +232,39 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
           />
         </Box>
       </Collapse>
+      <Box sx={{ display: 'flex', my: '15px', alignItems: 'center' }}>
+        <IOSSwitch
+          prop="original"
+          handleChangeParams={handleChangeParams}
+          checked={paramsState.original === true}
+          noRout={noRout}
+          color="green"
+        />
+
+        <Typography
+          sx={{
+            color: paramsState.original ? '#263045fb' : '#a5abb9fb',
+            fontWeight: 500,
+            ml: '15px',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          Oroginal brand
+          <VerifiedIcon sx={{ fontSize: '18px', ml: '8px', color: '#1976d2' }} />
+        </Typography>
+      </Box>
+      <Typography
+        sx={{
+          color: '#263045fb',
+          fontSize: '12px',
+          ml: '51px',
+          mt: '5px',
+          fontWeight: 400,
+        }}
+      >
+        Show only products from original brands
+      </Typography>
 
       <ColllapseItem
         prop="category"
@@ -290,6 +319,42 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
         )}
       </Collapse>
 
+      <ColllapseItem
+        prop="brands"
+        name="Brands"
+        open={collapseItems.brands}
+        handleCangeCollapse={handleCangeCollapse}
+      />
+      <Collapse in={collapseItems.brands} timeout="auto" unmountOnExit>
+        <Autocomplete
+          multiple
+          disablePortal
+          blurOnSelect
+          sx={{ boxSizing: 'border-box', width: '100%', my: '10px' }}
+          size="small"
+          options={brands}
+          filterOptions={(options, { inputValue }) => {
+            const normalize = (str) =>
+              str.toLowerCase().replace(/k/g, 'c').replace(/ph/g, 'f').replace(/qu/g, 'k');
+            const isSubsequence = (input, option) => {
+              if (input.length === 0) return true;
+              let i = 0;
+              for (let char of option) {
+                if (char === input[i]) i++;
+                if (i === input.length) return true;
+              }
+              return false;
+            };
+            return options.filter((option) => isSubsequence(normalize(inputValue), normalize(option)));
+          }}
+          renderInput={(params) => <TextField inputRef={inputRef} {...params} label="Brands" />}
+          value={paramsState.brands || []}
+          onChange={(event, value) => {
+            handleChangeParams('brands', value, noRout);
+          }}
+        />
+      </Collapse>
+
       <Box sx={{ display: 'flex', my: '15px', flexWrap: 'wrap' }}>
         <Typography sx={{ color: '#263045fb', fontWeight: 500, mb: '15px' }}> Size </Typography>
         <TextField
@@ -317,49 +382,25 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
 
       <Box sx={{ display: 'flex', my: '10px' }}>
         <IOSSwitch
+          prop="inStock"
           handleChangeParams={handleChangeParams}
-          checked={paramsState.inStock === 'check'}
+          checked={paramsState.inStock}
           noRout={noRout}
         />
 
         <Typography sx={{ color: '#263045fb', fontWeight: 500, ml: '15px' }}>Only in Stock</Typography>
       </Box>
-
-      <ColllapseItem
-        prop="brands"
-        name="Brands"
-        open={collapseItems.brands}
-        handleCangeCollapse={handleCangeCollapse}
-      />
-      <Collapse sx={{ mb: '300px' }} in={collapseItems.brands} timeout="auto" unmountOnExit>
-        <Autocomplete
-          disablePortal
-          blurOnSelect
-          freeSolo
-          // slots={{ popper: BottomPopper }}
-          // slotProps={{
-          //   paper: { sx: { maxHeight: 900 } },
-          //   listbox: { sx: { maxHeight: 900 } },
-          // }}
-          sx={{ boxSizing: 'border-box', width: '100%', my: '10px' }}
-          size="small"
-          options={(categoriesObj?.[category]?.[paramsState.subCategory]?.brands || []).map(
-            (option) => option
-          )}
-          renderInput={(params) => <TextField inputRef={inputRef} {...params} label="Brands" />}
-          value={paramsState.brand || ''}
-          onChange={(event, value, reason) => {
-            if (reason !== 'clear') {
-              handleChangeParams('brand', value ?? '', noRout);
-            }
-          }}
-          onBlur={(e) => {
-            if (!e.target.value && paramsState.brand) {
-              handleChangeParams('brand', '', noRout);
-            }
-          }}
-        />
-      </Collapse>
+      <Typography
+        sx={{
+          color: '#263045fb',
+          fontSize: '12px',
+          ml: '51px',
+          mt: '5px',
+          fontWeight: 400,
+        }}
+      >
+        Show only products that are currently in stock
+      </Typography>
     </Grid>
   );
 }
