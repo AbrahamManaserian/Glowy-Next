@@ -7,8 +7,8 @@ import AddIcon from '@mui/icons-material/Add';
 import { NoSearchIcon, ShoppingBasketIcon } from '@/_components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { useRouter } from 'next/navigation';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db, auth } from '@/firebase';
 // import Link from 'next/link';
 import { Link } from '@/i18n/routing';
 // import { ShoppingBasketIcon } from '@/components/icons';
@@ -132,13 +132,53 @@ export default function ProductPageUi({ product, data }) {
   const [loading, setLoading] = useState(false);
   const [availableOption, setAvailableOption] = useState(product.id);
   const [quantity, setQuantity] = useState(1);
-  const { cart, setCart } = useGlobalContext();
+  const { cart, setCart, user, userData } = useGlobalContext();
   const router = useRouter();
   // console.log(buyTogetherItems);
   // console.log(item?.smallImage.width, item?.smallImage.height);
   const salePercent = item.previousPrice
     ? Math.round(((item.previousPrice - item.price) / item.previousPrice) * 100)
     : null;
+
+  const isFirstShop = user && userData?.firstShopp;
+  const buyTogetherRate = isFirstShop ? 0.05 : 0.1;
+  const firstShopRate = isFirstShop ? 0.2 : 0;
+  const totalDiscountRate = buyTogetherRate + firstShopRate;
+  const totalDiscountPercent = Math.round(totalDiscountRate * 100);
+
+  const handleAddAllToCart = async () => {
+    let updatedCart = structuredClone(cart);
+    const itemsToAdd = [item, ...togetherItems];
+
+    itemsToAdd.forEach((product) => {
+      if (updatedCart.items[product.id]) {
+        updatedCart.items[product.id].quantity += 1;
+        updatedCart.length += 1;
+      } else {
+        updatedCart.items[product.id] = {
+          id: product.id,
+          img: product.smallImage.file,
+          quantity: 1,
+          price: product.price,
+          name: product.brand + ' - ' + product.model,
+        };
+        updatedCart.length += 1;
+      }
+    });
+
+    setCart(updatedCart);
+
+    if (user) {
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, { cart: updatedCart }, { merge: true });
+      } catch (error) {
+        console.error('Error saving cart to Firestore:', error);
+      }
+    } else {
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+    }
+  };
 
   const changeOption = async (id) => {
     if (id === availableOption) return;
@@ -503,7 +543,14 @@ export default function ProductPageUi({ product, data }) {
                     fontWeight={600}
                     color="#2B3445"
                   >
-                    {t('buyTogether')} <span style={{ color: '#d50000' }}>20%</span> {t('off')}
+                    {!user ? (
+                      t('signInBuyTogether')
+                    ) : (
+                      <>
+                        {t('buyTogether')} <span style={{ color: '#d50000' }}>{totalDiscountPercent}%</span>{' '}
+                        {t('off')}
+                      </>
+                    )}
                   </Typography>
                   <Box
                     sx={{
@@ -585,7 +632,7 @@ export default function ProductPageUi({ product, data }) {
                         mt: 'auto',
                       }}
                     >
-                      ${Math.round(item.price * 0.8).toLocaleString()}
+                      ֏{Math.round(item.price * (1 - totalDiscountRate)).toLocaleString()}
                       <span
                         style={{
                           marginLeft: '5px',
@@ -597,19 +644,23 @@ export default function ProductPageUi({ product, data }) {
                           // paddingRight: '5px',
                         }}
                       >
-                        ${item.price.toLocaleString()}
-                      </span>
-                      <span
-                        style={{
-                          border: 'solid 0.1px #e52b2bff',
-                          borderRadius: '5px',
-                          marginRight: '5px',
-                          padding: '0 4px',
-                        }}
-                      >
-                        Save ${Math.round(item.price * 0.2).toLocaleString()}
+                        ֏{item.price.toLocaleString()}
                       </span>
                     </Typography>
+                    {isFirstShop ? (
+                      <Box sx={{ mt: 1 }}>
+                        <Typography variant="caption" display="block" color="success.main">
+                          - ֏{Math.round(item.price * firstShopRate).toLocaleString()} (20%)
+                        </Typography>
+                        <Typography variant="caption" display="block" color="success.main">
+                          - ֏{Math.round(item.price * buyTogetherRate).toLocaleString()} (5%)
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <Typography variant="caption" display="block" color="success.main" sx={{ mt: 1 }}>
+                        - ֏{Math.round(item.price * buyTogetherRate).toLocaleString()} (10%)
+                      </Typography>
+                    )}
                   </Box>
 
                   {togetherItems.map((item, index, arr) => {
@@ -700,7 +751,7 @@ export default function ProductPageUi({ product, data }) {
                             mt: 'auto',
                           }}
                         >
-                          ${Math.round(item.price * 0.8).toLocaleString()}
+                          ֏{Math.round(item.price * (1 - totalDiscountRate)).toLocaleString()}
                           <span
                             style={{
                               marginLeft: '5px',
@@ -710,20 +761,24 @@ export default function ProductPageUi({ product, data }) {
                               fontSize: '11px',
                             }}
                           >
-                            ${item.price.toLocaleString()}
-                          </span>
-                          <span
-                            style={{
-                              border: 'solid 0.1px #e52b2bff',
-                              borderRadius: '5px',
-                              // marginLeft: 'auto',
-                              // marginLeft: '5px',
-                              padding: '0 4px',
-                            }}
-                          >
-                            Save ${Math.round(item.price * 0.2).toLocaleString()}
+                            ֏{item.price.toLocaleString()}
                           </span>
                         </Typography>
+                        {isFirstShop ? (
+                          <Box sx={{ mt: 1 }}>
+                            <Typography variant="caption" display="block" color="success.main">
+                              - ֏{Math.round(item.price * firstShopRate).toLocaleString()} (20%)
+                            </Typography>
+                            <Typography variant="caption" display="block" color="success.main">
+                              - ֏{Math.round(item.price * buyTogetherRate).toLocaleString()} (5%)
+                            </Typography>
+                          </Box>
+                        ) : (
+                          <Typography variant="caption" display="block" color="success.main" sx={{ mt: 1 }}>
+                            - ֏{Math.round(item.price * buyTogetherRate).toLocaleString()} ({' '}
+                            {Math.round(buyTogetherRate * 100)}%)
+                          </Typography>
+                        )}
                       </Box>
                     );
                   })}
@@ -732,15 +787,69 @@ export default function ProductPageUi({ product, data }) {
                     sx={{
                       display: 'flex',
                       flexDirection: 'column',
-                      justifyContent: 'center',
+                      justifyContent: 'flex-start',
                       borderTop: { xs: 'solid 0.1px #6e6969ff', sm: 'solid 0.1px #6e6969ff', md: 0 },
                       alignItems: 'center',
                       width: { xs: '100%', sm: '100%', md: 'calc(28% - 20px)' },
-                      p: { xs: 0, sm: 0, md: '15px' },
+                      p: { xs: 0, sm: 0, md: '0 15px' },
+                      // p: '10px',
                       mt: { xs: '12px', sm: '12px', md: 0 },
                       boxSizing: 'border-box',
                     }}
                   >
+                    <Box
+                      sx={{
+                        mb: '15px',
+                        mt: { xs: '10px', sm: '15px', md: '0' },
+
+                        p: '12px',
+                        bgcolor: '#fff7ed',
+                        borderRadius: '8px',
+                        border: '1px dashed #e65100',
+                        width: '100%',
+                        boxSizing: 'border-box',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '5px' }}>
+                        <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 600 }}>
+                          {t('discounts')}
+                        </Typography>
+                        <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 700 }}>
+                          -֏
+                          {Math.round(
+                            (item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)) *
+                              totalDiscountRate
+                          ).toLocaleString()}
+                        </Typography>
+                      </Box>
+                      {isFirstShop && (
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                            • {t('firstShopDiscount')}
+                          </Typography>
+                          <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                            ֏
+                            {Math.round(
+                              (item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)) *
+                                firstShopRate
+                            ).toLocaleString()}
+                          </Typography>
+                        </Box>
+                      )}
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                          • {t('buyTogetherDiscount')} {Math.round(buyTogetherRate * 100)}%
+                        </Typography>
+                        <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                          ֏
+                          {Math.round(
+                            (item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)) *
+                              buyTogetherRate
+                          ).toLocaleString()}
+                        </Typography>
+                      </Box>
+                    </Box>
+
                     <Typography
                       sx={{
                         fontSize: '14px',
@@ -751,9 +860,9 @@ export default function ProductPageUi({ product, data }) {
                         maxWidth: '400px',
                       }}
                     >
-                      Item(s) total:
+                      {t('itemTotal')}:
                       <strong>
-                        $
+                        ֏
                         {Math.round(
                           item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)
                         ).toLocaleString()}
@@ -769,26 +878,7 @@ export default function ProductPageUi({ product, data }) {
                         maxWidth: '400px',
                       }}
                     >
-                      Discounts:
-                      <strong style={{ color: '#e52b2bff' }}>
-                        -$
-                        {Math.round(
-                          (item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)) * 0.2
-                        ).toLocaleString()}
-                      </strong>
-                    </Typography>
-                    <Typography
-                      sx={{
-                        my: '3px',
-                        fontSize: '14px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        width: '100%',
-                        maxWidth: '400px',
-                      }}
-                    >
-                      Shipping:
-                      <strong style={{ color: '#07870cff' }}>FREE</strong>
+                      {t('shipping')}:<strong style={{ color: '#07870cff' }}>{t('free')}</strong>
                     </Typography>
                     <Typography
                       sx={{
@@ -801,17 +891,32 @@ export default function ProductPageUi({ product, data }) {
                         maxWidth: '400px',
                       }}
                     >
-                      Order Total:
+                      {t('orderTotal')}:
                       <strong style={{}}>
-                        $
+                        ֏
                         {Math.round(
-                          (item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)) * 0.8
+                          (item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)) *
+                            (1 - totalDiscountRate)
                         ).toLocaleString()}
                       </strong>
                     </Typography>
+                    <Typography
+                      sx={{
+                        mt: '5px',
+                        fontSize: '13px',
+                        color: '#068a3dff',
+                        fontWeight: 500,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                      }}
+                    >
+                      <MovingIcon sx={{ fontSize: '16px' }} />
+                      {t('bonusText')}
+                    </Typography>
 
                     <Button
-                      // onClick={() => handleClickAddToCart(item.id)}
+                      onClick={handleAddAllToCart}
                       sx={{
                         bgcolor: '#2B3445',
                         borderRadius: '10px',
@@ -823,7 +928,7 @@ export default function ProductPageUi({ product, data }) {
                       variant="contained"
                       endIcon={<ShoppingBasketIcon color={'white'} />}
                     >
-                      Add all 3 to cart
+                      {t('addAllToCart')}
                     </Button>
                   </Box>
                 </Grid>

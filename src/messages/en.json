@@ -160,7 +160,17 @@
     "buyTogether": "Buy together — get",
     "off": "off",
     "thisItem": "This Item",
-    "for": "for"
+    "for": "for",
+    "signInBuyTogether": "Sign in to buy together and get 25% discount",
+    "firstShopDiscount": "First shop discount 20%",
+    "buyTogetherDiscount": "Buy together discount",
+    "itemTotal": "Item(s) total",
+    "discounts": "Discounts",
+    "shipping": "Shipping",
+    "free": "FREE",
+    "orderTotal": "Order Total",
+    "bonusText": "You will earn 3% bonus for your next purchase!",
+    "addAllToCart": "Add all 3 to cart"
   },
   "CartPage": {
     "emptyCart": "Your cart is empty",
