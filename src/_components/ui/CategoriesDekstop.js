@@ -15,7 +15,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+// import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 // import { categoriesObj } from '@/app/admin/add-product/page';
 import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
 
