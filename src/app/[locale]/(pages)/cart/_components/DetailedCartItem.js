@@ -174,17 +174,17 @@ export default function DetailedCartItem({
           </Box>
           {savedFromOriginal > 0 && (
             <Typography sx={{ fontSize: '12px', color: '#e65100', fontWeight: 500, mb: '2px' }}>
-              {t('markdown', { amount: savedFromOriginal.toLocaleString() })}
+              {t('itemMarkdown', { amount: savedFromOriginal.toLocaleString() })}
             </Typography>
           )}
           {savedFromFirstShop > 0 && (
             <Typography sx={{ fontSize: '12px', color: '#e65100', fontWeight: 500, mb: '2px' }}>
-              {t('firstShopDiscount', { amount: savedFromFirstShop.toLocaleString() })}
+              {t('itemFirstShopDiscount', { amount: savedFromFirstShop.toLocaleString() })}
             </Typography>
           )}
           {savedFromExtra > 0 && (
             <Typography sx={{ fontSize: '12px', color: '#e65100', fontWeight: 500, mb: '5px' }}>
-              {t('extraDiscount', {
+              {t('itemExtraDiscount', {
                 rate: extraRate * 100,
                 amount: savedFromExtra.toLocaleString(),
               })}

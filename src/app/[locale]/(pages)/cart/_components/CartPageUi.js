@@ -504,7 +504,7 @@ export default function CartPageUi() {
                 mb: 0.5,
               }}
             >
-              Bonus Available!
+              {t('bonusAvailable')}
             </Typography>
             <Typography
               sx={{
@@ -512,7 +512,7 @@ export default function CartPageUi() {
                 fontWeight: 400,
               }}
             >
-              You have ֏{bonus.toLocaleString()} to use on this order.
+              {t('bonusUseMessage', { amount: bonus.toLocaleString() })}
             </Typography>
           </Box>
         </Box>
@@ -534,7 +534,9 @@ export default function CartPageUi() {
             letterSpacing: '-0.5px',
           }}
         >
-          {!params.has('checkout') ? `Shopping Cart (${cart.length})` : 'Checkout'}
+          {!params.has('checkout')
+            ? t('shoppingCartTitle', { count: cart.length })
+            : t('checkoutTitle')}
         </Typography>
         {!params.has('checkout') && (
           <Button
@@ -544,7 +546,7 @@ export default function CartPageUi() {
             onClick={() => clearCart(setCart)}
             sx={{ textTransform: 'none', fontWeight: 500 }}
           >
-            Clear Cart
+            {t('clearCart')}
           </Button>
         )}
       </Box>
@@ -596,7 +598,7 @@ export default function CartPageUi() {
             mb: '20px',
           }}
         >
-          Summary - ({totalSelectedQuantity}) items
+          {t('summaryTitle', { count: totalSelectedQuantity })}
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
           <Typography
@@ -606,7 +608,7 @@ export default function CartPageUi() {
               fontWeight: 300,
             }}
           >
-            Subtotal
+            {t('subtotal')}
           </Typography>
           <Typography
             sx={{
@@ -626,7 +628,7 @@ export default function CartPageUi() {
               fontWeight: 300,
             }}
           >
-            Shipping
+            {t('shipping')}
           </Typography>
           <Typography
             sx={{
@@ -635,13 +637,13 @@ export default function CartPageUi() {
               fontWeight: 500,
             }}
           >
-            {shippingCost === 0 ? 'Free' : `֏${shippingCost.toLocaleString()}`}
+            {shippingCost === 0 ? t('free') : `֏${shippingCost.toLocaleString()}`}
           </Typography>
         </Box>
         {shippingCost > 0 && subtotal < 5000 && (
           <Box sx={{ mb: '15px' }}>
             <Typography sx={{ fontSize: '13px', color: '#e65100', fontWeight: 500 }}>
-              Add items worth ֏{(5000 - subtotal).toLocaleString()} to get free shipping
+              {t('addMoreForFreeShipping', { amount: (5000 - subtotal).toLocaleString() })}
             </Typography>
           </Box>
         )}
@@ -654,7 +656,7 @@ export default function CartPageUi() {
                 fontWeight: 300,
               }}
             >
-              First Shop Discount (20%)
+              {t('firstShopDiscount')}
             </Typography>
             <Typography
               sx={{
@@ -676,7 +678,9 @@ export default function CartPageUi() {
                 fontWeight: 300,
               }}
             >
-              Extra Discount ({user ? (userData?.firstShopp ? '5%' : '10%') : '10%'})
+              {t('extraDiscount', {
+                percent: user ? (userData?.firstShopp ? '5%' : '10%') : '10%',
+              })}
             </Typography>
             <Typography
               sx={{
@@ -691,8 +695,10 @@ export default function CartPageUi() {
         ) : (
           <Box sx={{ mb: '15px' }}>
             <Typography sx={{ fontSize: '13px', color: '#e65100', fontWeight: 500 }}>
-              Add items worth ֏{(20000 - subtotal).toLocaleString()} to get{' '}
-              {user ? (userData?.firstShopp ? '5%' : '10%') : '10%'} extra discount
+              {t('addMoreForExtraDiscount', {
+                amount: (20000 - subtotal).toLocaleString(),
+                percent: user ? (userData?.firstShopp ? '5%' : '10%') : '10%',
+              })}
             </Typography>
           </Box>
         )}
@@ -705,7 +711,7 @@ export default function CartPageUi() {
                 fontWeight: 300,
               }}
             >
-              Use bonus (֏{bonus.toLocaleString()})
+              {t('useBonus', { amount: bonus.toLocaleString() })}
             </Typography>
             <Switch
               checked={applyBonus}
@@ -736,7 +742,7 @@ export default function CartPageUi() {
           >
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '5px' }}>
               <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 600 }}>
-                Total Savings
+                {t('totalSavings')}
               </Typography>
               <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 700 }}>
                 ֏{totalSaved.toLocaleString()}
@@ -745,7 +751,7 @@ export default function CartPageUi() {
             {savedFromOriginalPrice > 0 && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                  • Product markdowns
+                  • {t('productMarkdowns')}
                 </Typography>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
                   ֏{savedFromOriginalPrice.toLocaleString()}
@@ -755,7 +761,7 @@ export default function CartPageUi() {
             {discount > 0 && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                  • Extra discount
+                  • {t('extraDiscountLabel')}
                 </Typography>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
                   ֏{discount.toLocaleString()}
@@ -765,7 +771,7 @@ export default function CartPageUi() {
             {firstShopDiscount > 0 && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                  • First shop discount
+                  • {t('firstShopDiscountLabel')}
                 </Typography>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
                   ֏{firstShopDiscount.toLocaleString()}
@@ -775,7 +781,7 @@ export default function CartPageUi() {
             {shippingSavings > 0 && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                  • Free shipping
+                  • {t('freeShippingLabel')}
                 </Typography>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
                   ֏{shippingSavings.toLocaleString()}
@@ -785,7 +791,7 @@ export default function CartPageUi() {
             {applyBonus && appliedBonus > 0 && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                  • Bonus applied
+                  • {t('bonusApplied')}
                 </Typography>
                 <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
                   ֏{appliedBonus.toLocaleString()}
@@ -810,7 +816,7 @@ export default function CartPageUi() {
               fontWeight: 500,
             }}
           >
-            Order total
+            {t('orderTotal')}
           </Typography>
           <Typography
             sx={{
@@ -840,7 +846,7 @@ export default function CartPageUi() {
                     mb: '10px',
                   }}
                 >
-                  Order now
+                  {t('orderNow')}
                 </Button>
               </Link>
             ) : (
@@ -859,7 +865,7 @@ export default function CartPageUi() {
                 }}
                 disabled
               >
-                Order now
+                {t('orderNow')}
               </Button>
             )}
             <Link href="/shop">
@@ -881,7 +887,7 @@ export default function CartPageUi() {
                   },
                 }}
               >
-                Continue Shopping
+                {t('continueShopping')}
               </Button>
             </Link>
           </>
@@ -909,9 +915,9 @@ export default function CartPageUi() {
               {loading ? (
                 <CircularProgress size={24} sx={{ color: 'white' }} />
               ) : cartState.paymentMethod === 'cash' ? (
-                'Submit order'
+                t('submitOrder')
               ) : (
-                'Go to payment'
+                t('goToPayment')
               )}
             </Button>
             <Link scroll={true} href={`/cart`}>
@@ -933,7 +939,7 @@ export default function CartPageUi() {
                   mb: '10px',
                 }}
               >
-                Back to cart
+                {t('backToCart')}
               </Button>
             </Link>
           </>
