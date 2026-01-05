@@ -146,9 +146,73 @@ const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
 
 import Link from 'next/link';
 
+const typeMapping = {
+  Men: 'men',
+  Women: 'women',
+  Uni: 'uni',
+  Foundation: 'foundation',
+  Highlighter: 'highlighter',
+  'Face Primer': 'facePrimer',
+  'Powder & Setting Spray': 'powderSettingSpray',
+  Contour: 'contour',
+  Blush: 'blush',
+  Concealer: 'concealer',
+  'BB & CC cream': 'bbCcCream',
+  'Brow Gel': 'browGel',
+  'Eye Palettes': 'eyePalettes',
+  'Eyebrow pencil': 'eyebrowPencil',
+  Eyeliner: 'eyeliner',
+  Pencil: 'pencil',
+  Lipstick: 'lipstick',
+  'Liquid Lipstick': 'liquidLipstick',
+  'Lip Balm & Treatmentl': 'lipBalmTreatmentl',
+  'Lip Gloss': 'lipGloss',
+  'Lip Liner': 'lipLiner',
+  'Lip Oil': 'lipOil',
+  Cleansers: 'cleansers',
+  Exfoliation: 'exfoliation',
+  'Face Wash': 'faceWash',
+  'Makeup Removers': 'makeupRemovers',
+  'Toners & Lotions': 'tonersLotions',
+  'Dark Circles': 'darkCircles',
+  'Eye Patches': 'eyePatches',
+  'Lifting/Anti-age Eye Creams': 'liftingAntiAgeEyeCreams',
+  'Anti-age': 'antiAge',
+  'Face Masks': 'faceMasks',
+  Hydrating: 'hydrating',
+  'Face Serums': 'faceSerums',
+  'Face Creams': 'faceCreams',
+  'Face Oils': 'faceOils',
+  Mists: 'mists',
+  Moisturizers: 'moisturizers',
+  'Night Creams': 'nightCreams',
+  'Anti-Aging': 'antiAging',
+  'Dark Spots': 'darkSpots',
+  Lifting: 'lifting',
+  Gel: 'gel',
+  'Hand Wash & Soap': 'handWashSoap',
+  'Scrub & Exfoliation': 'scrubExfoliation',
+  'Shampoo & Conditione': 'shampooConditione',
+  Antiperspirants: 'antiperspirants',
+  'Body Lotion & Body Oils': 'bodyLotionBodyOils',
+  'Body Moisturizers': 'bodyMoisturizers',
+  'Cellulite & Stretch Marks': 'celluliteStretchMarks',
+  'Hand Cream & Foot Cream': 'handCreamFootCream',
+  'Masks & Special Treatment': 'masksSpecialTreatment',
+  'Cuticle care': 'cuticleCare',
+  'Nail care': 'nailCare',
+  'Nail color': 'nailColor',
+  'Nail polish removers': 'nailPolishRemovers',
+  Fragrance: 'fragrance',
+  Makeup: 'makeup',
+  Skincare: 'skincare',
+};
+
 export default function Filter({ paramsState, handleChangeParams, noRout, category, brands }) {
   const t = useTranslations('ShopPage');
   const tCommon = useTranslations('Common.nav');
+  const tCategories = useTranslations('Categories');
+  const tProductTypes = useTranslations('ProductTypes');
   const inputRef = useRef(null);
   const initialValue = useRef('');
 
@@ -275,7 +339,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
                   key={index}
                   handleChangeParams={handleChangeParams}
                   checked={paramsState.subCategory === key}
-                  name={categoriesObj[category][key].category}
+                  name={tCategories(key)}
                   value={key}
                   noRout={noRout}
                   prop="subCategory"
@@ -301,7 +365,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
                   key={index}
                   array={paramsState.type}
                   prop="type"
-                  name={name}
+                  name={tProductTypes(typeMapping[name] || name)}
                   value={name}
                   handleChangeParams={handleChangeParams}
                   checked={paramsState.type === name}

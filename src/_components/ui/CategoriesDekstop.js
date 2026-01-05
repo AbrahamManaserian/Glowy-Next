@@ -15,12 +15,77 @@ import MenuIcon from '@mui/icons-material/Menu';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 // import Link from 'next/link';
 import { Link } from '@/i18n/routing';
 // import { categoriesObj } from '@/app/admin/add-product/page';
 import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
 
+const typeMapping = {
+  Men: 'men',
+  Women: 'women',
+  Uni: 'uni',
+  Foundation: 'foundation',
+  Highlighter: 'highlighter',
+  'Face Primer': 'facePrimer',
+  'Powder & Setting Spray': 'powderSettingSpray',
+  Contour: 'contour',
+  Blush: 'blush',
+  Concealer: 'concealer',
+  'BB & CC cream': 'bbCcCream',
+  'Brow Gel': 'browGel',
+  'Eye Palettes': 'eyePalettes',
+  'Eyebrow pencil': 'eyebrowPencil',
+  Eyeliner: 'eyeliner',
+  Pencil: 'pencil',
+  Lipstick: 'lipstick',
+  'Liquid Lipstick': 'liquidLipstick',
+  'Lip Balm & Treatmentl': 'lipBalmTreatmentl',
+  'Lip Gloss': 'lipGloss',
+  'Lip Liner': 'lipLiner',
+  'Lip Oil': 'lipOil',
+  Cleansers: 'cleansers',
+  Exfoliation: 'exfoliation',
+  'Face Wash': 'faceWash',
+  'Makeup Removers': 'makeupRemovers',
+  'Toners & Lotions': 'tonersLotions',
+  'Dark Circles': 'darkCircles',
+  'Eye Patches': 'eyePatches',
+  'Lifting/Anti-age Eye Creams': 'liftingAntiAgeEyeCreams',
+  'Anti-age': 'antiAge',
+  'Face Masks': 'faceMasks',
+  Hydrating: 'hydrating',
+  'Face Serums': 'faceSerums',
+  'Face Creams': 'faceCreams',
+  'Face Oils': 'faceOils',
+  Mists: 'mists',
+  Moisturizers: 'moisturizers',
+  'Night Creams': 'nightCreams',
+  'Anti-Aging': 'antiAging',
+  'Dark Spots': 'darkSpots',
+  Lifting: 'lifting',
+  Gel: 'gel',
+  'Hand Wash & Soap': 'handWashSoap',
+  'Scrub & Exfoliation': 'scrubExfoliation',
+  'Shampoo & Conditione': 'shampooConditione',
+  Antiperspirants: 'antiperspirants',
+  'Body Lotion & Body Oils': 'bodyLotionBodyOils',
+  'Body Moisturizers': 'bodyMoisturizers',
+  'Cellulite & Stretch Marks': 'celluliteStretchMarks',
+  'Hand Cream & Foot Cream': 'handCreamFootCream',
+  'Masks & Special Treatment': 'masksSpecialTreatment',
+  'Cuticle care': 'cuticleCare',
+  'Nail care': 'nailCare',
+  'Nail color': 'nailColor',
+  'Nail polish removers': 'nailPolishRemovers',
+  Fragrance: 'fragrance',
+  Makeup: 'makeup',
+  Skincare: 'skincare',
+};
+
 export default function CategoriesDekstop() {
+  const t = useTranslations('Categories');
+  const tTypes = useTranslations('ProductTypes');
   const [data, setData] = useState({});
 
   const [showMoreCategory, setShowMoreCategory] = useState(null);
@@ -96,7 +161,7 @@ export default function CategoriesDekstop() {
         >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <MenuIcon sx={{ fontSize: '20px', mr: '5px' }} />
-            Categories
+            {t('title')}
           </Box>
           <NavigateNextIcon
             sx={{
@@ -134,7 +199,7 @@ export default function CategoriesDekstop() {
                         // ref={nestedRef}
                       >
                         <ListItemText
-                          primary={categoriesObj[name].category}
+                          primary={t(name)}
                           primaryTypographyProps={{
                             fontSize: '14px',
                             fontWeight: 400,
@@ -198,7 +263,7 @@ export default function CategoriesDekstop() {
                       >
                         <ListItemButton onClick={handleClose} sx={{ height: '35px', pl: '7px' }}>
                           <ListItemText
-                            primary={data[category].category}
+                            primary={t(category)}
                             primaryTypographyProps={{
                               fontSize: '13px',
                               fontWeight: 500,
@@ -220,7 +285,7 @@ export default function CategoriesDekstop() {
                           >
                             <ListItemButton onClick={handleClose} sx={{ height: '35px' }}>
                               <ListItemText
-                                primary={item}
+                                primary={tTypes(typeMapping[item] || item)}
                                 primaryTypographyProps={{
                                   fontSize: '14px',
                                   fontWeight: 400,

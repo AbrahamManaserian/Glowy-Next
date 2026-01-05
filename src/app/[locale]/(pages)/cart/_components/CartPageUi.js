@@ -534,9 +534,7 @@ export default function CartPageUi() {
             letterSpacing: '-0.5px',
           }}
         >
-          {!params.has('checkout')
-            ? t('shoppingCartTitle', { count: cart.length })
-            : t('checkoutTitle')}
+          {!params.has('checkout') ? t('shoppingCartTitle', { count: cart.length }) : t('checkoutTitle')}
         </Typography>
         {!params.has('checkout') && (
           <Button

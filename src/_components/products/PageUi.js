@@ -345,19 +345,43 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
           }}
           variant="text"
           // color="success"
-          sx={{ textTransform: 'initial' }}
+          sx={{ textTransform: 'initial', color: '#f44336' }}
           size="small"
         >
           {t('resetFilters')}
         </Button>
         <Grid container sx={{ width: '100%', flexWrap: 'nowrap' }}>
-          <Box sx={{ display: { xs: 'none', sm: 'none', md: 'flex' }, mt: '40px' }}>
+          <Box
+            sx={{
+              display: { xs: 'none', sm: 'none', md: 'flex' },
+              mt: '40px',
+              flexDirection: 'column',
+              position: 'relative',
+            }}
+          >
             <Filter
               paramsState={paramsState}
               handleChangeParams={handleChangeParams}
               category={category}
+              noRout={true}
               brands={brands}
             />
+            <Button
+              variant="contained"
+              onClick={() => {
+                applyFilters(paramsState);
+              }}
+              sx={{
+                position: 'sticky',
+                width: { xs: '100%', sm: '250px' },
+                zIndex: 10,
+                bottom: 20,
+                textTransform: 'initial',
+                borderRadius: '10px',
+              }}
+            >
+              {t('applyFilters')}
+            </Button>
           </Box>
           <Grid
             alignContent={'flex-start'}
@@ -443,11 +467,11 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
                 <SearchOffIcon sx={{ fontSize: 60, mb: 2, opacity: 0.7 }} />
 
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                  No products found
+                  {t('noProducts')}
                 </Typography>
 
                 <Typography variant="body2" sx={{ mb: 3, maxWidth: 300, mx: 'auto' }}>
-                  Try adjusting your filters or explore other categories.
+                  {t('noProductsTry')}
                 </Typography>
 
                 <Button
@@ -455,7 +479,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
                   sx={{ ml: '10px', bgcolor: '#f44336', borderRadius: '10px', textTransform: 'initial' }}
                   variant="contained"
                 >
-                  Reset Filters
+                  {t('resetFilters')}
                 </Button>
               </Box>
             )}
@@ -489,7 +513,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
                 variant="text"
                 sx={{ textTransform: 'capitalize' }}
               >
-                Aply
+                {t('applyFilters')}
               </Button>
             </Box>
             <div style={{ padding: '15px' }}>

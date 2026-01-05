@@ -402,7 +402,9 @@ export default function AppBarMenu() {
 
   const handleLanguageChange = (newLocale) => {
     handleCloseMenu();
-    router.replace(pathname, { locale: newLocale });
+    const queryString = searchParams.toString();
+    const url = queryString ? `${pathname}?${queryString}` : pathname;
+    router.replace(url, { locale: newLocale });
   };
 
   const handleSignOut = async () => {
