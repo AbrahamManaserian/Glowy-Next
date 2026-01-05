@@ -146,7 +146,7 @@ const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
 
 import Link from 'next/link';
 
-const typeMapping = {
+export const typeMapping = {
   Men: 'men',
   Women: 'women',
   Uni: 'uni',

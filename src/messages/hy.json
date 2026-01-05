@@ -23,7 +23,13 @@
       "returnsRefunds": "Վերադարձ և փոխհատուցում",
       "faq": "ՀՏՀ",
       "contactUs": "Կապ մեզ հետ",
-      "stores": "Խանութներ"
+      "stores": "Խանութներ",
+      "general": "Ընդհանուր",
+      "customerCare": "Հաճախորդների սպասարկում",
+      "aboutUs": "Մեր մասին",
+      "language": "Լեզու",
+      "welcomeGuest": "Բարի գալուստ, Հյուր",
+      "allCategories": "Բոլոր կատեգորիաները"
     },
     "user": {
       "profile": "Անձնական էջ",

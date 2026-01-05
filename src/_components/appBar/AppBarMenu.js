@@ -29,7 +29,6 @@ import TranslateIcon from '@mui/icons-material/Translate';
 import styled from '@emotion/styled';
 import { useEffect, useRef, useState } from 'react';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { FavoriteIcon, UserAvatar } from '../icons';
 
 import { useSearchParams } from 'next/navigation';
 import { usePathname, useRouter, Link } from '@/i18n/routing';
@@ -79,6 +78,10 @@ export function LogoHome() {
 }
 function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer }) {
   const router = useRouter();
+  const t = useTranslations('Categories');
+  const tTypes = useTranslations('ProductTypes');
+  const tCommon = useTranslations('Common.nav');
+
   const handleClick = () => {
     if (open === category) {
       setOpen('');
@@ -97,7 +100,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
       <ListItem {...rootProps} disablePadding>
         <ListItemButton sx={{ p: '2px' }} onClick={handleClick}>
           <ListItemText
-            primary={data.category}
+            primary={t(category)}
             primaryTypographyProps={{
               fontSize: '17px',
               fontWeight: 400,
@@ -122,12 +125,13 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
           <ListItem disablePadding>
             <ListItemButton sx={{ p: '0 2px 5px 20px ' }} onClick={() => handleCloseDrawer(`/${category}`)}>
               <ListItemText
-                primary="All Items "
+                primary={t('allItems')}
                 primaryTypographyProps={{
                   fontSize: '15px',
                   fontWeight: 700,
                   letterSpacing: 0,
                   textTransform: 'capitalize',
+                  color: '#df5c2dff',
                 }}
               />
             </ListItemButton>
@@ -144,7 +148,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
                   onClick={() => handleCloseDrawer(`/${category}?subCategory=${key}`)}
                 >
                   <ListItemText
-                    primary={key}
+                    primary={t(key)}
                     primaryTypographyProps={{
                       fontSize: '15px',
                       fontWeight: 700,
@@ -165,7 +169,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
                         onClick={() => handleCloseDrawer(`/${category}?subCategory=${key}&type=${subItem}`)}
                       >
                         <ListItemText
-                          primary={subItem}
+                          primary={tTypes(typeMapping[subItem] || subItem)}
                           primaryTypographyProps={{
                             fontSize: '16px',
                             fontWeight: 300,
@@ -187,7 +191,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
 }
 
 function DrawerMenu() {
-  const drawerRef = useRef(null);
+  const listRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [openNested, setOpenNested] = useState();
   const pathname = usePathname();
@@ -223,14 +227,8 @@ function DrawerMenu() {
   }, [pathname, searchParams]);
 
   useEffect(() => {
-    if (openNested && drawerRef.current) {
-      const el = drawerRef.current.querySelector(`[data-category="${openNested}"]`);
-      if (el) {
-        drawerRef.current.scrollTo({
-          top: 0,
-          // behavior: 'smooth',
-        });
-      }
+    if (listRef.current && openNested) {
+      listRef.current.scrollIntoView({ block: 'start' });
     }
   }, [openNested]);
 
@@ -252,7 +250,16 @@ function DrawerMenu() {
         open={open}
         onClose={() => toggleDrawer(false)}
       >
-        <Grid item xs={12} container direction="column" sx={{ p: '0 20px 20px 20px' }}>
+        <div
+          // ref={drawerRef}
+          style={{
+            height: '100vh',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '0 20px 20px 20px',
+          }}
+        >
           <div
             style={{
               backgroundColor: 'white',
@@ -274,7 +281,7 @@ function DrawerMenu() {
           </div>
 
           <Typography sx={{ fontSize: '17px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
-            General
+            {t('general')}
           </Typography>
           {Object.keys(navObjGeneral).map((key, index) => {
             return (
@@ -294,10 +301,10 @@ function DrawerMenu() {
             );
           })}
           <Divider sx={{ mb: '10px' }} />
-          <Typography sx={{ fontSize: '17px', fontWeight: 600, color: '#434a4eff' }}>
-            All Categories
+          <Typography ref={listRef} sx={{ fontSize: '17px', fontWeight: 600, color: '#434a4eff' }}>
+            {t('allCategories')}
           </Typography>
-          <List ref={drawerRef} sx={{ pl: '10px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
+          <List sx={{ pl: '10px' }}>
             {Object.keys(categoriesObj).map((key) => {
               return (
                 <SingleCategory
@@ -315,7 +322,7 @@ function DrawerMenu() {
 
           <Divider sx={{ mb: '10px' }} />
           <Typography sx={{ fontSize: '17px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
-            Customer Care
+            {t('customerCare')}
           </Typography>
           {Object.keys(navObjCusCare).map((key, index) => {
             return (
@@ -336,7 +343,7 @@ function DrawerMenu() {
           })}
           <Divider sx={{ mb: '10px' }} />
           <Typography sx={{ fontSize: '17px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
-            About Us
+            {t('aboutUs')}
           </Typography>
           {Object.keys(navObjAbout).map((key, index) => {
             return (
@@ -355,7 +362,7 @@ function DrawerMenu() {
               </Link>
             );
           })}
-        </Grid>
+        </div>
       </Drawer>
     </>
   );
@@ -363,6 +370,7 @@ function DrawerMenu() {
 
 import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase';
+import { typeMapping } from '../products/Filter';
 
 export default function AppBarMenu() {
   const locale = useLocale();
@@ -531,7 +539,7 @@ export default function AppBarMenu() {
           >
             <div style={{ padding: '10px 20px', outline: 'none' }}>
               <Typography variant="subtitle1" noWrap fontWeight={600}>
-                {userData ? userData.fullName || 'User' : 'Welcome, Guest'}
+                {userData ? userData.fullName || 'User' : t('welcomeGuest')}
               </Typography>
               {userData && (
                 <Typography variant="body2" color="text.secondary" noWrap>
@@ -591,7 +599,7 @@ export default function AppBarMenu() {
               <ListItemIcon>
                 <TranslateIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText primary="Language" primaryTypographyProps={{ fontWeight: 600 }} />
+              <ListItemText primary={t('language')} primaryTypographyProps={{ fontWeight: 600 }} />
             </MenuItem>
             <MenuItem selected={locale === 'hy'} onClick={() => handleLanguageChange('hy')} sx={{ pl: 4 }}>
               <ListItemText primary="Հայերեն" />

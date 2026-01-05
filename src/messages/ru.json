@@ -23,7 +23,13 @@
       "returnsRefunds": "Возврат и обмен",
       "faq": "FAQ",
       "contactUs": "Связаться с нами",
-      "stores": "Магазины"
+      "stores": "Магазины",
+      "general": "Общее",
+      "customerCare": "Обслуживание клиентов",
+      "aboutUs": "О нас",
+      "language": "Язык",
+      "welcomeGuest": "Добро пожаловать, Гость",
+      "allCategories": "Все категории"
     },
     "user": {
       "profile": "Профиль",

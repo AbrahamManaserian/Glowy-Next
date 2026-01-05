@@ -23,7 +23,13 @@
       "returnsRefunds": "Returns & Refunds",
       "faq": "FAQ",
       "contactUs": "Contact Us",
-      "stores": "Stores"
+      "stores": "Stores",
+      "general": "General",
+      "customerCare": "Customer Care",
+      "aboutUs": "About Us",
+      "language": "Language",
+      "welcomeGuest": "Welcome, Guest",
+      "allCategories": "All Categories"
     },
     "user": {
       "profile": "Profile",
