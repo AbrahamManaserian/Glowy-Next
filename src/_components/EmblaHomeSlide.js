@@ -9,35 +9,14 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Image from 'next/image';
 
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 export default function EmblaHomeSlide({ initialSlides = [] }) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
-  const [slides, setSlides] = useState(initialSlides);
-  const [loading, setLoading] = useState(initialSlides.length === 0);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 4000 })]);
+
   const router = useRouter();
-
-  useEffect(() => {
-    if (initialSlides.length > 0) {
-      setLoading(false);
-      return;
-    }
-
-    const fetchSlides = async () => {
-      try {
-        const response = await fetch('/api/slides');
-        if (response.ok) {
-          const data = await response.json();
-          setSlides(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch slides:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSlides();
-  }, [initialSlides.length]);
+  const t = useTranslations('HomePage.emblaHomeSlide');
 
   const scrollPrev = () => {
     if (emblaApi) emblaApi.scrollPrev();
@@ -47,15 +26,7 @@ export default function EmblaHomeSlide({ initialSlides = [] }) {
     if (emblaApi) emblaApi.scrollNext();
   };
 
-  if (loading) {
-    return (
-      <Box sx={{ m: { xs: '15px', sm: '40px 25px' }, borderRadius: '15px', overflow: 'hidden' }}>
-        <Skeleton variant="rectangular" width="100%" height={400} />
-      </Box>
-    );
-  }
-
-  if (slides.length === 0) {
+  if (initialSlides.length === 0) {
     return null; // Or return a default slide/placeholder
   }
 
@@ -63,7 +34,7 @@ export default function EmblaHomeSlide({ initialSlides = [] }) {
     <Box sx={{ position: 'relative', m: { xs: '15px', sm: '40px 25px' } }}>
       <div className="embla" ref={emblaRef} style={{ overflow: 'hidden', borderRadius: '15px' }}>
         <div className="embla__container" style={{ display: 'flex' }}>
-          {slides.map((slide, index) => (
+          {initialSlides.map((slide, index) => (
             <div className="embla__slide" key={index} style={{ flex: '0 0 100%', minWidth: 0 }}>
               <Grid container>
                 <Grid
@@ -81,15 +52,15 @@ export default function EmblaHomeSlide({ initialSlides = [] }) {
                   <Typography
                     sx={{
                       color: '#2B3445',
-                      fontSize: { xs: '35px', md: '50px' },
-                      fontWeight: 900,
-                      maxWidth: '400px',
+                      fontSize: { xs: '30px', md: '45px' },
+                      fontWeight: 600,
+                      maxWidth: '450px',
                       textShadow: '0 0 1px black, 0 0 1px black',
                       lineHeight: { xs: '40px', md: '60px' },
                       textAlign: { xs: 'center', md: 'start' },
                     }}
                   >
-                    50% Off For Your First Shopping
+                    20% {t('title')}
                   </Typography>
                   <Typography
                     sx={{
@@ -111,13 +82,13 @@ export default function EmblaHomeSlide({ initialSlides = [] }) {
                       fontWeight: 100,
                     }}
                   >
-                    {slide.description || 'Get Free Shipping on all orders over $99.00'}
+                    {slide.description || ''}
                   </Typography>
 
                   {/* Price Section */}
                   <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Typography sx={{ fontSize: '32px', fontWeight: 800, color: '#e65100', lineHeight: 1 }}>
-                      ֏{(slide.price / 2)?.toLocaleString()}
+                      ֏{(slide.price * 0.8)?.toLocaleString()}
                     </Typography>
                     <Box>
                       <Typography
@@ -137,7 +108,7 @@ export default function EmblaHomeSlide({ initialSlides = [] }) {
                           color: '#e65100',
                         }}
                       >
-                        -50% OFF
+                        -20%
                       </Typography>
                     </Box>
                   </Box>
@@ -158,7 +129,7 @@ export default function EmblaHomeSlide({ initialSlides = [] }) {
                       },
                     }}
                   >
-                    More
+                    {t('more')}
                   </Button>
                 </Grid>
                 <Grid
@@ -178,14 +149,16 @@ export default function EmblaHomeSlide({ initialSlides = [] }) {
                       height: { xs: '400px', md: '500px' },
                     }}
                   >
-                    <Image
-                      src={slide.image || slide.imageUrl}
-                      alt={slide.title || 'Slide Image'}
-                      fill
-                      style={{ objectFit: 'contain' }}
-                      sizes="(max-width: 900px) 100vw, 50vw"
-                      priority={index === 0}
-                    />
+                    <Link href={`/item/${slide.id}`}>
+                      <Image
+                        src={slide.image || slide.imageUrl}
+                        alt={slide.title || 'Slide Image'}
+                        fill
+                        style={{ objectFit: 'contain' }}
+                        sizes="(max-width: 900px) 100vw, 50vw"
+                        priority={index === 0}
+                      />
+                    </Link>
                   </Box>
                 </Grid>
               </Grid>
@@ -199,7 +172,7 @@ export default function EmblaHomeSlide({ initialSlides = [] }) {
         onClick={scrollPrev}
         sx={{
           position: 'absolute',
-          top: '50%',
+          top: { xs: '200px', md: '250px' },
           left: '10px',
           transform: 'translateY(-50%)',
           minWidth: 'auto',
@@ -216,7 +189,7 @@ export default function EmblaHomeSlide({ initialSlides = [] }) {
         onClick={scrollNext}
         sx={{
           position: 'absolute',
-          top: '50%',
+          top: { xs: '200px', md: '250px' },
           right: '10px',
           transform: 'translateY(-50%)',
           minWidth: 'auto',

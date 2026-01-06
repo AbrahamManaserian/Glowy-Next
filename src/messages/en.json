@@ -38,7 +38,9 @@
       "wishlist": "Wishlist",
       "logout": "Logout",
       "login": "Login",
-      "adminPanel": "Admin Panel"
+      "adminPanel": "Admin Panel",
+      "settings": "Settings",
+      "payment": "Payment"
     },
     "footer": {
       "aboutUs": "About Us",
@@ -180,7 +182,7 @@
   "HomePage": {
     "title": "Welcome to Glowy",
     "customSolutions": {
-      "title": "Custom solutions for your needs",
+      "title": "Frequently searched categories",
       "fragrance": "Fragrance",
       "makeup": "Makeup",
       "skincare": "Skincare",
@@ -188,7 +190,12 @@
       "bathBody": "Bath & Body"
     },
     "flashDeals": {
-      "title": "Flash Deals"
+      "title": "All-time bestsellers",
+      "addToCart": "Add to Cart"
+    },
+    "emblaHomeSlide": {
+      "title": "Off For Your First Shopping",
+      "more": "More"
     },
     "specialOffer": {
       "title": "Special Offer",
@@ -393,11 +400,37 @@
       "created": "Created:",
       "items": "Items",
       "totalPaid": "Total Paid",
+      "saved": "Saved",
+      "amountDetails": "Amount Details",
+      "statusWithDate": "{status} on {date}",
+      "dates": {
+        "created": "Placed on",
+        "inTransit": "Shipped on",
+        "delivered": "Delivered on"
+      },
+      "tabs": {
+        "pending": "Pending",
+        "inTransit": "In Transit",
+        "delivered": "Delivered"
+      },
+      "financials": {
+        "summary": "Summary",
+        "subtotal": "Subtotal",
+        "shipping": "Shipping",
+        "totalSavings": "Total Savings",
+        "productMarkdowns": "Product markdowns",
+        "extraDiscountLabel": "Extra discount",
+        "firstShopDiscountLabel": "First shop discount",
+        "freeShippingLabel": "Free shipping",
+        "bonusApplied": "Bonus applied"
+      },
+      "leaveReview": "Leave a Review",
       "noPendingOrders": "No Pending Orders Yet",
       "noDeliveredOrders": "No Delivered Orders Yet",
       "noPendingDesc": "You don't have any orders in progress yet.",
       "noDeliveredDesc": "You don't have any delivered orders yet.",
       "status": {
+        "pending": "Pending",
         "processing": "Processing",
         "delivered": "Delivered",
         "inTransit": "In Transit",

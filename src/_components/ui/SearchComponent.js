@@ -3,10 +3,12 @@ import { InputBase } from '@mui/material';
 import { SearchIcon } from '../icons';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export default function SearchComponent() {
   const [search, setSearch] = useState('');
   const pathname = usePathname();
+  const t = useTranslations('Categories');
   useEffect(() => {
     setSearch('');
   }, [pathname]);
@@ -28,7 +30,7 @@ export default function SearchComponent() {
         },
         flexGrow: 1,
       }}
-      placeholder="Searching for... "
+      placeholder={t('searchingFor')}
       endAdornment={<SearchIcon />}
     />
   );

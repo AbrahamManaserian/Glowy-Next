@@ -2,7 +2,6 @@
 
 import {
   Avatar,
-  Badge,
   Collapse,
   Divider,
   Drawer,
@@ -36,20 +35,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import CartDrawer from '@/app/[locale]/(pages)/cart/_components/CartDrawer';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
-
-const StyledBadgeFavorite = styled(Badge)(({ theme }) => ({
-  '& .MuiBadge-badge': {
-    right: -4,
-    top: -1,
-    border: `2px solid white`,
-    padding: '0 4px',
-    backgroundColor: '#3794b9ff',
-    color: 'white',
-    height: '20px',
-    width: '20px',
-    borderRadius: '13px',
-  },
-}));
 
 export function LogoHome() {
   return (
@@ -220,6 +205,7 @@ function DrawerMenu() {
 
   const toggleDrawer = (newOpen) => {
     setOpen(newOpen);
+    setOpenNested();
   };
 
   useEffect(() => {
@@ -284,13 +270,14 @@ function DrawerMenu() {
             {t('general')}
           </Typography>
           {Object.keys(navObjGeneral).map((key, index) => {
+            const isActive = key === '' ? pathname === '/' : pathname.startsWith(`/${key}`);
             return (
               <Link key={index} scroll={true} href={`/${key}`} style={{ textDecoration: 'none' }}>
                 <Typography
                   sx={{
                     fontSize: '17px',
-                    fontWeight: 400,
-                    color: 'black',
+                    fontWeight: isActive ? 600 : 400,
+                    color: isActive ? '#D23F57' : 'black',
                     textDecoration: 'none',
                     m: ' 0 0 10px 13px',
                   }}
@@ -371,6 +358,7 @@ function DrawerMenu() {
 import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase';
 import { typeMapping } from '../products/Filter';
+import { Payment, Settings } from '@mui/icons-material';
 
 export default function AppBarMenu() {
   const locale = useLocale();
@@ -476,9 +464,24 @@ export default function AppBarMenu() {
       <LogoHome />
       <Grid item container sx={{ display: { xs: 'none', sm: 'flex' }, order: 2 }}>
         {Object.keys(navObj).map((key) => {
+          const isActive = key === '' ? pathname === '/' : pathname.startsWith(`/${key}`);
           return (
-            <Link scroll={true} key={key} className="bar-link" href={`/${key}`}>
-              {navObj[key]}
+            <Link scroll={true} key={key} href={`/${key}`} style={{ textDecoration: 'none' }}>
+              <Typography
+                sx={{
+                  color: isActive ? '#f44336' : '#505152ff',
+                  fontSize: '14px',
+                  // fontWeight: isActive ? 600 : 400,
+                  mr: '35px',
+                  cursor: 'pointer',
+                  transition: 'color 0.3s ease',
+                  '&:hover': {
+                    color: '#f44336',
+                  },
+                }}
+              >
+                {navObj[key]}
+              </Typography>
             </Link>
           );
         })}
@@ -548,51 +551,85 @@ export default function AppBarMenu() {
               )}
             </div>
             <Divider />
-            <MenuItem
-              onClick={() => {
-                handleCloseMenu();
-                router.push('/user');
-              }}
-            >
-              <ListItemIcon>
-                <PersonOutlineIcon fontSize="small" />
-              </ListItemIcon>
-              {tUser('profile')}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleCloseMenu();
-                router.push('/user?tab=orders');
-              }}
-            >
-              <ListItemIcon>
-                <LocalMallOutlinedIcon fontSize="small" />
-              </ListItemIcon>
-              {tUser('myOrders')}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleCloseMenu();
-                router.push('/user?tab=wishlist');
-              }}
-            >
-              <ListItemIcon>
-                <FavoriteBorderIcon fontSize="small" />
-              </ListItemIcon>
-              {tUser('wishlist')}
-            </MenuItem>
-            {isAdmin && (
+            <Link href="/user" style={{ textDecoration: 'none', color: 'inherit' }}>
               <MenuItem
                 onClick={() => {
                   handleCloseMenu();
-                  router.push('/admin/orders?status=pending');
+                  // router.push('/user');
                 }}
               >
                 <ListItemIcon>
-                  <AdminPanelSettingsIcon fontSize="small" />
+                  <PersonOutlineIcon fontSize="small" />
                 </ListItemIcon>
-                {tUser('adminPanel')}
+                {tUser('profile')}
               </MenuItem>
+            </Link>
+            <Link href="/user/orders" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <MenuItem
+                onClick={() => {
+                  handleCloseMenu();
+                  // router.push('/user?tab=orders');
+                }}
+              >
+                <ListItemIcon>
+                  <LocalMallOutlinedIcon fontSize="small" />
+                </ListItemIcon>
+                {tUser('myOrders')}
+              </MenuItem>
+            </Link>
+            <Link href="/user/wishlist" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <MenuItem
+                onClick={() => {
+                  handleCloseMenu();
+                  // router.push('/user?tab=wishlist');
+                }}
+              >
+                <ListItemIcon>
+                  <FavoriteBorderIcon fontSize="small" />
+                </ListItemIcon>
+                {tUser('wishlist')}
+              </MenuItem>
+            </Link>
+            <Link href="/user/settings" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <MenuItem
+                onClick={() => {
+                  handleCloseMenu();
+                  // router.push('/user?tab=wishlist');
+                }}
+              >
+                <ListItemIcon>
+                  <Settings fontSize="small" />
+                </ListItemIcon>
+                {tUser('settings')}
+              </MenuItem>
+            </Link>
+            <Link href="/user/payment" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <MenuItem
+                onClick={() => {
+                  handleCloseMenu();
+                  // router.push('/user?tab=wishlist');
+                }}
+              >
+                <ListItemIcon>
+                  <Payment fontSize="small" />
+                </ListItemIcon>
+                {tUser('payment')}
+              </MenuItem>
+            </Link>
+            {isAdmin && (
+              <Link href="/admin/orders?status=pending" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <MenuItem
+                  onClick={() => {
+                    handleCloseMenu();
+                    // router.push('/admin/orders?status=pending');
+                  }}
+                >
+                  <ListItemIcon>
+                    <AdminPanelSettingsIcon fontSize="small" />
+                  </ListItemIcon>
+                  {tUser('adminPanel')}
+                </MenuItem>
+              </Link>
             )}
             <Divider />
             <MenuItem disabled sx={{ opacity: '1 !important' }}>

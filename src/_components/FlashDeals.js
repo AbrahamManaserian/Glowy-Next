@@ -195,7 +195,7 @@ export default function FlashDeals({ flashDeals = [] }) {
                       },
                     }}
                   >
-                    Add to Cart
+                    {t('addToCart')}
                   </Button>
                 </Box>
               </Box>

@@ -5,7 +5,7 @@
       "shop": "Խանութ",
       "makeup": "Դիմահարդարում",
       "skincare": "Մաշկի խնամք",
-      "hair": "Մազեր",
+      "hair": "Վարսեր",
       "bathBody": "Լոգանք և մարմին",
       "accessories": "Աքսեսուարներ",
       "fragrance": "Օծանելիք",
@@ -29,16 +29,18 @@
       "aboutUs": "Մեր մասին",
       "language": "Լեզու",
       "welcomeGuest": "Բարի գալուստ, Հյուր",
-      "allCategories": "Բոլոր կատեգորիաները"
+      "allCategories": "Բոլոր բաժինները"
     },
     "user": {
       "profile": "Անձնական էջ",
       "myAccount": "Իմ հաշիվը",
       "myOrders": "Իմ պատվերները",
-      "wishlist": "Ցանկությունների ցուցակ",
+      "wishlist": "Հավանածներ",
       "logout": "Դուրս գալ",
       "login": "Մուտք",
-      "adminPanel": "Ադմինիստրատորի վահանակ"
+      "adminPanel": "Ադմինիստրատորի վահանակ",
+      "settings": "Կարգավորումներ",
+      "payment": "Վճարում"
     },
     "footer": {
       "aboutUs": "Մեր մասին",
@@ -50,15 +52,15 @@
     }
   },
   "Categories": {
-    "title": "Կատեգորիաներ",
-    "allCategories": "Բոլոր կատեգորիաները",
+    "title": "Բաժիններ",
+    "allCategories": "Բոլոր բաժինները",
     "allItems": "Բոլոր ապրանքները",
     "general": "Ընդհանուր",
     "searchingFor": "Որոնում...",
     "makeup": "Դիմահարդարում",
     "skincare": "Մաշկի խնամք",
     "bathBody": "Լոգանք և մարմին",
-    "hair": "Մազեր",
+    "hair": "Վարսեր",
     "fragrance": "Օծանելիք",
     "carFresheners": "Մեքենայի օդափոխիչներ",
     "homeFresheners": "Տան օդափոխիչներ",
@@ -72,7 +74,7 @@
     "moisturizers": "Խոնավեցնող միջոցներ",
     "bathShower": "Լոգանք և ցնցուղ",
     "bodyCare": "Մարմնի խնամք",
-    "hairStyling": "Մազերի հարդարում",
+    "hairStyling": "Վարսերի հարդարում",
     "nail": "Եղունգներ",
     "accessories": "Աքսեսուարներ",
     "collection": "Հավաքածու"
@@ -180,15 +182,20 @@
   "HomePage": {
     "title": "Բարի գալուստ Glowy",
     "customSolutions": {
-      "title": "Անհատական լուծումներ ձեր կարիքների համար",
-      "fragrance": "Օծանելիք",
+      "title": "Հաճախ որոնվող բաժիններ",
+      "fragrance": "Օծանելիքներ",
       "makeup": "Դիմահարդարում",
-      "skincare": "Մաշկի խնամք",
-      "haircare": "Մազերի խնամք",
-      "bathBody": "Լոգանք և մարմին"
+      "skincare": "Խնամք",
+      "haircare": "Վարսերի խնամք",
+      "bathBody": "Մարմին"
     },
     "flashDeals": {
-      "title": "Ֆլեշ առաջարկներ"
+      "title": "Թոփ վաճառվողներ",
+      "addToCart": "Ավելացնել"
+    },
+    "emblaHomeSlide": {
+      "title": "Զեղչ առաջին գնման համար",
+      "more": "Ավելին"
     },
     "specialOffer": {
       "title": "Հատուկ առաջարկ",
@@ -198,7 +205,7 @@
       "title": "Հայտնի ապրանքներ",
       "fragrance": "Օծանելիք",
       "makeup": "Դիմահարդարում",
-      "hair": "Մազեր"
+      "hair": "Վարսեր"
     }
   },
   "ShopPage": {
@@ -206,7 +213,7 @@
     "resetFilters": "Մաքրել ֆիլտրերը",
     "sortBy": "Դասավորել ըստ",
     "filters": "Ֆիլտրեր",
-    "categories": "Կատեգորիաներ",
+    "categories": "Բաժիններ",
     "showing": "Ցուցադրվում է",
     "results": "արդյունք",
     "priceLowHigh": "Գինը՝ ցածրից բարձր",
@@ -275,7 +282,7 @@
     "tabs": {
       "profile": "Պրոֆիլ",
       "orders": "Պատվերներ",
-      "wishlist": "Ցանկությունների ցուցակ",
+      "wishlist": "Հավանածներ",
       "payment": "Վճարում",
       "settings": "Կարգավորումներ"
     },
@@ -308,14 +315,39 @@
       "pendingOrders": "Ընթացիկ Պատվերներ",
       "deliveredOrders": "Առաքված Պատվերներ",
       "order": "Պատվեր #",
-      "created": "Ստեղծվել է՝",
       "items": "Ապրանքներ",
-      "totalPaid": "Ընդամենը Վճարված",
+      "totalPaid": "Ընդամենը վճարված",
+      "saved": "Խնայված",
+      "amountDetails": "Գումարի մանրամասներ",
+      "statusWithDate": "{status}՝ {date}",
+      "dates": {
+        "created": "Պատվիրվել է",
+        "inTransit": "Ուղարկվել է",
+        "delivered": "Հանձնվել է"
+      },
+      "tabs": {
+        "pending": "Ընթացքի մեջ",
+        "inTransit": "Ճանապարհին",
+        "delivered": "Հանձնված"
+      },
+      "financials": {
+        "summary": "Ամփոփում",
+        "subtotal": "Ենթահանրագումար",
+        "shipping": "Առաքում",
+        "totalSavings": "Ընդհանուր խնայողություն",
+        "productMarkdowns": "Ապրանքների զեղչեր",
+        "extraDiscountLabel": "Հավելյալ զեղչ",
+        "firstShopDiscountLabel": "Առաջին գնման զեղչ",
+        "freeShippingLabel": "Անվճար առաքում",
+        "bonusApplied": "Բոնուսը կիրառված է"
+      },
+      "leaveReview": "Թողնել կարծիք",
       "noPendingOrders": "Դեռևս չկան ընթացիկ պատվերներ",
       "noDeliveredOrders": "Դեռևս չկան առաքված պատվերներ",
       "noPendingDesc": "Դուք դեռ չունեք ընթացիկ պատվերներ:",
       "noDeliveredDesc": "Դուք դեռ չունեք առաքված պատվերներ:",
       "status": {
+        "pending": "Սպասման",
         "processing": "Մշակվում է",
         "delivered": "Առաքված է",
         "inTransit": "Ճանապարհին է",
@@ -323,9 +355,9 @@
       }
     },
     "wishlistTab": {
-      "myWishlist": "Իմ Ցանկությունների Ցուցակը",
-      "clearWishlist": "Մաքրել Ցուցակը",
-      "empty": "Ձեր ցանկությունների ցուցակը դատարկ է:"
+      "myWishlist": "Իմ Հավանածների Ցանկը",
+      "clearWishlist": "Մաքրել Ցանկը",
+      "empty": "Ձեր հավանածների ցանկը դատարկ է:"
     },
     "paymentTab": {
       "paymentMethods": "Վճարման Մեթոդներ",

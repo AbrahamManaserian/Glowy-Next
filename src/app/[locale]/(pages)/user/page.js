@@ -1,7 +1,5 @@
-import UserPageUi from './_components/UserPageUi';
+import ProfileContent from './_components/ProfileContent';
 
-export default async function UserPage({ searchParams }) {
-  const url = await searchParams;
-
-  return <UserPageUi />;
+export default function UserDefaultPage() {
+  return <ProfileContent />;
 }

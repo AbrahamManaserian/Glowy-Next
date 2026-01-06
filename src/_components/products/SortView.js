@@ -22,7 +22,7 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
         </Box>
       </Box>
 
-      <div
+      {/* <div
         onClick={() => handleChangeParams('view', 'list')}
         style={{
           display: 'flex',
@@ -50,18 +50,19 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
         }}
       >
         <GridViewIcon />
-      </div>
+      </div> */}
 
       <FormControl
         sx={{
-          width: { xs: '100px', sm: '150px' },
-          ml: '10px',
+          width: '150px',
+          // ml: '10px',
         }}
       >
         <InputLabel
           id="demo-simple-select-label"
           sx={{
             color: '#55585aff',
+            // width: '70px',
             fontSize: '14px',
             top: '-10px',
             // Only adjust the unshrunk position
@@ -90,6 +91,7 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
             fontSize: '14px',
             color: '#55585aff',
             display: 'flex',
+
             alignItems: 'center',
             '.MuiSvgIcon-root': { color: '#55585aff' },
             '.MuiOutlinedInput-notchedOutline': {
@@ -106,7 +108,14 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
               border: 1.5,
             },
           }}
-          inputProps={{ sx: { height: '40px', display: 'flex', alignItems: 'center' } }}
+          inputProps={{
+            sx: {
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              width: '70px',
+            },
+          }}
         >
           <MenuItem value={'price_asc'}>{t('priceLowHigh')}</MenuItem>
           <MenuItem value={'price_desc'}>{t('priceHighLow')}</MenuItem>

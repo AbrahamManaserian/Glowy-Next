@@ -35,10 +35,12 @@
       "profile": "Профиль",
       "myAccount": "Мой аккаунт",
       "myOrders": "Мои заказы",
-      "wishlist": "Список желаний",
+      "wishlist": "Список Избранных",
       "logout": "Выйти",
       "login": "Войти",
-      "adminPanel": "Админ панель"
+      "adminPanel": "Админ панель",
+      "settings": "Настройки",
+      "payment": "Оплата"
     },
     "footer": {
       "aboutUs": "О нас",
@@ -180,15 +182,20 @@
   "HomePage": {
     "title": "Добро пожаловать в Glowy",
     "customSolutions": {
-      "title": "Индивидуальные решения для ваших нужд",
+      "title": "Часто искомые категории",
       "fragrance": "Парфюмерия",
       "makeup": "Макияж",
-      "skincare": "Уход за кожей",
-      "haircare": "Уход за волосами",
-      "bathBody": "Ванна и тело"
+      "skincare": "Уход",
+      "haircare": "Уход для волос",
+      "bathBody": "Уход для тела"
     },
     "flashDeals": {
-      "title": "Горящие предложения"
+      "title": "Бестселлер всех времен",
+      "addToCart": "Добавить"
+    },
+    "emblaHomeSlide": {
+      "title": "Скидка на первый заказ",
+      "more": "Подробнее"
     },
     "specialOffer": {
       "title": "Специальное предложение",
@@ -274,7 +281,7 @@
     "tabs": {
       "profile": "Профиль",
       "orders": "Заказы",
-      "wishlist": "Список желаний",
+      "wishlist": "Список Избранных",
       "payment": "Оплата",
       "settings": "Настройки"
     },
@@ -310,11 +317,37 @@
       "created": "Создан:",
       "items": "Товары",
       "totalPaid": "Всего Оплачено",
+      "saved": "Сэкономлено",
+      "amountDetails": "Детали суммы",
+      "statusWithDate": "{status} {date}",
+      "dates": {
+        "created": "Размещен",
+        "inTransit": "Отправлен",
+        "delivered": "Доставлен"
+      },
+      "tabs": {
+        "pending": "В ожидании",
+        "inTransit": "В пути",
+        "delivered": "Доставленные"
+      },
+      "financials": {
+        "summary": "Сводка",
+        "subtotal": "Подытог",
+        "shipping": "Доставка",
+        "totalSavings": "Общая экономия",
+        "productMarkdowns": "Скидки на товары",
+        "extraDiscountLabel": "Доп. скидка",
+        "firstShopDiscountLabel": "Скидка на первую покупку",
+        "freeShippingLabel": "Бесплатная доставка",
+        "bonusApplied": "Бонус применен"
+      },
+      "leaveReview": "Оставить отзыв",
       "noPendingOrders": "Нет текущих заказов",
       "noDeliveredOrders": "Нет доставленных заказов",
       "noPendingDesc": "У вас пока нет заказов в процессе.",
       "noDeliveredDesc": "У вас пока нет доставленных заказов.",
       "status": {
+        "pending": "В ожидании",
         "processing": "В обработке",
         "delivered": "Доставлен",
         "inTransit": "В пути",
@@ -322,9 +355,9 @@
       }
     },
     "wishlistTab": {
-      "myWishlist": "Мой Список Желаний",
+      "myWishlist": "Мой Список Избранных",
       "clearWishlist": "Очистить Список",
-      "empty": "Ваш список желаний пуст."
+      "empty": "Ваш список избранных пуст."
     },
     "paymentTab": {
       "paymentMethods": "Способы Оплаты",

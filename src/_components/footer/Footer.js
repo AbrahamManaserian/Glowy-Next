@@ -237,3 +237,23 @@ export default function Footer() {
     </Grid>
   );
 }
+
+
+//  <Typography
+//               sx={{
+//                 width: '100%',
+
+//                 fontSize: { xs: '10px', sm: '14px' },
+//                 // lineHeight: '13px',
+//                 color: '#54565afb',
+//                 fontWeight: 200,
+//               }}
+//             >
+//               {paramsState.subCategory && categoriesObj[category][paramsState.subCategory].category}{' '}
+//               {paramsState.type && ` > ${paramsState.type} `}
+//               {paramsState.brands && paramsState.brands.length > 0 && ` > ${paramsState.brands.join(', ')}  `}
+//               {paramsState.size && ` > ${t('size')} - ${paramsState.size} `}
+//               {paramsState.sale && ` > ${t('sale')} `}
+//               <br />
+//               {t('totalItems')} - {totalDocs}
+//             </Typography>

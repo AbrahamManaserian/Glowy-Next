@@ -18,7 +18,7 @@ export const getSlides = async () => {
       slides.push({
         id: doc.id,
         title: data.fullName || `${data.brand} ${data.model}`,
-        description: data.descriptionEn || data.description || 'Special Offer',
+        description: data.descriptionEn || data.description || '',
         image: data.mainImage?.file || data.mainImage?.url || '/images/placeholder.jpg',
         buttonText: 'Shop Now',
         ...data,

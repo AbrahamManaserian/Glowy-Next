@@ -5,7 +5,7 @@ import { Box, Button, Drawer, Grid, Pagination, PaginationItem, Typography } fro
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import SortView from './SortView';
-import Filter from './Filter';
+import Filter, { typeMapping } from './Filter';
 import ItemCart from '@/_components/carts/ItemCart';
 import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
@@ -109,6 +109,8 @@ const defaultParams = {
 export default function PageUi({ data, categoryText, category, totalDocs, lastId, startId }) {
   const t = useTranslations('ShopPage');
   const tCommon = useTranslations('Common.nav');
+  const tTypes = useTranslations('ProductTypes');
+  const tCategories = useTranslations('Categories');
   const [loading, setLoading] = useState(false);
   // console.log(lastId, startId);
   const router = useRouter();
@@ -397,20 +399,32 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
             <Typography
               sx={{
                 width: '100%',
-
-                fontSize: { xs: '10px', sm: '14px' },
-                // lineHeight: '13px',
+                fontSize: { xs: '12px', sm: '14px' },
                 color: '#54565afb',
-                fontWeight: 200,
+                fontWeight: 400,
+                mb: '5px',
               }}
             >
-              {paramsState.subCategory && categoriesObj[category][paramsState.subCategory].category}{' '}
-              {paramsState.type && ` > ${paramsState.type} `}
-              {paramsState.brands && paramsState.brands.length > 0 && ` > ${paramsState.brands.join(', ')}  `}
-              {paramsState.size && ` > ${t('size')} - ${paramsState.size} `}
-              {paramsState.sale && ` > ${t('sale')} `}
-              <br />
-              {t('totalItems')} - {totalDocs}
+              {tCommon(category)}
+              {paramsState.subCategory && ` > ${tCategories(paramsState.subCategory)}`}
+              {paramsState.type && ` > ${tTypes(typeMapping[paramsState.type])}`}
+              {paramsState.brands &&
+                paramsState.brands.length > 0 &&
+                ` > ${t('brands')} - ${paramsState.brands.join(', ')}`}
+              {paramsState.size && ` > ${t('size')} ${paramsState.size}`}
+              {paramsState.sale && ` > ${t('sale')}`}
+              {paramsState.original && ` > ${t('original')}`}
+              {paramsState.inStock && ` > ${t('inStock')}`}
+            </Typography>
+            <Typography
+              sx={{
+                width: '100%',
+                fontSize: { xs: '10px', sm: '12px' },
+                color: '#7d7d7d',
+                fontWeight: 300,
+              }}
+            >
+              {t('totalItems')}: {totalDocs}
             </Typography>
             {loading && (
               <div

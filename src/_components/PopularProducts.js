@@ -1,13 +1,15 @@
 'use client';
 
 import { Box, Grid, Rating, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 export default function PopularProducts({ popularProducts }) {
   const [tabIndex, setTabIndex] = useState(0);
+  const [tabPositions, setTabPositions] = useState([]);
+  const [tabWidths, setTabWidths] = useState([]);
   const router = useRouter();
   const t = useTranslations('HomePage.popularProducts');
   const handleClick = (i) => setTabIndex(i);
@@ -16,7 +18,25 @@ export default function PopularProducts({ popularProducts }) {
   const currentCategory = categories[tabIndex];
   const products = popularProducts?.[currentCategory] || [];
 
-  const tabLabels = [t('fragrance'), t('makeup'), t('hair')];
+  const tabLabels = useMemo(() => [t('fragrance'), t('makeup'), t('hair')], []);
+  const tabContainerRef = useRef(null);
+  const tabRefs = useRef([]);
+
+  useEffect(() => {
+    if (tabContainerRef.current) {
+      const containerRect = tabContainerRef.current.getBoundingClientRect();
+      const positions = tabRefs.current.map((ref) => {
+        if (ref) {
+          const rect = ref.getBoundingClientRect();
+          return rect.left - containerRect.left;
+        }
+        return 0;
+      });
+      const widths = tabRefs.current.map((ref) => (ref ? ref.offsetWidth : 0));
+      setTabPositions(positions);
+      setTabWidths(widths);
+    }
+  }, []); // Run only on mount
 
   return (
     <Grid sx={{ m: { xs: '80px 15px', sm: '90px 25px' } }} size={12} container alignContent={'flex-start'}>
@@ -27,19 +47,19 @@ export default function PopularProducts({ popularProducts }) {
       >
         {t('title')}
       </Typography>
-      <Grid size={12} container>
+      <Grid size={12} container ref={tabContainerRef}>
         {tabLabels.map((item, index) => {
           return (
             <Typography
               key={index}
+              ref={(el) => (tabRefs.current[index] = el)}
               onClick={() => handleClick(index)}
               sx={{
                 color: index === tabIndex ? '#212122da' : '#21212295',
                 fontSize: '14px',
                 fontWeight: tabIndex === index ? 500 : 400,
-                // mr: '35px',
+                mr: '10px',
                 cursor: 'pointer',
-                width: '100px',
               }}
             >
               {item}
@@ -50,11 +70,12 @@ export default function PopularProducts({ popularProducts }) {
       <Box
         sx={{
           mt: '10px',
+
           width: '50px',
           borderBottom: 2,
           display: 'block',
-          transform: `translateX(${tabIndex * 100}px)`,
-          transition: 'transform 0.5s ease',
+          transform: `translateX(${tabPositions[tabIndex] + tabIndex * 10 || 0}px)`,
+          transition: 'transform 0.5s ease, width 0.5s ease',
         }}
       ></Box>
       <Grid mt="25px" size={12} container spacing={2}>

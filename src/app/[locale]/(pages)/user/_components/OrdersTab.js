@@ -12,78 +12,119 @@ import {
   Tabs,
   Tab,
   CircularProgress,
+  Stack,
+  Skeleton,
 } from '@mui/material';
-import Link from 'next/link';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { useTranslations } from 'next-intl';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { ref, getDownloadURL } from 'firebase/storage';
+import { storage } from '@/firebase';
+import Link from 'next/link';
 
-// Robust date formatter that supports numbers, ISO strings, Firestore Timestamps and objects with `seconds` or `_seconds`.
+const OrderImage = ({ src, alt }) => {
+  const [imgSrc, setImgSrc] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    const fetchImage = async () => {
+      if (!src) {
+        if (active) {
+          setImgSrc('/placeholder.png');
+          setLoading(false);
+        }
+        return;
+      }
+
+      if (src.startsWith('http') || src.startsWith('/')) {
+        if (active) {
+          setImgSrc(src);
+          setLoading(false);
+        }
+        return;
+      }
+
+      // Assume it's a firebase storage path
+      try {
+        const storageRef = ref(storage, src);
+        const url = await getDownloadURL(storageRef);
+        if (active) {
+          setImgSrc(url);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Error fetching image URL for', src, err);
+        if (active) {
+          setImgSrc('/placeholder.png');
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchImage();
+
+    return () => {
+      active = false;
+    };
+  }, [src]);
+
+  if (loading) {
+    return <Skeleton variant="rectangular" width="100%" height="100%" />;
+  }
+
+  return (
+    <Image
+      src={imgSrc || '/placeholder.png'}
+      alt={alt || 'Product Image'}
+      fill
+      style={{ objectFit: 'cover' }}
+    />
+  );
+};
+
 const formatDate = (value) => {
   if (value === null || value === undefined) return '—';
 
   try {
-    // Firestore Timestamp-like with toDate()
     if (value?.toDate && typeof value.toDate === 'function') {
       const d = value.toDate();
       return isNaN(d.getTime())
         ? '—'
         : d.toLocaleString('en-US', {
             year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
+            month: 'short',
+            day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-            hour12: false,
           });
     }
-
-    // Plain object with seconds/_seconds and optional nanoseconds
     const seconds = value?.seconds ?? value?._seconds;
-    const nanoseconds = value?.nanoseconds ?? value?._nanoseconds ?? value?.nanos ?? 0;
     if (seconds !== undefined && seconds !== null) {
-      const ms = Number(seconds) * 1000 + Math.floor((Number(nanoseconds) || 0) / 1e6);
-      const d = new Date(ms);
+      const d = new Date(seconds * 1000);
       return isNaN(d.getTime())
         ? '—'
         : d.toLocaleString('en-US', {
             year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
+            month: 'short',
+            day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-            hour12: false,
           });
     }
-
-    // numbers (milliseconds)
-    if (typeof value === 'number') {
-      const d = new Date(value);
-      return isNaN(d.getTime())
-        ? '—'
-        : d.toLocaleString('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-          });
-    }
-
-    // ISO or parseable date string
     const d = new Date(value);
     return isNaN(d.getTime())
       ? '—'
       : d.toLocaleString('en-US', {
           year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
+          month: 'short',
+          day: 'numeric',
           hour: '2-digit',
           minute: '2-digit',
-          hour12: false,
         });
   } catch (err) {
     return '—';
@@ -93,425 +134,456 @@ const formatDate = (value) => {
 export default function OrdersTab({ orders }) {
   const t = useTranslations('UserPage.ordersTab');
   const { user } = useGlobalContext();
-  const [openItems, setOpenItems] = React.useState({});
-  const [tabValue, setTabValue] = React.useState(0); // 0: pending, 1: delivered
-  const [deliveredOrders, setDeliveredOrders] = React.useState([]);
-  const [loadingDelivered, setLoadingDelivered] = React.useState(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const handleToggle = (orderId) => {
+  const statusParam = searchParams.get('status') || 'pending';
+
+  const [openItems, setOpenItems] = useState({});
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [deliveredOrders, setDeliveredOrders] = useState([]);
+  const [loadingDelivered, setLoadingDelivered] = useState(false);
+
+  // Map status param to tab index
+  const tabValue = statusParam === 'in-transit' ? 1 : statusParam === 'delivered' ? 2 : 0;
+
+  const handleTabChange = (event, newValue) => {
+    let newStatus = 'pending';
+    if (newValue === 1) newStatus = 'in-transit';
+    if (newValue === 2) newStatus = 'delivered';
+
+    router.push(`${pathname}?status=${newStatus}`, { scroll: false });
+  };
+
+  // Fetch delivered orders
+  useEffect(() => {
+    if (statusParam === 'delivered' && deliveredOrders.length === 0 && user) {
+      setLoadingDelivered(true);
+      fetch(`/api/orders/delivered?userId=${user.uid}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setDeliveredOrders(data);
+          } else {
+            setDeliveredOrders([]);
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to fetch delivered orders', err);
+          setDeliveredOrders([]);
+        })
+        .finally(() => setLoadingDelivered(false));
+    }
+  }, [statusParam, user, deliveredOrders.length]);
+
+  useEffect(() => {
+    let sourceList = orders || [];
+    if (statusParam === 'delivered') {
+      sourceList = deliveredOrders;
+    }
+
+    if (!sourceList && statusParam !== 'delivered') {
+      setFilteredOrders([]);
+      return;
+    }
+
+    const filtered = sourceList.filter((order) => {
+      const status = order.status?.toLowerCase() || '';
+      if (statusParam === 'pending') {
+        return ['pending', 'processing', 'confirmed', 'paid'].includes(status);
+      }
+      if (statusParam === 'in-transit') {
+        return ['shipped', 'intransit', 'in-transit', 'on-the-way'].includes(status);
+      }
+      if (statusParam === 'delivered') {
+        return status === 'delivered';
+      }
+      return false;
+    });
+
+    filtered.sort((a, b) => {
+      const dateA = a.createdAt?.seconds || new Date(a.createdAt).getTime();
+      const dateB = b.createdAt?.seconds || new Date(b.createdAt).getTime();
+      return dateB - dateA;
+    });
+
+    setFilteredOrders(filtered);
+  }, [orders, statusParam, deliveredOrders]);
+
+  const toggleAccordion = (orderId) => {
     setOpenItems((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
   };
 
-  const fetchDeliveredOrders = async () => {
-    if (!user) return; // already fetched or not signed in
-
-    setLoadingDelivered(true);
-    const url = `/api/orders/delivered?userId=${user.uid}`;
-    try {
-      const res = await fetch(url);
-      if (res.ok) {
-        const data = await res.json();
-        setDeliveredOrders(data);
-      }
-    } catch (error) {
-      console.error('Error fetching delivered orders:', error);
-    } finally {
-      setLoadingDelivered(false);
-    }
-  };
-
-  const handleTabChange = async (event, newValue) => {
-    if (newValue === 1) {
-      await fetchDeliveredOrders();
-      setTabValue(newValue);
-    } else {
-      setTabValue(newValue);
-    }
-  };
-
-  const displayOrders = tabValue === 0 ? orders : deliveredOrders;
+  const EmptyState = ({ type }) => (
+    <Box sx={{ textAlign: 'center', py: 8 }}>
+      <Typography variant="body1" color="text.secondary">
+        {type === 'pending'
+          ? t('noPendingOrders')
+          : type === 'in-transit'
+          ? t('noPendingOrders')
+          : t('noDeliveredOrders')}
+      </Typography>
+    </Box>
+  );
 
   return (
-    <Box sx={{ maxWidth: 1200 }}>
-      <>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.05rem' }}>
-            {t('myOrders')}
-          </Typography>
+    <Box>
+      <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
+        {t('myOrders')}
+      </Typography>
+      <Tabs
+        value={tabValue}
+        onChange={handleTabChange}
+        variant="scrollable"
+        scrollButtons="auto"
+        allowScrollButtonsMobile
+        sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
+      >
+        <Tab label={t('tabs.pending')} />
+        <Tab label={t('tabs.inTransit')} />
+        <Tab label={t('tabs.delivered')} />
+      </Tabs>
+
+      {(statusParam === 'delivered' && loadingDelivered) || (!orders && statusParam !== 'delivered') ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <CircularProgress />
         </Box>
-        <Tabs value={tabValue} onChange={handleTabChange} sx={{ mb: 2 }}>
-          <Tab label={t('pendingOrders')} />
-          <Tab label={t('deliveredOrders')} />
-        </Tabs>
-        <Grid sx={{ position: 'relative' }} container spacing={1.2}>
-          {loadingDelivered && (
-            <CircularProgress
-              sx={{
-                position: 'absolute',
-                top: '20px',
-                left: '50%',
-                // transform: 'translate(-50%, -50%)',
-                zIndex: 9999,
-              }}
-            />
-          )}
-          {displayOrders.map((order) => (
-            <Grid size={{ xs: 12 }} key={order.id}>
+      ) : filteredOrders.length === 0 ? (
+        <EmptyState type={statusParam} />
+      ) : (
+        <Stack spacing={2}>
+          {filteredOrders.map((order) => {
+            const isExpanded = openItems[order.id];
+            const financials = order.financials || {};
+
+            // Extract financial values with defaults
+            const totalSaved = financials.totalSaved || 0;
+            const savedFromOriginalPrice = financials.savedFromOriginalPrice || 0;
+            const discount = financials.extraDiscount || 0;
+            const firstShopDiscount = financials.firstShopDiscount || 0;
+            const shippingSavings = financials.shippingSavings || 0;
+            const appliedBonus = financials.bonusApplied || 0; // Use bonusApplied key from object
+            const applyBonus = appliedBonus > 0; // Helper boolean
+            const total = financials.total || order.totalAmount || 0;
+            const subtotal = financials.subtotal || order.subtotal || 0;
+            const shippingCost = financials.shippingCost !== undefined ? financials.shippingCost : (order.shippingCost || 0);
+
+            return (
               <Paper
+                key={order.id}
+                variant="outlined"
                 sx={{
-                  p: 0.7,
-                  borderTop: '1px solid #E0E0E0',
-                  borderBottom: '1px solid #E0E0E0',
-                  borderLeft: '1px solid #E0E0E0',
-                  borderRight: '1px solid #E0E0E0',
-                  boxShadow: 'none',
-                  borderRadius: 2,
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  transition: 'box-shadow 0.2s',
+                  '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
                 }}
               >
-                {/* ...existing code for order card... */}
+                {/* Header */}
                 <Box
-                  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.1 }}
+                  sx={{
+                    p: 2,
+                    bgcolor: '#FAFAFA',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => toggleAccordion(order.id)}
                 >
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.98rem' }}>
-                      {t('order')} {order.id.slice(0, 12)}
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {t('order')} {order.id.toString().slice(0, 8).toUpperCase()}
                     </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ fontSize: '0.82rem', mt: 0.5 }}
-                    >
-                      {t('created')} <br /> {formatDate(order.createdAt)}
+                    <Typography variant="caption" color="text.secondary">
+                      {t('dates.created')} {formatDate(order.createdAt)}
                     </Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Chip
-                      label={t(`status.${order.status}`) || order.status || t('status.processing')}
+                      label={t(`status.${order.status}`) || order.status}
                       color={
                         order.status === 'delivered'
                           ? 'success'
-                          : order.status === 'inTransit'
-                          ? 'primary'
                           : order.status === 'cancelled'
                           ? 'error'
-                          : 'error'
+                          : order.status === 'pending'
+                          ? 'error'
+                          : 'primary'
                       }
-                      sx={{ fontWeight: 600, fontSize: '0.78rem', height: 22, mb: 0.5 }}
+                      size="small"
+                      sx={{ mr: 1, textTransform: 'capitalize' }}
                     />
-                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
-                      {formatDate(order?.[`${order.status}At`] || order?.updatedAt)}
-                    </Typography>
+                    <IconButton size="small">
+                      <ExpandMoreIcon
+                        sx={{
+                          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                          transition: 'transform 0.2s',
+                        }}
+                      />
+                    </IconButton>
                   </Box>
                 </Box>
-                <Divider sx={{ my: 1.1 }} />
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5, justifyContent: 'space-between' }}>
-                  <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.93rem' }} gutterBottom>
-                    {t('items')}
-                  </Typography>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleToggle(order.id)}
-                    sx={{
-                      ml: 0.5,
-                      transform: openItems[order.id] ? 'rotate(180deg)' : 'rotate(0deg)',
-                      transition: 'transform 0.2s',
-                      p: 0.5,
-                    }}
-                    aria-label={openItems[order.id] ? 'Collapse items' : 'Expand items'}
-                  >
-                    <ExpandMoreIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Collapse in={!!openItems[order.id]} timeout="auto" unmountOnExit>
-                  <Box sx={{ py: 0.5 }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: 1,
-                        flexDirection: { xs: 'column', sm: 'row' },
-                        alignItems: 'flex-start',
-                        // px: 0.5,
-                      }}
-                    >
-                      {/* LEFT: Items list (50%) */}
-                      <Box
-                        sx={{
-                          width: { xs: '100%', sm: '50%' },
-                        }}
-                      >
-                        {order.items?.map((item, idx) => (
-                          <Box
-                            key={idx}
-                            sx={{
-                              display: 'flex',
-                              gap: 0.7,
-                              py: 0.75,
-                              // px: 1,
-                              alignItems: 'center',
-                              borderColor: 'divider',
-                            }}
-                          >
-                            <Link
-                              href={`/item/${item.id}`}
-                              style={{ textDecoration: 'none', color: 'inherit' }}
-                              passHref
-                            >
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  gap: 0.7,
-                                  alignItems: 'center',
-                                  width: '100%',
-                                }}
-                              >
-                                <Box
-                                  sx={{
-                                    width: 50,
-                                    height: 50,
-                                    position: 'relative',
-                                    borderRadius: '5px',
-                                    overflow: 'hidden',
-                                    border: '1px solid #eee',
-                                    flexShrink: 0,
-                                  }}
-                                >
-                                  <Image
-                                    src={item.img || '/images/cosmetic/placeholder.jpg'}
-                                    alt={item.name}
-                                    fill
-                                    style={{ objectFit: 'cover' }}
-                                  />
-                                </Box>
-                                <Box>
-                                  <Typography
-                                    variant="body2"
-                                    fontWeight={500}
-                                    sx={{ fontSize: { xs: '0.72rem', sm: '0.85rem' }, lineHeight: 1.18 }}
-                                  >
-                                    {item.name}
-                                  </Typography>
-                                  <Typography
-                                    variant="caption"
-                                    color="text.secondary"
-                                    sx={{ fontSize: '0.72rem' }}
-                                  >
-                                    Qty: {item.quantity} x ֏{item.price}
-                                  </Typography>
-                                  {item.selectedColor && (
-                                    <Typography
-                                      variant="caption"
-                                      display="block"
-                                      color="text.secondary"
-                                      sx={{ fontSize: '0.66rem' }}
-                                    >
-                                      Color: {item.selectedColor.name}
-                                    </Typography>
-                                  )}
-                                  {item.selectedSize && (
-                                    <Typography
-                                      variant="caption"
-                                      display="block"
-                                      color="text.secondary"
-                                      sx={{ fontSize: '0.66rem' }}
-                                    >
-                                      Size: {item.selectedSize}
-                                    </Typography>
-                                  )}
-                                </Box>
-                              </Box>
-                            </Link>
-                          </Box>
-                        ))}
-                      </Box>
 
-                      {/* RIGHT: Financial summary (50%) */}
-                      <Box
-                        sx={{
-                          width: { xs: '100%', sm: '50%' },
-                          display: 'flex',
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            width: { xs: '100%', sm: 320 },
-                            p: 1,
-                            borderLeft: { xs: 'none', sm: '1px solid' },
-                            borderColor: 'divider',
-                            bgcolor: 'background.paper',
-                            position: { xs: 'static', sm: 'sticky' },
-                            top: { sm: 12 },
-                            alignSelf: 'flex-start',
-                          }}
-                        >
-                          <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                            Summary
+                {/* Content */}
+                <Collapse in={isExpanded}>
+                  <Divider />
+                  <Box sx={{ p: 2 }}>
+                    {/* Dates - Vertical Stack for Mobile/Desktop as requested */}
+                    <Box sx={{ mb: 3 }}>
+                      <Stack spacing={0.5}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ width: 100 }}>
+                            {t('dates.created')}
                           </Typography>
-
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                            <Typography variant="caption" color="text.secondary">
-                              Subtotal
+                          <Typography variant="body2">{formatDate(order.createdAt)}</Typography>
+                        </Box>
+                        {(order.inTransitAt || order.dateInTransit || statusParam === 'in-transit') && (
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ width: 100 }}>
+                              {t('dates.inTransit')}
                             </Typography>
                             <Typography variant="body2">
-                              {order.financials?.subtotal?.toLocaleString('en-US')} ֏
+                              {formatDate(order.inTransitAt || order.dateInTransit)}
                             </Typography>
                           </Box>
-                          {order.financials?.shippingCost > 0 && (
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                              <Typography variant="caption" color="text.secondary">
-                                Shipping
-                              </Typography>
-                              <Typography variant="body2">
-                                {order.financials.shippingCost?.toLocaleString('en-US')} ֏
-                              </Typography>
+                        )}
+                        {(order.deliveredAt || statusParam === 'delivered') && (
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ width: 100 }}>
+                              {t('dates.delivered')}
+                            </Typography>
+                            <Typography variant="body2">{formatDate(order.deliveredAt)}</Typography>
+                          </Box>
+                        )}
+                      </Stack>
+                    </Box>
+
+                    <Divider sx={{ mb: 3 }} />
+
+                    {/* Split Layout: Items Left, Financials Right */}
+                    <Grid container spacing={4}>
+                      {/* Items Section */}
+                      <Grid item size={{ xs: 12, md: 6 }}>
+                        <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                          {t('items')}
+                        </Typography>
+                        {order.items?.map((item, index) => (
+                          <Box
+                            key={index}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              mb: 2,
+                              '&:last-child': { mb: 0 },
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                position: 'relative',
+                                width: 60,
+                                height: 60,
+                                flexShrink: 0,
+                                mr: 2,
+                                borderRadius: '8px',
+                                overflow: 'hidden',
+                                border: '1px solid #eee',
+                              }}
+                            >
+                              <OrderImage
+                                src={item.img || item.image || item.imageUrl || '/placeholder.png'}
+                                alt={item.name}
+                              />
                             </Box>
-                          )}
-                          {order.financials &&
-                            (order.financials.totalSaved > 0 ||
-                              order.financials.savedFromOriginalPrice > 0 ||
-                              order.financials.extraDiscount > 0 ||
-                              order.financials.firstShopDiscount > 0 ||
-                              order.financials.shippingSavings > 0) && (
-                              <Box
-                                sx={{
-                                  mt: 0.5,
-                                  p: 1,
-                                  bgcolor: '#fff7ed',
-                                  borderRadius: 1,
-                                  border: '1px dashed #e65100',
-                                }}
-                              >
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '5px' }}>
-                                  <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 600 }}>
-                                    Total Savings
+                            <Box sx={{ flexGrow: 1 }}>
+                              <Typography variant="body2" fontWeight="500">
+                                {item.name}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary" display="block">
+                                {item.quantity} * {item.price?.toLocaleString()} ֏
+                              </Typography>
+                              <Link href="#" style={{ textDecoration: 'none' }}>
+                                <Typography
+                                  variant="caption"
+                                  color="primary"
+                                  sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                                >
+                                  {t('leaveReview')}
+                                </Typography>
+                              </Link>
+                            </Box>
+                            {/* Removed individual item price as requested */}
+                          </Box>
+                        ))}
+                      </Grid>
+
+                      {/* Financials Section */}
+                      <Grid item size={{ xs: 12, md: 6 }}>
+                        <Box sx={{ border: 'solid 1px #c5c7cc8a', borderRadius: '15px', p: '25px' }}>
+                          <Typography
+                            sx={{
+                              color: '#263045fb',
+                              fontSize: '18px',
+                              fontWeight: 500,
+                              mb: '20px',
+                            }}
+                          >
+                            {t('financials.summary')}
+                          </Typography>
+
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
+                            <Typography
+                              sx={{
+                                color: '#263045fb',
+                                fontSize: '15px',
+                                fontWeight: 300,
+                              }}
+                            >
+                              {t('financials.subtotal')}
+                            </Typography>
+                            <Typography
+                              sx={{
+                                color: '#263045fb',
+                                fontSize: '15px',
+                                fontWeight: 500,
+                              }}
+                            >
+                              ֏{subtotal.toLocaleString()}
+                            </Typography>
+                          </Box>
+
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '15px' }}>
+                            <Typography
+                              sx={{
+                                color: '#263045fb',
+                                fontSize: '15px',
+                                fontWeight: 300,
+                              }}
+                            >
+                              {t('financials.shipping')}
+                            </Typography>
+                            <Typography
+                              sx={{
+                                color: '#263045fb',
+                                fontSize: '15px',
+                                fontWeight: 500,
+                              }}
+                            >
+                              {shippingCost === 0 ? t('financials.freeShippingLabel') : `֏${shippingCost.toLocaleString()}`}
+                            </Typography>
+                          </Box>
+
+                          {/* Orange Savings Box */}
+                          {totalSaved > 0 && (
+                            <Box
+                              sx={{
+                                mb: '15px',
+                                p: '12px',
+                                bgcolor: '#fff7ed',
+                                borderRadius: '8px',
+                                border: '1px dashed #e65100',
+                              }}
+                            >
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '5px' }}>
+                                <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 600 }}>
+                                  {t('financials.totalSavings')}
+                                </Typography>
+                                <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 700 }}>
+                                  ֏{totalSaved.toLocaleString()}
+                                </Typography>
+                              </Box>
+                              {savedFromOriginalPrice > 0 && (
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                  <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                                    • {t('financials.productMarkdowns')}
                                   </Typography>
-                                  <Typography sx={{ color: '#e65100', fontSize: '15px', fontWeight: 700 }}>
-                                    ֏{order.financials.totalSaved?.toLocaleString('en-US')}
+                                  <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                                    ֏{savedFromOriginalPrice.toLocaleString()}
                                   </Typography>
                                 </Box>
-                                {order.financials.savedFromOriginalPrice > 0 && (
-                                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                                      • Product markdowns
-                                    </Typography>
-                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
-                                      ֏{order.financials.savedFromOriginalPrice?.toLocaleString('en-US')}
-                                    </Typography>
-                                  </Box>
-                                )}
-                                {order.financials.firstShopDiscount > 0 && (
-                                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                                      • First Shop discount (
-                                      {Math.round(
-                                        (order.financials.firstShopDiscount / order.financials.subtotal) * 100
-                                      )}
-                                      %)
-                                    </Typography>
-                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
-                                      ֏{order.financials.firstShopDiscount?.toLocaleString('en-US')}
-                                    </Typography>
-                                  </Box>
-                                )}
-                                {order.financials.extraDiscount > 0 && (
-                                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                                      • Extra discount (
-                                      {Math.round(
-                                        (order.financials.extraDiscount / order.financials.subtotal) * 100
-                                      )}
-                                      %)
-                                    </Typography>
-                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
-                                      ֏{order.financials.extraDiscount?.toLocaleString('en-US')}
-                                    </Typography>
-                                  </Box>
-                                )}
-                                {order.financials.shippingSavings > 0 && (
-                                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                                      • Free shipping
-                                    </Typography>
-                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
-                                      ֏{order.financials.shippingSavings?.toLocaleString('en-US')}
-                                    </Typography>
-                                  </Box>
-                                )}
-                                {order.financials.bonusApplied > 0 && (
-                                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
-                                      • Bonus applied
-                                    </Typography>
-                                    <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
-                                      ֏{order.financials.bonusApplied?.toLocaleString('en-US')}
-                                    </Typography>
-                                  </Box>
-                                )}
-                              </Box>
-                            )}
+                              )}
+                              {discount > 0 && (
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                  <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                                    • {t('financials.extraDiscountLabel')}
+                                  </Typography>
+                                  <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                                    ֏{discount.toLocaleString()}
+                                  </Typography>
+                                </Box>
+                              )}
+                              {firstShopDiscount > 0 && (
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                  <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                                    • {t('financials.firstShopDiscountLabel')}
+                                  </Typography>
+                                  <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                                    ֏{firstShopDiscount.toLocaleString()}
+                                  </Typography>
+                                </Box>
+                              )}
+                              {shippingSavings > 0 && (
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                  <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                                    • {t('financials.freeShippingLabel')}
+                                  </Typography>
+                                  <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                                    ֏{shippingSavings.toLocaleString()}
+                                  </Typography>
+                                </Box>
+                              )}
+                              {applyBonus && appliedBonus > 0 && (
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                  <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 300 }}>
+                                    • {t('financials.bonusApplied')}
+                                  </Typography>
+                                  <Typography sx={{ color: '#e65100', fontSize: '13px', fontWeight: 500 }}>
+                                    ֏{appliedBonus.toLocaleString()}
+                                  </Typography>
+                                </Box>
+                              )}
+                            </Box>
+                          )}
+
+                          {/* Final Total */}
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              pt: 2,
+                              borderTop: '1px solid #c5c7cc8a',
+                            }}
+                          >
+                            <Typography
+                              sx={{
+                                color: '#263045fb',
+                                fontSize: '15px',
+                                fontWeight: 500,
+                              }}
+                            >
+                              {t('totalPaid')}
+                            </Typography>
+                            <Typography
+                              sx={{
+                                color: '#263045fb',
+                                fontSize: '15px',
+                                fontWeight: 500,
+                              }}
+                            >
+                              ֏{total.toLocaleString()}
+                            </Typography>
+                          </Box>
                         </Box>
-                      </Box>
-                    </Box>
+                      </Grid>
+                    </Grid>
                   </Box>
                 </Collapse>
-                <Divider sx={{ my: 1.1 }} />
-                {/* Detailed order financials info styled like CartPageUi.js */}
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.93rem' }}>
-                      {t('totalPaid')}
-                    </Typography>
-                    <Typography
-                      variant="subtitle2"
-                      fontWeight={600}
-                      sx={{ color: '#000', fontSize: '0.98rem' }}
-                    >
-                      {order.financials?.total?.toLocaleString('en-US')} ֏
-                    </Typography>
-                  </Box>
-                  {/* Removed duplicate total savings section. Only the one inside the items collapse remains. */}
-                </Box>
               </Paper>
-            </Grid>
-          ))}
-        </Grid>
-      </>
-
-      {displayOrders.length === 0 && (
-        <Box sx={{ textAlign: 'center', color: '#888' }}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              mb: 2,
-            }}
-          >
-            <Box
-              sx={{
-                width: 80,
-                height: 80,
-                bgcolor: '#F5F5F5',
-                borderRadius: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                mb: 1,
-              }}
-            >
-              <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
-                <path d="M7 7V6a5 5 0 0 1 10 0v1" stroke="#E57373" strokeWidth="1.7" strokeLinecap="round" />
-                <rect x="3" y="7" width="18" height="13" rx="3" stroke="#E57373" strokeWidth="1.7" />
-                <path d="M16 11a4 4 0 0 1-8 0" stroke="#E57373" strokeWidth="1.7" strokeLinecap="round" />
-              </svg>
-            </Box>
-            <Typography variant="h6" sx={{ mt: 2, fontWeight: 600, color: '#E57373' }}>
-              {tabValue === 0 ? t('noPendingOrders') : t('noDeliveredOrders')}
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#888', mt: 1 }}>
-              {tabValue === 0 ? t('noPendingDesc') : t('noDeliveredDesc')}
-            </Typography>
-          </Box>
-        </Box>
+            );
+          })}
+        </Stack>
       )}
     </Box>
   );
