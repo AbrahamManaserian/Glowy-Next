@@ -91,41 +91,24 @@ const formatDate = (value) => {
   if (value === null || value === undefined) return '—';
 
   try {
+    let d;
     if (value?.toDate && typeof value.toDate === 'function') {
-      const d = value.toDate();
-      return isNaN(d.getTime())
-        ? '—'
-        : d.toLocaleString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          });
+      d = value.toDate();
+    } else if (value?.seconds !== undefined) {
+      d = new Date(value.seconds * 1000);
+    } else {
+      d = new Date(value);
     }
-    const seconds = value?.seconds ?? value?._seconds;
-    if (seconds !== undefined && seconds !== null) {
-      const d = new Date(seconds * 1000);
-      return isNaN(d.getTime())
-        ? '—'
-        : d.toLocaleString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          });
-    }
-    const d = new Date(value);
-    return isNaN(d.getTime())
-      ? '—'
-      : d.toLocaleString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        });
+
+    if (isNaN(d.getTime())) return '—';
+
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const year = d.getFullYear();
+    const hours = d.getHours().toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
+
+    return `${day}.${month}.${year} ${hours}:${minutes}`;
   } catch (err) {
     return '—';
   }
@@ -142,7 +125,6 @@ export default function OrdersTab({ orders }) {
 
   const [openItems, setOpenItems] = useState({});
   const [filteredOrders, setFilteredOrders] = useState([]);
-  const [deliveredOrders, setDeliveredOrders] = useState([]);
   const [loadingDelivered, setLoadingDelivered] = useState(false);
 
   // Map status param to tab index
@@ -157,36 +139,27 @@ export default function OrdersTab({ orders }) {
   };
 
   // Fetch delivered orders
+
   useEffect(() => {
-    if (statusParam === 'delivered' && deliveredOrders.length === 0 && user) {
+    if (statusParam === 'delivered') {
       setLoadingDelivered(true);
       fetch(`/api/orders/delivered?userId=${user.uid}`)
         .then((res) => res.json())
         .then((data) => {
           if (Array.isArray(data)) {
-            setDeliveredOrders(data);
+            setFilteredOrders(data);
           } else {
-            setDeliveredOrders([]);
+            setFilteredOrders([]);
           }
         })
         .catch((err) => {
           console.error('Failed to fetch delivered orders', err);
-          setDeliveredOrders([]);
+          setFilteredOrders([]);
         })
         .finally(() => setLoadingDelivered(false));
-    }
-  }, [statusParam, user, deliveredOrders.length]);
-
-  useEffect(() => {
-    let sourceList = orders || [];
-    if (statusParam === 'delivered') {
-      sourceList = deliveredOrders;
-    }
-
-    if (!sourceList && statusParam !== 'delivered') {
-      setFilteredOrders([]);
       return;
     }
+    let sourceList = orders || [];
 
     const filtered = sourceList.filter((order) => {
       const status = order.status?.toLowerCase() || '';
@@ -209,7 +182,7 @@ export default function OrdersTab({ orders }) {
     });
 
     setFilteredOrders(filtered);
-  }, [orders, statusParam, deliveredOrders]);
+  }, [statusParam]);
 
   const toggleAccordion = (orderId) => {
     setOpenItems((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
@@ -267,7 +240,8 @@ export default function OrdersTab({ orders }) {
             const applyBonus = appliedBonus > 0; // Helper boolean
             const total = financials.total || order.totalAmount || 0;
             const subtotal = financials.subtotal || order.subtotal || 0;
-            const shippingCost = financials.shippingCost !== undefined ? financials.shippingCost : (order.shippingCost || 0);
+            const shippingCost =
+              financials.shippingCost !== undefined ? financials.shippingCost : order.shippingCost || 0;
 
             return (
               <Paper
@@ -420,7 +394,7 @@ export default function OrdersTab({ orders }) {
 
                       {/* Financials Section */}
                       <Grid item size={{ xs: 12, md: 6 }}>
-                        <Box sx={{ border: 'solid 1px #c5c7cc8a', borderRadius: '15px', p: '25px' }}>
+                        <Box sx={{ borderTop: { xs: 'solid 1px #c5c7cc8a', md: 'none' }, pt: '10px' }}>
                           <Typography
                             sx={{
                               color: '#263045fb',
@@ -470,7 +444,9 @@ export default function OrdersTab({ orders }) {
                                 fontWeight: 500,
                               }}
                             >
-                              {shippingCost === 0 ? t('financials.freeShippingLabel') : `֏${shippingCost.toLocaleString()}`}
+                              {shippingCost === 0
+                                ? t('financials.freeShippingLabel')
+                                : `֏${shippingCost.toLocaleString()}`}
                             </Typography>
                           </Box>
 

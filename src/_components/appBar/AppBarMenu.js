@@ -24,8 +24,20 @@ import Logout from '@mui/icons-material/Logout';
 import Login from '@mui/icons-material/Login';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import TranslateIcon from '@mui/icons-material/Translate';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import StoreOutlinedIcon from '@mui/icons-material/StoreOutlined';
+import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
+import CardGiftcardOutlinedIcon from '@mui/icons-material/CardGiftcardOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import HelpOutlinedIcon from '@mui/icons-material/HelpOutlined';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import AssignmentReturnOutlinedIcon from '@mui/icons-material/AssignmentReturnOutlined';
+import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
+import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
+import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 // import Link from 'next/link';
-import styled from '@emotion/styled';
 import { useEffect, useRef, useState } from 'react';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
@@ -87,7 +99,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
           <ListItemText
             primary={t(category)}
             primaryTypographyProps={{
-              fontSize: '17px',
+              fontSize: '15px',
               fontWeight: 400,
               letterSpacing: 0,
               textTransform: 'capitalize',
@@ -237,7 +249,6 @@ function DrawerMenu() {
         onClose={() => toggleDrawer(false)}
       >
         <div
-          // ref={drawerRef}
           style={{
             height: '100vh',
             overflowY: 'auto',
@@ -255,6 +266,8 @@ function DrawerMenu() {
               position: 'sticky',
               top: 0,
               zIndex: 10,
+              borderBottom: '1px solid #eee',
+              marginBottom: '5px',
             }}
           >
             <CloseIcon
@@ -266,29 +279,46 @@ function DrawerMenu() {
             />
           </div>
 
-          <Typography sx={{ fontSize: '17px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
-            {t('general')}
-          </Typography>
+          <Typography sx={{ fontSize: '16px', fontWeight: 600, mb: '10px' }}>{t('general')}</Typography>
           {Object.keys(navObjGeneral).map((key, index) => {
             const isActive = key === '' ? pathname === '/' : pathname.startsWith(`/${key}`);
+            const getIcon = (k) => {
+              switch (k) {
+                case '':
+                  return <HomeOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                case 'shop':
+                  return <StoreOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                case 'sale':
+                  return <LocalOfferOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                case 'giftCards':
+                  return <CardGiftcardOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                case 'about':
+                  return <InfoOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                default:
+                  return null;
+              }
+            };
             return (
               <Link key={index} scroll={true} href={`/${key}`} style={{ textDecoration: 'none' }}>
                 <Typography
                   sx={{
-                    fontSize: '17px',
-                    fontWeight: isActive ? 600 : 400,
-                    color: isActive ? '#D23F57' : 'black',
+                    fontSize: '15px',
+                    // fontWeight: isActive ? 600 : 400,
+                    color: isActive ? '#d62d1eff' : 'black',
                     textDecoration: 'none',
                     m: ' 0 0 10px 13px',
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
+                  {getIcon(key)}
                   {navObjGeneral[key]}
                 </Typography>
               </Link>
             );
           })}
           <Divider sx={{ mb: '10px' }} />
-          <Typography ref={listRef} sx={{ fontSize: '17px', fontWeight: 600, color: '#434a4eff' }}>
+          <Typography ref={listRef} sx={{ fontSize: '16px', fontWeight: 600 }}>
             {t('allCategories')}
           </Typography>
           <List sx={{ pl: '10px' }}>
@@ -308,42 +338,72 @@ function DrawerMenu() {
           </List>
 
           <Divider sx={{ mb: '10px' }} />
-          <Typography sx={{ fontSize: '17px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
-            {t('customerCare')}
-          </Typography>
+          <Typography sx={{ fontSize: '16px', fontWeight: 600, mb: '10px' }}>{t('customerCare')}</Typography>
           {Object.keys(navObjCusCare).map((key, index) => {
+            const getIcon = (k) => {
+              switch (k) {
+                case 'help':
+                  return <HelpOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                case 'help#2':
+                  return <LocalShippingOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                case 'help#3':
+                  return <AssignmentReturnOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                case 'help#4':
+                  return <HelpOutlineOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                default:
+                  return null;
+              }
+            };
             return (
               <Link key={index} scroll={true} href={`/${key}`} style={{ textDecoration: 'none' }}>
                 <Typography
                   sx={{
-                    fontSize: '17px',
-                    fontWeight: 400,
+                    fontSize: '15px',
+                    // fontWeight: 400,
                     color: 'black',
                     textDecoration: 'none',
                     m: ' 0 0 10px 13px',
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
+                  {getIcon(key)}
                   {navObjCusCare[key]}
                 </Typography>
               </Link>
             );
           })}
           <Divider sx={{ mb: '10px' }} />
-          <Typography sx={{ fontSize: '17px', fontWeight: 600, color: '#434a4eff', mb: '10px' }}>
-            {t('aboutUs')}
-          </Typography>
+          <Typography sx={{ fontSize: '16px', fontWeight: 600, mb: '10px' }}>{t('aboutUs')}</Typography>
           {Object.keys(navObjAbout).map((key, index) => {
+            const getIcon = (k) => {
+              switch (k) {
+                case 'about':
+                  return <MenuBookOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                case 'about#2':
+                  return <FlagOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                case 'about#3':
+                  return <DescriptionOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                case 'about#4':
+                  return <SecurityOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                default:
+                  return null;
+              }
+            };
             return (
               <Link key={index} scroll={true} href={`/${key}`} style={{ textDecoration: 'none' }}>
                 <Typography
                   sx={{
-                    fontSize: '17px',
-                    fontWeight: 400,
+                    fontSize: '15px',
+                    // fontWeight: 400,
                     color: 'black',
                     textDecoration: 'none',
                     m: ' 0 0 10px 13px',
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
+                  {getIcon(key)}
                   {navObjAbout[key]}
                 </Typography>
               </Link>

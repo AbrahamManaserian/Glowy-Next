@@ -358,7 +358,8 @@
     "itemExtraDiscount": "Extra Discount ({rate}%): -֏{amount}",
     "totalSavings": "Total Savings",
     "productMarkdowns": "Product markdowns",
-    "useBonus": "Use bonus (֏{amount})"
+    "useBonus": "Use bonus (֏{amount})",
+    "bonusEarnMessage": "By confirming this order, you will earn ֏{amount} bonus (3%) that can be used for future orders."
   },
   "UserPage": {
     "tabs": {

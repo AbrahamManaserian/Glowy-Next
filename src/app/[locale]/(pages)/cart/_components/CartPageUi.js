@@ -387,7 +387,7 @@ export default function CartPageUi() {
               {t('continueShopping')}
             </Button>
           </Link>
-          <Link href="/user?tab=orders">
+          <Link href="/user/orders">
             <Button
               variant="outlined"
               sx={{ color: '#2B3445', borderColor: '#2B3445', textTransform: 'none' }}
@@ -426,7 +426,44 @@ export default function CartPageUi() {
       container
       columnSpacing={5}
     >
-      {' '}
+      {bonus > 0 && (
+        <Box
+          sx={{
+            width: '100%',
+            // mb: '20px',
+            p: '10px',
+            background: 'linear-gradient(135deg, #e91e63 0%, #f06292 100%)',
+            borderRadius: '16px',
+            boxShadow: '0 4px 12px rgba(233, 30, 99, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2,
+            color: 'white',
+          }}
+        >
+          <RedeemIcon sx={{ fontSize: '28px' }} />
+          <Box>
+            <Typography
+              sx={{
+                fontSize: '18px',
+                fontWeight: 600,
+                mb: 0.5,
+              }}
+            >
+              {t('bonusAvailable')}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: { xs: '14px', sm: '16px' },
+                fontWeight: 400,
+              }}
+            >
+              {t('bonusUseMessage', { amount: bonus.toLocaleString() })}
+            </Typography>
+          </Box>
+        </Box>
+      )}
       {!params.has('checkout') && !user && (
         <Box
           sx={{
@@ -461,7 +498,7 @@ export default function CartPageUi() {
           </Link>
         </Box>
       )}{' '}
-      <Box sx={{ width: '100%', mb: '40px' }}>
+      <Box sx={{ width: '100%', my: '40px' }}>
         <Stepper
           activeStep={!params.has('checkout') ? 0 : 1}
           alternativeLabel
@@ -479,44 +516,6 @@ export default function CartPageUi() {
           )}
         </Stepper>
       </Box>
-      {bonus > 0 && (
-        <Box
-          sx={{
-            width: '100%',
-            mb: '20px',
-            p: '20px',
-            background: 'linear-gradient(135deg, #e91e63 0%, #f06292 100%)',
-            borderRadius: '16px',
-            boxShadow: '0 4px 12px rgba(233, 30, 99, 0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 2,
-            color: 'white',
-          }}
-        >
-          <RedeemIcon sx={{ fontSize: '28px' }} />
-          <Box>
-            <Typography
-              sx={{
-                fontSize: '18px',
-                fontWeight: 600,
-                mb: 0.5,
-              }}
-            >
-              {t('bonusAvailable')}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: '16px',
-                fontWeight: 400,
-              }}
-            >
-              {t('bonusUseMessage', { amount: bonus.toLocaleString() })}
-            </Typography>
-          </Box>
-        </Box>
-      )}
       <Box
         sx={{
           display: 'flex',
@@ -824,6 +823,31 @@ export default function CartPageUi() {
             }}
           >
             ֏{total.toLocaleString()}
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            mb: '15px',
+            p: '12px',
+            bgcolor: '#f0f8ff',
+            borderRadius: '8px',
+            border: '1px solid #b3d9ff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1,
+          }}
+        >
+          <RedeemIcon sx={{ fontSize: '20px', color: '#1976d2' }} />
+          <Typography
+            sx={{
+              fontSize: '14px',
+              color: '#1976d2',
+              fontWeight: 500,
+              textAlign: 'center',
+            }}
+          >
+            {t('bonusEarnMessage', { amount: Math.floor(total * 0.03).toLocaleString() })}
           </Typography>
         </Box>
         {!params.has('checkout') ? (
