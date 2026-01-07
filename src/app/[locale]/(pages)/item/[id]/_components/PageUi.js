@@ -468,7 +468,7 @@ export default function ProductPageUi({ product, data }) {
                       sx={{ ml: '10px', bgcolor: '#f44336', borderRadius: '10px' }}
                       variant="contained"
                     >
-                      {t('buyNow')}
+                      {t('order')}
                     </Button>
                   </Box>
                 </div>
@@ -955,7 +955,7 @@ export default function ProductPageUi({ product, data }) {
                       fontWeight={700}
                       color="#2B3445"
                     >
-                      Similar Products From Other Brands
+                      {t('similarProductsTitle')}
                     </Typography>
                     {similarProducts.map((item, index) => {
                       return (
@@ -989,7 +989,7 @@ export default function ProductPageUi({ product, data }) {
                     fontWeight={700}
                     color="#2B3445"
                   >
-                    Discover more from{' '}
+                    {t('discoverMoreFrom')}{' '}
                     <span>
                       <Link
                         style={{ color: '#1976d2', fontWeight: 500, marginLeft: '5px' }}

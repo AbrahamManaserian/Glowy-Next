@@ -847,7 +847,9 @@ export default function CartPageUi() {
               textAlign: 'center',
             }}
           >
-            {t('bonusEarnMessage', { amount: Math.floor(total * 0.03).toLocaleString() })}
+            {user
+              ? t('bonusEarnMessage', { amount: Math.floor(total * 0.03).toLocaleString() })
+              : t('signInBonusMessage')}
           </Typography>
         </Box>
         {!params.has('checkout') ? (

@@ -261,7 +261,7 @@
     "notes": "notes",
     "availableOptions": "Available Options",
     "addToCart": "Add to cart",
-    "buyNow": "Buy now",
+    "order": "order",
     "description": "Description",
     "buyTogether": "Buy together — get",
     "off": "off",
@@ -276,7 +276,9 @@
     "free": "FREE",
     "orderTotal": "Order Total",
     "bonusText": "You will earn 3% bonus for your next purchase!",
-    "addAllToCart": "Add all 3 to cart"
+    "addAllToCart": "Add all 3 to cart",
+    "similarProductsTitle": "Similar Products From Other Brands",
+    "discoverMoreFrom": "Discover more from"
   },
   "CartPage": {
     "addMoreForExtraDiscount": "Add items worth ֏{amount} to get {percent} extra discount",
@@ -300,6 +302,7 @@
     "paymentMethod": "Payment Method",
     "cashOnDelivery": "Cash on Delivery",
     "idram": "Idram",
+    "free": "Free",
     "shippingMethod": "Shipping Method",
     "freeShipping": "Free Shipping",
     "standardShipping": "Standard Shipping",
@@ -315,8 +318,8 @@
     "backToCart": "Back to Cart",
     "addMoreForDiscount": "🔥 Add items worth ֏{amount} more to get {percent} extra discount!",
     "markdown": "Markdown: ֏{amount}",
-    "firstShopDiscount": "First Shop 20%: ֏{amount}",
-    "extraDiscount": "Extra {rate}%: ֏{amount}",
+    "firstShopDiscount": "First Shop (20%)",
+    "extraDiscount": "Extra ({percent})",
     "payWithCard": "With bank card",
     "payWithCash": "Pay by cash",
     "secureCheckout": "Secure checkout",
@@ -359,7 +362,8 @@
     "totalSavings": "Total Savings",
     "productMarkdowns": "Product markdowns",
     "useBonus": "Use bonus (֏{amount})",
-    "bonusEarnMessage": "By confirming this order, you will earn ֏{amount} bonus (3%) that can be used for future orders."
+    "bonusEarnMessage": "By confirming this order, you will earn ֏{amount} bonus (3%) that can be used for future orders.",
+    "signInBonusMessage": "Sign in to earn bonus points on your purchase!"
   },
   "UserPage": {
     "tabs": {
