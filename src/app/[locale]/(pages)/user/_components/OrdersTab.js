@@ -182,7 +182,7 @@ export default function OrdersTab({ orders }) {
     });
 
     setFilteredOrders(filtered);
-  }, [statusParam]);
+  }, [statusParam, orders]);
 
   const toggleAccordion = (orderId) => {
     setOpenItems((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
@@ -215,7 +215,7 @@ export default function OrdersTab({ orders }) {
       >
         <Tab label={t('tabs.pending')} />
         <Tab label={t('tabs.inTransit')} />
-        <Tab label={t('tabs.delivered')} />
+        {user && <Tab label={t('tabs.delivered')} />}
       </Tabs>
 
       {(statusParam === 'delivered' && loadingDelivered) || (!orders && statusParam !== 'delivered') ? (

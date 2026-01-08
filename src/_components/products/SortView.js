@@ -53,69 +53,29 @@ export default function SortView({ handleChangeParams, paramsState, toggleDrawer
       </div> */}
 
       <FormControl
+        size="small"
         sx={{
-          width: '150px',
-          // ml: '10px',
+          minWidth: 130,
+          maxWidth: 160,
+
+          '& .MuiInputBase-root': { height: '30px', borderRadius: '10px' },
+          '& .MuiInputLabel-root': {
+            top: '15px',
+            transform: 'translateY(-50%)',
+            // fontSize: '14px',
+            left: '5px',
+          },
+          '& .MuiInputLabel-shrink': { top: '0px', fontSize: '11px', left: '13px' },
+          // '& .MuiSelect-select': { paddingTop: '8px', paddingBottom: '4px' },
         }}
       >
-        <InputLabel
-          id="demo-simple-select-label"
-          sx={{
-            color: '#55585aff',
-            // width: '70px',
-            fontSize: '14px',
-            top: '-10px',
-            // Only adjust the unshrunk position
-            '&.MuiInputLabel-shrink': {
-              top: 0,
-            },
-            '&.Mui-focused': {
-              color: '#181e22ff',
-              top: 0,
-            },
-          }}
-        >
-          {t('sortBy')}
-        </InputLabel>
+        <InputLabel sx={{ fontSize: '14px' }}>{t('sortBy')}</InputLabel>
 
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
           label={t('sortBy')}
           value={paramsState.orderBy}
           onChange={(event) => handleChangeParams('orderBy', event.target.value)}
           IconComponent={ExpandMoreIcon}
-          sx={{
-            position: 'relative',
-            height: '30px',
-            fontSize: '14px',
-            color: '#55585aff',
-            display: 'flex',
-
-            alignItems: 'center',
-            '.MuiSvgIcon-root': { color: '#55585aff' },
-            '.MuiOutlinedInput-notchedOutline': {
-              borderColor: '#55585aff',
-              border: 0.5,
-              borderRadius: '10px',
-            },
-            '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#55585aff',
-              border: 1,
-            },
-            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#55585aff',
-              border: 1.5,
-            },
-          }}
-          inputProps={{
-            sx: {
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              width: '70px',
-            },
-          }}
         >
           <MenuItem value={'price_asc'}>{t('priceLowHigh')}</MenuItem>
           <MenuItem value={'price_desc'}>{t('priceHighLow')}</MenuItem>

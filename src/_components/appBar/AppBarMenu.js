@@ -14,6 +14,10 @@ import {
   Menu,
   MenuItem,
   ListItemIcon,
+  Dialog,
+  useMediaQuery,
+  useTheme,
+  Slide,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
@@ -420,7 +424,154 @@ import { auth } from '@/firebase';
 import { typeMapping } from '../products/Filter';
 import { Payment, Settings } from '@mui/icons-material';
 
+function UserMenuContent({
+  userData,
+  t,
+  tUser,
+  isAdmin,
+  locale,
+  handleCloseMenu,
+  handleLanguageChange,
+  handleSignOut,
+  router,
+  redirectUrl,
+}) {
+  return (
+    <>
+      <div style={{ padding: '10px 20px', outline: 'none' }}>
+        <Typography variant="subtitle1" noWrap fontWeight={600}>
+          {userData ? userData.fullName || 'User' : t('welcomeGuest')}
+        </Typography>
+        {userData && (
+          <Typography variant="body2" color="text.secondary" noWrap>
+            {userData.email}
+          </Typography>
+        )}
+      </div>
+      <Divider />
+      <Link href="/user" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <MenuItem
+          onClick={() => {
+            handleCloseMenu();
+          }}
+        >
+          <ListItemIcon>
+            <PersonOutlineIcon fontSize="small" />
+          </ListItemIcon>
+          {tUser('profile')}
+        </MenuItem>
+      </Link>
+      <Link href="/user/orders" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <MenuItem
+          onClick={() => {
+            handleCloseMenu();
+          }}
+        >
+          <ListItemIcon>
+            <LocalMallOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          {tUser('myOrders')}
+        </MenuItem>
+      </Link>
+      <Link href="/user/wishlist" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <MenuItem
+          onClick={() => {
+            handleCloseMenu();
+          }}
+        >
+          <ListItemIcon>
+            <FavoriteBorderIcon fontSize="small" />
+          </ListItemIcon>
+          {tUser('wishlist')}
+        </MenuItem>
+      </Link>
+      {userData && (
+        <>
+          <Link href="/user/settings" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <MenuItem
+              onClick={() => {
+                handleCloseMenu();
+              }}
+            >
+              <ListItemIcon>
+                <Settings fontSize="small" />
+              </ListItemIcon>
+              {tUser('settings')}
+            </MenuItem>
+          </Link>
+          <Link href="/user/payment" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <MenuItem
+              onClick={() => {
+                handleCloseMenu();
+              }}
+            >
+              <ListItemIcon>
+                <Payment fontSize="small" />
+              </ListItemIcon>
+              {tUser('payment')}
+            </MenuItem>
+          </Link>
+        </>
+      )}
+      {isAdmin && (
+        <Link href="/admin/orders?status=pending" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <MenuItem
+            onClick={() => {
+              handleCloseMenu();
+            }}
+          >
+            <ListItemIcon>
+              <AdminPanelSettingsIcon fontSize="small" />
+            </ListItemIcon>
+            {tUser('adminPanel')}
+          </MenuItem>
+        </Link>
+      )}
+      <Divider />
+      <MenuItem disabled sx={{ opacity: '1 !important' }}>
+        <ListItemIcon>
+          <TranslateIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary={t('language')} primaryTypographyProps={{ fontWeight: 600 }} />
+      </MenuItem>
+      <MenuItem selected={locale === 'hy'} onClick={() => handleLanguageChange('hy')} sx={{ pl: 4 }}>
+        <ListItemText primary="Հայերեն" />
+      </MenuItem>
+      <MenuItem selected={locale === 'en'} onClick={() => handleLanguageChange('en')} sx={{ pl: 4 }}>
+        <ListItemText primary="English" />
+      </MenuItem>
+      <MenuItem selected={locale === 'ru'} onClick={() => handleLanguageChange('ru')} sx={{ pl: 4 }}>
+        <ListItemText primary="Русский" />
+      </MenuItem>
+      <Divider />
+      {userData ? (
+        <MenuItem onClick={handleSignOut}>
+          <ListItemIcon>
+            <Logout fontSize="small" />
+          </ListItemIcon>
+          {tUser('logout')}
+        </MenuItem>
+      ) : (
+        <MenuItem
+          onClick={() => {
+            handleCloseMenu();
+            router.push(`/auth/signin?redirect=${encodeURIComponent(redirectUrl)}`);
+          }}
+        >
+          <ListItemIcon>
+            <Login fontSize="small" />
+          </ListItemIcon>
+          {tUser('login')}
+        </MenuItem>
+      )}
+    </>
+  );
+}
+
 export default function AppBarMenu() {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+
   const locale = useLocale();
   const t = useTranslations('Common.nav');
   const tUser = useTranslations('Common.user');
@@ -556,14 +707,30 @@ export default function AppBarMenu() {
         justifyContent="flex-end"
       >
         <CartDrawer />
-        <div style={{ margin: '0 15px 0 25px', WebkitTapHighlightColor: 'Background' }}>
-          <div onClick={handleClickUser} style={{ cursor: 'pointer' }}>
-            <Avatar
-              src={userData?.photoURL}
-              alt={userData?.fullName || 'User'}
-              sx={{ width: 32, height: 32 }}
+        {fullScreen ? (
+          <Dialog
+            fullScreen={fullScreen}
+            open={openMenu}
+            onClose={handleCloseMenu}
+            sx={{ marginTop: '50px', position: 'fixed' }}
+            TransitionComponent={Slide}
+            TransitionProps={{ direction: 'left' }}
+            BackdropProps={{ style: { backgroundColor: 'transparent' } }}
+          >
+            <UserMenuContent
+              userData={userData}
+              t={t}
+              tUser={tUser}
+              isAdmin={isAdmin}
+              locale={locale}
+              handleCloseMenu={handleCloseMenu}
+              handleLanguageChange={handleLanguageChange}
+              handleSignOut={handleSignOut}
+              router={router}
+              redirectUrl={redirectUrl}
             />
-          </div>
+          </Dialog>
+        ) : (
           <Menu
             anchorEl={anchorEl}
             open={openMenu}
@@ -600,135 +767,28 @@ export default function AppBarMenu() {
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           >
-            <div style={{ padding: '10px 20px', outline: 'none' }}>
-              <Typography variant="subtitle1" noWrap fontWeight={600}>
-                {userData ? userData.fullName || 'User' : t('welcomeGuest')}
-              </Typography>
-              {userData && (
-                <Typography variant="body2" color="text.secondary" noWrap>
-                  {userData.email}
-                </Typography>
-              )}
-            </div>
-            <Divider />
-            <Link href="/user" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <MenuItem
-                onClick={() => {
-                  handleCloseMenu();
-                  // router.push('/user');
-                }}
-              >
-                <ListItemIcon>
-                  <PersonOutlineIcon fontSize="small" />
-                </ListItemIcon>
-                {tUser('profile')}
-              </MenuItem>
-            </Link>
-            <Link href="/user/orders" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <MenuItem
-                onClick={() => {
-                  handleCloseMenu();
-                  // router.push('/user?tab=orders');
-                }}
-              >
-                <ListItemIcon>
-                  <LocalMallOutlinedIcon fontSize="small" />
-                </ListItemIcon>
-                {tUser('myOrders')}
-              </MenuItem>
-            </Link>
-            <Link href="/user/wishlist" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <MenuItem
-                onClick={() => {
-                  handleCloseMenu();
-                  // router.push('/user?tab=wishlist');
-                }}
-              >
-                <ListItemIcon>
-                  <FavoriteBorderIcon fontSize="small" />
-                </ListItemIcon>
-                {tUser('wishlist')}
-              </MenuItem>
-            </Link>
-            <Link href="/user/settings" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <MenuItem
-                onClick={() => {
-                  handleCloseMenu();
-                  // router.push('/user?tab=wishlist');
-                }}
-              >
-                <ListItemIcon>
-                  <Settings fontSize="small" />
-                </ListItemIcon>
-                {tUser('settings')}
-              </MenuItem>
-            </Link>
-            <Link href="/user/payment" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <MenuItem
-                onClick={() => {
-                  handleCloseMenu();
-                  // router.push('/user?tab=wishlist');
-                }}
-              >
-                <ListItemIcon>
-                  <Payment fontSize="small" />
-                </ListItemIcon>
-                {tUser('payment')}
-              </MenuItem>
-            </Link>
-            {isAdmin && (
-              <Link href="/admin/orders?status=pending" style={{ textDecoration: 'none', color: 'inherit' }}>
-                <MenuItem
-                  onClick={() => {
-                    handleCloseMenu();
-                    // router.push('/admin/orders?status=pending');
-                  }}
-                >
-                  <ListItemIcon>
-                    <AdminPanelSettingsIcon fontSize="small" />
-                  </ListItemIcon>
-                  {tUser('adminPanel')}
-                </MenuItem>
-              </Link>
-            )}
-            <Divider />
-            <MenuItem disabled sx={{ opacity: '1 !important' }}>
-              <ListItemIcon>
-                <TranslateIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText primary={t('language')} primaryTypographyProps={{ fontWeight: 600 }} />
-            </MenuItem>
-            <MenuItem selected={locale === 'hy'} onClick={() => handleLanguageChange('hy')} sx={{ pl: 4 }}>
-              <ListItemText primary="Հայերեն" />
-            </MenuItem>
-            <MenuItem selected={locale === 'en'} onClick={() => handleLanguageChange('en')} sx={{ pl: 4 }}>
-              <ListItemText primary="English" />
-            </MenuItem>
-            <MenuItem selected={locale === 'ru'} onClick={() => handleLanguageChange('ru')} sx={{ pl: 4 }}>
-              <ListItemText primary="Русский" />
-            </MenuItem>
-            <Divider />
-            {userData ? (
-              <MenuItem onClick={handleSignOut}>
-                <ListItemIcon>
-                  <Logout fontSize="small" />
-                </ListItemIcon>
-                {tUser('logout')}
-              </MenuItem>
-            ) : (
-              <MenuItem
-                onClick={() => {
-                  handleCloseMenu();
-                  router.push(`/auth/signin?redirect=${encodeURIComponent(redirectUrl)}`);
-                }}
-              >
-                <ListItemIcon>
-                  <Login fontSize="small" />
-                </ListItemIcon>
-                {tUser('login')}
-              </MenuItem>
-            )}
+            <UserMenuContent
+              userData={userData}
+              t={t}
+              tUser={tUser}
+              isAdmin={isAdmin}
+              locale={locale}
+              handleCloseMenu={handleCloseMenu}
+              handleLanguageChange={handleLanguageChange}
+              handleSignOut={handleSignOut}
+              router={router}
+              redirectUrl={redirectUrl}
+            />
           </Menu>
+        )}
+        <div style={{ margin: '0 15px 0 25px', WebkitTapHighlightColor: 'Background' }}>
+          <div onClick={handleClickUser} style={{ cursor: 'pointer' }}>
+            <Avatar
+              src={userData?.photoURL}
+              alt={userData?.fullName || 'User'}
+              sx={{ width: 32, height: 32 }}
+            />
+          </div>
         </div>
       </Grid>
     </Grid>
