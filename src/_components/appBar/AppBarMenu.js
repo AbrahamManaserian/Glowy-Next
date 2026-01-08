@@ -52,6 +52,21 @@ import CartDrawer from '@/app/[locale]/(pages)/cart/_components/CartDrawer';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
 
+import { signOut } from 'firebase/auth';
+import { auth } from '@/firebase';
+import { typeMapping } from '../products/Filter';
+import { Payment, Settings } from '@mui/icons-material';
+import {
+  FragranceIcon,
+  MakeupIcon,
+  SkincareIcon,
+  BathBodyIcon,
+  HairIcon,
+  NailIcon,
+  AccessoriesIcon,
+  CollectionIcon,
+} from '../icons';
+
 export function LogoHome() {
   return (
     <Link href="/" style={{ textDecoration: 'none', WebkitTapHighlightColor: 'Background' }}>
@@ -79,9 +94,24 @@ export function LogoHome() {
 }
 function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer }) {
   const router = useRouter();
+  const pathname = usePathname();
   const t = useTranslations('Categories');
   const tTypes = useTranslations('ProductTypes');
   const tCommon = useTranslations('Common.nav');
+
+  const iconMap = {
+    fragrance: FragranceIcon,
+    makeup: MakeupIcon,
+    skincare: SkincareIcon,
+    bathBody: BathBodyIcon,
+    hair: HairIcon,
+    nail: NailIcon,
+    accessories: AccessoriesIcon,
+    collection: CollectionIcon,
+  };
+
+  const IconComponent = iconMap[category];
+  const isActive = pathname.startsWith(`/${category}`);
 
   const handleClick = () => {
     if (open === category) {
@@ -100,6 +130,11 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
     <List sx={{ p: 0 }}>
       <ListItem {...rootProps} disablePadding>
         <ListItemButton sx={{ p: '2px' }} onClick={handleClick}>
+          {IconComponent && (
+            <IconComponent
+              sx={{ mr: 1, color: isActive ? '#e64c14ff' : open === category ? '#1574d3ff' : '' }}
+            />
+          )}
           <ListItemText
             primary={t(category)}
             primaryTypographyProps={{
@@ -107,7 +142,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
               fontWeight: 400,
               letterSpacing: 0,
               textTransform: 'capitalize',
-              color: open === category ? '#1574d3ff' : '',
+              color: isActive ? '#e64c14ff' : open === category ? '#1574d3ff' : '',
             }}
           />
           <NavigateNextIcon
@@ -132,7 +167,6 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
                   fontWeight: 700,
                   letterSpacing: 0,
                   textTransform: 'capitalize',
-                  color: '#df5c2dff',
                 }}
               />
             </ListItemButton>
@@ -250,9 +284,9 @@ function DrawerMenu() {
       <Drawer
         anchor={'right'}
         sx={{
-          '& .MuiDrawer-paper': { width: { xs: '100%', sm: 'auto' } },
+          '& .MuiDrawer-paper': { width: { xs: '100%', sm: 'auto' }, minWidth: '300px' },
         }}
-        open={open}
+        open={!open}
         onClose={() => toggleDrawer(false)}
       >
         <div
@@ -292,15 +326,15 @@ function DrawerMenu() {
             const getIcon = (k) => {
               switch (k) {
                 case '':
-                  return <HomeOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                  return <HomeOutlinedIcon sx={{ mr: 1, fontSize: '20px' }} />;
                 case 'shop':
-                  return <StoreOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                  return <StoreOutlinedIcon sx={{ mr: 1, fontSize: '20px' }} />;
                 case 'sale':
-                  return <LocalOfferOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                  return <LocalOfferOutlinedIcon sx={{ mr: 1, fontSize: '20px' }} />;
                 case 'giftCards':
-                  return <CardGiftcardOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                  return <CardGiftcardOutlinedIcon sx={{ mr: 1, fontSize: '20px' }} />;
                 case 'about':
-                  return <InfoOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
+                  return <InfoOutlinedIcon sx={{ mr: 1, fontSize: '20px' }} />;
                 default:
                   return null;
               }
@@ -311,7 +345,7 @@ function DrawerMenu() {
                   sx={{
                     fontSize: '15px',
                     // fontWeight: isActive ? 600 : 400,
-                    color: isActive ? '#d62d1eff' : 'black',
+                    color: isActive ? '#e64c14ff' : 'black',
                     textDecoration: 'none',
                     m: ' 0 0 10px 13px',
                     display: 'flex',
@@ -422,10 +456,6 @@ function DrawerMenu() {
   );
 }
 
-import { signOut } from 'firebase/auth';
-import { auth } from '@/firebase';
-import { typeMapping } from '../products/Filter';
-import { Payment, Settings } from '@mui/icons-material';
 
 function UserMenuContent({
   userData,
