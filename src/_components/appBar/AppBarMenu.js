@@ -97,7 +97,6 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
   const pathname = usePathname();
   const t = useTranslations('Categories');
   const tTypes = useTranslations('ProductTypes');
-  const tCommon = useTranslations('Common.nav');
 
   const iconMap = {
     fragrance: FragranceIcon,
@@ -286,7 +285,7 @@ function DrawerMenu() {
         sx={{
           '& .MuiDrawer-paper': { width: { xs: '100%', sm: 'auto' }, minWidth: '300px' },
         }}
-        open={!open}
+        open={open}
         onClose={() => toggleDrawer(false)}
       >
         <div
