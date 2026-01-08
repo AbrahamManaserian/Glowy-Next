@@ -75,9 +75,23 @@ export default function HelpPage() {
                   <Typography sx={{ fontWeight: 500 }}>How do I track my order?</Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ px: 3, py: 2, backgroundColor: '#fff' }}>
+                  <Typography color="text.secondary" sx={{ mb: 2 }}>
+                    <strong>For signed-in users:</strong> You can track your order by logging into your
+                    account and going to the{' '}
+                    <Link href="/user" style={{ color: '#1976d2', textDecoration: 'underline' }}>
+                      My Orders
+                    </Link>{' '}
+                    section. There, you&apos;ll find the tracking information provided by the shipping
+                    carrier.
+                  </Typography>
                   <Typography color="text.secondary">
-                    You can track your order by logging into your account and going to the "My Orders"
-                    section. There, you'll find the tracking information provided by the shipping carrier.
+                    <strong>For guest orders:</strong> If you placed an order without signing in, you can
+                    still track your order by going to the{' '}
+                    <Link href="/user" style={{ color: '#1976d2', textDecoration: 'underline' }}>
+                      My Orders
+                    </Link>{' '}
+                    section on the same device and browser where you created the order. The tracking
+                    information will be available in your order confirmation email as well.
                   </Typography>
                 </AccordionDetails>
               </Accordion>
