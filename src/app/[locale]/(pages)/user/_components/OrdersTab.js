@@ -339,7 +339,7 @@ export default function OrdersTab({ orders }) {
                     {/* Split Layout: Items Left, Financials Right */}
                     <Grid container spacing={4}>
                       {/* Items Section */}
-                      <Grid item size={{ xs: 12, md: 6 }}>
+                      <Grid size={{ xs: 12, md: 6 }}>
                         <Typography variant="subtitle2" sx={{ mb: 2 }}>
                           {t('items')}
                         </Typography>
@@ -393,7 +393,7 @@ export default function OrdersTab({ orders }) {
                       </Grid>
 
                       {/* Financials Section */}
-                      <Grid item size={{ xs: 12, md: 6 }}>
+                      <Grid size={{ xs: 12, md: 6 }}>
                         <Box sx={{ borderTop: { xs: 'solid 1px #c5c7cc8a', md: 'none' }, pt: '10px' }}>
                           <Typography
                             sx={{

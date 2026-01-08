@@ -1,15 +1,15 @@
-import { Box, Dialog, LinearProgress } from '@mui/material';
+import { Box, LinearProgress } from '@mui/material';
 
 export default function Loading() {
   return (
-    <Dialog
-      fullScreen
-      open={true}
-      // onClose={handleClose}
+    <div
+      style={{
+        minHeight: '100vh',
+      }}
     >
       <Box sx={{ width: '100%' }}>
         <LinearProgress />
       </Box>
-    </Dialog>
+    </div>
   );
 }

@@ -41,15 +41,6 @@ export default function CartDrawer() {
     toggleDrawer(false);
   }, [searchParams, pathname]);
 
-  const createNewCart = () => {
-    try {
-      const newCart = { length: 0, items: {} };
-      localStorage.setItem('cart', JSON.stringify(newCart));
-      setCart(newCart);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   return (
     <div>

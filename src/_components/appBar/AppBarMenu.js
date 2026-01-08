@@ -238,17 +238,20 @@ function DrawerMenu() {
     <>
       <MenuIcon
         sx={{
-          display: { xs: 'block', sm: 'none' },
+          display: { sm: 'block', xs: 'block', md: 'block', lg: 'none' },
           order: 9,
           fontSize: '30px',
           color: '#505152ff',
+          cursor: 'pointer',
         }}
         onClick={() => toggleDrawer(true)}
       />
 
       <Drawer
         anchor={'right'}
-        sx={{ '& .MuiDrawer-paper': { width: '100%' } }}
+        sx={{
+          '& .MuiDrawer-paper': { width: { xs: '100%', sm: 'auto' } },
+        }}
         open={open}
         onClose={() => toggleDrawer(false)}
       >
@@ -513,6 +516,19 @@ function UserMenuContent({
           </Link>
         </>
       )}
+      <Link href="/help" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <MenuItem
+          onClick={() => {
+            handleCloseMenu();
+          }}
+        >
+          <ListItemIcon>
+            <HelpOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          {t('help')}
+        </MenuItem>
+      </Link>
+
       {isAdmin && (
         <Link href="/admin/orders?status=pending" style={{ textDecoration: 'none', color: 'inherit' }}>
           <MenuItem
@@ -673,7 +689,7 @@ export default function AppBarMenu() {
     >
       <DrawerMenu />
       <LogoHome />
-      <Grid item container sx={{ display: { xs: 'none', sm: 'flex' }, order: 2 }}>
+      <Grid container sx={{ display: { xs: 'none', sm: 'none', md: 'none', lg: 'flex' }, order: 2 }}>
         {Object.keys(navObj).map((key) => {
           const isActive = key === '' ? pathname === '/' : pathname.startsWith(`/${key}`);
           return (
@@ -699,9 +715,7 @@ export default function AppBarMenu() {
       </Grid>
 
       <Grid
-        sx={{ order: 3, flexWrap: 'nowrap', flexGrow: { xs: 1, sm: 0 } }}
-        item
-        xs={12}
+        sx={{ order: 3, flexWrap: 'nowrap', flexGrow: { xs: 1, sm: 1, md: 1, lg: 0 } }}
         container
         alignItems="center"
         justifyContent="flex-end"

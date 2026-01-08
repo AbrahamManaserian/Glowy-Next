@@ -12,7 +12,7 @@ export default function TopOfPage() {
       <AppHeader />
       <div></div>
       <AppBarMenu />
-      <Grid sx={{ p: '10px 25px' }} item xs={12} container>
+      <Grid sx={{ p: '10px 25px' }} size={12} container>
         <CategoriesDekstop />
         <SearchComponent />
       </Grid>

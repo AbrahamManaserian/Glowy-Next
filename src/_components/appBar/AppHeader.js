@@ -35,7 +35,7 @@ export default function AppHeader() {
     <Grid
       container
       justifyContent="space-between"
-      xs={12}
+      size={12}
       sx={{
         bgcolor: '#2B3445',
         minHeight: '44px',

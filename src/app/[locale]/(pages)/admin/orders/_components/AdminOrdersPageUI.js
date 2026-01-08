@@ -275,7 +275,7 @@ export default function AdminOrdersPageUI({
             const Icon = s.icon;
             const count = counts[s.key] ?? 0;
             return (
-              <Grid item xs={12} sm={6} md={3} key={s.key}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={s.key}>
                 <Link
                   href={`/admin/orders?status=${s.key}`}
                   onClick={() => handleStatusChange(s.key)}

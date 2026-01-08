@@ -29,7 +29,8 @@
       "aboutUs": "About Us",
       "language": "Language",
       "welcomeGuest": "Welcome, Guest",
-      "allCategories": "All Categories"
+      "allCategories": "All Categories",
+      "help": "Help"
     },
     "user": {
       "profile": "Profile",
@@ -524,5 +525,20 @@
     "ctaTitle": "Ready to find your glow?",
     "ctaSubtitle": "Explore our latest collection and find your new favorites today.",
     "shopNow": "Shop Now"
+  },
+  "PrivacyPolicyPage": {
+    "title": "Privacy Policy",
+    "subtitle": "Learn how we collect, use, and protect your personal information",
+    "goal": "The goal of this policy is to inform the visitors of glowy.am what data is collected to register on the system and how it is used.",
+    "informationGathering": "Information Gathering",
+    "gatheringText": "We can gather and keep the following personal information:",
+    "gatheringList": "- Name, Surname, E-mail, Phone numbers.\n- Bank details if the payment has been done through bank transfer. We do not have any of your payment card detail, because on our portal the online payments are exclusively done through the ARCA payment system.\n- Your orders' history, preferred goods list, etc.\n- Order delivery address, and the necessary extra information for organizing the delivery.",
+    "useOfInformation": "Use of Information",
+    "useText": "With this you agree that we can use your personal information for the following:",
+    "useList": "- Organizing of orders delivery, provision of services, providing the necessary support.\n- Evaluation of the quality of our services and improvement provided by us.\n- Verification and reporting of additional information via call or E-mail in non-standard situations.\n- Sending notification informing about our goods, services, and order delivery.",
+    "informationPrivacy": "Information Privacy",
+    "privacyText": "The information provided to us by you is absolutely considered private and cannot be provided to the third person.",
+    "accountProtection": "Account Protection",
+    "protectionText": "Your password is the key to access your account. By choosing a password, use a unique combination of numbers, letters, and special characters. Don't give your password of glowy.am to another one. If, however, you do it, remember that you are responsible for all the actions done from your account. In case of forgetting your password, you can recover it with the help of the website by clicking the \"Forgot password\" command."
   }
 }
