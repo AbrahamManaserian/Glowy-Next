@@ -133,7 +133,7 @@ export default function CartDrawer() {
                       mb: '10px',
                     }}
                   >
-                    {t('orderNow')}
+                    {t('checkout')}
                   </Button>
                 </Link>
               )}

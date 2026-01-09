@@ -364,7 +364,12 @@
     "productMarkdowns": "Product markdowns",
     "useBonus": "Use bonus (֏{amount})",
     "bonusEarnMessage": "By confirming this order, you will earn ֏{amount} bonus (3%) that can be used for future orders.",
-    "signInBonusMessage": "Sign in to earn bonus points on your purchase!"
+    "signInBonusMessage": "Sign in to earn bonus points on your purchase!",
+    "freeShippingTitle": "Free shipping unlocked",
+    "freeShippingMessage": "Your order is over 5,000֏ — shipping will be free at checkout.",
+    "freeShippingBadge": "FREE SHIPPING",
+    "discountTitle": "Congratulations — extra discount unlocked",
+    "discountMessage": "Your order amount exceeded 20,000֏ — enjoy an extra {percent} at checkout."
   },
   "UserPage": {
     "tabs": {

@@ -19,6 +19,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import RedeemIcon from '@mui/icons-material/Redeem';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 // import Link from 'next/link';
 import { Link } from '@/i18n/routing';
 import { useSearchParams, usePathname } from 'next/navigation';
@@ -464,7 +465,7 @@ export default function CartPageUi() {
           </Box>
         </Box>
       )}
-      {!params.has('checkout') && !user && (
+      {!user && (
         <Box
           sx={{
             width: '100%',
@@ -535,6 +536,7 @@ export default function CartPageUi() {
         >
           {!params.has('checkout') ? t('shoppingCartTitle', { count: cart.length }) : t('checkoutTitle')}
         </Typography>
+
         {!params.has('checkout') && (
           <Button
             variant="text"
@@ -547,6 +549,149 @@ export default function CartPageUi() {
           </Button>
         )}
       </Box>
+      {subtotal > 5000 && (
+        <Box
+          sx={{
+            mb: '12px',
+            width: '100%',
+            p: { xs: '10px', sm: '12px' },
+            bgcolor: 'linear-gradient(180deg, rgba(240,249,255,0.95), rgba(250,255,255,0.95))',
+            borderRadius: '12px',
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 2,
+            border: '1px solid rgba(25,118,210,0.06)',
+            boxShadow: '0 6px 14px rgba(16,24,40,0.03)',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              width: { xs: '100%', sm: 'auto' },
+              textAlign: { xs: 'center', sm: 'left' },
+            }}
+          >
+            <Box
+              sx={{
+                width: { xs: 36, sm: 44 },
+                height: { xs: 36, sm: 44 },
+                borderRadius: '50%',
+                bgcolor: '#eef7ff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.7)',
+                flexShrink: 0,
+              }}
+            >
+              <LocalShippingIcon sx={{ fontSize: { xs: 18, sm: 20 }, color: '#1976d2' }} />
+            </Box>
+
+            <Box sx={{ width: { xs: '100%', sm: 'auto' } }}>
+              <Typography sx={{ fontSize: { xs: '14px', sm: '15px' }, color: '#0f3b66', fontWeight: 700 }}>
+                {t('freeShippingTitle')}
+              </Typography>
+              <Typography sx={{ fontSize: '13px', color: 'rgba(15,59,102,0.85)', fontWeight: 500 }}>
+                {t('freeShippingMessage')}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ mt: { xs: 1.5, sm: 0 }, alignSelf: { xs: 'center', sm: 'auto' } }}>
+            <Box
+              sx={{
+                px: 2,
+                py: 0.5,
+                borderRadius: '999px',
+                bgcolor: '#e8f4ff',
+                color: '#0f4ea8',
+                fontWeight: 700,
+                fontSize: '13px',
+                border: '1px solid rgba(15,78,168,0.06)',
+              }}
+            >
+              {t('freeShippingBadge')}
+            </Box>
+          </Box>
+        </Box>
+      )}
+      {subtotal > 20000 && (
+        <Box
+          sx={{
+            mb: '18px',
+            width: '100%',
+            p: { xs: '10px', sm: '14px' },
+            bgcolor: 'linear-gradient(180deg, rgba(245,251,245,0.9), rgba(250,255,250,0.9))',
+            borderRadius: '14px',
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: { xs: 'center', sm: 'center' },
+            justifyContent: 'space-between',
+            gap: 2,
+            border: '1px solid rgba(30,120,60,0.06)',
+            boxShadow: '0 6px 18px rgba(16,24,40,0.04)',
+            transition: 'transform .14s ease, box-shadow .14s ease',
+            '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 10px 22px rgba(16,24,40,0.06)' },
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              width: { xs: '100%', sm: 'auto' },
+              textAlign: { xs: 'center', sm: 'left' },
+            }}
+          >
+            <Box
+              sx={{
+                width: { xs: 40, sm: 48 },
+                height: { xs: 40, sm: 48 },
+                borderRadius: '50%',
+                bgcolor: '#ecf7ee',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.7)',
+                flexShrink: 0,
+              }}
+            >
+              <CheckCircleOutlineIcon sx={{ fontSize: { xs: 18, sm: 22 }, color: '#2e7d32' }} />
+            </Box>
+
+            <Box sx={{ width: { xs: '100%', sm: 'auto' } }}>
+              <Typography sx={{ fontSize: { xs: '14px', sm: '15px' }, color: '#163f2b', fontWeight: 700 }}>
+                {t('discountTitle')}
+              </Typography>
+              <Typography sx={{ fontSize: '13px', color: 'rgba(22,63,43,0.85)', fontWeight: 500 }}>
+                {t('discountMessage', {
+                  percent: user ? (userData?.firstShopp ? '5%' : '10%') : '10%',
+                })}
+              </Typography>
+            </Box>
+          </Box>
+          <Box sx={{ mt: { xs: 1.5, sm: 0 }, alignSelf: { xs: 'center', sm: 'auto' } }}>
+            <Box
+              sx={{
+                bgcolor: '#e8f5e8',
+                color: '#2e7d32',
+                px: 2,
+                py: 0.5,
+                borderRadius: '999px',
+                fontWeight: 800,
+                fontSize: { xs: '13px', sm: '14px' },
+                boxShadow: 'inset 0 -6px 12px rgba(46,125,50,0.02)',
+              }}
+            >
+              10%
+            </Box>
+          </Box>
+        </Box>
+      )}
       {!params.has('checkout') ? (
         <Grid
           sx={{ overflow: 'hidden', boxSizing: 'border-box', mt: '20px' }}
@@ -847,9 +992,7 @@ export default function CartPageUi() {
               textAlign: 'center',
             }}
           >
-            {user
-              ? t('bonusEarnMessage', { amount: Math.floor(total * 0.03).toLocaleString() })
-              : t('signInBonusMessage')}
+            {t('bonusEarnMessage', { amount: Math.floor(total * 0.03).toLocaleString() })}
           </Typography>
         </Box>
         {!params.has('checkout') ? (
@@ -870,7 +1013,7 @@ export default function CartPageUi() {
                     mb: '10px',
                   }}
                 >
-                  {t('orderNow')}
+                  {t('checkout')}
                 </Button>
               </Link>
             ) : (
