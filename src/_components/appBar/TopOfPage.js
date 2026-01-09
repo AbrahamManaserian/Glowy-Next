@@ -9,8 +9,8 @@ import AppHeader from './AppHeader';
 export default function TopOfPage() {
   return (
     <>
-      <AppHeader />
-      <div></div>
+      {/* <AppHeader />
+      <div></div> */}
       <AppBarMenu />
       <Grid sx={{ p: '10px 25px' }} size={12} container>
         <CategoriesDekstop />

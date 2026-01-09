@@ -93,8 +93,10 @@ export function LogoHome() {
   );
 }
 function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer }) {
-  const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentSub = searchParams.get('subCategory');
+  const currentType = searchParams.get('type');
   const t = useTranslations('Categories');
   const tTypes = useTranslations('ProductTypes');
 
@@ -127,7 +129,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
   return (
     <List sx={{ p: 0 }}>
       <ListItem {...rootProps} disablePadding>
-        <ListItemButton sx={{ p: '2px' }} onClick={handleClick}>
+        <ListItemButton sx={{ p: '3px 2px' }} onClick={handleClick}>
           {IconComponent && (
             <IconComponent
               sx={{ mr: 1, color: isActive ? '#e64c14ff' : open === category ? '#1574d3ff' : '' }}
@@ -136,7 +138,6 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
           <ListItemText
             primary={t(category)}
             primaryTypographyProps={{
-              fontSize: '15px',
               fontWeight: 400,
               letterSpacing: 0,
               textTransform: 'capitalize',
@@ -169,6 +170,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
                     fontWeight: 700,
                     letterSpacing: 0,
                     textTransform: 'capitalize',
+                    color: isActive && !currentSub ? '#e64c14ff' : '',
                   }}
                 />
               </ListItemButton>
@@ -193,6 +195,7 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
                         fontWeight: 700,
                         letterSpacing: 0,
                         textTransform: 'capitalize',
+                        color: isActive && currentSub === key ? '#e64c14ff' : '',
                       }}
                     />
                   </ListItemButton>
@@ -219,6 +222,10 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
                               fontWeight: 300,
                               letterSpacing: 0,
                               textTransform: 'capitalize',
+                              color:
+                                isActive && currentSub === key && currentType === subItem
+                                  ? '#e64c14ff'
+                                  : undefined,
                             }}
                           />
                         </ListItemButton>
@@ -330,7 +337,7 @@ function DrawerMenu() {
             />
           </div>
 
-          <Typography sx={{ fontSize: '16px', fontWeight: 600, mb: '10px' }}>{t('general')}</Typography>
+          <Typography sx={{ fontWeight: 600, mb: '10px' }}>{t('general')}</Typography>
           {Object.keys(navObjGeneral).map((key, index) => {
             const isActive = key === '' ? pathname === '/' : pathname.startsWith(`/${key}`);
             const getIcon = (k) => {
@@ -353,11 +360,9 @@ function DrawerMenu() {
               <Link key={index} scroll={true} href={`/${key}`} style={{ textDecoration: 'none' }}>
                 <Typography
                   sx={{
-                    fontSize: '15px',
-                    // fontWeight: isActive ? 600 : 400,
                     color: isActive ? '#e64c14ff' : 'black',
                     textDecoration: 'none',
-                    m: ' 0 0 10px 13px',
+                    m: ' 0 0 12px 13px',
                     display: 'flex',
                     alignItems: 'center',
                   }}
@@ -369,7 +374,7 @@ function DrawerMenu() {
             );
           })}
           <Divider sx={{ mb: '10px' }} />
-          <Typography ref={listRef} sx={{ fontSize: '16px', fontWeight: 600 }}>
+          <Typography ref={listRef} sx={{ fontWeight: 600 }}>
             {t('allCategories')}
           </Typography>
           <List sx={{ pl: '10px' }}>
@@ -389,7 +394,7 @@ function DrawerMenu() {
           </List>
 
           <Divider sx={{ mb: '10px' }} />
-          <Typography sx={{ fontSize: '16px', fontWeight: 600, mb: '10px' }}>{t('customerCare')}</Typography>
+          <Typography sx={{ fontWeight: 600, mb: '10px' }}>{t('customerCare')}</Typography>
           {Object.keys(navObjCusCare).map((key, index) => {
             const getIcon = (k) => {
               switch (k) {
@@ -409,7 +414,6 @@ function DrawerMenu() {
               <Link key={index} scroll={true} href={`/${key}`} style={{ textDecoration: 'none' }}>
                 <Typography
                   sx={{
-                    fontSize: '15px',
                     // fontWeight: 400,
                     color: 'black',
                     textDecoration: 'none',
@@ -425,7 +429,7 @@ function DrawerMenu() {
             );
           })}
           <Divider sx={{ mb: '10px' }} />
-          <Typography sx={{ fontSize: '16px', fontWeight: 600, mb: '10px' }}>{t('aboutUs')}</Typography>
+          <Typography sx={{ fontWeight: 600, mb: '10px' }}>{t('aboutUs')}</Typography>
           {Object.keys(navObjAbout).map((key, index) => {
             const getIcon = (k) => {
               switch (k) {
@@ -445,8 +449,6 @@ function DrawerMenu() {
               <Link key={index} scroll={true} href={`/${key}`} style={{ textDecoration: 'none' }}>
                 <Typography
                   sx={{
-                    fontSize: '15px',
-                    // fontWeight: 400,
                     color: 'black',
                     textDecoration: 'none',
                     m: ' 0 0 10px 13px',
@@ -465,7 +467,6 @@ function DrawerMenu() {
     </>
   );
 }
-
 
 function UserMenuContent({
   userData,
@@ -796,6 +797,7 @@ export default function AppBarMenu() {
               elevation: 0,
               sx: {
                 overflow: 'visible',
+                minWidth: '250px',
                 filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
                 mt: 1.5,
                 '& .MuiAvatar-root': {

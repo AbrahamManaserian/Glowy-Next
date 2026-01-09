@@ -25,6 +25,7 @@ import {
 
 export default function HelpPage() {
   const t = useTranslations('HelpPage');
+  const tCommon = useTranslations('Common');
 
   return (
     <Container maxWidth="lg" sx={{ py: 6, backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
@@ -41,10 +42,10 @@ export default function HelpPage() {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          Frequently Asked Questions
+          {t('title')}
         </Typography>
         <Typography variant="h6" color="text.secondary">
-          Find answers to common questions or get in touch with us
+          {t('subtitle')}
         </Typography>
       </Box>
 
@@ -58,7 +59,7 @@ export default function HelpPage() {
                 sx={{ fontWeight: 600, color: '#333', display: 'flex', alignItems: 'center' }}
               >
                 <HelpOutlineIcon sx={{ mr: 1, color: '#FE6B8B' }} />
-                Common Questions
+                {t('commonQuestions')}
               </Typography>
             </Box>
             <Box>
@@ -72,26 +73,22 @@ export default function HelpPage() {
                     px: 3,
                   }}
                 >
-                  <Typography sx={{ fontWeight: 500 }}>How do I track my order?</Typography>
+                  <Typography sx={{ fontWeight: 500 }}>{t('faq_q1_question')}</Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ px: 3, py: 2, backgroundColor: '#fff' }}>
                   <Typography color="text.secondary" sx={{ mb: 2 }}>
-                    <strong>For signed-in users:</strong> You can track your order by logging into your
-                    account and going to the{' '}
+                    <strong>{t('faq_q1_signed_label')}</strong> {t('faq_q1_signed_para1')}{' '}
                     <Link href="/user" style={{ color: '#1976d2', textDecoration: 'underline' }}>
-                      My Orders
+                      {tCommon('user.myOrders')}
                     </Link>{' '}
-                    section. There, you&apos;ll find the tracking information provided by the shipping
-                    carrier.
+                    {t('faq_q1_signed_para2')}
                   </Typography>
                   <Typography color="text.secondary">
-                    <strong>For guest orders:</strong> If you placed an order without signing in, you can
-                    still track your order by going to the{' '}
+                    <strong>{t('faq_q1_guest_label')}</strong> {t('faq_q1_guest_para1')}{' '}
                     <Link href="/user" style={{ color: '#1976d2', textDecoration: 'underline' }}>
-                      My Orders
+                      {tCommon('user.myOrders')}
                     </Link>{' '}
-                    section on the same device and browser where you created the order. The tracking
-                    information will be available in your order confirmation email as well.
+                    {t('faq_q1_guest_para2')}
                   </Typography>
                 </AccordionDetails>
               </Accordion>
@@ -105,15 +102,10 @@ export default function HelpPage() {
                     px: 3,
                   }}
                 >
-                  <Typography sx={{ fontWeight: 500 }}>How to make an order?</Typography>
+                  <Typography sx={{ fontWeight: 500 }}>{t('faq_q2_question')}</Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ px: 3, py: 2, backgroundColor: '#fff' }}>
-                  <Typography color="text.secondary">
-                    You can place an order whether you are signed in or not, but we recommend signing in to
-                    make an order. This allows you to manage your orders more informatively, get a 20%
-                    discount on your first purchase, and earn bonus points (starting from 3% for each
-                    completed order), which you can use for future purchases.
-                  </Typography>
+                  <Typography color="text.secondary">{t('faq_q2_answer')}</Typography>
                 </AccordionDetails>
               </Accordion>
 
@@ -126,15 +118,10 @@ export default function HelpPage() {
                     px: 3,
                   }}
                 >
-                  <Typography sx={{ fontWeight: 500 }}>How can I change my shipping address?</Typography>
+                  <Typography sx={{ fontWeight: 500 }}>{t('faq_q3_question')}</Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ px: 3, py: 2, backgroundColor: '#fff' }}>
-                  <Typography color="text.secondary">
-                    If you are signed in, you can update your shipping address in your profile settings. For
-                    guest orders or if the order has already been processed, please contact our customer
-                    service team as soon as possible. Changes cannot be guaranteed once the order has been
-                    processed.
-                  </Typography>
+                  <Typography color="text.secondary">{t('faq_q3_answer')}</Typography>
                 </AccordionDetails>
               </Accordion>
 
@@ -150,18 +137,17 @@ export default function HelpPage() {
                     borderRadius: '0 0 12px 12px',
                   }}
                 >
-                  <Typography sx={{ fontWeight: 500 }}>Do you ship to all regions of Armenia?</Typography>
+                  <Typography sx={{ fontWeight: 500 }}>{t('faq_q4_question')}</Typography>
                 </AccordionSummary>
                 <AccordionDetails
                   sx={{ px: 3, py: 2, backgroundColor: '#fff', borderRadius: '0 0 12px 12px' }}
                 >
                   <Typography color="text.secondary">
-                    Yes, we ship to all regions of Armenia. Shipping costs and delivery times may vary by
-                    location. Please check our{' '}
+                    {t('faq_q4_answer')}{' '}
                     <Link href="#shipping-policy" style={{ color: '#1976d2', textDecoration: 'underline' }}>
-                      shipping policy
+                      {t('shippingPolicy_title')}
                     </Link>{' '}
-                    for more details.
+                    {''}
                   </Typography>
                 </AccordionDetails>
               </Accordion>
@@ -185,15 +171,15 @@ export default function HelpPage() {
               }}
             >
               <ContactMailIcon sx={{ mr: 1, color: '#FF8E53' }} />
-              Contact Support
+              {t('contactSupport_title')}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              If you have any problems, leave a message, and our team will contact you as soon as possible.
+              {t('contactSupport_desc')}
             </Typography>
 
             <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <TextField
-                label="Full Name"
+                label={t('form_fullName')}
                 variant="outlined"
                 fullWidth
                 size="small"
@@ -206,7 +192,7 @@ export default function HelpPage() {
                 }}
               />
               <TextField
-                label="Phone Number"
+                label={t('form_phoneNumber')}
                 variant="outlined"
                 fullWidth
                 size="small"
@@ -219,7 +205,7 @@ export default function HelpPage() {
                 }}
               />
               <TextField
-                label="Email"
+                label={t('form_email')}
                 variant="outlined"
                 fullWidth
                 size="small"
@@ -232,7 +218,7 @@ export default function HelpPage() {
                 }}
               />
               <TextField
-                label="Message"
+                label={t('form_message')}
                 variant="outlined"
                 fullWidth
                 multiline
@@ -257,9 +243,9 @@ export default function HelpPage() {
                 }
                 label={
                   <Typography variant="body2" color="text.secondary">
-                    I agree to the{' '}
+                    {t('form_agree_prefix')}{' '}
                     <Link href="/privacy-policy" style={{ color: '#FE6B8B', textDecoration: 'underline' }}>
-                      privacy policy
+                      {t('form_privacy_policy')}
                     </Link>
                   </Typography>
                 }
@@ -277,7 +263,7 @@ export default function HelpPage() {
                   },
                 }}
               >
-                Send Message
+                {t('form_send')}
               </Button>
             </Box>
           </Paper>
@@ -287,19 +273,19 @@ export default function HelpPage() {
         <Grid size={{ xs: 12, sm: 5 }}>
           <Paper elevation={2} sx={{ p: 3, borderRadius: 3, backgroundColor: '#fff' }}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#333' }}>
-              Contact Information
+              {t('contactInfo_title')}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              <strong>Phone:</strong> +1 (123) 456-7890
+              <strong>{t('contact_phone')}</strong> +1 (123) 456-7890
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              <strong>Email:</strong> support@glowy.com
+              <strong>{t('contact_email')}</strong> support@glowy.com
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              <strong>Hours:</strong> Monday - Friday, 9 AM - 6 PM EST
+              <strong>{t('contact_hours')}</strong> Monday - Friday, 9 AM - 6 PM EST
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              <strong>Address:</strong> 123 Beauty Street, Glow City, GC 12345
+              <strong>{t('contact_address')}</strong> 123 Beauty Street, Glow City, GC 12345
             </Typography>
           </Paper>
         </Grid>
@@ -321,29 +307,20 @@ export default function HelpPage() {
               }}
             >
               <LocalShippingIcon sx={{ mr: 1, color: '#FF8E53' }} />
-              Shipping Policy
+              {t('shippingPolicy_title')}
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-              <strong>Domestic Shipping (Armenia):</strong> We offer free shipping on orders over 10,000 AMD
-              within Armenia. For orders under this amount, standard shipping costs 1,000 AMD. Delivery
-              typically takes 3-7 business days depending on your location.
+              <strong>{t('shipping_domestic_title')}</strong> {t('shipping_domestic_body')}
+            </Typography>
+
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+              <strong>{t('shipping_processing_title')}</strong> {t('shipping_processing_body')}
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-              <strong>International Shipping:</strong> We ship to select countries outside Armenia. Shipping
-              costs and delivery times vary by destination. International orders may be subject to customs
-              duties and taxes.
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-              <strong>Processing Time:</strong> Orders are processed within 1-2 business days. You will
-              receive a tracking number via email once your order ships.
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-              <strong>Delivery Issues:</strong> If you experience any issues with delivery, please contact our
-              customer service team immediately. We are not responsible for delays caused by carriers or
-              customs.
+              <strong>{t('shipping_issues_title')}</strong> {t('shipping_issues_body')}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              For more detailed information or specific inquiries, please reach out to our support team.
+              {t('shipping_more')}
             </Typography>
           </Paper>
         </Grid>

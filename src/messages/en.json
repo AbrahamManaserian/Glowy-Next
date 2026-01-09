@@ -288,6 +288,8 @@
     "signInDiscount": "Sign in and get 20% discount for your first shopping.",
     "orderSuccessTitle": "Order Placed Successfully!",
     "orderSuccessMessage": "Thank you for your purchase. Your order number is",
+    "orderSuccessUnsignedPrefix": "Thank you — your order is confirmed! Since you checked out without signing in, you can track this order only on the same device and browser where you made the purchase. Please save your order number",
+    "orderSuccessUnsignedSuffix": "— you'll need it if you contact support or want more information about your order.",
     "continueShopping": "Continue Shopping",
     "viewOrders": "View My Orders",
     "checkout": "Checkout",
@@ -503,9 +505,7 @@
     "lastId": "Last Id",
     "firstId": "First Id"
   },
-  "HelpPage": {
-    "title": "Help Page"
-  },
+
   "AboutPage": {
     "title": "We Are Glowy",
     "subtitle": "Redefining beauty with products that make you shine from the inside out.",
@@ -530,6 +530,47 @@
     "ctaTitle": "Ready to find your glow?",
     "ctaSubtitle": "Explore our latest collection and find your new favorites today.",
     "shopNow": "Shop Now"
+  },
+  "HelpPage": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to common questions or get in touch with us",
+    "commonQuestions": "Common Questions",
+    "faq_q1_question": "How do I track my order?",
+    "faq_q1_signed_label": "For signed-in users:",
+    "faq_q1_signed_para1": "You can track your order by logging into your account and going to the",
+    "faq_q1_signed_para2": "section. There, you'll find the tracking information provided by the shipping carrier.",
+    "faq_q1_guest_label": "For guest orders:",
+    "faq_q1_guest_para1": "If you placed an order without signing in, you can still track your order by going to the",
+    "faq_q1_guest_para2": "section on the same device and browser where you created the order. The tracking information will be available in your order confirmation email as well.",
+    "faq_q2_question": "How to make an order?",
+    "faq_q2_answer": "You can place an order whether you are signed in or not, but we recommend signing in to make an order. This allows you to manage your orders more easily, get a 20% discount on your first purchase, and earn bonus points (starting from 3% for each completed order), which you can use for future purchases.",
+    "faq_q3_question": "How can I change my shipping address?",
+    "faq_q3_answer": "If you are signed in, you can update your shipping address in your profile settings. For guest orders or if the order has already been processed, please contact our customer service team as soon as possible. Changes cannot be guaranteed once the order has been processed.",
+    "faq_q4_question": "Do you ship to all regions of Armenia?",
+    "faq_q4_answer": "Yes, we ship to all regions of Armenia. Shipping costs and delivery times may vary by location. Please check our shipping policy for more details.",
+    "contactSupport_title": "Contact Support",
+    "contactSupport_desc": "If you have any problems, leave a message, and our team will contact you as soon as possible.",
+    "form_fullName": "Full Name",
+    "form_phoneNumber": "Phone Number",
+    "form_email": "Email",
+    "form_message": "Message",
+    "form_agree_prefix": "I agree to the",
+    "form_privacy_policy": "privacy policy",
+    "form_send": "Send Message",
+    "contactInfo_title": "Contact Information",
+    "contact_phone": "Phone:",
+    "contact_email": "Email:",
+    "contact_hours": "Hours:",
+    "contact_address": "Address:",
+    "shippingPolicy_title": "Shipping Policy",
+    "shipping_domestic_title": "Delivery throughout Armenia:",
+    "shipping_domestic_body": "We offer free shipping on orders over 10,000 AMD within Armenia. For orders under this amount, standard shipping costs 1,000 AMD. Delivery typically takes 3-7 business days depending on your location.",
+
+    "shipping_processing_title": "Processing Time:",
+    "shipping_processing_body": "Orders are processed within 1-2 business days. You will receive a tracking number via email once your order ships.",
+    "shipping_issues_title": "Delivery Issues:",
+    "shipping_issues_body": "If you experience any issues with delivery, please contact our customer service team immediately. We are not responsible for delays caused by carriers or customs.",
+    "shipping_more": "For more detailed information or specific inquiries, please reach out to our support team."
   },
   "PrivacyPolicyPage": {
     "title": "Privacy Policy",

@@ -18,6 +18,7 @@ import {
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import LoginIcon from '@mui/icons-material/Login';
 import RedeemIcon from '@mui/icons-material/Redeem';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 // import Link from 'next/link';
@@ -80,7 +81,7 @@ export default function CartPageUi() {
 
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'error' });
-  const [orderSuccess, setOrderSuccess] = useState(null);
+  const [orderSuccess, setOrderSuccess] = useState(1);
 
   useEffect(() => {
     if (cart?.items && !isInitialized.current) {
@@ -372,26 +373,51 @@ export default function CartPageUi() {
           justifyContent: 'center',
           minHeight: '60vh',
           textAlign: 'center',
-          px: 2,
+          // px: 2,
+          my: 2,
         }}
       >
         <CheckCircleOutlineIcon sx={{ fontSize: 80, color: '#4caf50', mb: 2 }} />
         <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a' }}>
           {t('orderSuccessTitle')}
         </Typography>
-        <Typography variant="body1" sx={{ color: '#666', mb: 4, fontSize: '18px' }}>
+        <Typography variant="body1" sx={{ color: '#666', mb: 2, fontSize: '18px' }}>
           {t('orderSuccessMessage')} <strong>#{orderSuccess}</strong>.
         </Typography>
+        {!user && (
+          <Typography
+            sx={{ color: '#666', mb: 4, fontSize: { xs: '14px', sm: '16px' }, textAlign: 'center' }}
+          >
+            {t('orderSuccessUnsignedPrefix')}{' '}
+            <Box
+              component="span"
+              sx={{
+                display: 'inline-block',
+                ml: 1,
+                px: 1,
+                py: '2px',
+                bgcolor: '#fff7ed',
+                color: '#e65100',
+                fontWeight: 800,
+                borderRadius: '6px',
+                fontSize: { xs: '13px', sm: '15px' },
+              }}
+            >
+              #{orderSuccess}
+            </Box>{' '}
+            {t('orderSuccessUnsignedSuffix')}
+          </Typography>
+        )}
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Link href="/shop">
-            <Button variant="contained" sx={{ bgcolor: '#2B3445', textTransform: 'none' }}>
+            <Button variant="contained" sx={{ bgcolor: '#2B3445', textTransform: 'none', px: '5px' }}>
               {t('continueShopping')}
             </Button>
           </Link>
           <Link href="/user/orders">
             <Button
               variant="outlined"
-              sx={{ color: '#2B3445', borderColor: '#2B3445', textTransform: 'none' }}
+              sx={{ color: '#2B3445', borderColor: '#2B3445', textTransform: 'none', px: '5px' }}
             >
               {t('viewOrders')}
             </Button>
@@ -466,39 +492,73 @@ export default function CartPageUi() {
         </Box>
       )}
       {!user && (
-        <Box
-          sx={{
-            width: '100%',
-            mb: '40px',
-            p: '16px',
-            bgcolor: 'white',
-            borderRadius: '12px',
-            border: '1px solid #e65100',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-          }}
-        >
+        <Box sx={{ width: '100%', mb: { xs: '18px', sm: '28px' } }}>
           <Link
             href={`/auth/signin?redirect=${encodeURIComponent(redirectUrl)}`}
             style={{ textDecoration: 'none' }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Typography
-                sx={{
-                  fontSize: '16px',
-                  color: '#e65100',
-                  fontWeight: 500,
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  '&:hover': { textDecoration: 'underline' },
-                }}
-              >
-                {t('signInDiscount')}
-              </Typography>
-              <ArrowForwardIcon sx={{ ml: 1, fontSize: '18px', color: '#e65100' }} />
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: 'center',
+                gap: { xs: 1, sm: 2 },
+                p: { xs: 1, sm: 2 },
+                bgcolor: '#ffffff',
+                borderRadius: '12px',
+                border: '1px solid rgba(230,81,0,0.06)',
+                boxShadow: '0 10px 30px rgba(16,24,40,0.04)',
+                cursor: 'pointer',
+                transition: 'transform .12s ease, box-shadow .12s ease',
+                '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 18px 40px rgba(16,24,40,0.06)' },
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', minWidth: 0 }}>
+                <Box
+                  sx={{
+                    width: { xs: 44, sm: 56 },
+                    height: { xs: 44, sm: 56 },
+                    borderRadius: 2,
+                    bgcolor: 'linear-gradient(135deg, #fff8f3, #fff)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8)',
+                  }}
+                >
+                  <LoginIcon sx={{ color: '#e65100', fontSize: { xs: 18, sm: 26 } }} />
+                </Box>
+
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography
+                    sx={{ fontSize: { xs: '15px', sm: '16px' }, fontWeight: 700, color: '#1a1a1a' }}
+                  >
+                    {t('signInDiscount')}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: { xs: 1, sm: 0 } }}>
+                <Box
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: '50%',
+                    bgcolor: '#e65100',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                  }}
+                >
+                  <ArrowForwardIcon sx={{ fontSize: 18 }} />
+                </Box>
+              </Box>
             </Box>
           </Link>
         </Box>
-      )}{' '}
+      )}
       <Box sx={{ width: '100%', my: '40px' }}>
         <Stepper
           activeStep={!params.has('checkout') ? 0 : 1}
