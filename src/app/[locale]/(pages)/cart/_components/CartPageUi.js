@@ -81,7 +81,7 @@ export default function CartPageUi() {
 
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'error' });
-  const [orderSuccess, setOrderSuccess] = useState(1);
+  const [orderSuccess, setOrderSuccess] = useState(null);
 
   useEffect(() => {
     if (cart?.items && !isInitialized.current) {
