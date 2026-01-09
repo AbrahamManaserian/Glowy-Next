@@ -131,6 +131,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
     const params = new URLSearchParams(searchParams.toString());
     Object.keys(paramsState).forEach((key) => {
       const value = paramsState[key];
+
       if (key === 'brands') {
         if (Array.isArray(value) && value.length > 0) {
           params.set(key, value.join(','));
@@ -149,6 +150,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
         params.delete(key);
       }
     });
+
     params.delete('page');
     params.delete('startId');
     params.delete('lastId');

@@ -20,68 +20,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 // import { categoriesObj } from '@/app/admin/add-product/page';
 import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
-
-const typeMapping = {
-  Men: 'men',
-  Women: 'women',
-  Uni: 'uni',
-  Foundation: 'foundation',
-  Highlighter: 'highlighter',
-  'Face Primer': 'facePrimer',
-  'Powder & Setting Spray': 'powderSettingSpray',
-  Contour: 'contour',
-  Blush: 'blush',
-  Concealer: 'concealer',
-  'BB & CC cream': 'bbCcCream',
-  'Brow Gel': 'browGel',
-  'Eye Palettes': 'eyePalettes',
-  'Eyebrow pencil': 'eyebrowPencil',
-  Eyeliner: 'eyeliner',
-  Pencil: 'pencil',
-  Lipstick: 'lipstick',
-  'Liquid Lipstick': 'liquidLipstick',
-  'Lip Balm & Treatmentl': 'lipBalmTreatmentl',
-  'Lip Gloss': 'lipGloss',
-  'Lip Liner': 'lipLiner',
-  'Lip Oil': 'lipOil',
-  Cleansers: 'cleansers',
-  Exfoliation: 'exfoliation',
-  'Face Wash': 'faceWash',
-  'Makeup Removers': 'makeupRemovers',
-  'Toners & Lotions': 'tonersLotions',
-  'Dark Circles': 'darkCircles',
-  'Eye Patches': 'eyePatches',
-  'Lifting/Anti-age Eye Creams': 'liftingAntiAgeEyeCreams',
-  'Anti-age': 'antiAge',
-  'Face Masks': 'faceMasks',
-  Hydrating: 'hydrating',
-  'Face Serums': 'faceSerums',
-  'Face Creams': 'faceCreams',
-  'Face Oils': 'faceOils',
-  Mists: 'mists',
-  Moisturizers: 'moisturizers',
-  'Night Creams': 'nightCreams',
-  'Anti-Aging': 'antiAging',
-  'Dark Spots': 'darkSpots',
-  Lifting: 'lifting',
-  Gel: 'gel',
-  'Hand Wash & Soap': 'handWashSoap',
-  'Scrub & Exfoliation': 'scrubExfoliation',
-  'Shampoo & Conditione': 'shampooConditione',
-  Antiperspirants: 'antiperspirants',
-  'Body Lotion & Body Oils': 'bodyLotionBodyOils',
-  'Body Moisturizers': 'bodyMoisturizers',
-  'Cellulite & Stretch Marks': 'celluliteStretchMarks',
-  'Hand Cream & Foot Cream': 'handCreamFootCream',
-  'Masks & Special Treatment': 'masksSpecialTreatment',
-  'Cuticle care': 'cuticleCare',
-  'Nail care': 'nailCare',
-  'Nail color': 'nailColor',
-  'Nail polish removers': 'nailPolishRemovers',
-  Fragrance: 'fragrance',
-  Makeup: 'makeup',
-  Skincare: 'skincare',
-};
+import { typeMapping } from '../products/Filter';
 
 export default function CategoriesDekstop() {
   const t = useTranslations('Categories');
@@ -257,7 +196,7 @@ export default function CategoriesDekstop() {
                   return (
                     <List key={index} sx={{ minWidth: '150px' }}>
                       <Link
-                        href={`/${data.routTo}?subCategory=${category}`}
+                        href={`/${data.routTo}?subCategory=${encodeURIComponent(category)}`}
                         key={index}
                         style={{ textDecoration: 'none', color: 'inherit' }}
                       >
@@ -277,9 +216,12 @@ export default function CategoriesDekstop() {
 
                       {data[category].type.map((item, index) => {
                         // if (item === 'routTo') return null;
+
                         return (
                           <Link
-                            href={`/${data.routTo}?subCategory=${category}&type=${item}`}
+                            href={`/${data.routTo}?subCategory=${encodeURIComponent(
+                              category
+                            )}&type=${encodeURIComponent(item)}`}
                             key={index}
                             style={{ textDecoration: 'none', color: 'inherit' }}
                           >

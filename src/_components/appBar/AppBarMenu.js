@@ -119,10 +119,9 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
       setOpen(category);
     }
   };
-  const handleCloseDrawer = (url) => {
+  const handleCloseDrawer = () => {
     closeDrawer(false);
     setOpen();
-    router.push(url, undefined, { scroll: true });
   };
 
   return (
@@ -157,62 +156,74 @@ function SingleCategory({ data, category, open, setOpen, rootProps, closeDrawer 
 
       <Collapse in={open === category} timeout="auto" unmountOnExit>
         <List sx={{ p: 0 }}>
-          <ListItem disablePadding>
-            <ListItemButton sx={{ p: '0 2px 5px 20px ' }} onClick={() => handleCloseDrawer(`/${category}`)}>
-              <ListItemText
-                primary={t('allItems')}
-                primaryTypographyProps={{
-                  fontSize: '15px',
-                  fontWeight: 700,
-                  letterSpacing: 0,
-                  textTransform: 'capitalize',
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
+          <Link
+            href={`/${encodeURIComponent(category)}`}
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            <ListItem disablePadding>
+              <ListItemButton sx={{ p: '0 2px 5px 20px ' }} onClick={handleCloseDrawer}>
+                <ListItemText
+                  primary={t('allItems')}
+                  primaryTypographyProps={{
+                    fontSize: '15px',
+                    fontWeight: 700,
+                    letterSpacing: 0,
+                    textTransform: 'capitalize',
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          </Link>
         </List>
         {Object.keys(data).map((key, index) => {
           if (key === 'category') return null;
           // console.log(data[item]);
           return (
             <List key={index} sx={{ p: 0 }}>
-              <ListItem disablePadding>
-                <ListItemButton
-                  sx={{ p: '0 2px 5px 20px ' }}
-                  onClick={() => handleCloseDrawer(`/${category}?subCategory=${key}`)}
-                >
-                  <ListItemText
-                    primary={t(key)}
-                    primaryTypographyProps={{
-                      fontSize: '15px',
-                      fontWeight: 700,
-                      letterSpacing: 0,
-                      textTransform: 'capitalize',
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
+              <Link
+                href={`/${encodeURIComponent(category)}?subCategory=${encodeURIComponent(key)}`}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <ListItem disablePadding>
+                  <ListItemButton sx={{ p: '0 2px 5px 20px ' }} onClick={handleCloseDrawer}>
+                    <ListItemText
+                      primary={t(key)}
+                      primaryTypographyProps={{
+                        fontSize: '15px',
+                        fontWeight: 700,
+                        letterSpacing: 0,
+                        textTransform: 'capitalize',
+                      }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </Link>
               <List sx={{ ml: '20px', p: 0, borderLeft: 'solid 1px #cdd1d4ff' }}>
                 {data[key].type.map((subItem, subIndex) => {
                   // console.log(data[item][subItem]);
 
                   return (
-                    <ListItem key={subIndex} disablePadding>
-                      <ListItemButton
-                        sx={{ p: '5px 2px 5px 20px' }}
-                        onClick={() => handleCloseDrawer(`/${category}?subCategory=${key}&type=${subItem}`)}
-                      >
-                        <ListItemText
-                          primary={tTypes(typeMapping[subItem] || subItem)}
-                          primaryTypographyProps={{
-                            fontSize: '16px',
-                            fontWeight: 300,
-                            letterSpacing: 0,
-                            textTransform: 'capitalize',
-                          }}
-                        />
-                      </ListItemButton>
-                    </ListItem>
+                    <Link
+                      key={subIndex}
+                      href={`/${encodeURIComponent(category)}?subCategory=${encodeURIComponent(
+                        key
+                      )}&type=${encodeURIComponent(subItem)}`}
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      <ListItem disablePadding>
+                        <ListItemButton sx={{ p: '5px 2px 5px 20px' }} onClick={handleCloseDrawer}>
+                          <ListItemText
+                            primary={tTypes(typeMapping[subItem] || subItem)}
+                            primaryTypographyProps={{
+                              fontSize: '16px',
+                              fontWeight: 300,
+                              letterSpacing: 0,
+                              textTransform: 'capitalize',
+                            }}
+                          />
+                        </ListItemButton>
+                      </ListItem>
+                    </Link>
                   );
                 })}
               </List>
