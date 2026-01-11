@@ -357,7 +357,13 @@ function DrawerMenu() {
               }
             };
             return (
-              <Link key={index} scroll={true} href={`/${key}`} style={{ textDecoration: 'none' }}>
+              <Link
+                onClick={() => toggleDrawer(false)}
+                key={index}
+                scroll={true}
+                href={`/${key}`}
+                style={{ textDecoration: 'none' }}
+              >
                 <Typography
                   sx={{
                     color: isActive ? '#e64c14ff' : 'black',
@@ -411,7 +417,13 @@ function DrawerMenu() {
               }
             };
             return (
-              <Link key={index} scroll={true} href={`/${key}`} style={{ textDecoration: 'none' }}>
+              <Link
+                onClick={() => toggleDrawer(false)}
+                key={index}
+                scroll={true}
+                href={`/${key}`}
+                style={{ textDecoration: 'none' }}
+              >
                 <Typography
                   sx={{
                     // fontWeight: 400,
@@ -446,7 +458,13 @@ function DrawerMenu() {
               }
             };
             return (
-              <Link key={index} scroll={true} href={`/${key}`} style={{ textDecoration: 'none' }}>
+              <Link
+                onClick={() => toggleDrawer(false)}
+                key={index}
+                scroll={true}
+                href={`/${key}`}
+                style={{ textDecoration: 'none' }}
+              >
                 <Typography
                   sx={{
                     color: 'black',

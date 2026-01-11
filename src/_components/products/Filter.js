@@ -4,6 +4,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  IconButton,
   Checkbox,
   Collapse,
   Dialog,
@@ -20,6 +21,7 @@ import {
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import VerifiedIcon from '@mui/icons-material/Verified';
+import CloseIcon from '@mui/icons-material/Close';
 import React, { useRef, useState, useEffect } from 'react';
 import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
 import styled from '@emotion/styled';
@@ -218,21 +220,17 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
   const tCategories = useTranslations('Categories');
   const tProductTypes = useTranslations('ProductTypes');
   const inputRef = useRef(null);
-  const dialogInputRef = useRef(null);
   const initialValue = useRef('');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [brandsDialogOpen, setBrandsDialogOpen] = useState(false);
   const [tempBrands, setTempBrands] = useState(paramsState.brands || []);
   const [dialogAutoOpen, setDialogAutoOpen] = useState(false);
+  const [autocompleteOpen, setAutocompleteOpen] = useState(false);
 
   useEffect(() => {
     if (brandsDialogOpen) {
       setDialogAutoOpen(true);
-      // focus the dialog autocomplete input after it mounts
-      setTimeout(() => {
-        if (dialogInputRef.current) dialogInputRef.current.focus();
-      }, 50);
     } else {
       setDialogAutoOpen(false);
     }
@@ -429,9 +427,14 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
           }}
           // On mobile, open a dialog instead of the native popup
           onOpen={() => {
-            if (isMobile) setBrandsDialogOpen(true);
+            if (isMobile) {
+              setBrandsDialogOpen(true);
+            } else {
+              setAutocompleteOpen(true);
+            }
           }}
-          open={isMobile ? false : undefined}
+          onClose={() => setAutocompleteOpen(false)}
+          open={isMobile ? false : autocompleteOpen}
           renderInput={(params) => (
             <TextField
               inputRef={inputRef}
@@ -458,20 +461,50 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
             sx: {
               width: '100vw',
               height: '100vh',
+              margin: 0,
+              maxWidth: '90vw',
+              maxHeight: '95vh',
             },
           }}
         >
-          <DialogContent>
+          <DialogContent
+            sx={{
+              padding: '0 15px',
+
+              '& .MuiAutocomplete-popper .MuiPaper-root': {
+                marginTop: '10px',
+                boxShadow: 'none',
+                border: 'none',
+                borderRadius: 0,
+                backgroundColor: 'transparent',
+              },
+            }}
+          >
+            <IconButton
+              onClick={() => setBrandsDialogOpen(false)}
+              aria-label="close"
+              sx={{ position: 'relative', float: 'right' }}
+            >
+              <CloseIcon />
+            </IconButton>
+
             <Autocomplete
               multiple
-              disablePortal={false}
+              disablePortal
               blurOnSelect
               sx={{ width: '100%' }}
               size="small"
               options={brands}
-              open={dialogAutoOpen}
-              onOpen={() => setDialogAutoOpen(true)}
-              onClose={() => setDialogAutoOpen(false)}
+              ListboxProps={{
+                style: {
+                  maxHeight: 'none',
+                  height: 'calc(100vh - 160px)',
+                  overflow: 'auto',
+                  paddingLeft: '3px',
+                  border: 'none',
+                },
+              }}
+              open={brandsDialogOpen}
               filterOptions={(options, { inputValue }) => {
                 const normalize = (str) =>
                   str.toLowerCase().replace(/k/g, 'c').replace(/ph/g, 'f').replace(/qu/g, 'k');
@@ -486,17 +519,20 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
                 };
                 return options.filter((option) => isSubsequence(normalize(inputValue), normalize(option)));
               }}
-              renderInput={(params) => (
-                <TextField {...params} label={t('brands')} inputRef={dialogInputRef} />
-              )}
+              renderOption={(props, option) => {
+                const { key, ...rest } = props;
+                return (
+                  <li key={key} {...rest} style={{ paddingLeft: 0 }}>
+                    {option}
+                  </li>
+                );
+              }}
+              renderInput={(params) => <TextField {...params} label={t('brands')} />}
               value={paramsState.brands || []}
               onChange={(event, value) => {
                 handleChangeParams('brands', value, noRout);
               }}
             />
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-              <Button onClick={() => setBrandsDialogOpen(false)}>Close</Button>
-            </Box>
           </DialogContent>
         </Dialog>
       </Collapse>
