@@ -8,23 +8,47 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  ListItemIcon,
   Paper,
   Popper,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 // import Link from 'next/link';
 import { Link } from '@/i18n/routing';
 // import { categoriesObj } from '@/app/admin/add-product/page';
 import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
 import { typeMapping } from '../products/Filter';
+import {
+  AccessoriesIcon,
+  BathBodyIcon,
+  CollectionIcon,
+  FragranceIcon,
+  HairIcon,
+  MakeupIcon,
+  NailIcon,
+  SkincareIcon,
+} from '../icons';
 
 export default function CategoriesDekstop() {
   const t = useTranslations('Categories');
   const tTypes = useTranslations('ProductTypes');
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentSub = searchParams.get('subCategory');
+  const currentType = searchParams.get('type');
+  const locale = useLocale();
+
+  // normalize pathname by removing locale prefix (e.g. /en/makeup -> /makeup)
+  const normalizedPath =
+    pathname && locale && pathname.startsWith(`/${locale}`)
+      ? pathname === `/${locale}`
+        ? '/'
+        : pathname.replace(`/${locale}`, '')
+      : pathname;
   const [data, setData] = useState({});
 
   const [showMoreCategory, setShowMoreCategory] = useState(null);
@@ -75,6 +99,17 @@ export default function CategoriesDekstop() {
 
   const openNested = Boolean(showNestedCategory);
 
+  const iconMap = {
+    fragrance: FragranceIcon,
+    makeup: MakeupIcon,
+    skincare: SkincareIcon,
+    bathBody: BathBodyIcon,
+    hair: HairIcon,
+    nail: NailIcon,
+    accessories: AccessoriesIcon,
+    collection: CollectionIcon,
+  };
+
   return (
     <ClickAwayListener onClickAway={handleClose}>
       <div>
@@ -124,6 +159,8 @@ export default function CategoriesDekstop() {
           <Paper ref={moreRef} sx={{ width: '100%', zIndex: 1100, mt: '10px' }}>
             <List ref={nestedRef}>
               {Object.keys(categoriesObj).map((name, index) => {
+                const IconComponent = iconMap[name];
+                const isActive = normalizedPath && normalizedPath.startsWith(`/${name}`);
                 return (
                   <Link
                     href={`/${data.routTo}`}
@@ -137,6 +174,11 @@ export default function CategoriesDekstop() {
                         sx={{ height: '35px' }}
                         // ref={nestedRef}
                       >
+                        {IconComponent ? (
+                          <ListItemIcon sx={{ minWidth: 36 }}>
+                            <IconComponent sx={{ fontSize: 22, color: isActive ? '#e64c14ff' : undefined }} />
+                          </ListItemIcon>
+                        ) : null}
                         <ListItemText
                           primary={t(name)}
                           primaryTypographyProps={{
@@ -144,6 +186,7 @@ export default function CategoriesDekstop() {
                             fontWeight: 400,
                             letterSpacing: 0,
                             textTransform: 'capitalize',
+                            color: isActive ? '#e64c14ff' : undefined,
                           }}
                         />
                         <NavigateNextIcon
@@ -207,8 +250,13 @@ export default function CategoriesDekstop() {
                               fontSize: '13px',
                               fontWeight: 500,
                               letterSpacing: 0,
-                              // pl: '2px',
                               ml: '2px',
+                              color:
+                                normalizedPath &&
+                                normalizedPath.startsWith(`/${data.routTo}`) &&
+                                currentSub === category
+                                  ? '#e64c14ff'
+                                  : undefined,
                             }}
                           />
                         </ListItemButton>
@@ -232,6 +280,13 @@ export default function CategoriesDekstop() {
                                   fontSize: '14px',
                                   fontWeight: 400,
                                   letterSpacing: 0,
+                                  color:
+                                    normalizedPath &&
+                                    normalizedPath.startsWith(`/${data.routTo}`) &&
+                                    currentSub === category &&
+                                    currentType === item
+                                      ? '#e64c14ff'
+                                      : undefined,
                                 }}
                               />
                             </ListItemButton>

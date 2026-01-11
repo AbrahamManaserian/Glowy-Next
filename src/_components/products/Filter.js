@@ -3,20 +3,26 @@
 import {
   Autocomplete,
   Box,
+  Button,
   Checkbox,
   Collapse,
+  Dialog,
+  DialogContent,
   FormControlLabel,
   FormGroup,
   Grid,
+  IconButton,
   Popper,
   Switch,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import VerifiedIcon from '@mui/icons-material/Verified';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
 import styled from '@emotion/styled';
 import { useTranslations } from 'next-intl';
@@ -215,6 +221,19 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
   const tProductTypes = useTranslations('ProductTypes');
   const inputRef = useRef(null);
   const initialValue = useRef('');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [brandsDialogOpen, setBrandsDialogOpen] = useState(false);
+  const [tempBrands, setTempBrands] = useState(paramsState.brands || []);
+  const [dialogAutoOpen, setDialogAutoOpen] = useState(false);
+
+  useEffect(() => {
+    if (brandsDialogOpen) {
+      setDialogAutoOpen(true);
+    } else {
+      setDialogAutoOpen(false);
+    }
+  }, [brandsDialogOpen]);
 
   const [collapseItems, setCollapseItems] = useState({
     type: true,
@@ -405,12 +424,65 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
             };
             return options.filter((option) => isSubsequence(normalize(inputValue), normalize(option)));
           }}
-          renderInput={(params) => <TextField inputRef={inputRef} {...params} label={t('brands')} />}
+          // On mobile, open a dialog instead of the native popup
+          onOpen={() => {
+            if (isMobile) setBrandsDialogOpen(true);
+          }}
+          open={isMobile ? false : undefined}
+          renderInput={(params) => (
+            <TextField
+              inputRef={inputRef}
+              {...params}
+              label={t('brands')}
+              onFocus={() => {
+                if (isMobile) setBrandsDialogOpen(true);
+              }}
+            />
+          )}
           value={paramsState.brands || []}
           onChange={(event, value) => {
             handleChangeParams('brands', value, noRout);
           }}
         />
+
+        {/* Mobile dialog for brands selector */}
+        <Dialog fullScreen open={brandsDialogOpen} onClose={() => setBrandsDialogOpen(false)}>
+          <DialogContent>
+            <Autocomplete
+              multiple
+              disablePortal={false}
+              blurOnSelect
+              sx={{ width: '100%' }}
+              size="small"
+              options={brands}
+              open={dialogAutoOpen}
+              onOpen={() => setDialogAutoOpen(true)}
+              onClose={() => setDialogAutoOpen(false)}
+              filterOptions={(options, { inputValue }) => {
+                const normalize = (str) =>
+                  str.toLowerCase().replace(/k/g, 'c').replace(/ph/g, 'f').replace(/qu/g, 'k');
+                const isSubsequence = (input, option) => {
+                  if (input.length === 0) return true;
+                  let i = 0;
+                  for (let char of option) {
+                    if (char === input[i]) i++;
+                    if (i === input.length) return true;
+                  }
+                  return false;
+                };
+                return options.filter((option) => isSubsequence(normalize(inputValue), normalize(option)));
+              }}
+              renderInput={(params) => <TextField {...params} label={t('brands')} autoFocus />}
+              value={paramsState.brands || []}
+              onChange={(event, value) => {
+                handleChangeParams('brands', value, noRout);
+              }}
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+              <Button onClick={() => setBrandsDialogOpen(false)}>Close</Button>
+            </Box>
+          </DialogContent>
+        </Dialog>
       </Collapse>
 
       <Box sx={{ display: 'flex', my: '15px', flexWrap: 'wrap' }}>
