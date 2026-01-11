@@ -11,8 +11,6 @@ import {
   FormControlLabel,
   FormGroup,
   Grid,
-  IconButton,
-  Popper,
   Switch,
   TextField,
   Typography,
@@ -220,6 +218,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
   const tCategories = useTranslations('Categories');
   const tProductTypes = useTranslations('ProductTypes');
   const inputRef = useRef(null);
+  const dialogInputRef = useRef(null);
   const initialValue = useRef('');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -230,6 +229,10 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
   useEffect(() => {
     if (brandsDialogOpen) {
       setDialogAutoOpen(true);
+      // focus the dialog autocomplete input after it mounts
+      setTimeout(() => {
+        if (dialogInputRef.current) dialogInputRef.current.focus();
+      }, 50);
     } else {
       setDialogAutoOpen(false);
     }
@@ -446,7 +449,18 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
         />
 
         {/* Mobile dialog for brands selector */}
-        <Dialog fullScreen open={brandsDialogOpen} onClose={() => setBrandsDialogOpen(false)}>
+        <Dialog
+          open={brandsDialogOpen}
+          onClose={() => setBrandsDialogOpen(false)}
+          fullWidth
+          maxWidth={false}
+          PaperProps={{
+            sx: {
+              width: '100vw',
+              height: '100vh',
+            },
+          }}
+        >
           <DialogContent>
             <Autocomplete
               multiple
@@ -472,7 +486,9 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
                 };
                 return options.filter((option) => isSubsequence(normalize(inputValue), normalize(option)));
               }}
-              renderInput={(params) => <TextField {...params} label={t('brands')} autoFocus />}
+              renderInput={(params) => (
+                <TextField {...params} label={t('brands')} inputRef={dialogInputRef} />
+              )}
               value={paramsState.brands || []}
               onChange={(event, value) => {
                 handleChangeParams('brands', value, noRout);
