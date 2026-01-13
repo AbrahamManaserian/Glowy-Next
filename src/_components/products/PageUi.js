@@ -1,13 +1,12 @@
 'use client';
 
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, Button, Drawer, Grid, Pagination, PaginationItem, Typography } from '@mui/material';
+import { Box, Button, Drawer, Grid, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import SortView from './SortView';
 import Filter, { typeMapping } from './Filter';
 import ItemCart from '@/_components/carts/ItemCart';
-import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import { useTranslations } from 'next-intl';
 
@@ -93,7 +92,7 @@ export const CustomPagination = ({ curentPage, currentPage, totalPages, handlePa
 
 const defaultParams = {
   orderBy: '',
-  size: '',
+  size: [],
   view: '',
   minPrice: '',
   maxPrice: '',
@@ -118,7 +117,6 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
   const [openDrawer, setOpenDrawer] = useState(false);
   const [paramsState, setParamsState] = useState(defaultParams);
 
-  const [brands, setBrands] = useState([]);
   const [categoryDetails, setCategoryDetails] = useState(null);
 
   const resetFilters = () => {
@@ -200,6 +198,12 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
         } else {
           params.delete(prop);
         }
+      } else if (prop === 'size') {
+        if (Array.isArray(value) && value.length > 0) {
+          params.set(prop, value.join(','));
+        } else {
+          params.delete(prop);
+        }
       } else if (prop === 'original' || prop === 'inStock') {
         if (value) {
           params.set(prop, 'true');
@@ -218,7 +222,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
     if (prop === 'subCategory') {
       setParamsState({
         ...paramsState,
-        size: '',
+        size: [],
         view: '',
         minPrice: '',
         maxPrice: '',
@@ -271,6 +275,8 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
         let value = searchParams.get(key);
         let parsedValue = value;
         if (key === 'brands') {
+          parsedValue = value ? value.split(',') : [];
+        } else if (key === 'size') {
           parsedValue = value ? value.split(',') : [];
         } else if (key === 'original' || key === 'inStock' || key === 'sale') {
           parsedValue = value !== 'false';
@@ -370,6 +376,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
               category={category}
               noRout={true}
               brands={categoryDetails?.brands || []}
+              sizes={categoryDetails?.sizes || []}
             />
             <Button
               variant="contained"
@@ -539,7 +546,8 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
                 handleChangeParams={handleChangeParams}
                 noRout={true}
                 category={category}
-                brands={brands}
+                brands={categoryDetails?.brands || []}
+                sizes={categoryDetails?.sizes || []}
               />
             </div>
           </div>

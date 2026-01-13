@@ -9,6 +9,7 @@ import {
   Collapse,
   Dialog,
   DialogContent,
+  DialogTitle,
   FormControlLabel,
   FormGroup,
   Grid,
@@ -214,7 +215,7 @@ export const typeMapping = {
   Skincare: 'skincare',
 };
 
-export default function Filter({ paramsState, handleChangeParams, noRout, category, brands }) {
+export default function Filter({ paramsState, handleChangeParams, noRout, category, brands, sizes }) {
   const t = useTranslations('ShopPage');
   const tCommon = useTranslations('Common.nav');
   const tCategories = useTranslations('Categories');
@@ -224,9 +225,12 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [brandsDialogOpen, setBrandsDialogOpen] = useState(false);
-  const [tempBrands, setTempBrands] = useState(paramsState.brands || []);
+
   const [dialogAutoOpen, setDialogAutoOpen] = useState(false);
   const [autocompleteOpen, setAutocompleteOpen] = useState(false);
+  const [sizesDialogOpen, setSizesDialogOpen] = useState(false);
+  const [sizesAutocompleteOpen, setSizesAutocompleteOpen] = useState(false);
+  const sizesInputRef = useRef(null);
 
   useEffect(() => {
     if (brandsDialogOpen) {
@@ -478,27 +482,42 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
                 borderRadius: 0,
                 backgroundColor: 'transparent',
               },
+              position: 'relative',
             }}
           >
-            <IconButton
-              onClick={() => setBrandsDialogOpen(false)}
-              aria-label="close"
-              sx={{ position: 'relative', float: 'right' }}
+            <div
+              style={{
+                position: 'sticky',
+                top: 0,
+                backgroundColor: 'white',
+                zIndex: 10,
+                display: 'flex',
+                justifyContent: 'space-between',
+                padding: '10px 0 0 10px',
+                alignItems: 'center',
+              }}
             >
-              <CloseIcon />
-            </IconButton>
+              <Typography>{t('brands')}</Typography>
+              <IconButton
+                onClick={() => setBrandsDialogOpen(false)}
+                aria-label="close"
+                // sx={{ position: 'relative', float: 'right' }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </div>
 
             <Autocomplete
               multiple
               disablePortal
               blurOnSelect
-              sx={{ width: '100%' }}
+              sx={{ width: '100%', mt: '10px' }}
               size="small"
               options={brands}
               ListboxProps={{
                 style: {
                   maxHeight: 'none',
-                  height: 'calc(100vh - 160px)',
+                  height: 'calc(100vh - 220px)',
                   overflow: 'auto',
                   paddingLeft: '3px',
                   border: 'none',
@@ -539,28 +558,93 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
 
       <Box sx={{ display: 'flex', my: '15px', flexWrap: 'wrap' }}>
         <Typography sx={{ color: '#263045fb', fontWeight: 500, mb: '15px' }}> {t('size')} </Typography>
-        <TextField
-          key={`size${paramsState.size}`}
-          type="number"
-          placeholder={t('size')}
-          defaultValue={paramsState.size}
-          onFocus={(e) => (initialValue.current = e.target.value)}
-          onBlur={(e) => {
-            if (initialValue.current !== e.target.value) {
-              handleChangeParams('size', e.target.value, noRout);
-            }
-          }}
-          variant="outlined"
-          onKeyDown={(e) => {
-            if (['e', 'E', '+', '-'].includes(e.key)) {
-              e.preventDefault();
-            }
-          }}
-          sx={{ ...textFieldStyle, width: '100%' }}
-          // helperText="Size"
+
+        <Autocomplete
+          multiple
+          disablePortal
+          blurOnSelect
+          sx={{ boxSizing: 'border-box', width: '100%', my: '10px' }}
           size="small"
+          options={sizes}
+          onOpen={() => {
+            if (isMobile) {
+              setSizesDialogOpen(true);
+            } else {
+              setSizesAutocompleteOpen(true);
+            }
+          }}
+          onClose={() => setSizesAutocompleteOpen(false)}
+          open={isMobile ? false : sizesAutocompleteOpen}
+          renderInput={(params) => (
+            <TextField
+              inputRef={sizesInputRef}
+              {...params}
+              label={t('size')}
+              onFocus={() => {
+                if (isMobile) setSizesDialogOpen(true);
+              }}
+            />
+          )}
+          value={paramsState.size || []}
+          onChange={(event, value) => {
+            handleChangeParams('size', value, noRout);
+          }}
         />
       </Box>
+      {sizesDialogOpen && (
+        <Dialog
+          open={sizesDialogOpen}
+          onClose={() => setSizesDialogOpen(false)}
+          fullWidth
+          PaperProps={{
+            sx: {
+              width: '100vw',
+              height: '100vh',
+              margin: 0,
+              maxWidth: '90vw',
+              maxHeight: '95vh',
+            },
+          }}
+        >
+          <DialogContent sx={{ p: '0 15px', postion: 'relative' }}>
+            <div
+              style={{
+                position: 'sticky',
+                top: 0,
+                backgroundColor: 'white',
+                zIndex: 10,
+                display: 'flex',
+                justifyContent: 'space-between',
+                padding: '10px 0 0 10px',
+                alignItems: 'center',
+              }}
+            >
+              <Typography>{t('size')}</Typography>
+              <IconButton onClick={() => setSizesDialogOpen(false)}>
+                <CloseIcon />
+              </IconButton>
+            </div>
+            <Autocomplete
+              multiple
+              disablePortal
+              blurOnSelect
+              sx={{ width: '100%', mt: '10px' }}
+              size="small"
+              options={sizes}
+              renderInput={(params) => <TextField inputRef={sizesInputRef} {...params} label={t('size')} />}
+              value={paramsState.size || []}
+              onChange={(event, value) => {
+                handleChangeParams('size', value, noRout);
+              }}
+              ListboxProps={{
+                sx: {
+                  maxHeight: 'calc(100vh - 200px)',
+                },
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
       <Box sx={{ display: 'flex', mt: '5px', alignItems: 'center' }}>
         <IOSSwitch
           prop="original"

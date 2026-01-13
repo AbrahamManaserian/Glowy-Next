@@ -47,6 +47,9 @@ export const getProducts = async (searchParams) => {
         } else if (key === 'brands') {
           const brandsArray = value.split(',');
           conditions.push(where('brand', 'in', brandsArray));
+        } else if (key === 'size') {
+          const sizeArray = value.split(',');
+          conditions.push(where('size', 'in', sizeArray));
         } else if (key === 'inStock' || key === 'original') {
           conditions.push(where(key, '==', value === 'true'));
         } else if (key === 'orderBy') {
