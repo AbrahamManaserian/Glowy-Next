@@ -1,6 +1,8 @@
 'use client';
 
-import { Box, Button, Grid, Rating, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Box, Button, Grid, Rating, Typography, Menu, MenuItem } from '@mui/material';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import Image from 'next/image';
@@ -52,11 +54,23 @@ export const handleClickAddToCart = async (item, quantity, setCart, cart) => {
 };
 
 export default function ItemCart({ item }) {
+  console.log('Rendering ItemCart for item:', item);
   const t = useTranslations('ShopPage');
   const router = useRouter();
   let newAdded;
 
   const { setWishList, wishList, cart, setCart } = useGlobalContext();
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const [selectedOption, setSelectedOption] = useState(item?.[item.optionKey] || '');
+
+  const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+  const handleSelectOption = (value) => {
+    setSelectedOption(value);
+    setAnchorEl(null);
+  };
 
   const handelClickBuyNow = (item) => {
     handleClickAddToCart(item, 1, setCart, cart);
@@ -168,7 +182,51 @@ export default function ItemCart({ item }) {
           {item.unit}
         </Typography>
       </Box>
+
+      {/* menu moved below model */}
+
       <Typography sx={{ color: '#3c4354fb', fontSize: '13px' }}> {item.model}</Typography>
+      <Box sx={{ mt: 1 }}>
+        <Button
+          onClick={handleMenuOpen}
+          endIcon={<ArrowDropDownIcon />}
+          sx={{
+            textTransform: 'none',
+            p: 0,
+            minWidth: 'auto',
+            cursor: 'pointer',
+            color: 'text.secondary',
+            '&:hover': { bgcolor: 'action.hover' },
+            display: 'inline-flex',
+            alignItems: 'center',
+
+            gap: 0.5,
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 12,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: 'calc(120px)',
+              textWrap: 'nowrap',
+            }}
+          >
+            {item.optionKey}: {selectedOption || 'Select'}
+          </Typography>
+        </Button>
+        <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
+          {item.availableOptions.map((option, index) => (
+            <MenuItem
+              key={index}
+              selected={option[item.optionKey] === selectedOption}
+              onClick={() => handleSelectOption(option[item.optionKey])}
+            >
+              {option[item.optionKey]}
+            </MenuItem>
+          ))}
+        </Menu>
+      </Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: '5px' }}>
         <Typography sx={{ color: '#3c4354fb', fontWeight: 600, fontSize: 16 }}>
           ${item.price.toLocaleString()}

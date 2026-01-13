@@ -628,6 +628,7 @@ export default function Filter({ paramsState, handleChangeParams, noRout, catego
               multiple
               disablePortal
               blurOnSelect
+              open={sizesDialogOpen}
               sx={{ width: '100%', mt: '10px' }}
               size="small"
               options={sizes}
