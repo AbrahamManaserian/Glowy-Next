@@ -5,6 +5,7 @@ import { unstable_cache } from 'next/cache';
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
+  console.log(category);
 
   if (!category) {
     return Response.json({ error: 'Category required' }, { status: 400 });
@@ -24,6 +25,7 @@ export async function GET(request) {
       [`category-${category}`],
       {
         revalidate: 3600, // Cache for 1 hour
+        // revalidate: 1, // Cache for 1 hour
         tags: [`category-${category}`],
       }
     )();

@@ -421,7 +421,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
               {paramsState.brands &&
                 paramsState.brands.length > 0 &&
                 ` > ${t('brands')} - ${paramsState.brands.join(', ')}`}
-              {paramsState.size && ` > ${t('size')} ${paramsState.size}`}
+              {paramsState.size && paramsState.size.length > 0 && ` > ${t('size')} ${paramsState.size}`}
               {paramsState.sale && ` > ${t('sale')}`}
               {paramsState.original && ` > ${t('original')}`}
               {paramsState.inStock && ` > ${t('inStock')}`}
@@ -465,7 +465,11 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
 
             {Object.keys(data).map((key, index) => {
               return (
-                <Grid key={index} size={{ xs: 6, sm: 4, md: 4, lg: 3 }}>
+                <Grid
+                  key={index}
+                  size={{ xs: 6, sm: 4, md: 4, lg: 3 }}
+                  // sx={{ display: 'flex', alignItems: 'stretch' }}
+                >
                   <ItemCart item={data[key]} />
                 </Grid>
               );

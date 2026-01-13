@@ -182,6 +182,7 @@ export default function AddProductPage() {
   const [categoryData, setCategoryData] = useState({ brands: [], sizes: [] });
   const [options, setOptions] = useState(() => structuredClone(initialOptionInputs));
   const [inputs, setInputs] = useState(() => structuredClone(initialInputs));
+  const [createOptionsWithId, setCreateOptionsWithId] = useState(true);
 
   const doJob = async () => {
     const brandDocref = doc(db, 'brands', 'makeup');
@@ -264,6 +265,7 @@ export default function AddProductPage() {
       initialProduct = {
         ...initialProduct,
         id: newId,
+        optionHasId: createOptionsWithId,
         createdAt: Date.now(),
         updatedAt: Date.now(),
         mainImage: mainImage,
@@ -281,122 +283,367 @@ export default function AddProductPage() {
         ];
       }
 
-      const availableOptionItems = options.availableOptions.map(async (option, index) => {
-        let optionSmallImage;
-        let optionMainImage;
-        const optionImageArr = [];
+      if (createOptionsWithId) {
+        let allProductids = { [newId]: initialProduct.brand + ' - ' + initialProduct.model };
+
+        let startId = newId;
+        let lastProductId = newId;
+        const availableOptionItems = options.availableOptions.map((option, index) => {
+          const id = getNextProductId(startId);
+          allProductids[id] = initialProduct.brand + ' - ' + initialProduct.model;
+          const item = {
+            ...initialProduct,
+            id: id,
+            price: option.optionPrice,
+            coast: option.optionCoast,
+            previousPrice: option.optionPreviousPrice,
+            qouantity: option.optionQouantity,
+            inStock: option.inStock,
+            mainImage: option.mainImage,
+            smallImage: option.smallImage,
+            images: [...option.images],
+            [option.optionKey]: String(option.optionValue),
+            highlighted: -index,
+          };
+          startId = id;
+          if (index === options.availableOptions.length - 1) {
+            lastProductId = id;
+          }
+          return item;
+        });
+
+        availableOptionItems.forEach((option, index) => {
+          const availabeleIds = availableOptionItems
+            .filter((f, i) => i !== index)
+            .map((item) => ({ id: item.id, [item.optionKey]: String(item[item.optionKey]) }));
+
+          availableOptionItems[index].availableOptions = [
+            ...availabeleIds,
+            { id: newId, [initialProduct.optionKey]: String(initialProduct[initialProduct.optionKey]) },
+          ];
+          initialProduct.availableOptions.push({
+            id: option.id,
+            [option.optionKey]: String(option[option.optionKey]),
+          });
+        });
 
         await Promise.all(
-          option.images.map(async (img, index) => {
+          availableOptionItems.map(async (item, index) => {
+            let smallOptionImage = {};
+            let mainOptionImage = {};
+            const optionImageArr = [];
+
             try {
-              const imageStorageRef = ref(storage, `glowyProducts/${newId}/${index}/images/${index}`);
-              await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
-                return getDownloadURL(snapshot.ref).then((url) => {
-                  optionImageArr.push({
-                    ...option.images[index],
-                    file: url,
-                    id: index,
-                    src: `glowyProducts/${newId}/${index}/images/${index}`,
+              const mainRef = ref(storage, `glowyProducts/${item.id}/main`);
+              const smallRef = ref(storage, `glowyProducts/${item.id}/small`);
+
+              if (item.mainImage.file) {
+                await uploadBytes(mainRef, item.mainImage.file).then((snapshot) => {
+                  return getDownloadURL(snapshot.ref).then((url) => {
+                    mainOptionImage = { ...item.mainImage, file: url, src: `glowyProducts/${item.id}/main` };
                   });
                 });
-              });
+                availableOptionItems[index].mainImage = mainOptionImage;
+              } else {
+                availableOptionItems[index].mainImage = { ...initialProduct.mainImage };
+              }
+
+              if (item.smallImage.file) {
+                await uploadBytes(smallRef, item.smallImage.file).then((snapshot) => {
+                  return getDownloadURL(snapshot.ref).then((url) => {
+                    smallOptionImage = {
+                      ...item.smallImage,
+                      file: url,
+                      src: `glowyProducts/${item.id}/small`,
+                    };
+                  });
+                });
+                availableOptionItems[index].smallImage = smallOptionImage;
+              } else {
+                availableOptionItems[index].smallImage = { ...initialProduct.smallImage };
+              }
+
+              if (item.images.length > 0) {
+                await Promise.all(
+                  item.images.map(async (img, index) => {
+                    try {
+                      const imageStorageRef = ref(storage, `glowyProducts/${item.id}/images/${index}`);
+                      await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
+                        return getDownloadURL(snapshot.ref).then((url) => {
+                          optionImageArr.push({
+                            ...inputs.images[index],
+                            file: url,
+                            id: index,
+                            src: `glowyProducts/${item.id}/images/${index}`,
+                          });
+                        });
+                      });
+                    } catch (error) {
+                      console.log(error);
+                    }
+                  })
+                );
+                availableOptionItems[index].images = [...optionImageArr];
+              } else {
+                availableOptionItems[index].images = [...initialProduct.images];
+              }
             } catch (error) {
               console.log(error);
             }
           })
         );
 
-        try {
-          if (option.mainImage?.file) {
-            const mainImageStorageRef = ref(storage, `glowyProducts/${newId}/${index}/main`);
+        const productRef = doc(db, 'glowyProducts', initialProduct.category, 'items', newId);
+        const allProductsRef = doc(db, 'allProducts', newId);
+        const detailRef = doc(db, 'details', 'projectDetails');
 
-            await uploadBytes(mainImageStorageRef, option.mainImage.file).then((snapshot) => {
-              return getDownloadURL(snapshot.ref).then((url) => {
-                optionMainImage = {
-                  ...option.mainImage,
-                  file: url,
-                  src: `glowyProducts/${newId}/${index}/main`,
-                };
-              });
-            });
-          }
-          if (option.smallImage.file) {
-            const smallImageStorageRef = ref(storage, `glowyProducts/${newId}/${index}/small`);
+        await setDoc(productRef, initialProduct);
+        await setDoc(allProductsRef, initialProduct);
 
-            await uploadBytes(smallImageStorageRef, option.smallImage.file).then((snapshot) => {
-              return getDownloadURL(snapshot.ref).then((url) => {
-                optionSmallImage = {
-                  ...option.smallImage,
-                  file: url,
-                  src: `glowyProducts/${newId}/${index}/small`,
-                };
-              });
-            });
-          }
-        } catch (e) {
-          console.log(e);
+        await Promise.all(
+          availableOptionItems.map(async (item, index) => {
+            const productRef = doc(db, 'glowyProducts', item.category, 'items', item.id);
+            const allProductsRef = doc(db, 'allProducts', item.id);
+            await setDoc(productRef, item);
+            await setDoc(allProductsRef, item);
+          })
+        );
+
+        const needUpdateSize = availableOptionItems
+          .filter((item) => !categoryData.sizes.includes(item.size))
+          .map((i) => i.size);
+        if (!categoryData.sizes.includes(inputs.size)) {
+          needUpdateSize.push(inputs.size);
+        }
+        if (needUpdateSize[0] || !categoryData.brands.includes(inputs.brand)) {
+          const docref = doc(db, 'details', inputs.category);
+
+          await updateDoc(docref, {
+            sizes: arrayUnion(inputs.size, ...needUpdateSize),
+            brands: arrayUnion(inputs.brand),
+          });
         }
 
-        return {
-          price: option.optionPrice,
-          previousPrice: option.optionPreviousPrice,
-          coast: option.optionCoast,
-          qouantity: option.optionQouantity,
-          inStock: option.inStock,
-          [option.optionKey]: option.optionValue,
-          mainImage: optionMainImage || mainImage,
-          smallImage: optionSmallImage || smallImage,
-          images: optionImageArr[0] || imageArr,
-          id: index,
-        };
-      });
+        const updateData = {};
 
-      initialProduct.availableOptions = await Promise.all(availableOptionItems);
-      const productRef = doc(db, 'glowyProducts', initialProduct.category, 'items', newId);
-      const allProductsRef = doc(db, 'allProducts', newId);
-      const detailRef = doc(db, 'details', 'projectDetails');
-
-      const newItemIdName = initialProduct.brand + ' - ' + initialProduct.model;
-
-      await setDoc(productRef, initialProduct);
-      await setDoc(allProductsRef, initialProduct);
-      await updateDoc(detailRef, {
-        lastProductId: newId,
-        ['allProductsIds.' + newId]: newItemIdName,
-      });
-
-      if (!categoryData.sizes.includes(inputs.size) || !categoryData.brands.includes(inputs.brand)) {
-        const docref = doc(db, 'details', inputs.category);
-
-        await updateDoc(docref, {
-          sizes: arrayUnion(inputs.size),
-          brands: arrayUnion(inputs.brand),
+        Object.entries(allProductids).forEach(([key, value]) => {
+          updateData[`allProductsIds.${key}`] = value;
         });
+        updateData.lastProductId = lastProductId;
+
+        await updateDoc(detailRef, updateData);
+
+        setLastProductId(lastProductId);
+        setCategoryData((prev) => {
+          let newBrands = prev.brands;
+          let newSizes = prev.sizes;
+          if (!prev.brands.includes(inputs.brand)) {
+            newBrands = [...prev.brands, inputs.brand];
+          }
+          if (!prev.sizes.includes(inputs.size)) {
+            newSizes = [...prev.sizes, inputs.size, ...needUpdateSize];
+          }
+          return { ...prev, brands: newBrands, sizes: newSizes };
+        });
+
+        setInputs(() => structuredClone({ ...initialInputs, category: inputs.category }));
+
+        setOptions(() => structuredClone(initialOptionInputs));
+        setRequiredFields(false);
+        setRequiredOption(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        setLoading(false);
+      } else {
+        const availableOptionItems = options.availableOptions.map((option, index) => {
+          return {
+            price: option.optionPrice,
+            previousPrice: option.optionPreviousPrice,
+            coast: option.optionCoast,
+            qouantity: option.optionQouantity,
+            inStock: option.inStock,
+            size: inputs.size,
+            [option.optionKey]: String(option.optionValue),
+
+            id: index,
+          };
+        });
+
+        initialProduct.availableOptions = availableOptionItems;
+
+        const productRef = doc(db, 'glowyProducts', initialProduct.category, 'items', newId);
+        const allProductsRef = doc(db, 'allProducts', newId);
+        const detailRef = doc(db, 'details', 'projectDetails');
+
+        await setDoc(productRef, initialProduct);
+        await setDoc(allProductsRef, initialProduct);
+
+        const needUpdateSize = availableOptionItems
+          .filter((item) => !categoryData.sizes.includes(item.size))
+          .map((i) => i.size);
+        if (!categoryData.sizes.includes(inputs.size)) {
+          needUpdateSize.push(inputs.size);
+        }
+        if (needUpdateSize[0] || !categoryData.brands.includes(inputs.brand)) {
+          const docref = doc(db, 'details', inputs.category);
+
+          await updateDoc(docref, {
+            sizes: arrayUnion(inputs.size, ...needUpdateSize),
+            brands: arrayUnion(inputs.brand),
+          });
+        }
+
+        const newItemIdName = initialProduct.brand + ' - ' + initialProduct.model;
+
+        await updateDoc(detailRef, {
+          lastProductId: newId,
+          ['allProductsIds.' + newId]: newItemIdName,
+        });
+
+        setLastProductId(newId);
+        setCategoryData((prev) => {
+          let newBrands = prev.brands;
+          let newSizes = prev.sizes;
+          if (!prev.brands.includes(inputs.brand)) {
+            newBrands = [...prev.brands, inputs.brand];
+          }
+          if (!prev.sizes.includes(inputs.size)) {
+            newSizes = [...prev.sizes, inputs.size, ...needUpdateSize];
+          }
+          return { ...prev, brands: newBrands, sizes: newSizes };
+        });
+
+        setInputs(() => structuredClone({ ...initialInputs, category: inputs.category }));
+
+        setOptions(() => structuredClone(initialOptionInputs));
+        setRequiredFields(false);
+        setRequiredOption(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        setLoading(false);
       }
-      setLastProductId(newId);
-      setCategoryData((prev) => {
-        let newBrands = prev.brands;
-        let newSizes = prev.sizes;
-        if (!prev.brands.includes(inputs.brand)) {
-          newBrands = [...prev.brands, inputs.brand];
-        }
-        if (!prev.sizes.includes(inputs.size)) {
-          newSizes = [...prev.sizes, inputs.size];
-        }
-        return { ...prev, brands: newBrands, sizes: newSizes };
-      });
 
-      setInputs(() => structuredClone({ ...initialInputs, category: inputs.category }));
+      // const availableOptionItems = options.availableOptions.map(async (option, index) => {
+      //   let optionSmallImage;
+      //   let optionMainImage;
+      //   const optionImageArr = [];
 
-      setOptions(() => structuredClone(initialOptionInputs));
-      setRequiredFields(false);
-      setRequiredOption(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      //   await Promise.all(
+      //     option.images.map(async (img, index) => {
+      //       try {
+      //         const imageStorageRef = ref(storage, `glowyProducts/${newId}/${index}/images/${index}`);
+      //         await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
+      //           return getDownloadURL(snapshot.ref).then((url) => {
+      //             optionImageArr.push({
+      //               ...option.images[index],
+      //               file: url,
+      //               id: index,
+      //               src: `glowyProducts/${newId}/${index}/images/${index}`,
+      //             });
+      //           });
+      //         });
+      //       } catch (error) {
+      //         console.log(error);
+      //       }
+      //     })
+      //   );
 
-      setLoading(false);
+      //   try {
+      //     if (option.mainImage?.file) {
+      //       const mainImageStorageRef = ref(storage, `glowyProducts/${newId}/${index}/main`);
+
+      //       await uploadBytes(mainImageStorageRef, option.mainImage.file).then((snapshot) => {
+      //         return getDownloadURL(snapshot.ref).then((url) => {
+      //           optionMainImage = {
+      //             ...option.mainImage,
+      //             file: url,
+      //             src: `glowyProducts/${newId}/${index}/main`,
+      //           };
+      //         });
+      //       });
+      //     }
+      //     if (option.smallImage.file) {
+      //       const smallImageStorageRef = ref(storage, `glowyProducts/${newId}/${index}/small`);
+
+      //       await uploadBytes(smallImageStorageRef, option.smallImage.file).then((snapshot) => {
+      //         return getDownloadURL(snapshot.ref).then((url) => {
+      //           optionSmallImage = {
+      //             ...option.smallImage,
+      //             file: url,
+      //             src: `glowyProducts/${newId}/${index}/small`,
+      //           };
+      //         });
+      //       });
+      //     }
+      //   } catch (e) {
+      //     console.log(e);
+      //   }
+
+      //   return {
+      //     price: option.optionPrice,
+      //     previousPrice: option.optionPreviousPrice,
+      //     coast: option.optionCoast,
+      //     qouantity: option.optionQouantity,
+      //     inStock: option.inStock,
+      //     size: inputs.size,
+      //     [option.optionKey]: option.optionValue == null ? '' : String(option.optionValue),
+      //     mainImage: optionMainImage || mainImage,
+      //     smallImage: optionSmallImage || smallImage,
+      //     images: optionImageArr[0] || imageArr,
+      //     id: index,
+      //   };
+      // });
+
+      // initialProduct.availableOptions = await Promise.all(availableOptionItems);
+      // const productRef = doc(db, 'glowyProducts', initialProduct.category, 'items', newId);
+      // const allProductsRef = doc(db, 'allProducts', newId);
+      // const detailRef = doc(db, 'details', 'projectDetails');
+
+      // const newItemIdName = initialProduct.brand + ' - ' + initialProduct.model;
+
+      // await setDoc(productRef, initialProduct);
+      // await setDoc(allProductsRef, initialProduct);
+      // await updateDoc(detailRef, {
+      //   lastProductId: newId,
+      //   ['allProductsIds.' + newId]: newItemIdName,
+      // });
+
+      // const needUpdateSize = initialProduct.availableOptions
+      //   .filter((item) => !categoryData.sizes.includes(item.size))
+      //   .map((i) => i.size);
+
+      // if (!categoryData.sizes.includes(inputs.size) || !categoryData.brands.includes(inputs.brand)) {
+      //   const docref = doc(db, 'details', inputs.category);
+
+      //   await updateDoc(docref, {
+      //     sizes: arrayUnion(inputs.size, ...needUpdateSize),
+      //     brands: arrayUnion(inputs.brand),
+      //   });
+      // }
+      // setLastProductId(newId);
+      // setCategoryData((prev) => {
+      //   let newBrands = prev.brands;
+      //   let newSizes = prev.sizes;
+      //   if (!prev.brands.includes(inputs.brand)) {
+      //     newBrands = [...prev.brands, inputs.brand];
+      //   }
+      //   if (!prev.sizes.includes(inputs.size)) {
+      //     newSizes = [...prev.sizes, inputs.size, ...needUpdateSize];
+      //   }
+      //   return { ...prev, brands: newBrands, sizes: newSizes };
+      // });
+
+      // setInputs(() => structuredClone({ ...initialInputs, category: inputs.category }));
+
+      // setOptions(() => structuredClone(initialOptionInputs));
+      // setRequiredFields(false);
+      // setRequiredOption(false);
+      // window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // setLoading(false);
     } catch (e) {
-      setInputs(() => structuredClone(inputs));
-      setOptions(() => structuredClone(options));
+      setInputs(() => structuredClone(initialInputs));
+      setOptions(() => structuredClone(initialOptionInputs));
       setLoading(false);
       console.log(e);
     }
@@ -538,7 +785,7 @@ export default function AddProductPage() {
           // console.log(categoryData.sizes.includes(inputs.size));
 
           // console.log(inputs);
-          // console.log(options);
+          console.log(options);
           // console.log(initialOptionInputs);
           // doJob();
         }}
@@ -626,6 +873,8 @@ export default function AddProductPage() {
           handleChangeOptions={handleChangeOptions}
           height={height}
           setLoading={setLoading}
+          createId={createOptionsWithId}
+          setCreateId={setCreateOptionsWithId}
         />
         <ImageInputs
           requiredFields={requiredFields}

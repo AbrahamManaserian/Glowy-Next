@@ -4,10 +4,12 @@ import {
   Button,
   Collapse,
   FormControl,
+  FormControlLabel,
   FormHelperText,
   InputLabel,
   MenuItem,
   Select,
+  Switch,
   TextField,
   Typography,
 } from '@mui/material';
@@ -36,7 +38,8 @@ export default function ExtraProductOptions({
   handleChangeOptions,
   height,
   setLoading,
-  optionKey,
+  createId,
+  setCreateId,
 }) {
   const [open, setOpen] = useState(false);
   const [editState, setEditState] = useState(null);
@@ -119,13 +122,25 @@ export default function ExtraProductOptions({
       }}
     >
       <Button
-        sx={{ textTransform: 'capitalize', mb: '10px' }}
+        sx={{ textTransform: 'capitalize' }}
         color="secondary"
         endIcon={open ? <RemoveIcon /> : <AddIcon />}
         onClick={() => setOpen(!open)}
       >
         More options
       </Button>
+      <FormControlLabel
+        sx={{ width: '100%', my: '10px' }}
+        control={
+          <Switch
+            color="warning"
+            checked={createId}
+            onChange={(e) => setCreateId(e.target.checked)}
+            name="gilad"
+          />
+        }
+        label="Create options with unique IDs"
+      />
       <Collapse in={open} timeout="auto" unmountOnExit>
         <div style={{ display: 'flex', flexWrap: 'wrap', margin: '0 5px 10px 5px' }}>
           <Typography sx={{ width: '100%', mb: '10px' }}>Created Available Options</Typography>

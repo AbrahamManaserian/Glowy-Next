@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Grid, Rating, Typography, Menu, MenuItem } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -17,12 +17,14 @@ import { auth, db } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useTranslations } from 'next-intl';
 
-export const handleClickAddToCart = async (item, quantity, setCart, cart) => {
+export const handleClickAddToCart = async (item, quantity, setCart, cart, option) => {
+  console.log(option === '');
   const user = auth.currentUser;
   let updatedCart;
 
   if (cart.items[item.id]) {
     updatedCart = structuredClone(cart);
+
     updatedCart.items[item.id].quantity = updatedCart.items[item.id].quantity + quantity;
     updatedCart.length = updatedCart.length + quantity;
   } else {
@@ -54,8 +56,8 @@ export const handleClickAddToCart = async (item, quantity, setCart, cart) => {
 };
 
 export default function ItemCart({ item }) {
-  console.log('Rendering ItemCart for item:', item);
   const t = useTranslations('ShopPage');
+  const tProduct = useTranslations('ProductPage');
   const router = useRouter();
   let newAdded;
 
@@ -63,9 +65,18 @@ export default function ItemCart({ item }) {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  const [selectedOption, setSelectedOption] = useState(item?.[item.optionKey] || '');
+  const [selectedOption, setSelectedOption] = useState('');
+  const [menuMinWidth, setMenuMinWidth] = useState(null);
 
-  const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
+  const handleMenuOpen = (e) => {
+    setAnchorEl(e.currentTarget);
+    try {
+      const w = e.currentTarget.clientWidth;
+      setMenuMinWidth(w);
+    } catch (err) {
+      setMenuMinWidth(null);
+    }
+  };
   const handleMenuClose = () => setAnchorEl(null);
   const handleSelectOption = (value) => {
     setSelectedOption(value);
@@ -73,10 +84,15 @@ export default function ItemCart({ item }) {
   };
 
   const handelClickBuyNow = (item) => {
-    handleClickAddToCart(item, 1, setCart, cart);
+    handleClickAddToCart(item, 1, setCart, cart, selectedOption);
     router.push('/cart');
   };
 
+  useEffect(() => {
+    if (item) {
+      setSelectedOption(item?.[item.optionKey] || '');
+    }
+  }, [item]);
   return (
     <Grid
       sx={{
@@ -85,6 +101,10 @@ export default function ItemCart({ item }) {
         // border: 1,
         flexWrap: 'nowrap',
         position: 'relative',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        // justifyContent: 'space-between',
       }}
       size={12}
       container
@@ -186,48 +206,83 @@ export default function ItemCart({ item }) {
       {/* menu moved below model */}
 
       <Typography sx={{ color: '#3c4354fb', fontSize: '13px' }}> {item.model}</Typography>
-      <Box sx={{ mt: 1 }}>
-        <Button
-          onClick={handleMenuOpen}
-          endIcon={<ArrowDropDownIcon />}
-          sx={{
-            textTransform: 'none',
-            p: 0,
-            minWidth: 'auto',
-            cursor: 'pointer',
-            color: 'text.secondary',
-            '&:hover': { bgcolor: 'action.hover' },
-            display: 'inline-flex',
-            alignItems: 'center',
-
-            gap: 0.5,
-          }}
-        >
-          <Typography
+      {item.optionKey && (
+        <Box sx={{ display: 'flex', flexGrow: 20, alignItems: 'flex-end' }}>
+          <Button
+            onClick={handleMenuOpen}
+            endIcon={<ArrowDropDownIcon />}
             sx={{
-              fontSize: 12,
+              textTransform: 'none',
+              p: '5px 0',
+              minWidth: '0',
+              width: '100%',
+              cursor: 'pointer',
+              color: 'text.secondary',
+              // '&:hover': { bgcolor: 'action.hover' },
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 0.5,
               overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              maxWidth: 'calc(120px)',
-              textWrap: 'nowrap',
             }}
           >
-            {item.optionKey}: {selectedOption || 'Select'}
-          </Typography>
-        </Button>
-        <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-          {item.availableOptions.map((option, index) => (
+            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 0.5, minWidth: 0 }}>
+              <Typography component="span" sx={{ fontSize: 13, color: 'text.secondary', flex: '0 0 auto' }}>
+                {tProduct(`optionKeys.${item.optionKey}`) || item.optionKey} (
+                {item.availableOptions.length + 1}) :
+              </Typography>
+              <Typography
+                component="span"
+                sx={{
+                  fontSize: 13,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  // flex: 1,
+                  minWidth: 0,
+                  display: 'block',
+                }}
+              >
+                {selectedOption || 'Select'}
+              </Typography>
+            </Box>
+          </Button>
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleMenuClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+            PaperProps={{ sx: { minWidth: menuMinWidth ? `${menuMinWidth}px` : '100%' } }}
+          >
             <MenuItem
-              key={index}
-              selected={option[item.optionKey] === selectedOption}
-              onClick={() => handleSelectOption(option[item.optionKey])}
+              selected={item[item.optionKey] === selectedOption}
+              onClick={() => handleSelectOption(item[item.optionKey])}
             >
-              {option[item.optionKey]}
+              {item[item.optionKey]}
             </MenuItem>
-          ))}
-        </Menu>
-      </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: '5px' }}>
+            {item.availableOptions.map((option, index) => (
+              <MenuItem
+                key={index}
+                selected={option[item.optionKey] === selectedOption}
+                onClick={() => handleSelectOption(option[item.optionKey])}
+              >
+                {option[item.optionKey]}
+              </MenuItem>
+            ))}
+          </Menu>
+        </Box>
+      )}
+      <Box
+        sx={{
+          display: 'flex',
+
+          gap: 1,
+          mt: '5px',
+          flexGrow: 1,
+          alignItems: 'flex-end',
+        }}
+      >
         <Typography sx={{ color: '#3c4354fb', fontWeight: 600, fontSize: 16 }}>
           ${item.price.toLocaleString()}
         </Typography>
@@ -244,7 +299,7 @@ export default function ItemCart({ item }) {
       <Box sx={{ display: 'flex', gap: 1, mt: '10px', alignItems: 'flex-end' }}>
         <div
           style={{ cursor: 'pointer', WebkitTapHighlightColor: 'Background', marginBottom: '5px' }}
-          onClick={() => handleClickAddToCart(item, 1, setCart, cart)}
+          onClick={() => handleClickAddToCart(item, 1, setCart, cart, selectedOption)}
         >
           <StyledBadge badgeContent={cart.items ? cart.items[item.id]?.quantity : 0}>
             <ShoppingBasketIcon size={'25'} />
