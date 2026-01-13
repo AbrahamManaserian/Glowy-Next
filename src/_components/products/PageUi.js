@@ -119,6 +119,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
   const [paramsState, setParamsState] = useState(defaultParams);
 
   const [brands, setBrands] = useState([]);
+  const [categoryDetails, setCategoryDetails] = useState(null);
 
   const resetFilters = () => {
     setLoading(true);
@@ -289,10 +290,10 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
 
   useEffect(() => {
     if (category) {
-      fetch(`/api/brands/${category}`)
+      fetch(`/api/categories?category=${category}`)
         .then((res) => res.json())
-        .then((data) => setBrands(data))
-        .catch((err) => console.error('Error fetching brands:', err));
+        .then((data) => setCategoryDetails(data))
+        .catch((err) => console.error('Error fetching category details:', err));
     }
   }, [category]);
 
@@ -368,7 +369,7 @@ export default function PageUi({ data, categoryText, category, totalDocs, lastId
               handleChangeParams={handleChangeParams}
               category={category}
               noRout={true}
-              brands={brands}
+              brands={categoryDetails?.brands || []}
             />
             <Button
               variant="contained"

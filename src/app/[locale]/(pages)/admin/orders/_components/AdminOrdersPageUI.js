@@ -509,7 +509,7 @@ export default function AdminOrdersPageUI({
 
                         <TableCell align="right">
                           <Tooltip title="View order">
-                            <IconButton size="small" onClick={() => router.push(`/admin/orders/${order.id}`)}>
+                            <IconButton size="small" onClick={() => router.push(`/admin/order/${order.id}`)}>
                               <OpenInNewIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>

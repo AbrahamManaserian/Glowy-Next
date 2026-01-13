@@ -260,8 +260,8 @@ function DrawerMenu() {
   const navObjAbout = {
     about: t('story'),
     'about#2': t('ourGoals'),
-    'about#3': t('termsConditions'),
-    'about#4': t('privacyPolicy'),
+    'help#shipping-policy': t('termsConditions'),
+    'privacy-policy': t('privacyPolicy'),
   };
   const navObjCusCare = {
     help: t('helpCenter'),
@@ -402,6 +402,16 @@ function DrawerMenu() {
           <Divider sx={{ mb: '10px' }} />
           <Typography sx={{ fontWeight: 600, mb: '10px' }}>{t('customerCare')}</Typography>
           {Object.keys(navObjCusCare).map((key, index) => {
+            const isActive =
+              key === ''
+                ? pathname === '/'
+                : key.includes('#')
+                ? pathname === `/${key.split('#')[0]}` &&
+                  (typeof window !== 'undefined' ? window.location.hash === `#${key.split('#')[1]}` : false)
+                : pathname === `/${key}` &&
+                  (typeof window !== 'undefined'
+                    ? !window.location.hash || window.location.hash === ''
+                    : true);
             const getIcon = (k) => {
               switch (k) {
                 case 'help':
@@ -427,7 +437,8 @@ function DrawerMenu() {
                 <Typography
                   sx={{
                     // fontWeight: 400,
-                    color: 'black',
+                    // color: 'black',
+                    color: isActive ? '#e64c14ff' : 'black',
                     textDecoration: 'none',
                     m: ' 0 0 10px 13px',
                     display: 'flex',
@@ -443,15 +454,25 @@ function DrawerMenu() {
           <Divider sx={{ mb: '10px' }} />
           <Typography sx={{ fontWeight: 600, mb: '10px' }}>{t('aboutUs')}</Typography>
           {Object.keys(navObjAbout).map((key, index) => {
+            const isActive =
+              key === ''
+                ? pathname === '/'
+                : key.includes('#')
+                ? pathname === `/${key.split('#')[0]}` &&
+                  (typeof window !== 'undefined' ? window.location.hash === `#${key.split('#')[1]}` : false)
+                : pathname === `/${key}` &&
+                  (typeof window !== 'undefined'
+                    ? !window.location.hash || window.location.hash === ''
+                    : true);
             const getIcon = (k) => {
               switch (k) {
                 case 'about':
                   return <MenuBookOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
                 case 'about#2':
                   return <FlagOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
-                case 'about#3':
+                case 'help#shipping-policy':
                   return <DescriptionOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
-                case 'about#4':
+                case 'privacy-policy':
                   return <SecurityOutlinedIcon sx={{ mr: 1, fontSize: '16px' }} />;
                 default:
                   return null;
@@ -467,7 +488,7 @@ function DrawerMenu() {
               >
                 <Typography
                   sx={{
-                    color: 'black',
+                    color: isActive ? '#e64c14ff' : 'black',
                     textDecoration: 'none',
                     m: ' 0 0 10px 13px',
                     display: 'flex',
@@ -750,7 +771,13 @@ export default function AppBarMenu() {
       <LogoHome />
       <Grid container sx={{ display: { xs: 'none', sm: 'none', md: 'none', lg: 'flex' }, order: 2 }}>
         {Object.keys(navObj).map((key) => {
-          const isActive = key === '' ? pathname === '/' : pathname.startsWith(`/${key}`);
+          const isActive =
+            key === ''
+              ? pathname === '/'
+              : key.includes('#')
+              ? pathname === `/${key.split('#')[0]}` &&
+                (typeof window !== 'undefined' ? window.location.hash === `#${key.split('#')[1]}` : false)
+              : pathname === `/${key}`;
           return (
             <Link scroll={true} key={key} href={`/${key}`} style={{ textDecoration: 'none' }}>
               <Typography

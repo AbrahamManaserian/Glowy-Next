@@ -12,6 +12,6 @@ export const getAdminData = async () => {
     return data;
   } catch (error) {
     console.log(error);
-    return {};
+    return null;
   }
 };

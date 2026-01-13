@@ -1,3 +1,5 @@
+'use client';
+
 import { Grid, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
 

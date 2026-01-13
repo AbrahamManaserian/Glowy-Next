@@ -216,7 +216,7 @@ export default function AboutPage() {
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             {t('ctaSubtitle')}
           </Typography>
-          <Button component={Link} href="/" variant="outlined" size="large" sx={{ borderRadius: 50 }}>
+          <Button component={Link} href="/shop" variant="outlined" size="large" sx={{ borderRadius: 50 }}>
             {t('shopNow')}
           </Button>
         </Box>

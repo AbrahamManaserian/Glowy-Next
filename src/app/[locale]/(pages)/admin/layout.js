@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { useGlobalContext } from '@/app/GlobalContext';
 import {
   Box,
@@ -67,16 +68,15 @@ export default function AdminLayout({ children }) {
   const navigationItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin' },
     { text: 'Orders', icon: <ShoppingCartIcon />, path: '/admin/orders?status=pending' },
-    { text: 'Users', icon: <PeopleIcon />, path: '/admin/users' },
-    { text: 'Suppliers', icon: <BusinessIcon />, path: '/admin/suppliers' },
-    { text: 'Analytics', icon: <AnalyticsIcon />, path: '/admin/analytics' },
-    { text: 'Settings', icon: <SettingsIcon />, path: '/admin/settings' },
+    { text: 'Users', icon: <PeopleIcon />, path: '/admin' },
+    { text: 'Suppliers', icon: <BusinessIcon />, path: '/admin/manage-suppliers' },
+    { text: 'Analytics', icon: <AnalyticsIcon />, path: '/admin' },
+    { text: 'Settings', icon: <SettingsIcon />, path: '/admin' },
   ];
 
   const productSubItems = [
     { text: 'Add Product', icon: <AddIcon />, path: '/admin/add-product' },
     { text: 'Edit Product', icon: <EditIcon />, path: '/admin/edit-product' },
-    { text: 'Manage Products', icon: <InventoryIcon />, path: '/admin/manage-products' },
   ];
 
   return (
@@ -112,17 +112,20 @@ export default function AdminLayout({ children }) {
         <List>
           {navigationItems.map((item) => (
             <ListItem key={item.text} disablePadding>
-              <ListItemButton
-                selected={pathname === item.path}
-                onClick={() => {
-                  if (sidebarOpen) setSidebarOpen(false);
-
-                  router.push(item.path);
-                }}
+              <Link
+                href={item.path}
+                style={{ textDecoration: 'none', color: 'inherit', width: '100%', display: 'block' }}
               >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItemButton>
+                <ListItemButton
+                  selected={pathname === item.path.split('?')[0]}
+                  onClick={() => {
+                    if (sidebarOpen) setSidebarOpen(false);
+                  }}
+                >
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.text} />
+                </ListItemButton>
+              </Link>
             </ListItem>
           ))}
           <ListItem disablePadding>
@@ -138,18 +141,22 @@ export default function AdminLayout({ children }) {
             <List component="div" disablePadding>
               {productSubItems.map((subItem) => (
                 <ListItem key={subItem.text} disablePadding>
-                  <ListItemButton
-                    selected={pathname === subItem.path}
-                    sx={{ pl: 4 }}
-                    onClick={() => {
-                      setSidebarOpen(false);
-                      if (sidebarOpen) setSidebarOpen(false);
-                      router.push(subItem.path);
-                    }}
+                  <Link
+                    href={subItem.path}
+                    style={{ textDecoration: 'none', color: 'inherit', width: '100%', display: 'block' }}
                   >
-                    <ListItemIcon>{subItem.icon}</ListItemIcon>
-                    <ListItemText primary={subItem.text} />
-                  </ListItemButton>
+                    <ListItemButton
+                      selected={pathname === subItem.path}
+                      sx={{ pl: 4 }}
+                      onClick={() => {
+                        setSidebarOpen(false);
+                        if (sidebarOpen) setSidebarOpen(false);
+                      }}
+                    >
+                      <ListItemIcon>{subItem.icon}</ListItemIcon>
+                      <ListItemText primary={subItem.text} />
+                    </ListItemButton>
+                  </Link>
                 </ListItem>
               ))}
             </List>
