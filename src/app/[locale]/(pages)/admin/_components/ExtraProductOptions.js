@@ -40,6 +40,7 @@ export default function ExtraProductOptions({
   setLoading,
   createId,
   setCreateId,
+  disableSwitch,
 }) {
   const [open, setOpen] = useState(false);
   const [editState, setEditState] = useState(null);
@@ -133,6 +134,7 @@ export default function ExtraProductOptions({
         sx={{ width: '100%', my: '10px' }}
         control={
           <Switch
+            disabled={disableSwitch}
             color="warning"
             checked={createId}
             onChange={(e) => setCreateId(e.target.checked)}
@@ -249,7 +251,7 @@ export default function ExtraProductOptions({
           </>
         </div>
         <FormControl
-          disabled={options.availableOptions.length > 0 || options.disabelOption ? true : false}
+          disabled={options.availableOptions.length > 0 || options.disableOption ? true : false}
           sx={{
             boxSizing: 'border-box',
             width: { xs: 'calc(50% - 5px)', sm: 'calc(20% - 10px)' },
@@ -279,7 +281,7 @@ export default function ExtraProductOptions({
         </FormControl>
 
         <TextField
-          type={options.optionKey === 'size' || options.optionKey === 'number' ? 'number' : ''}
+          // type={options.optionKey === 'size' || options.optionKey === 'number' ? 'number' : ''}
           key={`optionValue ${options.optionValue}`}
           defaultValue={options.optionValue}
           name="optionValue"

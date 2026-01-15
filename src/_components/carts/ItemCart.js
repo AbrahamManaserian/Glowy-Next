@@ -14,7 +14,7 @@ import { StyledBadge } from '@/app/[locale]/(pages)/cart/_components/CartDrawer'
 import { handleAddItemToWishList } from '@/_functions/hadleAddItemToWishList';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '@/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useTranslations } from 'next-intl';
 
 export const handleClickAddToCart = async (item, quantity, setCart, cart, option) => {
@@ -67,6 +67,7 @@ export default function ItemCart({ item }) {
   const open = Boolean(anchorEl);
   const [selectedOption, setSelectedOption] = useState('');
   const [menuMinWidth, setMenuMinWidth] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(item);
 
   const handleMenuOpen = (e) => {
     setAnchorEl(e.currentTarget);
@@ -78,9 +79,27 @@ export default function ItemCart({ item }) {
     }
   };
   const handleMenuClose = () => setAnchorEl(null);
-  const handleSelectOption = (value) => {
+  const handleSelectOption = (value, id) => {
     setSelectedOption(value);
     setAnchorEl(null);
+
+    // If an id is provided, fetch the full product (cached) and set it as selected
+    if (id) {
+      fetchProductById(id).catch((e) => console.log(e));
+    }
+  };
+
+  const fetchProductById = async (id) => {
+    try {
+      const res = await fetch(`/api/product?id=${encodeURIComponent(id)}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      setSelectedItem(data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching product by id via API:', error);
+      return null;
+    }
   };
 
   const handelClickBuyNow = (item) => {
@@ -91,8 +110,11 @@ export default function ItemCart({ item }) {
   useEffect(() => {
     if (item) {
       setSelectedOption(item?.[item.optionKey] || '');
+      setSelectedItem(item);
     }
   }, [item]);
+
+  const displayItem = selectedItem || item;
   return (
     <Grid
       sx={{
@@ -189,23 +211,25 @@ export default function ItemCart({ item }) {
                 objectFit: 'cover',
                 overflow: 'hidden',
               }}
-              src={item.smallImage.file}
+              src={displayItem?.smallImage?.file}
               alt="image"
             />
           </Box>
         </Link>
       </div>
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '10px' }}>
-        <Typography sx={{ color: '#263045fb', fontSize: '15px', fontWeight: 500 }}>{item.brand} </Typography>
+        <Typography sx={{ color: '#263045fb', fontSize: '15px', fontWeight: 500 }}>
+          {displayItem?.brand}{' '}
+        </Typography>
         <Typography sx={{ color: '#3c4354a3', fontSize: '12px' }}>
-          {item.size}
-          {item.unit}
+          {displayItem?.size}
+          {displayItem?.unit}
         </Typography>
       </Box>
 
       {/* menu moved below model */}
 
-      <Typography sx={{ color: '#3c4354fb', fontSize: '13px' }}> {item.model}</Typography>
+      <Typography sx={{ color: '#3c4354fb', fontSize: '13px' }}> {displayItem?.model}</Typography>
       {item.optionKey && (
         <Box sx={{ display: 'flex', flexGrow: 20, alignItems: 'flex-end' }}>
           <Button
@@ -257,15 +281,15 @@ export default function ItemCart({ item }) {
           >
             <MenuItem
               selected={item[item.optionKey] === selectedOption}
-              onClick={() => handleSelectOption(item[item.optionKey])}
+              onClick={() => handleSelectOption(item[item.optionKey], item.id)}
             >
               {item[item.optionKey]}
             </MenuItem>
             {item.availableOptions.map((option, index) => (
               <MenuItem
-                key={index}
+                key={option.id ?? index}
                 selected={option[item.optionKey] === selectedOption}
-                onClick={() => handleSelectOption(option[item.optionKey])}
+                onClick={() => handleSelectOption(option[item.optionKey], option.id)}
               >
                 {option[item.optionKey]}
               </MenuItem>
@@ -284,24 +308,24 @@ export default function ItemCart({ item }) {
         }}
       >
         <Typography sx={{ color: '#3c4354fb', fontWeight: 600, fontSize: 16 }}>
-          ${item.price.toLocaleString()}
+          ${displayItem?.price?.toLocaleString()}
         </Typography>
         <Typography sx={{ textDecoration: 'line-through', color: 'gray', fontSize: 14 }}>
-          {item.previousPrice ? `$${item.previousPrice.toLocaleString()}` : ''}
+          {displayItem?.previousPrice ? `$${displayItem.previousPrice.toLocaleString()}` : ''}
         </Typography>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '5px' }}>
         <Rating name="read-only" value={5} readOnly size="small" />
         <Typography sx={{ color: '#3c4354a3', fontSize: 12, lineHeight: '12px' }}>
-          {item.sold ? `${item.sold} ${t('sold')}` : ''}
+          {displayItem?.sold ? `${displayItem.sold} ${t('sold')}` : ''}
         </Typography>
       </Box>
       <Box sx={{ display: 'flex', gap: 1, mt: '10px', alignItems: 'flex-end' }}>
         <div
           style={{ cursor: 'pointer', WebkitTapHighlightColor: 'Background', marginBottom: '5px' }}
-          onClick={() => handleClickAddToCart(item, 1, setCart, cart, selectedOption)}
+          onClick={() => handleClickAddToCart(displayItem, 1, setCart, cart, selectedOption)}
         >
-          <StyledBadge badgeContent={cart.items ? cart.items[item.id]?.quantity : 0}>
+          <StyledBadge badgeContent={cart.items ? cart.items[displayItem.id]?.quantity : 0}>
             <ShoppingBasketIcon size={'25'} />
           </StyledBadge>
         </div>
@@ -318,7 +342,7 @@ export default function ItemCart({ item }) {
         )}
 
         <Button
-          onClick={() => handelClickBuyNow(item)}
+          onClick={() => handelClickBuyNow(displayItem)}
           size="small"
           sx={{
             bgcolor: '#2B3445',

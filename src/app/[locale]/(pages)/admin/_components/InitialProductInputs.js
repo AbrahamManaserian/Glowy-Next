@@ -173,9 +173,15 @@ export default function InitialProductInputs({
             </FormControl>
           );
         } else if (item.key === 'size') {
+          // Map sizes to objects with unique ids to avoid duplicate React keys
+          const sizeOptions = (sizes || []).map((option, i) => ({
+            label: String(option),
+            value: option,
+            _uid: `${String(option)}-${i}`,
+          }));
+
           return (
             <Autocomplete
-             
               key={`${index}${item.key}`}
               sx={{
                 boxSizing: 'border-box',
@@ -185,17 +191,31 @@ export default function InitialProductInputs({
                 },
                 mr: { xs: item.marginRight || '', sm: '10px' },
                 ml: { xs: item.marginLeft || '', sm: 0 },
-                // mb: '15px',
               }}
               size="small"
               freeSolo
-              options={(sizes || []).map((option) => option)}
+              options={sizeOptions}
+              getOptionLabel={(option) => {
+                if (option == null) return '';
+                return typeof option === 'string' || typeof option === 'number'
+                  ? String(option)
+                  : option.label ?? String(option.value ?? '');
+              }}
+              isOptionEqualToValue={(option, value) =>
+                String(option?.value ?? option?.label ?? option) ===
+                String(value?.value ?? value?.label ?? value)
+              }
+              renderOption={(props, option) => (
+                <li {...props} key={option?._uid ?? String(option?.value ?? option?.label ?? option)}>
+                  {option?.label ?? String(option ?? '')}
+                </li>
+              )}
               renderInput={(params) => (
                 <TextField
                   sx={{
                     '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
                       {
-                        WebkitAppearance: 'none', // Chrome, Safari, Edge
+                        WebkitAppearance: 'none',
                       },
                   }}
                   type="number"

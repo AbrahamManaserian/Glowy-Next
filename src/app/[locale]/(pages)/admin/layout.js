@@ -33,29 +33,11 @@ import CloseIcon from '@mui/icons-material/Close';
 const sidebarWidth = 240;
 
 export default function AdminLayout({ children }) {
-  const { user } = useGlobalContext();
-  const router = useRouter();
+
   const pathname = usePathname();
 
   const [openProducts, setOpenProducts] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // useEffect(() => {
-  //   if (!user) {
-  //     router.push('/auth/signin?redirect=/admin');
-  //     return;
-  //   }
-  //   user
-  //     .getIdTokenResult()
-  //     .then((result) => {
-  //       if (!result.claims.admin) {
-  //         router.push('/');
-  //       }
-  //     })
-  //     .catch(() => {
-  //       router.push('/');
-  //     });
-  // }, [user, router]);
 
   const handleProductsClick = () => {
     setOpenProducts(!openProducts);
@@ -84,6 +66,7 @@ export default function AdminLayout({ children }) {
       <Box
         sx={{
           width: { xs: sidebarOpen ? '100%' : 0, sm: sidebarOpen ? '100%' : 0, md: sidebarWidth },
+
           position: { xs: 'absolute', sm: 'sticky' },
           top: 0,
           height: 'calc(100vh - 64px)',

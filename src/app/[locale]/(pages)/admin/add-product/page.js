@@ -58,7 +58,6 @@ export const categoriesObj = {
     category: 'Fragrance',
     fragrance: {
       category: 'Fragrance',
-      brands: [],
       type: ['Men', 'Women', 'Uni'],
     },
     carFresheners: {
@@ -135,7 +134,6 @@ export const categoriesObj = {
     bathShower: {
       category: 'Bath & Shower',
       type: ['Gel', 'Hand Wash & Soap', 'Scrub & Exfoliation', 'Shampoo & Conditione'],
-      routTo: 'bath-shower',
     },
     bodyCare: {
       category: 'Body Care',
@@ -522,125 +520,6 @@ export default function AddProductPage() {
 
         setLoading(false);
       }
-
-      // const availableOptionItems = options.availableOptions.map(async (option, index) => {
-      //   let optionSmallImage;
-      //   let optionMainImage;
-      //   const optionImageArr = [];
-
-      //   await Promise.all(
-      //     option.images.map(async (img, index) => {
-      //       try {
-      //         const imageStorageRef = ref(storage, `glowyProducts/${newId}/${index}/images/${index}`);
-      //         await uploadBytes(imageStorageRef, img.file).then((snapshot) => {
-      //           return getDownloadURL(snapshot.ref).then((url) => {
-      //             optionImageArr.push({
-      //               ...option.images[index],
-      //               file: url,
-      //               id: index,
-      //               src: `glowyProducts/${newId}/${index}/images/${index}`,
-      //             });
-      //           });
-      //         });
-      //       } catch (error) {
-      //         console.log(error);
-      //       }
-      //     })
-      //   );
-
-      //   try {
-      //     if (option.mainImage?.file) {
-      //       const mainImageStorageRef = ref(storage, `glowyProducts/${newId}/${index}/main`);
-
-      //       await uploadBytes(mainImageStorageRef, option.mainImage.file).then((snapshot) => {
-      //         return getDownloadURL(snapshot.ref).then((url) => {
-      //           optionMainImage = {
-      //             ...option.mainImage,
-      //             file: url,
-      //             src: `glowyProducts/${newId}/${index}/main`,
-      //           };
-      //         });
-      //       });
-      //     }
-      //     if (option.smallImage.file) {
-      //       const smallImageStorageRef = ref(storage, `glowyProducts/${newId}/${index}/small`);
-
-      //       await uploadBytes(smallImageStorageRef, option.smallImage.file).then((snapshot) => {
-      //         return getDownloadURL(snapshot.ref).then((url) => {
-      //           optionSmallImage = {
-      //             ...option.smallImage,
-      //             file: url,
-      //             src: `glowyProducts/${newId}/${index}/small`,
-      //           };
-      //         });
-      //       });
-      //     }
-      //   } catch (e) {
-      //     console.log(e);
-      //   }
-
-      //   return {
-      //     price: option.optionPrice,
-      //     previousPrice: option.optionPreviousPrice,
-      //     coast: option.optionCoast,
-      //     qouantity: option.optionQouantity,
-      //     inStock: option.inStock,
-      //     size: inputs.size,
-      //     [option.optionKey]: option.optionValue == null ? '' : String(option.optionValue),
-      //     mainImage: optionMainImage || mainImage,
-      //     smallImage: optionSmallImage || smallImage,
-      //     images: optionImageArr[0] || imageArr,
-      //     id: index,
-      //   };
-      // });
-
-      // initialProduct.availableOptions = await Promise.all(availableOptionItems);
-      // const productRef = doc(db, 'glowyProducts', initialProduct.category, 'items', newId);
-      // const allProductsRef = doc(db, 'allProducts', newId);
-      // const detailRef = doc(db, 'details', 'projectDetails');
-
-      // const newItemIdName = initialProduct.brand + ' - ' + initialProduct.model;
-
-      // await setDoc(productRef, initialProduct);
-      // await setDoc(allProductsRef, initialProduct);
-      // await updateDoc(detailRef, {
-      //   lastProductId: newId,
-      //   ['allProductsIds.' + newId]: newItemIdName,
-      // });
-
-      // const needUpdateSize = initialProduct.availableOptions
-      //   .filter((item) => !categoryData.sizes.includes(item.size))
-      //   .map((i) => i.size);
-
-      // if (!categoryData.sizes.includes(inputs.size) || !categoryData.brands.includes(inputs.brand)) {
-      //   const docref = doc(db, 'details', inputs.category);
-
-      //   await updateDoc(docref, {
-      //     sizes: arrayUnion(inputs.size, ...needUpdateSize),
-      //     brands: arrayUnion(inputs.brand),
-      //   });
-      // }
-      // setLastProductId(newId);
-      // setCategoryData((prev) => {
-      //   let newBrands = prev.brands;
-      //   let newSizes = prev.sizes;
-      //   if (!prev.brands.includes(inputs.brand)) {
-      //     newBrands = [...prev.brands, inputs.brand];
-      //   }
-      //   if (!prev.sizes.includes(inputs.size)) {
-      //     newSizes = [...prev.sizes, inputs.size, ...needUpdateSize];
-      //   }
-      //   return { ...prev, brands: newBrands, sizes: newSizes };
-      // });
-
-      // setInputs(() => structuredClone({ ...initialInputs, category: inputs.category }));
-
-      // setOptions(() => structuredClone(initialOptionInputs));
-      // setRequiredFields(false);
-      // setRequiredOption(false);
-      // window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // setLoading(false);
     } catch (e) {
       setInputs(() => structuredClone(initialInputs));
       setOptions(() => structuredClone(initialOptionInputs));
@@ -650,7 +529,7 @@ export default function AddProductPage() {
   };
 
   const handleChangeOptions = (e) => {
-    if (e.target.type === 'number') {
+    if (e.target.type === 'number' && e.target.name !== 'size') {
       setOptions({ ...options, [e.target.name]: Number(e.target.value) });
     } else {
       setOptions({ ...options, [e.target.name]: e.target.value });
@@ -770,7 +649,7 @@ export default function AddProductPage() {
       }}
       minHeight={'100vh'}
       alignContent={'flex-start'}
-      container
+      // container
       // size={12}
     >
       {loading && (
@@ -784,7 +663,7 @@ export default function AddProductPage() {
           // console.log(categoryData.brands.includes(inputs.brand));
           // console.log(categoryData.sizes.includes(inputs.size));
 
-          // console.log(inputs);
+          console.log(inputs);
           console.log(options);
           // console.log(initialOptionInputs);
           // doJob();
