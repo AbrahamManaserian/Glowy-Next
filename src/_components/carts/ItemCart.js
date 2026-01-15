@@ -68,6 +68,7 @@ export default function ItemCart({ item }) {
   const [selectedOption, setSelectedOption] = useState('');
   const [menuMinWidth, setMenuMinWidth] = useState(null);
   const [selectedItem, setSelectedItem] = useState(item);
+  const [isFetching, setIsFetching] = useState(false);
 
   const handleMenuOpen = (e) => {
     setAnchorEl(e.currentTarget);
@@ -79,13 +80,20 @@ export default function ItemCart({ item }) {
     }
   };
   const handleMenuClose = () => setAnchorEl(null);
-  const handleSelectOption = (value, id) => {
+  const handleSelectOption = async (value, id) => {
     setSelectedOption(value);
     setAnchorEl(null);
 
     // If an id is provided, fetch the full product (cached) and set it as selected
     if (id) {
-      fetchProductById(id).catch((e) => console.log(e));
+      try {
+        setIsFetching(true);
+        await fetchProductById(id);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setIsFetching(false);
+      }
     }
   };
 
@@ -132,6 +140,42 @@ export default function ItemCart({ item }) {
       container
       direction={'column'}
     >
+      {isFetching && (
+        <div
+          style={{
+            position: 'absolute', // relative to the parent
+            inset: 0,
+            backdropFilter: 'blur(0.5px)',
+            background: 'rgba(255, 255, 255, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '12px',
+            zIndex: 10,
+          }}
+        >
+          <style jsx>{`
+            @keyframes spin {
+              0% {
+                transform: rotate(0deg);
+              }
+              100% {
+                transform: rotate(360deg);
+              }
+            }
+          `}</style>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              border: '4px solid rgba(0,0,0,0.08)',
+              borderTop: '4px solid rgba(33,150,243,1)',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+            }}
+          />
+        </div>
+      )}
       {newAdded && (
         <Typography
           sx={{
@@ -151,7 +195,7 @@ export default function ItemCart({ item }) {
           {t('new')}
         </Typography>
       )}
-      {item.previousPrice && (
+      {displayItem.previousPrice && (
         <Typography
           sx={{
             position: 'absolute',
@@ -181,7 +225,7 @@ export default function ItemCart({ item }) {
           style={{
             WebkitTapHighlightColor: 'rgba(182, 212, 238, 0.11)',
           }}
-          href={`/item/${item.id}`}
+          href={`/item/${displayItem?.id || item.id}`}
         >
           <Box
             sx={{
@@ -252,8 +296,10 @@ export default function ItemCart({ item }) {
           >
             <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 0.5, minWidth: 0 }}>
               <Typography component="span" sx={{ fontSize: 13, color: 'text.secondary', flex: '0 0 auto' }}>
-                {tProduct(`optionKeys.${item.optionKey}`) || item.optionKey} (
-                {item.availableOptions.length + 1}) :
+                {tProduct(`optionKeys.${displayItem?.optionKey || item.optionKey}`) ||
+                  displayItem?.optionKey ||
+                  item.optionKey}{' '}
+                ({item.availableOptions.length + 1}) :
               </Typography>
               <Typography
                 component="span"
@@ -329,14 +375,14 @@ export default function ItemCart({ item }) {
             <ShoppingBasketIcon size={'25'} />
           </StyledBadge>
         </div>
-        {wishList.includes(item.id) ? (
+        {wishList.includes(displayItem.id) ? (
           <FavoriteIcon
-            onClick={() => handleAddItemToWishList(item.id, setWishList, wishList)}
+            onClick={() => handleAddItemToWishList(displayItem.id, setWishList, wishList)}
             sx={{ color: '#ff3d00', ml: '5px', mb: '2px' }}
           />
         ) : (
           <FavoriteBorderIcon
-            onClick={() => handleAddItemToWishList(item.id, setWishList, wishList)}
+            onClick={() => handleAddItemToWishList(displayItem.id, setWishList, wishList)}
             sx={{ color: '#ff3d00', ml: '5px', mb: '2px', cursor: 'pointer' }}
           />
         )}
