@@ -19,16 +19,18 @@ export default function DetailedCartItem({
   extraRate = 0,
   isSelected,
   toggleSelection,
+  option,
 }) {
+  console.log(item);
   const t = useTranslations('CartPage');
+  const tProduct = useTranslations('ProductPage');
   // Use fresh data from server if available, otherwise fallback to local cart data
   const data = productDetails || item;
-  // console.log(data);
 
   const name = data.fullName ?? data.name ?? data.title ?? 'Product';
   const img =
     data.smallImage?.file ?? data.images?.[0]?.file ?? data.img ?? data.image ?? '/images/placeholder.png';
-  const price = data.price ?? data.amount ?? 0;
+  const price = item.price ?? 0;
   const previousPrice = data.previousPrice ?? 0;
   const quantity = item.quantity ?? 1;
 
@@ -107,17 +109,25 @@ export default function DetailedCartItem({
               alignContent: 'center',
             }}
           >
-            <IconButton size="small" onClick={() => decreaseQuantity(id, cart, setCart)} aria-label="delete">
+            <IconButton
+              size="small"
+              onClick={() => decreaseQuantity(id, cart, setCart, option)}
+              aria-label="delete"
+            >
               <RemoveIcon fontSize="small" />
             </IconButton>
             <Typography sx={{ bgcolor: '#6562620f', p: '4px 10px', fontSize: '13px' }}>
               {item.quantity}
             </Typography>
-            <IconButton size="small" onClick={() => increaseQuantity(id, cart, setCart)} aria-label="add">
+            <IconButton
+              size="small"
+              onClick={() => increaseQuantity(id, cart, setCart, option)}
+              aria-label="add"
+            >
               <AddIcon fontSize="small" />
             </IconButton>
           </Box>
-          <IconButton onClick={() => deleteItem(id, cart, setCart)} aria-label="delete" size="small">
+          <IconButton onClick={() => deleteItem(id, cart, setCart, option)} aria-label="delete" size="small">
             <DeleteOutlinedIcon fontSize="small" />
           </IconButton>
         </Box>
@@ -145,6 +155,11 @@ export default function DetailedCartItem({
           >
             {name}
           </Typography>
+          {option && (
+            <Typography variant="caption" sx={{ color: '#666', display: 'block', mt: 0.5, mb: '4px' }}>
+              {tProduct(`optionKeys.${data?.optionKey}`)} : {option}
+            </Typography>
+          )}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Typography
               sx={{
@@ -210,7 +225,7 @@ export default function DetailedCartItem({
           >
             <IconButton
               size="small"
-              onClick={() => decreaseQuantity(item.id, cart, setCart)}
+              onClick={() => decreaseQuantity(id, cart, setCart, option)}
               aria-label="delete"
               // sx={{ cursor: quantity < 2 ? 'not-allowed' : 'pointer' }}
             >
@@ -221,13 +236,13 @@ export default function DetailedCartItem({
             </Typography>
             <IconButton
               size="small"
-              onClick={() => increaseQuantity(item.id, cart, setCart)}
+              onClick={() => increaseQuantity(id, cart, setCart, option)}
               aria-label="delete"
             >
               <AddIcon />
             </IconButton>
           </Box>
-          <IconButton onClick={() => deleteItem(item.id, cart, setCart)} aria-label="delete">
+          <IconButton onClick={() => deleteItem(id, cart, setCart, option)} aria-label="delete">
             <DeleteOutlinedIcon />
           </IconButton>
         </Box>

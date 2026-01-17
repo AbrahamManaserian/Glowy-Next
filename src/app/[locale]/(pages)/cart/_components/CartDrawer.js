@@ -71,6 +71,7 @@ export default function CartDrawer() {
               position: 'sticky',
               top: 0,
               bgcolor: 'white',
+              zIndex: 1000,
             }}
           >
             <Typography sx={{ fontSize: '15px' }}>

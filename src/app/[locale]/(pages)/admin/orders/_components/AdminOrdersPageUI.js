@@ -37,12 +37,14 @@ import ErrorIcon from '@mui/icons-material/Error';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { doc, updateDoc, serverTimestamp, increment, runTransaction } from 'firebase/firestore';
 import { db } from '@/firebase';
+import { useTranslations } from 'next-intl';
 
 export default function AdminOrdersPageUI({
   data = { items: [] },
   counts = { total: 0, pending: 0, delivered: 0, failed: 0, inTransit: 0 },
   initialLoading,
 }) {
+  const tProduct = useTranslations('ProductPage');
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -556,7 +558,9 @@ export default function AdminOrdersPageUI({
                                       }}
                                     >
                                       <Link
-                                        href={`/item/${item.id}`}
+                                        href={`/item/${item.id}${
+                                          item.selectedOption ? `?option=${item.selectedOption}` : ''
+                                        }`}
                                         passHref
                                         style={{ textDecoration: 'none', color: 'inherit' }}
                                       >
@@ -597,6 +601,16 @@ export default function AdminOrdersPageUI({
                                             >
                                               {item.name || item.title || item.sku || 'Item'}
                                             </Typography>
+                                            {item.selectedOption && (
+                                              <Typography
+                                                variant="caption"
+                                                sx={{ color: '#666', display: 'block', mt: 0.5, mb: '4px' }}
+                                              >
+                                                {tProduct(`optionKeys.${item.selectedOptionKey}`)} :{' '}
+                                                {item.selectedOption}
+                                              </Typography>
+                                            )}
+
                                             <Typography
                                               variant="caption"
                                               color="text.secondary"

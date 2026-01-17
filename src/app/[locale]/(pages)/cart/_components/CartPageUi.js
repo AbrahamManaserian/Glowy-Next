@@ -85,8 +85,19 @@ export default function CartPageUi() {
 
   useEffect(() => {
     if (cart?.items && !isInitialized.current) {
-      setSelectedItems(Object.keys(cart.items));
-      if (Object.keys(cart.items).length > 0) {
+      const allKeys = [];
+      Object.keys(cart.items).forEach((id) => {
+        const item = cart.items[id];
+        if (item.options && Object.keys(item.options).length > 0) {
+          Object.keys(item.options).forEach((optKey) => {
+            allKeys.push(`${id}-${optKey}`);
+          });
+        } else {
+          allKeys.push(id);
+        }
+      });
+      setSelectedItems(allKeys);
+      if (allKeys.length > 0) {
         isInitialized.current = true;
       }
     }
@@ -115,26 +126,96 @@ export default function CartPageUi() {
 
   // Calculate totals
   const totalSelectedQuantity = Object.keys(cart.items).reduce((acc, id) => {
-    if (!selectedItems.includes(id)) return acc;
     const item = cart.items[id];
+    if (item.options && Object.keys(item.options).length > 0) {
+      return (
+        acc +
+        Object.entries(item.options).reduce((sum, [optKey, qty]) => {
+          if (!selectedItems.includes(`${id}-${optKey}`)) return sum;
+          return sum + qty;
+        }, 0)
+      );
+    }
+
+    if (!selectedItems.includes(id)) return acc;
     return acc + (item.quantity ?? 1);
   }, 0);
 
   const subtotal = Object.keys(cart.items).reduce((acc, id) => {
-    if (!selectedItems.includes(id)) return acc;
     const item = cart.items[id];
     const details = cartDetails ? cartDetails[id] : null;
-    const price = details?.price ?? details?.amount ?? item.price ?? 0;
+
+    if (item.options && Object.keys(item.options).length > 0) {
+      return (
+        acc +
+        Object.entries(item.options).reduce((sum, [optKey, qty]) => {
+          if (!selectedItems.includes(`${id}-${optKey}`)) return sum;
+
+          let price = details?.price ?? item.price ?? 0;
+
+          if (details) {
+            // Check if matches main item option
+            if (details.optionKey && details[details.optionKey] === optKey) {
+              price = details.price;
+            }
+            // Check availableOptions
+            else if (details.availableOptions) {
+              const matchedOption = details.availableOptions.find((opt) => opt[details.optionKey] === optKey);
+              if (matchedOption && matchedOption.price !== undefined) {
+                price = matchedOption.price;
+              }
+            }
+          }
+          return sum + price * qty;
+        }, 0)
+      );
+    }
+
+    if (!selectedItems.includes(id)) return acc;
+    // Fallback for items without options object
+    const price = details?.price || item.price || 0;
     const quantity = item.quantity ?? 1;
     return acc + price * quantity;
   }, 0);
 
   const savedFromOriginalPrice = Object.keys(cart.items).reduce((acc, id) => {
-    if (!selectedItems.includes(id)) return acc;
     const item = cart.items[id];
     const details = cartDetails ? cartDetails[id] : null;
-    const price = details?.price ?? details?.amount ?? item.price ?? 0;
-    const previousPrice = details?.previousPrice ?? 0;
+
+    if (item.options && Object.keys(item.options).length > 0) {
+      return (
+        acc +
+        Object.entries(item.options).reduce((sum, [optKey, qty]) => {
+          if (!selectedItems.includes(`${id}-${optKey}`)) return sum;
+
+          let price = details?.price ?? item.price ?? 0;
+          let previousPrice = details?.previousPrice ?? item.previousPrice ?? 0;
+
+          if (details) {
+            if (details.optionKey && details[details.optionKey] === optKey) {
+              price = details.price;
+              previousPrice = details.previousPrice || 0;
+            } else if (details.availableOptions) {
+              const matchedOption = details.availableOptions.find((opt) => opt[details.optionKey] === optKey);
+              if (matchedOption) {
+                if (matchedOption.price !== undefined) price = matchedOption.price;
+                if (matchedOption.previousPrice !== undefined) previousPrice = matchedOption.previousPrice;
+              }
+            }
+          }
+
+          if (previousPrice > price) {
+            return sum + (previousPrice - price) * qty;
+          }
+          return sum;
+        }, 0)
+      );
+    }
+
+    if (!selectedItems.includes(id)) return acc;
+
+    const price = details?.price ?? item.price ?? 0;
+    const previousPrice = details?.previousPrice ?? item?.previousPrice ?? 0;
     const quantity = item.quantity ?? 1;
 
     if (previousPrice > price) {
@@ -191,6 +272,75 @@ export default function CartPageUi() {
       return;
     }
 
+    const orderItems = [];
+
+    Object.keys(cart.items).forEach((id) => {
+      const item = cart.items[id];
+      const details = cartDetails ? cartDetails[id] : {};
+
+      if (item.options && Object.keys(item.options).length > 0) {
+        Object.entries(item.options).forEach(([optKey, qty]) => {
+          if (selectedItems.includes(`${id}-${optKey}`)) {
+            let price = details?.price ?? item.price ?? 0;
+            let variantImage = details?.images?.[0] || item.img || item.image || '';
+
+            if (details) {
+              if (details.optionKey && details[details.optionKey] === optKey) {
+                price = details.price;
+              } else if (details.availableOptions) {
+                const matchedOption = details.availableOptions.find(
+                  (opt) => opt[details.optionKey] === optKey
+                );
+                if (matchedOption) {
+                  if (matchedOption.price !== undefined) price = matchedOption.price;
+                }
+              }
+            }
+
+            const { options, quantity, ...restItem } = item; // exclude options and main quantity
+            const cleanRestItem = Object.fromEntries(
+              Object.entries(restItem).filter(([_, v]) => v !== undefined)
+            );
+
+            orderItems.push({
+              id,
+              ...cleanRestItem,
+              name: details.name || item.name || '',
+              image: variantImage,
+              price,
+              quantity: qty,
+              selectedOption: optKey,
+              selectedOptionKey: details.optionKey || item.optionKey,
+            });
+          }
+        });
+      } else {
+        if (selectedItems.includes(id)) {
+          const { options, ...restItem } = item;
+          const cleanRestItem = Object.fromEntries(
+            Object.entries(restItem).filter(([_, v]) => v !== undefined)
+          );
+          orderItems.push({
+            id,
+            ...cleanRestItem,
+            name: details.name || item.name || '',
+            image: details.images?.[0] || item.img || item.image || '',
+            price: details.price || item.price || 0,
+            quantity: item.quantity || 1,
+          });
+        }
+      }
+    });
+
+    if (orderItems.length === 0) {
+      setSnackbar({
+        open: true,
+        message: t('emptyCart') || 'Cart is empty',
+        severity: 'error',
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -209,32 +359,6 @@ export default function CartPageUi() {
         transaction.update(projectDetailsRef, { lastOrderNumber: newOrderNumber });
 
         const orderRef = doc(db, 'orders', formattedOrderNumber);
-
-        const orderItems = Object.keys(cart.items)
-          .filter((id) => selectedItems.includes(id))
-          .map((id) => {
-            const item = cart.items[id];
-            const details = cartDetails ? cartDetails[id] : {};
-            const { options, ...restItem } = item;
-            const flattenedOptions = options ? { ...options } : {};
-
-            // Sanitize restItem and flattenedOptions to remove undefined values
-            const cleanRestItem = Object.fromEntries(
-              Object.entries(restItem).filter(([_, v]) => v !== undefined)
-            );
-            const cleanOptions = Object.fromEntries(
-              Object.entries(flattenedOptions).filter(([_, v]) => v !== undefined)
-            );
-
-            return {
-              id,
-              ...cleanRestItem,
-              ...cleanOptions,
-              price: details.price || item.price || 0,
-              name: details.name || item.name || '',
-              image: details.images?.[0] || item.image || '',
-            };
-          });
 
         const newOrder = {
           orderNumber: formattedOrderNumber,

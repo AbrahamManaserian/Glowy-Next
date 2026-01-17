@@ -6,7 +6,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import { NoSearchIcon, ShoppingBasketIcon } from '@/_components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '@/firebase';
 // import Link from 'next/link';
@@ -19,6 +19,7 @@ import { ProductImageComp } from './ProductImageComp';
 import ItemCart, { handleClickAddToCart } from '@/_components/carts/ItemCart';
 import { getBuyTogetherItems } from '@/app/api/item/relatedItems/route';
 import { useTranslations } from 'next-intl';
+import { StyledBadge } from '../../../cart/_components/CartDrawer';
 
 function ProductNotFound() {
   const t = useTranslations('ProductPage');
@@ -120,6 +121,7 @@ const PageLoading = ({ loading }) => {
 
 export default function ProductPageUi({ product, data }) {
   const t = useTranslations('ProductPage');
+  const searchParams = useSearchParams();
   let { buyTogetherItems, sameBrandItems, similarProducts } = data ? use(data) : [];
   const [togetherItems, setTogetherItems] = useState(buyTogetherItems);
 
@@ -129,8 +131,23 @@ export default function ProductPageUi({ product, data }) {
     window.scrollTo(0, 0);
   }, []);
 
+  useEffect(() => {
+    const urlOption = searchParams.get('option');
+    if (urlOption && product.availableOptions?.length > 0) {
+      const matchingOptionIndex = product.availableOptions.findIndex(
+        (opt) => opt[product.optionKey] === urlOption
+      );
+      if (matchingOptionIndex !== -1) {
+        setItem((prev) => ({ ...prev, ...prev.availableOptions[matchingOptionIndex], id: prev.id }));
+      }
+    }
+  }, [searchParams, product]);
+
   const [loading, setLoading] = useState(false);
-  const [availableOption, setAvailableOption] = useState(product.id);
+  const [availableOption, setAvailableOption] = useState(() => {
+    const urlOption = searchParams.get('option');
+    return urlOption || product[product.optionKey];
+  });
   const [quantity, setQuantity] = useState(1);
   const { cart, setCart, user, userData } = useGlobalContext();
   const router = useRouter();
@@ -180,19 +197,35 @@ export default function ProductPageUi({ product, data }) {
     }
   };
 
-  const changeOption = async (id) => {
-    if (id === availableOption) return;
+  const changeOption = async (id, option) => {
+    if (option === availableOption) return;
     setLoading(true);
-    setAvailableOption(id);
+    setAvailableOption(option);
     try {
-      const productRef = doc(db, 'allProducts', id);
-      const docSnap = await getDoc(productRef);
-      if (docSnap.data()) {
-        if (item.price !== docSnap.data().price) {
-          const buyTogetherItems = await getBuyTogetherItems(20000 - docSnap.data().price, docSnap.data().id);
-          setTogetherItems(buyTogetherItems);
+      if (item.optionHasId) {
+        // Fetch new item data from API
+        const res = await fetch(`/api/product?id=${encodeURIComponent(id)}`);
+        if (!res.ok) {
+          setLoading(false);
+          return;
         }
-        setItem(docSnap.data());
+        const newItemData = await res.json();
+        if (newItemData) {
+          if (item.price !== newItemData.price) {
+            const buyTogetherItems = await getBuyTogetherItems(20000 - newItemData.price, newItemData.id);
+            setTogetherItems(buyTogetherItems);
+          }
+          setItem(newItemData);
+        }
+      } else {
+        // Check if clicking the parent/first option
+        if (id === product.id) {
+          // Reset to original product
+          setItem(product);
+        } else {
+          // Merge local state from availableOptions by index
+          setItem((prev) => ({ ...prev, ...prev.availableOptions[id], id: prev.id }));
+        }
       }
       setLoading(false);
     } catch (e) {
@@ -202,9 +235,16 @@ export default function ProductPageUi({ product, data }) {
   };
 
   const handelClickBuyNow = () => {
-    handleClickAddToCart(item, quantity, setCart, cart);
+    handleClickAddToCart(item, quantity, setCart, cart, availableOption);
     router.push('/cart');
   };
+
+  const badgeContent =
+    cart?.items[item.id] && cart?.items[item.id]?.options
+      ? cart?.items[item.id]?.options?.[availableOption]
+      : cart?.items[item.id]
+      ? cart.items[item.id]?.quantity
+      : 0;
 
   return (
     <Grid sx={{ m: { xs: '0 15px 60px 15px', sm: '0 25px 60px 25px' } }} container size={12}>
@@ -376,10 +416,10 @@ export default function ProductPageUi({ product, data }) {
                       {t('availableOptions')} ({product.optionKey})
                     </Typography>
                     <Box
-                      onClick={() => changeOption(product.id)}
+                      onClick={() => changeOption(product.id, product[product.optionKey])}
                       sx={{
                         border:
-                          availableOption === product.id
+                          availableOption === product[product.optionKey]
                             ? 'solid 1.5px rgba(69, 73, 69, 0.53)'
                             : 'solid 1px rgba(44, 43, 43, 0.11)',
                         p: '6px 15px',
@@ -399,10 +439,10 @@ export default function ProductPageUi({ product, data }) {
                         return (
                           <Box
                             key={index}
-                            onClick={() => changeOption(option.id)}
+                            onClick={() => changeOption(option.id, option[item.optionKey])}
                             sx={{
                               border:
-                                option.id === availableOption
+                                option[item.optionKey] === availableOption
                                   ? 'solid 1.5px rgba(69, 73, 69, 0.53)'
                                   : 'solid 1px rgba(44, 43, 43, 0.11)',
                               p: '6px 15px',
@@ -456,10 +496,15 @@ export default function ProductPageUi({ product, data }) {
                   </Box>
                   <Box sx={{ display: 'flex', mt: '15px' }}>
                     <Button
-                      onClick={() => handleClickAddToCart(item, quantity, setCart, cart)}
+                      onClick={() => handleClickAddToCart(item, quantity, setCart, cart, availableOption)}
                       sx={{ bgcolor: '#2B3445', borderRadius: '10px' }}
                       variant="contained"
-                      endIcon={<ShoppingBasketIcon color={'white'} />}
+                      // endIcon={<ShoppingBasketIcon color={'white'} />}
+                      endIcon={
+                        <StyledBadge badgeContent={badgeContent}>
+                          <ShoppingBasketIcon color={'white'} size={'25'} />
+                        </StyledBadge>
+                      }
                     >
                       {t('addToCart')}
                     </Button>

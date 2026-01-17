@@ -17,28 +17,93 @@ import { auth, db } from '@/firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useTranslations } from 'next-intl';
 
+// export const handleClickAddToCart = async (item, quantity, setCart, cart, option) => {
+//   console.log(item);
+//   const user = auth.currentUser;
+//   let updatedCart;
+
+//   if (cart.items[item.id]) {
+//     updatedCart = structuredClone(cart);
+//     if (!item.optionHasId) {
+//       console.log(item);
+//     } else {
+//       updatedCart.items[item.id].quantity = updatedCart.items[item.id].quantity + quantity;
+//       updatedCart.length = updatedCart.length + quantity;
+//     }
+
+//     updatedCart.items[item.id].quantity = updatedCart.items[item.id].quantity + quantity;
+//     updatedCart.length = updatedCart.length + quantity;
+//   } else {
+//     const newItem = {
+//       id: item.id,
+//       img: item.smallImage.file,
+//       quantity: quantity,
+//       price: item.price,
+//       name: item.brand + ' - ' + item.model,
+//     };
+//     updatedCart = structuredClone(cart);
+
+//     updatedCart.items[item.id] = newItem;
+//     updatedCart.length = cart.length + quantity;
+//   }
+
+//   setCart(updatedCart);
+
+//   if (user) {
+//     try {
+//       const userRef = doc(db, 'users', user.uid);
+//       await setDoc(userRef, { cart: updatedCart }, { merge: true });
+//     } catch (error) {
+//       console.error('Error saving cart to Firestore:', error);
+//     }
+//   } else {
+//     localStorage.setItem('cart', JSON.stringify(updatedCart));
+//   }
+// };
+
 export const handleClickAddToCart = async (item, quantity, setCart, cart, option) => {
-  console.log(option === '');
   const user = auth.currentUser;
   let updatedCart;
 
   if (cart.items[item.id]) {
     updatedCart = structuredClone(cart);
 
-    updatedCart.items[item.id].quantity = updatedCart.items[item.id].quantity + quantity;
-    updatedCart.length = updatedCart.length + quantity;
+    if (!item.optionHasId && item.availableOptions.length > 0) {
+      updatedCart.items[item.id].quantity = updatedCart.items[item.id].quantity + quantity;
+      updatedCart.items[item.id].options[option] =
+        (updatedCart.items[item.id].options[option] || 0) + quantity;
+      updatedCart.length = updatedCart.length + quantity;
+    } else {
+      updatedCart.items[item.id].quantity = updatedCart.items[item.id].quantity + quantity;
+      updatedCart.length = updatedCart.length + quantity;
+    }
   } else {
-    const newItem = {
-      id: item.id,
-      img: item.smallImage.file,
-      quantity: quantity,
-      price: item.price,
-      name: item.brand + ' - ' + item.model,
-    };
-    updatedCart = structuredClone(cart);
+    if (!item.optionHasId && item.availableOptions.length > 0) {
+      const newItem = {
+        id: item.id,
+        img: item.smallImage.file,
+        quantity: quantity,
+        price: item.price,
+        name: item.brand + ' - ' + item.model,
+        options: { [item[item.optionKey]]: quantity },
+      };
 
-    updatedCart.items[item.id] = newItem;
-    updatedCart.length = cart.length + quantity;
+      updatedCart = structuredClone(cart);
+      updatedCart.items[item.id] = newItem;
+      updatedCart.length = cart.length + quantity;
+    } else {
+      const newItem = {
+        id: item.id,
+        img: item.smallImage.file,
+        quantity: quantity,
+        price: item.price,
+        name: item.brand + ' - ' + item.model,
+      };
+
+      updatedCart = structuredClone(cart);
+      updatedCart.items[item.id] = newItem;
+      updatedCart.length = cart.length + quantity;
+    }
   }
 
   setCart(updatedCart);
@@ -56,6 +121,7 @@ export const handleClickAddToCart = async (item, quantity, setCart, cart, option
 };
 
 export default function ItemCart({ item }) {
+  // console.log(item);
   const t = useTranslations('ShopPage');
   const tProduct = useTranslations('ProductPage');
   const router = useRouter();
@@ -85,7 +151,7 @@ export default function ItemCart({ item }) {
     setAnchorEl(null);
 
     // If an id is provided, fetch the full product (cached) and set it as selected
-    if (id) {
+    if (selectedItem.optionHasId) {
       try {
         setIsFetching(true);
         await fetchProductById(id);
@@ -94,6 +160,10 @@ export default function ItemCart({ item }) {
       } finally {
         setIsFetching(false);
       }
+    } else if (id === 'parent') {
+      setSelectedItem(item);
+    } else {
+      setSelectedItem((prev) => ({ ...prev, ...prev.availableOptions[id], id: prev.id, selectedOption: id }));
     }
   };
 
@@ -123,6 +193,15 @@ export default function ItemCart({ item }) {
   }, [item]);
 
   const displayItem = selectedItem || item;
+
+  const badgeContent =
+    cart?.items[selectedItem.id] && cart?.items[selectedItem.id]?.options
+      ? cart?.items[selectedItem.id]?.options?.[selectedOption]
+      : cart?.items[selectedItem.id]
+      ? cart.items[selectedItem.id]?.quantity
+      : 0;
+  // console.log(num);
+
   return (
     <Grid
       sx={{
@@ -140,6 +219,7 @@ export default function ItemCart({ item }) {
       container
       direction={'column'}
     >
+      {/* <Button onClick={() => console.log(cart)}>aas</Button> */}
       {isFetching && (
         <div
           style={{
@@ -225,7 +305,9 @@ export default function ItemCart({ item }) {
           style={{
             WebkitTapHighlightColor: 'rgba(182, 212, 238, 0.11)',
           }}
-          href={`/item/${displayItem?.id || item.id}`}
+          href={`/item/${displayItem?.id || item.id}?option=${
+            !selectedItem.optionHasId ? encodeURIComponent(selectedOption) : ''
+          }`}
         >
           <Box
             sx={{
@@ -327,7 +409,7 @@ export default function ItemCart({ item }) {
           >
             <MenuItem
               selected={item[item.optionKey] === selectedOption}
-              onClick={() => handleSelectOption(item[item.optionKey], item.id)}
+              onClick={() => handleSelectOption(item[item.optionKey], 'parent')}
             >
               {item[item.optionKey]}
             </MenuItem>
@@ -371,7 +453,8 @@ export default function ItemCart({ item }) {
           style={{ cursor: 'pointer', WebkitTapHighlightColor: 'Background', marginBottom: '5px' }}
           onClick={() => handleClickAddToCart(displayItem, 1, setCart, cart, selectedOption)}
         >
-          <StyledBadge badgeContent={cart.items ? cart.items[displayItem.id]?.quantity : 0}>
+          {/* <StyledBadge badgeContent={cart.items ? cart.items[displayItem.id]?.quantity : 0}> */}
+          <StyledBadge badgeContent={badgeContent}>
             <ShoppingBasketIcon size={'25'} />
           </StyledBadge>
         </div>

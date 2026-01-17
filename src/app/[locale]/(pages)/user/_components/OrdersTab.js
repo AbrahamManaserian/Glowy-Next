@@ -116,6 +116,7 @@ const formatDate = (value) => {
 
 export default function OrdersTab({ orders }) {
   const t = useTranslations('UserPage.ordersTab');
+  const tProduct = useTranslations('ProductPage');
   const { user } = useGlobalContext();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -353,27 +354,42 @@ export default function OrdersTab({ orders }) {
                               '&:last-child': { mb: 0 },
                             }}
                           >
-                            <Box
-                              sx={{
-                                position: 'relative',
-                                width: 60,
-                                height: 60,
-                                flexShrink: 0,
-                                mr: 2,
-                                borderRadius: '8px',
-                                overflow: 'hidden',
-                                border: '1px solid #eee',
-                              }}
+                            <Link
+                              href={`/item/${item.id}${
+                                item.selectedOption ? `?option=${item.selectedOption}` : ''
+                              }`}
+                              style={{ textDecoration: 'none' }}
                             >
-                              <OrderImage
-                                src={item.img || item.image || item.imageUrl || '/placeholder.png'}
-                                alt={item.name}
-                              />
-                            </Box>
+                              <Box
+                                sx={{
+                                  position: 'relative',
+                                  width: 60,
+                                  height: 60,
+                                  flexShrink: 0,
+                                  mr: 2,
+                                  borderRadius: '8px',
+                                  overflow: 'hidden',
+                                  border: '1px solid #eee',
+                                }}
+                              >
+                                <OrderImage
+                                  src={item.img || item.image || item.imageUrl || '/placeholder.png'}
+                                  alt={item.name}
+                                />
+                              </Box>
+                            </Link>
                             <Box sx={{ flexGrow: 1 }}>
                               <Typography variant="body2" fontWeight="500">
                                 {item.name}
                               </Typography>
+                              {item.selectedOption && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{ color: '#666', display: 'block', mt: 0.5, mb: '4px' }}
+                                >
+                                  {tProduct(`optionKeys.${item.selectedOptionKey}`)} : {item.selectedOption}
+                                </Typography>
+                              )}
                               <Typography variant="caption" color="text.secondary" display="block">
                                 {item.quantity} * {item.price?.toLocaleString()} ֏
                               </Typography>

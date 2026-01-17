@@ -15,11 +15,14 @@ const persistCart = async (cartItems) => {
   }
 };
 
-export const increaseQuantity = (id, cart, setCart) => {
+export const increaseQuantity = (id, cart, setCart, option) => {
   try {
     let cartItems = structuredClone(cart);
     ++cartItems.length;
     ++cartItems.items[id].quantity;
+    if (option) {
+      ++cartItems.items[id].options[option];
+    }
 
     persistCart(cartItems);
     setCart(cartItems);
@@ -31,12 +34,21 @@ export const increaseQuantity = (id, cart, setCart) => {
   }
 };
 
-export const deleteItem = (id, cart, setCart) => {
+export const deleteItem = (id, cart, setCart, option) => {
   try {
     let cartItems = structuredClone(cart);
-    cartItems.length = cartItems.length - cartItems.items[id].quantity;
-    delete cartItems.items[id];
-
+    if (option) {
+      cartItems.length = cartItems.length - cartItems.items[id].options[option];
+      if (cartItems.items[id].quantity - cartItems.items[id].options[option] < 1) {
+        delete cartItems.items[id];
+      } else {
+        cartItems.items[id].quantity = cartItems.items[id].quantity - cartItems.items[id].options[option];
+        delete cartItems.items[id].options[option];
+      }
+    } else {
+      cartItems.length = cartItems.length - cartItems.items[id].quantity;
+      delete cartItems.items[id];
+    }
     persistCart(cartItems);
     setCart(cartItems);
   } catch (error) {
@@ -47,18 +59,34 @@ export const deleteItem = (id, cart, setCart) => {
   }
 };
 
-export const decreaseQuantity = (id, cart, setCart) => {
+export const decreaseQuantity = (id, cart, setCart, option) => {
   try {
     let cartItems = structuredClone(cart);
     --cartItems.length;
 
-    if (cart.items[id].quantity < 2) {
-      delete cartItems.items[id];
+    if (option) {
+      if (cart.items[id].quantity < 2) {
+        delete cartItems.items[id];
+      } else {
+        --cartItems.items[id].quantity;
+      }
+
+      if (cart.items[id].options[option] < 2) {
+        delete cartItems.items[id].options[option];
+      } else {
+        --cartItems.items[id].options[option];
+      }
+      persistCart(cartItems);
+      setCart(cartItems);
     } else {
-      --cartItems.items[id].quantity;
+      if (cart.items[id].quantity < 2) {
+        delete cartItems.items[id];
+      } else {
+        --cartItems.items[id].quantity;
+      }
+      persistCart(cartItems);
+      setCart(cartItems);
     }
-    persistCart(cartItems);
-    setCart(cartItems);
   } catch (error) {
     const emptyCart = { length: 0, items: {} };
     persistCart(emptyCart);

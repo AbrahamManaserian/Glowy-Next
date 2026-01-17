@@ -23,8 +23,8 @@ export async function GET(request) {
       },
       [`product-${id}`],
       {
-        revalidate: 3600, // Cache for 1 hour
-        // revalidate: 1, // Cache for 1 hour
+        // revalidate: 3600, // Cache for 1 hour
+        revalidate: 1, // Cache for 1 hour
         tags: [`product-${id}`],
       }
     )();
