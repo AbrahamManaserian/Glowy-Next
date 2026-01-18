@@ -5,7 +5,10 @@ import CartItemView from './CartItemView';
 
 export default function CartList({ cartDetails, cart, setCart, padding = { xs: '0 16px', sm: '0 24px' } }) {
   if (!cart || !cart.items || Object.keys(cart.items).length === 0) return null;
-if (Object.keys(cartDetails)) return null;
+  if (!cartDetails || !Object.keys(cartDetails).length) {
+    return null;
+  }
+  
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       {Object.keys(cart.items).map((key) => (
