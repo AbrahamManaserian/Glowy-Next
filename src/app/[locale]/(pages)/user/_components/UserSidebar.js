@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase';
 import { useGlobalContext } from '@/app/GlobalContext';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 
 export default function UserSidebar() {
   const t = useTranslations('UserPage');

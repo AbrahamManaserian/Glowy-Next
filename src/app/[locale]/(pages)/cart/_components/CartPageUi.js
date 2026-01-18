@@ -21,7 +21,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import LoginIcon from '@mui/icons-material/Login';
 import RedeemIcon from '@mui/icons-material/Redeem';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-// import Link from 'next/link';
+
 import { Link } from '@/i18n/routing';
 import { useSearchParams, usePathname } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';

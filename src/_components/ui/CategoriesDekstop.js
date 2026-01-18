@@ -17,7 +17,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-// import Link from 'next/link';
+
 import { Link } from '@/i18n/routing';
 // import { categoriesObj } from '@/app/admin/add-product/page';
 import { categoriesObj } from '@/app/[locale]/(pages)/admin1/add-product/page';

@@ -9,7 +9,7 @@ import { useGlobalContext } from '@/app/GlobalContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '@/firebase';
-// import Link from 'next/link';
+
 import { Link } from '@/i18n/routing';
 // import { ShoppingBasketIcon } from '@/components/icons';
 import MovingIcon from '@mui/icons-material/Moving';

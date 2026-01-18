@@ -151,8 +151,7 @@ const ColllapseItem = ({ prop, name, open, handleCangeCollapse }) => {
   );
 };
 
-import Link from 'next/link';
-
+import { Link } from '@/i18n/routing';
 export const typeMapping = {
   Men: 'men',
   Women: 'women',

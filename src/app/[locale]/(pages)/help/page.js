@@ -4,7 +4,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import {
   Accordion,

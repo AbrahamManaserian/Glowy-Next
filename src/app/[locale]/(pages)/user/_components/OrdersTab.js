@@ -23,7 +23,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/firebase';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 
 const OrderImage = ({ src, alt }) => {
   const [imgSrc, setImgSrc] = useState(null);

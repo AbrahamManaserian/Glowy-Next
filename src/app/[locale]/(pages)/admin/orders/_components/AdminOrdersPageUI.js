@@ -25,7 +25,7 @@ import {
   MenuItem,
 } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import Image from 'next/image';
 import { CustomPagination } from '@/_components/products/PageUi';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';

@@ -4,7 +4,7 @@ import { Box, Button, IconButton, Paper, Typography, Grid } from '@mui/material'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { ShoppingBasketIcon } from '@/_components/icons';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { handleClickAddToCart } from '@/_components/carts/ItemCart';
 import { handleAddItemToWishList } from '@/_functions/hadleAddItemToWishList';

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Container, Typography, Box, Grid, Button, Paper, Stack, Skeleton } from '@mui/material';
 import { Spa, Favorite, Diamond, LocalShipping, ArrowForward } from '@mui/icons-material';
-// import Link from 'next/link';
+
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';

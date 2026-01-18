@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { Grid } from '@mui/material';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 
 import { AdminProvider } from './_components/AdminContext';
 import AdminNavBar from './_components/AdminNavBar';

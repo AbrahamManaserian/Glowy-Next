@@ -5,7 +5,7 @@ import { Badge, Box, Button, Drawer, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useEffect, useState } from 'react';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { ShoppingBasketIcon } from '@/_components/icons';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
