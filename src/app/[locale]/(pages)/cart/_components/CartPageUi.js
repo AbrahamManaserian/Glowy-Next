@@ -36,6 +36,7 @@ export default function CartPageUi() {
   const t = useTranslations('CartPage');
   const { cart, setCart, cartDetails, user, setOrders, userData, setUserData, initializeData } =
     useGlobalContext();
+  console.log(cart);
   const [cartState, setCartState] = useState({
     shippingMethod: 'free',
     paymentMethod: 'cash',
@@ -1197,7 +1198,8 @@ export default function CartPageUi() {
                     mb: '10px',
                   }}
                 >
-                  {t('checkout')}
+                  {/* {t('checkout')} */}
+                  {t('continue')}
                 </Button>
               </Link>
             ) : (
@@ -1216,7 +1218,8 @@ export default function CartPageUi() {
                 }}
                 disabled
               >
-                {t('orderNow')}
+                {/* {t('checkout')} */}
+                {t('continue')}
               </Button>
             )}
             <Link href="/shop">

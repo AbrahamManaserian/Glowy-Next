@@ -30,7 +30,7 @@ export default function CartItemView({ id, item, productDetails, cart, setCart, 
       {item.options ? (
         Object.keys(item.options).map((opt, ind) => {
           const price =
-            productDetails.availableOptions.find((o) => o[productDetails.optionKey] === opt)?.price ||
+            productDetails?.availableOptions?.find((o) => o[productDetails.optionKey] === opt)?.price ||
             data.price;
           const quantity = item.options[opt];
 

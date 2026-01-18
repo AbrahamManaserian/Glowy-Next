@@ -21,7 +21,6 @@ export default function DetailedCartItem({
   toggleSelection,
   option,
 }) {
-  console.log(item);
   const t = useTranslations('CartPage');
   const tProduct = useTranslations('ProductPage');
   // Use fresh data from server if available, otherwise fallback to local cart data
@@ -155,7 +154,7 @@ export default function DetailedCartItem({
           >
             {name}
           </Typography>
-          {option && (
+          {option && data?.optionKey && (
             <Typography variant="caption" sx={{ color: '#666', display: 'block', mt: 0.5, mb: '4px' }}>
               {tProduct(`optionKeys.${data?.optionKey}`)} : {option}
             </Typography>

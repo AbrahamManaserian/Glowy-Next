@@ -15,7 +15,7 @@ export default function CartItemsList({
   const t = useTranslations('CartPage');
   const firstShopRate = userData?.firstShopp ? 0.2 : 0;
   const extraRate = subtotal >= 20000 ? (user ? (userData?.firstShopp ? 0.05 : 0.1) : 0.1) : 0;
-  console.log(cartDetails);
+
   return (
     <>
       {Object.keys(cart.items).map((id, index) => {
@@ -43,7 +43,7 @@ export default function CartItemsList({
                   isSelected={selectedItems.includes(id + '-' + optionId)}
                   toggleSelection={() => toggleItemSelection(id + '-' + optionId)}
                 />
-                {index === 0 && subtotal < 20000 && (
+                {index === 0 && subtotal < 20000 && optionIndex === 0 && (
                   <Box
                     sx={{
                       mb: '20px',

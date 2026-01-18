@@ -298,6 +298,7 @@
     "orderSuccessUnsignedPrefix": "Thank you — your order is confirmed! Since you checked out without signing in, you can track this order only on the same device and browser where you made the purchase. Please save your order number",
     "orderSuccessUnsignedSuffix": "— you'll need it if you contact support or want more information about your order.",
     "continueShopping": "Continue Shopping",
+    "continue": "Continue",
     "viewOrders": "View My Orders",
     "checkout": "Checkout",
     "cart": "Cart",
