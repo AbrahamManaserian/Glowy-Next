@@ -13,8 +13,9 @@ export default function CartItemsList({
   userData,
 }) {
   const t = useTranslations('CartPage');
-  const firstShopRate = userData?.firstShopp ? 0.2 : 0;
-  const extraRate = subtotal >= 20000 ? (user ? (userData?.firstShopp ? 0.05 : 0.1) : 0.1) : 0;
+  // First shop rate only if email verified
+  const firstShopRate = user?.emailVerified && userData?.firstShopping ? 0.2 : 0;
+  const extraRate = subtotal >= 20000 ? (user ? (userData?.firstShopping ? 0.05 : 0.1) : 0.1) : 0;
 
   return (
     <>
@@ -42,6 +43,7 @@ export default function CartItemsList({
                   extraRate={extraRate}
                   isSelected={selectedItems.includes(id + '-' + optionId)}
                   toggleSelection={() => toggleItemSelection(id + '-' + optionId)}
+                  user={user}
                 />
                 {index === 0 && subtotal < 20000 && optionIndex === 0 && (
                   <Box
@@ -60,7 +62,7 @@ export default function CartItemsList({
                     <Typography sx={{ fontSize: '14px', color: '#e65100', fontWeight: 600 }}>
                       {t('addMoreForDiscount', {
                         amount: (20000 - subtotal).toLocaleString(),
-                        percent: user ? (userData?.firstShopp ? '5%' : '10%') : '10%',
+                        percent: user ? (userData?.firstShopping ? '5%' : '10%') : '10%',
                       })}
                     </Typography>
                   </Box>
@@ -82,6 +84,7 @@ export default function CartItemsList({
               extraRate={extraRate}
               isSelected={selectedItems.includes(id)}
               toggleSelection={() => toggleItemSelection(id)}
+              user={user}
             />
             {index === 0 && subtotal < 20000 && (
               <Box
@@ -100,7 +103,7 @@ export default function CartItemsList({
                 <Typography sx={{ fontSize: '14px', color: '#e65100', fontWeight: 600 }}>
                   {t('addMoreForDiscount', {
                     amount: (20000 - subtotal).toLocaleString(),
-                    percent: user ? (userData?.firstShopp ? '5%' : '10%') : '10%',
+                    percent: user ? (userData?.firstShopping ? '5%' : '10%') : '10%',
                   })}
                 </Typography>
               </Box>

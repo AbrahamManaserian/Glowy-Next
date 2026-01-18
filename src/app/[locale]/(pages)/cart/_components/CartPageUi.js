@@ -28,15 +28,16 @@ import { useEffect, useState, useRef } from 'react';
 import { clearCart } from '../functions/addDeleteIncDecreaseCart';
 import CartItemsList from './CartItemsList';
 import CheckoutForm from './CheckoutForm';
-import { db } from '@/firebase';
+import { db, auth } from '@/firebase';
 import { runTransaction, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { sendEmailVerification } from 'firebase/auth';
 import { useTranslations } from 'next-intl';
 
 export default function CartPageUi() {
   const t = useTranslations('CartPage');
   const { cart, setCart, cartDetails, user, setOrders, userData, setUserData, initializeData } =
     useGlobalContext();
-  console.log(cart);
+
   const [cartState, setCartState] = useState({
     shippingMethod: 'free',
     paymentMethod: 'cash',
@@ -83,26 +84,65 @@ export default function CartPageUi() {
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'error' });
   const [orderSuccess, setOrderSuccess] = useState(null);
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
 
   useEffect(() => {
-    if (cart?.items && !isInitialized.current) {
+    if (cart?.items && cartDetails && Object.keys(cartDetails).length > 0 && !isInitialized.current) {
       const allKeys = [];
       Object.keys(cart.items).forEach((id) => {
         const item = cart.items[id];
+        const details = cartDetails[id];
+
+        // If details not loaded yet, we can't determine stock reliably,
+        // but this effect waits for cartDetails > 0 length.
+        // If specific item details missing, skip checking stock?
+        // defaulting to selected if stock info missing or true.
+
         if (item.options && Object.keys(item.options).length > 0) {
           Object.keys(item.options).forEach((optKey) => {
-            allKeys.push(`${id}-${optKey}`);
+            let inStock = true;
+            if (details?.availableOptions) {
+              const found = details.availableOptions.find((o) => o[details.optionKey] === optKey);
+              if (found && found.inStock === false) inStock = false;
+            } else if (details?.inStock === false) {
+              inStock = false;
+            }
+
+            if (inStock) {
+              allKeys.push(`${id}-${optKey}`);
+            }
           });
         } else {
-          allKeys.push(id);
+          if (details?.inStock !== false) {
+            allKeys.push(id);
+          }
         }
       });
       setSelectedItems(allKeys);
-      if (allKeys.length > 0) {
+      if (allKeys.length > 0 || Object.keys(cart.items).length > 0) {
+        // Mark initialized even if no keys selected, to prevent loop?
+        // Yes, if we processed cart items, we are done.
         isInitialized.current = true;
       }
     }
-  }, [cart]);
+  }, [cart, cartDetails]);
+
+  const hasOutOfStockItems = Object.keys(cart.items).some((id) => {
+    const item = cart.items[id];
+    const details = cartDetails?.[id];
+    if (!details) return false;
+
+    if (item.options && Object.keys(item.options).length > 0) {
+      return Object.keys(item.options).some((optKey) => {
+        if (details.availableOptions) {
+          const found = details.availableOptions.find((o) => o[details.optionKey] === optKey);
+          if (found && found.inStock === false) return true;
+        }
+        return details.inStock === false;
+      });
+    }
+    return details.inStock === false;
+  });
 
   const toggleItemSelection = (id) => {
     if (selectedItems.includes(id)) {
@@ -248,15 +288,23 @@ export default function CartPageUi() {
   }
 
   const shippingSavings = subtotal >= 5000 && shippingCost === 0 ? 1000 : 0;
+
+  // First shop discount requires: signed in user, userData.firstShopping === true, and email verified
+  const isEligibleForFirstShopDiscount = user && userData?.firstShopping;
+  const isFirstShopDiscountActive = isEligibleForFirstShopDiscount && user.emailVerified;
+  const firstShopDiscount = isFirstShopDiscountActive ? subtotal * 0.2 : 0;
+
+  const EXTRA_DISCOUNT_THRESHOLD = 20000;
+  const EXTRA_DISCOUNT_STANDARD_PERCENT = 0.1;
+  const EXTRA_DISCOUNT_REDUCED_PERCENT = 0.05;
+
   const discount =
-    subtotal >= 20000
-      ? user
-        ? userData?.firstShopp
-          ? subtotal * 0.05
-          : subtotal * 0.1
-        : subtotal * 0.1
+    subtotal >= EXTRA_DISCOUNT_THRESHOLD
+      ? isFirstShopDiscountActive
+        ? subtotal * EXTRA_DISCOUNT_REDUCED_PERCENT
+        : subtotal * EXTRA_DISCOUNT_STANDARD_PERCENT
       : 0;
-  const firstShopDiscount = user && userData?.firstShopp ? subtotal * 0.2 : 0;
+
   const totalDiscount = discount + firstShopDiscount;
   const bonus = user && userData ? Math.floor((userData.totalSpent - (userData.bonusUsed || 0)) * 0.03) : 0;
   const appliedBonus = applyBonus ? Math.min(bonus, subtotal + shippingCost - totalDiscount) : 0;
@@ -488,6 +536,27 @@ export default function CartPageUi() {
     }
   };
 
+  const handleSendVerification = async () => {
+    if (user && auth.currentUser) {
+      try {
+        await sendEmailVerification(auth.currentUser);
+        setEmailVerificationSent(true);
+        setSnackbar({
+          open: true,
+          message: t('verificationEmailSent'),
+          severity: 'success',
+        });
+      } catch (error) {
+        console.error('Error sending verification email:', error);
+        setSnackbar({
+          open: true,
+          message: 'Error sending verification email: ' + error.message,
+          severity: 'error',
+        });
+      }
+    }
+  };
+
   if (orderSuccess) {
     return (
       <Box
@@ -684,6 +753,26 @@ export default function CartPageUi() {
           </Link>
         </Box>
       )}
+
+      {isEligibleForFirstShopDiscount && !user.emailVerified && (
+        <Alert
+          severity="warning"
+          sx={{ width: '100%', mb: 3 }}
+          action={
+            <Button
+              color="inherit"
+              size="small"
+              onClick={handleSendVerification}
+              disabled={emailVerificationSent}
+            >
+              {emailVerificationSent ? t('verificationEmailSent') : t('sendVerificationEmail')}
+            </Button>
+          }
+        >
+          {t('verifyEmailForDiscount')}
+        </Alert>
+      )}
+
       <Box sx={{ width: '100%', my: '40px' }}>
         <Stepper
           activeStep={!params.has('checkout') ? 0 : 1}
@@ -702,6 +791,13 @@ export default function CartPageUi() {
           )}
         </Stepper>
       </Box>
+
+      {hasOutOfStockItems && (
+        <Alert severity="warning" sx={{ width: '100%', mb: 3 }}>
+          {t('someItemsOutOfStock')}
+        </Alert>
+      )}
+
       <Box
         sx={{
           display: 'flex',
@@ -854,7 +950,7 @@ export default function CartPageUi() {
               </Typography>
               <Typography sx={{ fontSize: '13px', color: 'rgba(22,63,43,0.85)', fontWeight: 500 }}>
                 {t('discountMessage', {
-                  percent: user ? (userData?.firstShopp ? '5%' : '10%') : '10%',
+                  percent: user ? (userData?.firstShopping ? '5%' : '10%') : '10%',
                 })}
               </Typography>
             </Box>
@@ -1006,7 +1102,7 @@ export default function CartPageUi() {
               }}
             >
               {t('extraDiscount', {
-                percent: user ? (userData?.firstShopp ? '5%' : '10%') : '10%',
+                percent: isFirstShopDiscountActive ? '5%' : '10%',
               })}
             </Typography>
             <Typography
@@ -1024,7 +1120,7 @@ export default function CartPageUi() {
             <Typography sx={{ fontSize: '13px', color: '#e65100', fontWeight: 500 }}>
               {t('addMoreForExtraDiscount', {
                 amount: (20000 - subtotal).toLocaleString(),
-                percent: user ? (userData?.firstShopp ? '5%' : '10%') : '10%',
+                percent: isFirstShopDiscountActive ? '5%' : '10%',
               })}
             </Typography>
           </Box>

@@ -3,8 +3,9 @@
 import { Box, Grid, Typography } from '@mui/material';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 
 const images = [
   '/images/giftCollection/491418281_17894849493207296_8185218575935560017_n.jpg',
@@ -15,7 +16,6 @@ const images = [
 ];
 
 export default function CustumSolutions() {
-  const router = useRouter();
   const t = useTranslations('HomePage.customSolutions');
 
   const arr = [
@@ -53,7 +53,6 @@ export default function CustumSolutions() {
         }}
       >
         <Box
-          onClick={() => router.push(mainItem.path)}
           sx={{
             position: 'relative',
             width: '100%',
@@ -69,17 +68,19 @@ export default function CustumSolutions() {
             },
           }}
         >
-          <Image
-            src={mainItem.image}
-            alt={mainItem.name}
-            fill
-            sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            style={{
-              objectFit: 'cover',
-              transition: 'transform 0.6s ease',
-            }}
-            className="hover-scale"
-          />
+          <Link href={mainItem.path}>
+            <Image
+              src={mainItem.image}
+              alt={mainItem.name}
+              fill
+              sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              style={{
+                objectFit: 'cover',
+                transition: 'transform 0.6s ease',
+              }}
+              className="hover-scale"
+            />
+          </Link>
           <Box
             sx={{
               position: 'absolute',
@@ -136,7 +137,6 @@ export default function CustumSolutions() {
             size={{ xs: 12, sm: 6 }}
           >
             <Box
-              onClick={() => router.push(item.path)}
               sx={{
                 position: 'relative',
                 width: '100%',
@@ -152,17 +152,19 @@ export default function CustumSolutions() {
                 },
               }}
             >
-              <Image
-                src={item.image}
-                alt={item.name}
-                fill
-                sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{
-                  objectFit: 'cover',
-                  transition: 'transform 0.6s ease',
-                }}
-                className="hover-scale"
-              />
+              <Link href={item.path}>
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  fill
+                  sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  style={{
+                    objectFit: 'cover',
+                    transition: 'transform 0.6s ease',
+                  }}
+                  className="hover-scale"
+                />
+              </Link>
 
               <Box
                 sx={{

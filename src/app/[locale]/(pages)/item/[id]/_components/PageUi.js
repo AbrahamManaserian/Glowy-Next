@@ -157,7 +157,7 @@ export default function ProductPageUi({ product, data }) {
     ? Math.round(((item.previousPrice - item.price) / item.previousPrice) * 100)
     : null;
 
-  const isFirstShop = user && userData?.firstShopp;
+  const isFirstShop = user && userData?.firstShopping; 
   const buyTogetherRate = isFirstShop ? 0.05 : 0.1;
   const firstShopRate = isFirstShop ? 0.2 : 0;
   const totalDiscountRate = buyTogetherRate + firstShopRate;

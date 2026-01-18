@@ -103,6 +103,7 @@ export default function SignIn() {
           photoURL: user.photoURL,
           role: 'customer',
           provider: 'google',
+          firstShopping: true,
           createdAt: serverTimestamp(),
         });
         setUserData({
@@ -111,7 +112,8 @@ export default function SignIn() {
           photoURL: user.photoURL,
           role: 'customer',
           provider: 'google',
-          // createdAt: serverTimestamp(),
+          firstShopping: true,
+          createdAt: serverTimestamp(),
         });
       }
 

@@ -67,6 +67,7 @@ export default function SignUp() {
         role: 'customer',
         provider: 'email',
         uid: user.uid,
+        firstShopping: true,
         createdAt: serverTimestamp(),
       });
 
@@ -77,7 +78,8 @@ export default function SignUp() {
         role: 'customer',
         provider: 'email',
         uid: user.uid,
-        // createdAt: serverTimestamp(),
+        firstShopping: true,
+        createdAt: serverTimestamp(),
       });
       // router.push(redirect);
       setTimeout(() => {
@@ -117,6 +119,7 @@ export default function SignUp() {
           photoURL: user.photoURL,
           role: 'customer',
           provider: 'google',
+          firstShopping: true,
           uid: user.uid,
           createdAt: serverTimestamp(),
         });
@@ -129,7 +132,8 @@ export default function SignUp() {
         role: 'customer',
         provider: 'google',
         uid: user.uid,
-        // createdAt: serverTimestamp(),
+        firstShopping: true,
+        createdAt: serverTimestamp(),
       });
 
       setTimeout(() => {

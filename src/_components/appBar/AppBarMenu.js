@@ -738,7 +738,9 @@ export default function AppBarMenu() {
       user
         .getIdTokenResult()
         .then((idTokenResult) => {
-          setIsAdmin(!!idTokenResult.claims.admin);
+         
+          setIsAdmin(!!idTokenResult.claims.isAdmin);
+
         })
         .catch(() => setIsAdmin(false));
     } else {
