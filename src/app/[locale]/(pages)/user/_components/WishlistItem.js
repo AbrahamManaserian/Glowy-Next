@@ -3,7 +3,7 @@
 import { Box, Button, IconButton, Paper, Typography, Grid } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { ShoppingBasketIcon } from '@/_components/icons';
-import Image from 'next/image';
+
 import { Link } from '@/i18n/routing';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { handleClickAddToCart } from '@/_components/carts/ItemCart';
@@ -36,27 +36,15 @@ export default function WishlistItem({ item }) {
     >
       <Grid container spacing={2} alignItems="center">
         {/* Image */}
-        <Grid size={{ xs: 6 }}>
+        <Grid container size={{ xs: 6 }}>
           <Link href={`/item/${item.id}`} style={{ textDecoration: 'none' }}>
-            <Box
-              sx={{
-                position: 'relative',
-                width: '100%',
-                paddingTop: '100%', // 1:1 Aspect Ratio
-                borderRadius: '8px',
-                overflow: 'hidden',
-                bgcolor: '#f5f5f5',
-              }}
-            >
-              {item.smallImage?.file && (
-                <Image
-                  src={item.smallImage.file}
-                  alt={item.name || 'Product Image'}
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
-              )}
-            </Box>
+            {item.smallImage?.file && (
+              <img
+                src={item.smallImage.file}
+                alt={item.name || 'Product Image'}
+                style={{ width: '100%', height: '100%', objectFit: 'fill' }}
+              />
+            )}
           </Link>
         </Grid>
 

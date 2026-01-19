@@ -2,7 +2,7 @@
 
 import { Box, Grid, Typography } from '@mui/material';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
-import Image from 'next/image';
+
 
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
@@ -69,7 +69,7 @@ export default function CustumSolutions() {
           }}
         >
           <Link href={mainItem.path}>
-            <Image
+            <img
               src={mainItem.image}
               alt={mainItem.name}
               fill
@@ -77,6 +77,8 @@ export default function CustumSolutions() {
               style={{
                 objectFit: 'cover',
                 transition: 'transform 0.6s ease',
+                width: '100%',
+                height: '100%',
               }}
               className="hover-scale"
             />
@@ -153,14 +155,16 @@ export default function CustumSolutions() {
               }}
             >
               <Link href={item.path}>
-                <Image
+                <img
                   src={item.image}
                   alt={item.name}
                   fill
-                  sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  // sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   style={{
                     objectFit: 'cover',
                     transition: 'transform 0.6s ease',
+                    width: '100%',
+                    height: '100%',
                   }}
                   className="hover-scale"
                 />

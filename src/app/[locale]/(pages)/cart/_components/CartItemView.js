@@ -4,7 +4,7 @@ import { Box, IconButton, Typography, Checkbox } from '@mui/material';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import Image from 'next/image';
+
 import { Link } from '@/i18n/routing';
 import { decreaseQuantity, deleteItem, increaseQuantity } from '../functions/addDeleteIncDecreaseCart';
 import { useTranslations } from 'next-intl';
@@ -78,11 +78,11 @@ export default function CartItemView({ id, item, productDetails, cart, setCart, 
                     justifyContent: 'center',
                   }}
                 >
-                  <Image
+                  <img
                     src={img}
                     alt={name}
-                    width={200}
-                    height={200}
+                    // width={200}
+                    // height={200}
                     style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                   />
                 </Box>
@@ -210,13 +210,7 @@ export default function CartItemView({ id, item, productDetails, cart, setCart, 
                 justifyContent: 'center',
               }}
             >
-              <Image
-                src={img}
-                alt={name}
-                width={200}
-                height={200}
-                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              />
+              <img src={img} alt={name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </Box>
           </Link>
 

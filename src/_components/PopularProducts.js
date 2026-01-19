@@ -2,7 +2,7 @@
 
 import { Box, Grid, Rating, Typography } from '@mui/material';
 import { useState, useRef, useEffect, useMemo } from 'react';
-import Image from 'next/image';
+
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
@@ -109,8 +109,8 @@ export default function PopularProducts({ popularProducts }) {
                   flexShrink: 0,
                 }}
               >
-                <Image
-                  src={item.mainImage?.url || item.mainImage?.file || '/images/placeholder.jpg'}
+                <img
+                  src={item.smallImage?.url || item.smallImage?.file || '/images/placeholder.jpg'}
                   alt={item.title || 'Product'}
                   width={200}
                   height={200}

@@ -28,8 +28,7 @@ import { useEffect, useState, useRef } from 'react';
 import { clearCart } from '../functions/addDeleteIncDecreaseCart';
 import CartItemsList from './CartItemsList';
 import CheckoutForm from './CheckoutForm';
-import { db, auth } from '@/firebase';
-import { runTransaction, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { auth } from '@/firebase';
 import { sendEmailVerification } from 'firebase/auth';
 import { useTranslations } from 'next-intl';
 
@@ -393,27 +392,28 @@ export default function CartPageUi() {
     setLoading(true);
 
     try {
-      const newOrderNumber = await runTransaction(db, async (transaction) => {
-        const projectDetailsRef = doc(db, 'details', 'projectDetails');
-        const projectDetailsDoc = await transaction.get(projectDetailsRef);
-
-        if (!projectDetailsDoc.exists()) {
-          throw 'Document details/projectDetails does not exist!';
+      // Prepare payload for Server API
+      const payloadItems = [];
+      Object.keys(cart.items).forEach((id) => {
+        const item = cart.items[id];
+        if (item.options && Object.keys(item.options).length > 0) {
+          Object.entries(item.options).forEach(([optKey, qty]) => {
+            if (selectedItems.includes(`${id}-${optKey}`)) {
+              payloadItems.push({ id, quantity: qty, selectedOption: optKey });
+            }
+          });
+        } else {
+          if (selectedItems.includes(id)) {
+            payloadItems.push({ id, quantity: item.quantity || 1 });
+          }
         }
+      });
 
-        const lastOrderNumber = projectDetailsDoc.data().lastOrderNumber || 0;
-        const newOrderNumber = lastOrderNumber + 1;
-        const formattedOrderNumber = newOrderNumber.toString().padStart(7, '0');
-
-        transaction.update(projectDetailsRef, { lastOrderNumber: newOrderNumber });
-
-        const orderRef = doc(db, 'orders', formattedOrderNumber);
-
-        const newOrder = {
-          orderNumber: formattedOrderNumber,
-          status: 'pending',
-          createdAt: new Date(),
-          userId: user?.uid || null,
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: payloadItems,
           customer: {
             fullName: cartState.fullName || '',
             phoneNumber: cartState.phoneNumber || '',
@@ -421,69 +421,26 @@ export default function CartPageUi() {
             email: cartState.email || '',
             note: cartState.note || '',
           },
-          items: orderItems,
-          financials: {
-            subtotal: subtotal || 0,
-            shippingCost: shippingCost || 0,
-            extraDiscount: discount || 0,
-            firstShopDiscount: firstShopDiscount || 0,
-            bonusApplied: appliedBonus,
-            total: total || 0,
-            savedFromOriginalPrice: savedFromOriginalPrice || 0,
-            shippingSavings: shippingSavings || 0,
-            totalSaved: totalSaved || 0,
-          },
+          userId: user?.uid || null,
+          applyBonus: applyBonus,
           paymentMethod: cartState.paymentMethod || 'cash',
           shippingMethod: cartState.shippingMethod || 'standart',
-        };
-
-        const firestoreOrder = { ...newOrder, createdAt: serverTimestamp() };
-
-        transaction.set(orderRef, firestoreOrder);
-        setOrders((prev) => [{ id: formattedOrderNumber, ...newOrder }, ...prev]);
-
-        return formattedOrderNumber;
+          saveUserInfo: cartState.saveUserInfo,
+        }),
       });
 
-      // Update user data based on checkbox and existing profile fields
-      if (user) {
-        const shouldUpdate = cartState.saveUserInfo || (!userData?.address && !userData?.phoneNumber);
-        if (shouldUpdate) {
-          const userRef = doc(db, 'users', user.uid);
-          const updates = {};
-          if (cartState.address) updates.address = cartState.address;
-          if (cartState.phoneNumber) updates.phoneNumber = cartState.phoneNumber;
-          if (Object.keys(updates).length > 0) {
-            try {
-              await updateDoc(userRef, updates);
-              setUserData((prev) => ({ ...prev, ...updates }));
-            } catch (error) {
-              console.error('Failed to update user data:', error);
-            }
-          }
-        }
-        // Update firstShopp to false after first order
-        if (userData?.firstShopp) {
-          try {
-            const userRef = doc(db, 'users', user.uid);
-            await updateDoc(userRef, { firstShopp: false });
-            setUserData((prev) => ({ ...prev, firstShopp: false }));
-          } catch (error) {
-            console.error('Failed to update firstShopp:', error);
-          }
-        }
-        // Update bonusUsed if bonus applied
-        if (applyBonus && appliedBonus > 0) {
-          try {
-            const userRef = doc(db, 'users', user.uid);
-            const newBonusUsed = (userData.bonusUsed || 0) + appliedBonus / 0.03;
-            await updateDoc(userRef, { bonusUsed: newBonusUsed });
-            setUserData((prev) => ({ ...prev, bonusUsed: newBonusUsed }));
-          } catch (error) {
-            console.error('Failed to update bonusUsed:', error);
-          }
-        }
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Order creation failed');
       }
+
+      const newOrderNumber = result.orderId;
+
+      // Update user data UI state if needed (optional since page reload or re-fetch will update)
+      // We can manually update local userData to reflect firstShop used, bonus used, etc.
+      // But simpler to let the app refresh or user navigate.
+      // However, we must handle guestOrderIds in localStorage
 
       // Save order ID in localStorage for unsigned users
       if (!user) {
@@ -500,35 +457,18 @@ export default function CartPageUi() {
             localStorage.setItem(key, JSON.stringify(arr));
           }
         } catch (err) {
-          // Ignore localStorage errors
           console.error('Failed to update guestOrderIds in localStorage', err);
         }
-      }
-
-      // Send Notification
-      try {
-        await fetch('/api/admin/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderId: newOrderNumber,
-            customerName: cartState.fullName,
-            total: total,
-            phoneNumber: cartState.phoneNumber,
-          }),
-        });
-      } catch (notifyError) {
-        console.error('Notification failed:', notifyError);
       }
 
       clearCart(setCart);
       setOrderSuccess(newOrderNumber);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e) {
-      console.error('Transaction failed: ', e);
+      console.error('Order creation failed: ', e);
       setSnackbar({
         open: true,
-        message: t('orderFailed') + e,
+        message: t('orderFailed') + (e.message || e),
         severity: 'error',
       });
     } finally {

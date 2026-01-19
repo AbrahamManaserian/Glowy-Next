@@ -5,7 +5,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { ShoppingBasketIcon } from '@/_components/icons';
 import { useCallback, useEffect, useState } from 'react';
-import Image from 'next/image';
+
 import { useRouter } from 'next/navigation';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useGlobalContext } from '@/app/GlobalContext';
@@ -119,7 +119,7 @@ export default function FlashDeals({ flashDeals = [] }) {
                       position: 'relative',
                     }}
                   >
-                    <Image
+                    <img
                       src={item.mainImage?.url || item.mainImage?.file || '/images/placeholder.jpg'}
                       alt={item.fullName || item.title}
                       width={300}

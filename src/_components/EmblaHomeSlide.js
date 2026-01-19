@@ -6,7 +6,7 @@ import Autoplay from 'embla-carousel-autoplay';
 import { Box, Button, Grid, Typography, Skeleton } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import Image from 'next/image';
+
 
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -150,12 +150,12 @@ export default function EmblaHomeSlide({ initialSlides = [] }) {
                     }}
                   >
                     <Link href={`/item/${slide.id}`}>
-                      <Image
+                      <img
                         src={slide.image || slide.imageUrl}
                         alt={slide.title || 'Slide Image'}
-                        fill
-                        style={{ objectFit: 'contain' }}
-                        sizes="(max-width: 900px) 100vw, 50vw"
+                        // fill
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                        // sizes="(max-width: 900px) 100vw, 50vw"
                         priority={index === 0}
                       />
                     </Link>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Button, Grid, Typography } from '@mui/material';
-import Image from 'next/image';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -127,11 +127,10 @@ export default function SpecialOffer({ specialOffer: initialOffer }) {
           sx={{ bgcolor: '#4c5e790e', p: '15px', borderRadius: '10px', overflow: 'hidden' }}
         >
           <Box sx={{ position: 'relative', width: '100%', height: '300px' }}>
-            <Image
+            <img
               src={specialOffer.mainImage?.url || specialOffer.mainImage?.file || '/images/placeholder.jpg'}
               alt={specialOffer.fullName || specialOffer.title}
-              fill
-              style={{ objectFit: 'contain' }}
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />
           </Box>
         </Grid>

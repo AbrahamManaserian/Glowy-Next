@@ -14,7 +14,7 @@ import { Link } from '@/i18n/routing';
 // import { ShoppingBasketIcon } from '@/components/icons';
 import MovingIcon from '@mui/icons-material/Moving';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import Image from 'next/image';
+
 import { ProductImageComp } from './ProductImageComp';
 import ItemCart, { handleClickAddToCart } from '@/_components/carts/ItemCart';
 import { getBuyTogetherItems } from '@/app/api/item/relatedItems/route';
@@ -331,7 +331,7 @@ export default function ProductPageUi({ product, data }) {
               <Link
                 style={{ textDecoration: 'none', marginTop: '5px' }}
                 href={`/${item.category}?&subCategory=${encodeURIComponent(
-                  item.subCategory
+                  item.subCategory,
                 )}&brands=${encodeURIComponent(item.brand)}`}
               >
                 <Typography
@@ -637,7 +637,7 @@ export default function ProductPageUi({ product, data }) {
                         boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
                       }}
                     >
-                      <Image
+                      <img
                         width={200}
                         height={200}
                         style={{
@@ -755,9 +755,7 @@ export default function ProductPageUi({ product, data }) {
                             boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
                           }}
                         >
-                          <Image
-                            width={200}
-                            height={200}
+                          <img
                             style={{
                               width: '100%',
                               height: '100%',
@@ -863,7 +861,7 @@ export default function ProductPageUi({ product, data }) {
                           -֏
                           {Math.round(
                             (item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)) *
-                              totalDiscountRate
+                              totalDiscountRate,
                           ).toLocaleString()}
                         </Typography>
                       </Box>
@@ -876,7 +874,7 @@ export default function ProductPageUi({ product, data }) {
                             ֏
                             {Math.round(
                               (item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)) *
-                                firstShopRate
+                                firstShopRate,
                             ).toLocaleString()}
                           </Typography>
                         </Box>
@@ -889,7 +887,7 @@ export default function ProductPageUi({ product, data }) {
                           ֏
                           {Math.round(
                             (item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)) *
-                              buyTogetherRate
+                              buyTogetherRate,
                           ).toLocaleString()}
                         </Typography>
                       </Box>
@@ -909,7 +907,7 @@ export default function ProductPageUi({ product, data }) {
                       <strong>
                         ֏
                         {Math.round(
-                          item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)
+                          item.price + togetherItems.reduce((sum, item) => sum + item.price, 0),
                         ).toLocaleString()}
                       </strong>
                     </Typography>
@@ -941,7 +939,7 @@ export default function ProductPageUi({ product, data }) {
                         ֏
                         {Math.round(
                           (item.price + togetherItems.reduce((sum, item) => sum + item.price, 0)) *
-                            (1 - totalDiscountRate)
+                            (1 - totalDiscountRate),
                         ).toLocaleString()}
                       </strong>
                     </Typography>
@@ -1039,7 +1037,7 @@ export default function ProductPageUi({ product, data }) {
                       <Link
                         style={{ color: '#1976d2', fontWeight: 500, marginLeft: '5px' }}
                         href={`/${item.category}?&subCategory=${encodeURIComponent(
-                          item.subCategory
+                          item.subCategory,
                         )}&brands=${encodeURIComponent(item.brand)}`}
                       >
                         {product.brand}

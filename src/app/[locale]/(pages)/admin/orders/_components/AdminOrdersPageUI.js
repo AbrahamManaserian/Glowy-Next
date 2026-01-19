@@ -26,7 +26,7 @@ import {
 } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Link } from '@/i18n/routing';
-import Image from 'next/image';
+
 import { CustomPagination } from '@/_components/products/PageUi';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -443,7 +443,7 @@ export default function AdminOrdersPageUI({
                               {order.items
                                 ? order.items.reduce(
                                     (sum, it) => sum + (it.quantity ?? it.qty ?? it.count ?? 1),
-                                    0
+                                    0,
                                   )
                                 : '—'}
                             </Typography>
@@ -479,22 +479,22 @@ export default function AdminOrdersPageUI({
                                     order.status === 'pending'
                                       ? 'warning.main'
                                       : order.status === 'delivered'
-                                      ? 'success.main'
-                                      : order.status === 'failed'
-                                      ? 'error.main'
-                                      : order.status === 'inTransit'
-                                      ? 'info.main'
-                                      : 'text.primary',
+                                        ? 'success.main'
+                                        : order.status === 'failed'
+                                          ? 'error.main'
+                                          : order.status === 'inTransit'
+                                            ? 'info.main'
+                                            : 'text.primary',
                                   borderColor:
                                     order.status === 'pending'
                                       ? 'warning.main'
                                       : order.status === 'delivered'
-                                      ? 'success.main'
-                                      : order.status === 'failed'
-                                      ? 'error.main'
-                                      : order.status === 'inTransit'
-                                      ? 'info.main'
-                                      : 'divider',
+                                        ? 'success.main'
+                                        : order.status === 'failed'
+                                          ? 'error.main'
+                                          : order.status === 'inTransit'
+                                            ? 'info.main'
+                                            : 'divider',
                                   background: 'transparent',
                                 }}
                               />
@@ -583,11 +583,12 @@ export default function AdminOrdersPageUI({
                                               flexShrink: 0,
                                             }}
                                           >
-                                            <Image
-                                              src={item.img || '/images/cosmetic/placeholder.jpg'}
+                                            <img
+                                              src={
+                                                item.img || item.image || '/images/cosmetic/placeholder.jpg'
+                                              }
                                               alt={item.name || item.title || item.sku || 'Item'}
-                                              fill
-                                              style={{ objectFit: 'cover' }}
+                                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                             />
                                           </Box>
                                           <Box>
@@ -660,7 +661,7 @@ export default function AdminOrdersPageUI({
                                           order.financials?.subtotal ??
                                             order.financials?.subTotal ??
                                             order.financials?.itemsTotal ??
-                                            0
+                                            0,
                                         )}
                                       </Typography>
                                     </Box>
@@ -688,7 +689,7 @@ export default function AdminOrdersPageUI({
                                         </Typography>
                                         <Typography variant="body2">
                                           {formatAMD(
-                                            order.financials?.savings ?? order.financials?.discount ?? 0
+                                            order.financials?.savings ?? order.financials?.discount ?? 0,
                                           )}
                                         </Typography>
                                       </Box>
@@ -734,7 +735,7 @@ export default function AdminOrdersPageUI({
                                               order.financials?.totalSaved ??
                                                 order.financials?.savings ??
                                                 order.financials?.discount ??
-                                                0
+                                                0,
                                             )}
                                           </Typography>
                                         </Box>

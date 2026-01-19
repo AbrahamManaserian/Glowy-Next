@@ -22,8 +22,6 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Invalid IDs' }, { status: 400 });
     }
 
-    console.log('API Received IDs:', ids);
-
     // Use the cached version. The cache key is automatically generated based on the arguments (ids).
     // Since 'ids' is an array, we need to make sure the cache key is stable.
     // unstable_cache handles arguments, but sorting them before passing ensures A,B and B,A hit the same cache.

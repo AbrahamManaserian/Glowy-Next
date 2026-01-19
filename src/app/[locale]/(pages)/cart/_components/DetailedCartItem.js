@@ -17,7 +17,7 @@ import {
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import Image from 'next/image';
+
 import { decreaseQuantity, deleteItem, increaseQuantity } from '../functions/addDeleteIncDecreaseCart';
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
@@ -169,11 +169,9 @@ export default function DetailedCartItem({
             WebkitTapHighlightColor: 'rgba(43, 137, 219, 0.04)',
           }}
         >
-          <Image
+          <img
             src={img}
             alt=""
-            width={200}
-            height={200}
             style={{
               width: '100%',
               height: 'auto',

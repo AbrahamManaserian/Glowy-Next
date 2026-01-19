@@ -6,7 +6,7 @@ import { Spa, Favorite, Diamond, LocalShipping, ArrowForward } from '@mui/icons-
 
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
+
 
 export default function AboutPage() {
   const t = useTranslations('AboutPage');
@@ -167,11 +167,11 @@ export default function AboutPage() {
                   </Box>
                 ) : (
                   <Box sx={{ width: '100%', height: 150, mb: 2, position: 'relative' }}>
-                    <Image
+                    <img
                       src={store.image}
                       alt={store.city}
-                      fill
-                      style={{ objectFit: 'cover', borderRadius: 8 }}
+                      // fill
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }}
                     />
                   </Box>
                 )}

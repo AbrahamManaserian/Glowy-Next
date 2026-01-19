@@ -7,7 +7,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import useEmblaCarousel from 'embla-carousel-react';
-import Image from 'next/image';
+
 import { useCallback, useEffect, useState } from 'react';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
@@ -152,7 +152,7 @@ export const ProductImageComp = ({ images, idNum }) => {
                         }}
                         onClick={handleOpen}
                       >
-                        <Image
+                        <img
                           width={500}
                           height={500}
                           style={{
@@ -218,7 +218,7 @@ export const ProductImageComp = ({ images, idNum }) => {
                           p: '5px',
                         }}
                       >
-                        <Image
+                        <img
                           width={200}
                           height={200}
                           style={{ width: '100%', height: 'auto', overflow: 'hidden', objectFit: 'contain' }}
