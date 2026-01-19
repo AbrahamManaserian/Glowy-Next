@@ -13,7 +13,6 @@ import {
   Tab,
   CircularProgress,
   Stack,
-  Skeleton,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import React, { useEffect, useState } from 'react';
@@ -21,71 +20,9 @@ import React, { useEffect, useState } from 'react';
 import { useGlobalContext } from '@/app/GlobalContext';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { ref, getDownloadURL } from 'firebase/storage';
-import { storage } from '@/firebase';
+
 import { Link } from '@/i18n/routing';
 
-const OrderImage = ({ src, alt }) => {
-  const [imgSrc, setImgSrc] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-
-    const fetchImage = async () => {
-      if (!src) {
-        if (active) {
-          setImgSrc('/placeholder.png');
-          setLoading(false);
-        }
-        return;
-      }
-
-      if (src.startsWith('http') || src.startsWith('/')) {
-        if (active) {
-          setImgSrc(src);
-          setLoading(false);
-        }
-        return;
-      }
-
-      // Assume it's a firebase storage path
-      try {
-        const storageRef = ref(storage, src);
-        const url = await getDownloadURL(storageRef);
-        if (active) {
-          setImgSrc(url);
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error('Error fetching image URL for', src, err);
-        if (active) {
-          setImgSrc('/placeholder.png');
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchImage();
-
-    return () => {
-      active = false;
-    };
-  }, [src]);
-
-  if (loading) {
-    return <Skeleton variant="rectangular" width="100%" height="100%" />;
-  }
-
-  return (
-    <Image
-      src={imgSrc || '/placeholder.png'}
-      alt={alt || 'Product Image'}
-      fill
-      style={{ objectFit: 'cover' }}
-    />
-  );
-};
 
 const formatDate = (value) => {
   if (value === null || value === undefined) return '—';
@@ -282,10 +219,10 @@ export default function OrdersTab({ orders }) {
                         order.status === 'delivered'
                           ? 'success'
                           : order.status === 'cancelled'
-                          ? 'error'
-                          : order.status === 'pending'
-                          ? 'error'
-                          : 'primary'
+                            ? 'error'
+                            : order.status === 'pending'
+                              ? 'error'
+                              : 'primary'
                       }
                       size="small"
                       sx={{ mr: 1, textTransform: 'capitalize' }}
@@ -372,9 +309,14 @@ export default function OrdersTab({ orders }) {
                                   border: '1px solid #eee',
                                 }}
                               >
-                                <OrderImage
+                                {/* <OrderImage
                                   src={item.img || item.image || item.imageUrl || '/placeholder.png'}
                                   alt={item.name}
+                                /> */}
+                                <img
+                                  src={item.img || item.image || item.imageUrl || '/placeholder.png'}
+                                  alt={item.name || 'Product Image'}
+                                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                                 />
                               </Box>
                             </Link>
