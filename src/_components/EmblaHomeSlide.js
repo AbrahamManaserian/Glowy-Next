@@ -153,7 +153,6 @@ export default function EmblaHomeSlide({ initialSlides = [] }) {
                       <img
                         src={slide.image || slide.imageUrl}
                         alt={slide.title || 'Slide Image'}
-                        // fill
                         style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                         // sizes="(max-width: 900px) 100vw, 50vw"
                         priority={index === 0}

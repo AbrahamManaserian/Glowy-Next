@@ -72,8 +72,6 @@ export default function CustumSolutions() {
             <img
               src={mainItem.image}
               alt={mainItem.name}
-              fill
-              sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
               style={{
                 objectFit: 'cover',
                 transition: 'transform 0.6s ease',
@@ -158,8 +156,6 @@ export default function CustumSolutions() {
                 <img
                   src={item.image}
                   alt={item.name}
-                  fill
-                  // sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   style={{
                     objectFit: 'cover',
                     transition: 'transform 0.6s ease',
