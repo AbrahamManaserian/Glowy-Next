@@ -60,8 +60,7 @@ export default function CustumSolutions() {
             borderRadius: '15px',
             overflow: 'hidden',
             cursor: 'pointer',
-            transform: 'translateZ(0)', // Fix for Safari border-radius clipping
-            backfaceVisibility: 'hidden', // Fix for Safari corner aliasing
+            willChange: 'transform',
             WebkitTapHighlightColor: 'transparent',
             '&:hover p': {
               textDecoration: 'underline',
@@ -72,11 +71,13 @@ export default function CustumSolutions() {
             <img
               src={mainItem.image}
               alt={mainItem.name}
+              loading="lazy"
               style={{
                 objectFit: 'cover',
                 transition: 'transform 0.6s ease',
                 width: '100%',
                 height: '100%',
+                willChange: 'transform',
               }}
               className="hover-scale"
             />
@@ -87,7 +88,7 @@ export default function CustumSolutions() {
               bottom: '40px',
               left: '40px',
               bgcolor: 'rgba(255, 255, 255, 0.6)',
-              backdropFilter: 'blur(4px)',
+              backdropFilter: { xs: 'none', sm: 'blur(4px)' },
               borderRadius: '8px',
               padding: '6px 14px',
               pointerEvents: 'none',
@@ -144,8 +145,7 @@ export default function CustumSolutions() {
                 borderRadius: '15px',
                 overflow: 'hidden',
                 cursor: 'pointer',
-                transform: 'translateZ(0)', // Fix for Safari border-radius clipping
-                backfaceVisibility: 'hidden', // Fix for Safari corner aliasing
+                willChange: 'transform',
                 WebkitTapHighlightColor: 'transparent',
                 '&:hover p': {
                   textDecoration: 'underline',
@@ -156,11 +156,13 @@ export default function CustumSolutions() {
                 <img
                   src={item.image}
                   alt={item.name}
+                  loading="lazy"
                   style={{
                     objectFit: 'cover',
                     transition: 'transform 0.6s ease',
                     width: '100%',
                     height: '100%',
+                    willChange: 'transform',
                   }}
                   className="hover-scale"
                 />
@@ -172,7 +174,7 @@ export default function CustumSolutions() {
                   bottom: '40px',
                   left: '40px',
                   bgcolor: 'rgba(255, 255, 255, 0.6)',
-                  backdropFilter: 'blur(4px)',
+                  backdropFilter: { xs: 'none', sm: 'blur(4px)' },
                   borderRadius: '8px',
                   padding: '6px 14px',
                   pointerEvents: 'none',
