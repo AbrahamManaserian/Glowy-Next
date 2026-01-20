@@ -7,10 +7,10 @@ export default async function FragranceProductPage({ params }) {
   const baseUrl =
     process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://glowy-store-next.netlify.app';
 
-  const res = await fetch(`${baseUrl}/api/item/?id=${id}`, {
-    // cache: 'no-store', // avoids caching issues
+  const res = await fetch(`${baseUrl}/api/product?id=${id}`, {
+    cache: 'no-store', // avoids caching issues
     // cache: 'force-cache', // default
-    next: { revalidate: 360 },
+    // next: { revalidate: 360 },
   });
 
   const product = await res.json();

@@ -1,10 +1,10 @@
 'use client';
 
-import { Box, Button, Grid, Rating, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Box, Button, Grid, Rating, Typography, Menu, MenuItem } from '@mui/material';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-
-
 import { Link } from '@/i18n/routing';
 import { ShoppingBasketIcon } from '@/_components/icons';
 import { useGlobalContext } from '@/app/GlobalContext';
@@ -15,26 +15,49 @@ import { auth, db } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useTranslations } from 'next-intl';
 
-export const handleClickAddToCart = async (item, quantity, setCart, cart) => {
+export const handleClickAddToCart = async (item, quantity, setCart, cart, option) => {
   const user = auth.currentUser;
   let updatedCart;
 
   if (cart.items[item.id]) {
     updatedCart = structuredClone(cart);
-    updatedCart.items[item.id].quantity = updatedCart.items[item.id].quantity + quantity;
-    updatedCart.length = updatedCart.length + quantity;
-  } else {
-    const newItem = {
-      id: item.id,
-      img: item.smallImage.file,
-      quantity: quantity,
-      price: item.price,
-      name: item.brand + ' - ' + item.model,
-    };
-    updatedCart = structuredClone(cart);
 
-    updatedCart.items[item.id] = newItem;
-    updatedCart.length = cart.length + quantity;
+    if (!item.optionHasId && item.availableOptions.length > 0) {
+      updatedCart.items[item.id].quantity = updatedCart.items[item.id].quantity + quantity;
+      updatedCart.items[item.id].options[option] =
+        (updatedCart.items[item.id].options[option] || 0) + quantity;
+      updatedCart.length = updatedCart.length + quantity;
+    } else {
+      updatedCart.items[item.id].quantity = updatedCart.items[item.id].quantity + quantity;
+      updatedCart.length = updatedCart.length + quantity;
+    }
+  } else {
+    if (!item.optionHasId && item.availableOptions.length > 0) {
+      const newItem = {
+        id: item.id,
+        img: item.smallImage.file,
+        quantity: quantity,
+        price: item.price,
+        name: item.brand + ' - ' + item.model,
+        options: { [item[item.optionKey]]: quantity },
+      };
+
+      updatedCart = structuredClone(cart);
+      updatedCart.items[item.id] = newItem;
+      updatedCart.length = cart.length + quantity;
+    } else {
+      const newItem = {
+        id: item.id,
+        img: item.smallImage.file,
+        quantity: quantity,
+        price: item.price,
+        name: item.brand + ' - ' + item.model,
+      };
+
+      updatedCart = structuredClone(cart);
+      updatedCart.items[item.id] = newItem;
+      updatedCart.length = cart.length + quantity;
+    }
   }
 
   setCart(updatedCart);
@@ -52,16 +75,86 @@ export const handleClickAddToCart = async (item, quantity, setCart, cart) => {
 };
 
 export default function ItemCart({ item }) {
+  // console.log(item);
   const t = useTranslations('ShopPage');
+  const tProduct = useTranslations('ProductPage');
   const router = useRouter();
   let newAdded;
 
   const { setWishList, wishList, cart, setCart } = useGlobalContext();
 
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const [selectedOption, setSelectedOption] = useState('');
+  const [menuMinWidth, setMenuMinWidth] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(item);
+  const [isFetching, setIsFetching] = useState(false);
+
+  const handleMenuOpen = (e) => {
+    setAnchorEl(e.currentTarget);
+    try {
+      const w = e.currentTarget.clientWidth;
+      setMenuMinWidth(w);
+    } catch (err) {
+      setMenuMinWidth(null);
+    }
+  };
+  const handleMenuClose = () => setAnchorEl(null);
+  const handleSelectOption = async (value, id) => {
+    setSelectedOption(value);
+    setAnchorEl(null);
+
+    // If an id is provided, fetch the full product (cached) and set it as selected
+    if (selectedItem.optionHasId) {
+      try {
+        setIsFetching(true);
+        await fetchProductById(id);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setIsFetching(false);
+      }
+    } else if (id === 'parent') {
+      setSelectedItem(item);
+    } else {
+      setSelectedItem((prev) => ({ ...prev, ...prev.availableOptions[id], id: prev.id, selectedOption: id }));
+    }
+  };
+
+  const fetchProductById = async (id) => {
+    try {
+      const res = await fetch(`/api/product?id=${encodeURIComponent(id)}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      setSelectedItem(data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching product by id via API:', error);
+      return null;
+    }
+  };
+
   const handelClickBuyNow = (item) => {
-    handleClickAddToCart(item, 1, setCart, cart);
+    handleClickAddToCart(item, 1, setCart, cart, selectedOption);
     router.push('/cart');
   };
+
+  useEffect(() => {
+    if (item) {
+      setSelectedOption(item?.[item.optionKey] || '');
+      setSelectedItem(item);
+    }
+  }, [item]);
+
+  const displayItem = selectedItem || item;
+
+  const badgeContent =
+    cart?.items[selectedItem.id] && cart?.items[selectedItem.id]?.options
+      ? cart?.items[selectedItem.id]?.options?.[selectedOption]
+      : cart?.items[selectedItem.id]
+        ? cart.items[selectedItem.id]?.quantity
+        : 0;
+  // console.log(num);
 
   return (
     <Grid
@@ -71,11 +164,52 @@ export default function ItemCart({ item }) {
         // border: 1,
         flexWrap: 'nowrap',
         position: 'relative',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        // justifyContent: 'space-between',
       }}
       size={12}
       container
       direction={'column'}
     >
+      {/* <Button onClick={() => console.log(cart)}>aas</Button> */}
+      {isFetching && (
+        <div
+          style={{
+            position: 'absolute', // relative to the parent
+            inset: 0,
+            backdropFilter: 'blur(0.5px)',
+            background: 'rgba(255, 255, 255, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '12px',
+            zIndex: 10,
+          }}
+        >
+          <style jsx>{`
+            @keyframes spin {
+              0% {
+                transform: rotate(0deg);
+              }
+              100% {
+                transform: rotate(360deg);
+              }
+            }
+          `}</style>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              border: '4px solid rgba(0,0,0,0.08)',
+              borderTop: '4px solid rgba(33,150,243,1)',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+            }}
+          />
+        </div>
+      )}
       {newAdded && (
         <Typography
           sx={{
@@ -95,7 +229,7 @@ export default function ItemCart({ item }) {
           {t('new')}
         </Typography>
       )}
-      {item.previousPrice && (
+      {displayItem.previousPrice && (
         <Typography
           sx={{
             position: 'absolute',
@@ -125,7 +259,9 @@ export default function ItemCart({ item }) {
           style={{
             WebkitTapHighlightColor: 'rgba(182, 212, 238, 0.11)',
           }}
-          href={`/item/${item.id}`}
+          href={`/item/${displayItem?.id || item.id}?option=${
+            !selectedItem.optionHasId ? encodeURIComponent(selectedOption) : ''
+          }`}
         >
           <Box
             sx={{
@@ -147,65 +283,147 @@ export default function ItemCart({ item }) {
             }}
           >
             <img
-              // width={200}
-              // height={200}
               style={{
                 width: '100%',
                 height: '100%',
                 objectFit: 'contain',
                 overflow: 'hidden',
               }}
-              src={item.smallImage.file}
+              src={displayItem?.smallImage?.file}
               alt="image"
             />
           </Box>
         </Link>
       </div>
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '10px' }}>
-        <Typography sx={{ color: '#263045fb', fontSize: '15px', fontWeight: 500 }}>{item.brand} </Typography>
+        <Typography sx={{ color: '#263045fb', fontSize: '15px', fontWeight: 500 }}>
+          {displayItem?.brand}{' '}
+        </Typography>
         <Typography sx={{ color: '#3c4354a3', fontSize: '12px' }}>
-          {item.size}
-          {item.unit}
+          {displayItem?.size}
+          {displayItem?.unit}
         </Typography>
       </Box>
-      <Typography sx={{ color: '#3c4354fb', fontSize: '13px' }}> {item.model}</Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: '5px' }}>
+
+      {/* menu moved below model */}
+
+      <Typography sx={{ color: '#3c4354fb', fontSize: '13px' }}> {displayItem?.model}</Typography>
+      {item.optionKey && (
+        <Box sx={{ display: 'flex', flexGrow: 20, alignItems: 'flex-end' }}>
+          <Button
+            onClick={handleMenuOpen}
+            endIcon={<ArrowDropDownIcon />}
+            sx={{
+              textTransform: 'none',
+              p: '5px 0',
+              minWidth: '0',
+              width: '100%',
+              cursor: 'pointer',
+              color: 'text.secondary',
+              // '&:hover': { bgcolor: 'action.hover' },
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 0.5,
+              overflow: 'hidden',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 0.5, minWidth: 0 }}>
+              <Typography component="span" sx={{ fontSize: 13, color: 'text.secondary', flex: '0 0 auto' }}>
+                {tProduct(`optionKeys.${displayItem?.optionKey || item.optionKey}`) ||
+                  displayItem?.optionKey ||
+                  item.optionKey}{' '}
+                ({item.availableOptions.length + 1}) :
+              </Typography>
+              <Typography
+                component="span"
+                sx={{
+                  fontSize: 13,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  // flex: 1,
+                  minWidth: 0,
+                  display: 'block',
+                }}
+              >
+                {selectedOption || 'Select'}
+              </Typography>
+            </Box>
+          </Button>
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleMenuClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+            PaperProps={{ sx: { minWidth: menuMinWidth ? `${menuMinWidth}px` : '100%' } }}
+          >
+            <MenuItem
+              selected={item[item.optionKey] === selectedOption}
+              onClick={() => handleSelectOption(item[item.optionKey], 'parent')}
+            >
+              {item[item.optionKey]}
+            </MenuItem>
+            {item.availableOptions.map((option, index) => (
+              <MenuItem
+                key={option.id ?? index}
+                selected={option[item.optionKey] === selectedOption}
+                onClick={() => handleSelectOption(option[item.optionKey], option.id)}
+              >
+                {option[item.optionKey]}
+              </MenuItem>
+            ))}
+          </Menu>
+        </Box>
+      )}
+      <Box
+        sx={{
+          display: 'flex',
+
+          gap: 1,
+          mt: '5px',
+          flexGrow: 1,
+          alignItems: 'flex-end',
+        }}
+      >
         <Typography sx={{ color: '#3c4354fb', fontWeight: 600, fontSize: 16 }}>
-          ${item.price.toLocaleString()}
+          ${displayItem?.price?.toLocaleString()}
         </Typography>
         <Typography sx={{ textDecoration: 'line-through', color: 'gray', fontSize: 14 }}>
-          {item.previousPrice ? `$${item.previousPrice.toLocaleString()}` : ''}
+          {displayItem?.previousPrice ? `$${displayItem.previousPrice.toLocaleString()}` : ''}
         </Typography>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mt: '5px' }}>
         <Rating name="read-only" value={5} readOnly size="small" />
         <Typography sx={{ color: '#3c4354a3', fontSize: 12, lineHeight: '12px' }}>
-          {item.sold ? `${item.sold} ${t('sold')}` : ''}
+          {displayItem?.sold ? `${displayItem.sold} ${t('sold')}` : ''}
         </Typography>
       </Box>
       <Box sx={{ display: 'flex', gap: 1, mt: '10px', alignItems: 'flex-end' }}>
         <div
           style={{ cursor: 'pointer', WebkitTapHighlightColor: 'Background', marginBottom: '5px' }}
-          onClick={() => handleClickAddToCart(item, 1, setCart, cart)}
+          onClick={() => handleClickAddToCart(displayItem, 1, setCart, cart, selectedOption)}
         >
-          <StyledBadge badgeContent={cart.items ? cart.items[item.id]?.quantity : 0}>
+          {/* <StyledBadge badgeContent={cart.items ? cart.items[displayItem.id]?.quantity : 0}> */}
+          <StyledBadge badgeContent={badgeContent}>
             <ShoppingBasketIcon size={'25'} />
           </StyledBadge>
         </div>
-        {wishList.includes(item.id) ? (
+        {wishList.includes(displayItem.id) ? (
           <FavoriteIcon
-            onClick={() => handleAddItemToWishList(item.id, setWishList, wishList)}
+            onClick={() => handleAddItemToWishList(displayItem.id, setWishList, wishList)}
             sx={{ color: '#ff3d00', ml: '5px', mb: '2px' }}
           />
         ) : (
           <FavoriteBorderIcon
-            onClick={() => handleAddItemToWishList(item.id, setWishList, wishList)}
+            onClick={() => handleAddItemToWishList(displayItem.id, setWishList, wishList)}
             sx={{ color: '#ff3d00', ml: '5px', mb: '2px', cursor: 'pointer' }}
           />
         )}
 
         <Button
-          onClick={() => handelClickBuyNow(item)}
+          onClick={() => handelClickBuyNow(displayItem)}
           size="small"
           sx={{
             bgcolor: '#2B3445',

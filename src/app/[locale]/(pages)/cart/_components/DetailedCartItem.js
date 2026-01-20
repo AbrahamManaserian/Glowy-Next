@@ -154,7 +154,7 @@ export default function DetailedCartItem({
         }}
       >
         <Link
-          href={`/item/${data.id}`}
+          href={`/item/${data.id}${option && data?.optionKey ? `?option=${option}` : ''}`}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -244,10 +244,16 @@ export default function DetailedCartItem({
           >
             {name}
           </Typography>
-          {option && data?.optionKey && (
+          {option && data?.optionKey ? (
             <Typography variant="caption" sx={{ color: '#666', display: 'block', mt: 0.5, mb: '4px' }}>
               {tProduct(`optionKeys.${data?.optionKey}`)} : {option}
             </Typography>
+          ) : (
+            data?.optionKey && (
+              <Typography variant="caption" sx={{ color: '#666', display: 'block', mt: 0.5 }}>
+                {tProduct(`optionKeys.${data?.optionKey}`)} : {data[data?.optionKey]}
+              </Typography>
+            )
           )}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Typography

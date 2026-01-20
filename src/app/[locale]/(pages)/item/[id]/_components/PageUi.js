@@ -413,7 +413,7 @@ export default function ProductPageUi({ product, data }) {
                 {product.availableOptions.length > 0 && (
                   <>
                     <Typography sx={{ fontWeight: 500, width: '100%', mb: '10px' }}>
-                      {t('availableOptions')} ({product.optionKey})
+                      {t('availableOptions')} ({t(`optionKeys.${product.optionKey}`)})
                     </Typography>
                     <Box
                       onClick={() => changeOption(product.id, product[product.optionKey])}
